@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : OptTestHarness</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Architecture_73917.html">Architecture</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Compilers_71397.html">Compilers</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Optimizing-Compiler_71401.html">Optimizing Compiler</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : OptTestHarness
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Peter Donald</span>, last modified on Mar 09, 2007
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>For optimizing compiler development, it is sometimes useful to exercise careful control over which classes are compiled, and with which optimization level.  In many cases, a <code>prototype-opt</code> image will suit this process using the command line option <code>-X:aos:initial_compiler=opt</code> combined with <code>-X:aos:enable_recompilation=false</code>.  This configuration invokes the optimizing compiler on each method run.The <code>org.jikesrvm.tools.oth.OptTestHarness</code> program provides even more control over the optimizing compiler.  This driver program allows you to invoke the optimizing compiler as an &quot;application&quot; running on top of the VM.</p>
+
+<h3 id="OptTestHarness-CommandLineOptions">Command Line Options</h3>
+<div class="table-wrap"><table class="confluenceTable"><tbody>
+<tr>
+<td class="confluenceTd"><p> -useBootOptions </p></td>
+<td class="confluenceTd"><p> Use the same OptOptions as the bootimage compiler. </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -longcommandline &lt;filename&gt; </p></td>
+<td class="confluenceTd"><p> Read commands (one per line) from a file </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> +baseline </p></td>
+<td class="confluenceTd"><p> Switch default compiler to baseline </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -baseline </p></td>
+<td class="confluenceTd"><p> Switch default compiler to optimizing </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -load  &lt;class&gt; </p></td>
+<td class="confluenceTd"><p> Load a class </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -class &lt;class&gt; </p></td>
+<td class="confluenceTd"><p> Load a class and compile all its methods </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -method &lt;class&gt; &lt;method&gt; [- or &lt;descrip&gt;] </p></td>
+<td class="confluenceTd"><p> Compile method with default compiler </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -methodOpt &lt;class&gt; &lt;method&gt; [- or &lt;descrip&gt;] </p></td>
+<td class="confluenceTd"><p> Compile method with opt compiler </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -methodBase &lt;class&gt; &lt;method&gt; [- or &lt;descrip&gt;] </p></td>
+<td class="confluenceTd"><p> Compile method with base compiler </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -er &lt;class&gt; &lt;method&gt; [- or &lt;descrip&gt;] {args} </p></td>
+<td class="confluenceTd"><p> Compile with default compiler and execute a method </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -performance </p></td>
+<td class="confluenceTd"><p> Show performance results </p></td>
+</tr>
+<tr>
+<td class="confluenceTd"><p> -oc </p></td>
+<td class="confluenceTd"><p> pass an option to the optimizing compiler </p></td>
+</tr>
+</tbody></table></div>
+
+
+<h3 id="OptTestHarness-Examples">Examples</h3>
+
+<p>To use the <code>OptTestHarness</code> program:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>% rvm org.jikesrvm.tools.oth.OptTestHarness -class Foo
+</pre>
+</div></div>
+<p>will invoke the optimizing compiler on all methods of class <code>Foo.</code></p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>% rvm org.jikesrvm.tools.oth.OptTestHarness -method Foo bar -
+</pre>
+</div></div>
+<p>will invoke the optimizing compiler on the first method <code>bar</code> of class <code>Foo</code> it loads.</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>% rvm org.jikesrvm.tools.oth.OptTestHarness -method Foo bar &#39;(I)V;&#39;
+</pre>
+</div></div>
+<p>will invoke the optimizing compiler on method <code>Foo.bar(I)V;</code>.<br />
+You can specify any number of <code>-method</code> and <code>-class</code> options on the command line.  Any arguments passed to <code>OptTestHarness</code> via <code>-oc</code> will be passed on directly to the optimizing compiler.  So:</p>
+<div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>% rvm org.jikesrvm.tools.oth.OptTestHarness -oc:O1 -oc:print_final_hir=true -method Foo bar -
+</pre>
+</div></div>
+<p>will compile <code>Foo.bar</code> at optimization level <code>O1</code> and print the final HIR. </p>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

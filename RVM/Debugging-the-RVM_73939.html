@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Debugging the RVM</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Care-and-Feeding_73910.html">Care and Feeding</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Debugging the RVM
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Peter Donald</span>, last modified by <span class='editor'> Erik Brangs</span> on Aug 26, 2014
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>This page contains some debugging hints for Jikes RVM. It is assumed that you are familiar with debugging techniques. If you aren't, it is advisable to read a book about the subject.</p><h1 id="DebuggingtheRVM-DebuggingHelpersprovidedbyJikesRVM">Debugging Helpers provided by Jikes RVM</h1><h2 id="DebuggingtheRVM-Assertions">Assertions</h2><p>All debugging should be done with assertion-enabled builds if possible. You can also try using ExtremeAssertion builds.</p><h2 id="DebuggingtheRVM-Options">Options</h2><p>The Jikes RVM and MMTk provide several options to print out debugging information.</p><p>If you're debugging a problem in the optimizing compiler, you can also print out the IR.</p><p>You can also use the options to change the behaviour in various ways (e.g. switch off certain optimizations) if you have a suspicion about the causes of the problem.</p><h2 id="DebuggingtheRVM-DebuggerThread">Debugger Thread</h2><p>Jikes has an interactive debugger that you can invoke by sending SIGQUIT to Jikes while it's running:</p><p>pkill -SIGQUIT JikesRVM</p><p class="external-link">In previous versions of Jikes, that stopped all threads and provided an interactive prompt, but currently it just dumps the state of the VM and continues immediately (that's a known issue: <a href="http://jira.codehaus.org/browse/RVM-570" class="external-link" rel="nofollow">RVM-570</a>).</p><h2 id="DebuggingtheRVM-Debugfieldsinclasses">Debug fields in classes</h2><p>Several classes in the code base provide static boolean fields like DEBUG or VERBOSE which can be set to get more debugging information.</p><h2 id="DebuggingtheRVM-Shutdownhooks">Shutdown hooks</h2><p>You can write custom shutdown hooks to dump gathered information when the VM terminates. Note that shutdown hooks won't be run if the VM is terminated via a signal (see <a href="http://jira.codehaus.org/browse/RVM-555" class="external-link" rel="nofollow">RVM-555</a>)</p><p>Do not use the ExitMonitor from the Callbacks class because it's less reliable.</p><h2 id="DebuggingtheRVM-Tests">Tests</h2><p>The test coverage is poor at the moment. Nevertheless, if you're very lucky, one of the smaller test cases will fail. See <a href="Testing-the-RVM_72032.html">Testing the RVM</a> for details on how to run the tests and define your own.</p><h1 id="DebuggingtheRVM-Tools">Tools</h1><p>There are different tools for debugging Jikes RVM:</p><h2 id="DebuggingtheRVM-GDB">GDB</h2><p>There is a limited amount of C code used to start Jikes RVM. The rvm script will start Jikes RVM using GDB (the GNU debugger) if the first argument is <code>-gdb</code>. Break points can be set in the C code, variables, registers can be expected in the C code.</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -gdb &lt;RVM args&gt; &lt;name of Java application&gt; &lt;application args&gt;</pre>
+</div></div><p>The dynamically created Java code doesn't provide GDB with the necessary symbol information for debugging. As some of the Java code is created in the boot image, it is possible to find the location of some Java methods and to break upon them. To build with debug symbols, you'll need to set the appropriate property as described in <a href="Building-the-RVM_71513.html">Building the RVM</a>.</p><p>Details of how to manually walk the stack in GDB can be found <a href="GDB-Stack-Walking_133922983.html">here</a></p><h2 id="DebuggingtheRVM-rdb">rdb</h2><p><a href="http://sape.inf.usi.ch/rdb" class="external-link" rel="nofollow">rdb</a> is a debugger that was developed specifically for Jikes RVM. It allows you to inspect the bootimage. If you're running Mac OS, you can also use it to debug a running Jikes RVM.</p><h2 id="DebuggingtheRVM-OtherTools">Other Tools</h2><p>Other tools, such as valgrind, are occasionally useful in debugging or understanding the behaviour of JikesRVM.  The rvm script facilitates using these tools with the '-wrap' argument.</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -wrap &quot;&lt;wrapper-script-and-args&gt;&quot; &lt;rest of command line&gt;</pre>
+</div></div><p>For example, cachegrind can be invoked by</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -wrap &quot;/path/to/valgrind --tool=cachegrind&quot; &lt;java-command-line&gt;</pre>
+</div></div><p>The command and arguments immediately after the -wrap argument will be inserted into the script on the command line that invokes the boot image runner.  One useful variant is</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -wrap echo &lt;rest of command line&gt;</pre>
+</div></div><h1 id="DebuggingtheRVM-SpecificDebuggingHints">Specific Debugging Hints</h1><h2 id="DebuggingtheRVM-OptimizingCompilerProblems">Optimizing Compiler Problems</h2><p>To debug problems in the optimizing compiler, use a configuration whose bootimage is compiled with the baseline compiler and which contains the AOS (prototype-opt, BaseAdaptive*). Faster configurations (such as development) have the drawback of a longer bootimage compilation time which won't be amortized unless the problem occurs late.</p><p>It is advisable to use -X:vm:errorsFatal=true when debugging optimizing compiler problems. This will prevent the optimizing compiler from reverting to the baseline compiler for certain kinds of errors.</p><p>It is strongly recommended to run with advice file generation (see <a href="Experimental-Guidelines_73336.html">Experimental Guidelines</a>). The produced advice files can then be used to reproduce the bug. If this step is successful, the advice files should be minimized to determine the set of methods that cause the failures. This can be done automatically (e.g. via delta debugging) or by hand.</p><p>You can also switch on paranoid IR verification in IR.java. Note that this is not well tested at the moment because we don't run any regression tests with it. Use a BaseAdaptive* configuration if you switch this on (bootimage builds with the optimizing compiler and paranoid IR fail at the time of this writing).</p><h2 id="DebuggingtheRVM-Deadlocks">Deadlocks</h2><p>To debug a deadlock, run the VM under a time limit and send SIGQUIT (to force a thread dump) a few seconds before killing the VM. On Linux, you can use the timelimit program (should be available in the repositories for Debian-based distributions).</p><h2 id="DebuggingtheRVM-ExcludingGarbageCollectionproblems">Excluding Garbage Collection problems</h2><p>The garbage collectors that are included with the Jikes RVM are generally stable. Therefore, if you see a problem that does not occur during the collection itself, it is likely not a garbage collection problem. You can exclude problems related to garbage collection by building with other collectors. For example, you can choose a collector that doesn't move objects (e.g. MarkSweep) or a collector that doesn't require write barriers (e.g. Immix instead of GenImmix).</p>
+                    </div>
+
+                    
+                                                        <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="comments" class="pageSectionTitle">Comments:</h2>
+                        </div>
+
+                        <table border="0" width="100%">
+                                                        <tr>
+                                <td >
+                                    <a name="comment-143818754"></a>
+                                    <font class="smallfont"><p>A heuristic method:</p>
+
+<p>1. use Log file to print out object header, so you can trace where these object come from, and details of its lifecycle</p>
+
+<p>2. use Magic or ObjectReference and instanceof or something else to print out object address, which is, the target objects you want to analyse</p>
+
+<p>3. use grep or perl to grab text from the huge log file obtained by set -X:gc:verbose=11 -X:sysLogfile=xx.txt -X:gc:sanityCheck=true</p></font>
+                                    <div align="left" class="smallfont" style="color: #666666; width: 98%; margin-bottom: 10px;">
+                                        <img src="images/icons/contenttypes/comment_16.png" height="16" width="16" border="0" align="absmiddle"/>
+                                        Posted by vondart at Mar 27, 2010 20:23
+                                    </div>
+                                </td>
+                            </tr>
+                                                    </table>
+                    </div>
+                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

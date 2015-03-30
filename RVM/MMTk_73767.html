@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : MMTk</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Architecture_73917.html">Architecture</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : MMTk
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Peter Donald</span>, last modified by <span class='editor'> Robin Garner</span> on Aug 13, 2013
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>The garbage collectors for Jikes RVM are provided by MMTk. The <a href="http://cs.anu.edu.au/~Robin.Garner/mmtk-guide.pdf" class="external-link" rel="nofollow">MMTk: The Memory Manager Toolkit</a> describes MMTk and gives a tutorial on how to use and edit it and is the best place to start.  An updated version of the tutorial is <a href="MMTk-Tutorial_114788062.html">here</a>. A detailed description of the call chain from the compilers through to MMTk <a href="Memory-Allocation-in-JikesRVM_196640936.html">here</a> is another good place to start understanding how MMTk integrates with JikesRVM.  <a href="Anatomy-of-a-Garbage-Collector_230400224.html">Anatomy of a Garbage Collector</a> describes the major building blocks of an MMTk collector and <a href="Scanning-Objects-in-JikesRVM_196640942.html">Scanning Objects in JikesRVM</a> describes how objects are scanned for their pointer fields during GC.  MMTk also has a pure Java <a href="The-MMTk-Test-Harness_91750431.html">test harness</a> that allows development of garbage collectors in an IDE like eclipse.</p><p>The RVM can be configured to employ various different allocation managers taken from the <a href="MMTk_73767.html">MMTk</a> memory management toolkit. Managers divide the available space up as they see fit. However, they normally subdivide the available address range to provide:</p><ul><li>a metadata area which enables the manager to track the status of allocated and unallocated storage in the rest of the heap.</li><li>an immortal data area used to service allocations of objects which are expected to persist across the whole lifetime of the RVM runtime.</li><li>a large object space used to service allocations of objects which are larger than some specified size (e.g. a virtual memory page) - the large object space may employ a different allocation and reclamation strategy to that used for other objects.</li><li>a small object allocation area which may be divided into e.g.two semi spaces, a nursery space and a mature space, a set of generations, a non-relocatable buddy hierarchy etc depending upon the allocation and reclamation strategy employed by the memory manager.</li></ul><p>Virtual memory pages are lazily mapped into the RVM's memory image as they are needed.</p><p>The main class which is used to interface to the memory manager is called <code>Plan</code>. Each flavor of the manager is implemented by substituting a different implementation of this class. Most plans inherit from class <code>StopTheWorldGC</code> which ensures that all active mutator threads (i.e. ones which do not perform the job of reclaiming storage) are suspended before reclamation is commenced. The argument passed to <code>-X:processors</code> determines the number of parallel collector threads that will be used for collection.</p><p>Generational collectors employ a plan which inherits from class <code>Generational</code> Inter alia, this class ensures that a write barrier is employed so that updates from old to new spaces are detected.</p><p><span style="font-size: 10.0pt;line-height: 13.0pt;">Jikes RVM may also use the </span><a href="Using-GCSpy_73247.html">GCSpy</a><span style="font-size: 10.0pt;line-height: 13.0pt;"> visualization framework. GCSpy allows developers to observe the behavior of the heap and related data structures.</span></p>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Project Proposals 2010</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Home_71108.html">Home</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Google-Summer-of-Code_74383603.html">Google Summer of Code</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Google-Summer-of-Code-2010_140836949.html">Google Summer of Code 2010</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Project Proposals 2010
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Richard Jones</span>, last modified on Mar 28, 2010
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>This page captures project proposals for Jikes RVM for the <a href="http://code.google.com/soc/" class="external-link" rel="nofollow">Google SoC 2010</a>. The page organizes projects into the major components of Jikes RVM they effect, these are: Garbage Collector (MMTk), Compilers and the Runtime System. We also have other projects that relate to Jikes RVM.</p>
+
+<p>The <a href="http://jikesrvm.org/Google+Summer+of+Code+2010" class="external-link" rel="nofollow">Jikes RVM GSoC 2010 page</a> page includes links to the <a href="http://jikesrvm.org/Google+Summer+of+Code+2010+template" class="external-link" rel="nofollow">student application template</a> and <a href="http://socghop.appspot.com/document/show/gsoc_program/google/gsoc2010/userguide#depth_students" class="external-link" rel="nofollow">GSoC User Guide</a> which explains how to apply.</p>
+
+<p><strong>APPLICATION WINDOW: 19:00 UTC, 29 March 2010 - 19:00 UTC, 9 April 2010</strong></p>
+
+
+<h1 id="ProjectProposals2010-GarbageCollector(MMTk)proposals">Garbage Collector (MMTk) proposals</h1>
+
+<h2 id="ProjectProposals2010-GarbageCollectionVisualization">Garbage Collection Visualization</h2>
+
+<p>The <a href="http://www.cs.kent.ac.uk/projects/gc/gcspy/" class="external-link" rel="nofollow">GCspy</a> framework has become slightly out-of-date and needs improving. <a href="http://jira.codehaus.org/browse/RVM-388" class="external-link" rel="nofollow">RVM-388</a></p>
+
+<p>Interested mentors: Richard Jones</p>
+
+<h2 id="ProjectProposals2010-On-the-flyGarbageCollector">On-the-fly Garbage Collector</h2>
+
+<p>MMTk has a basic concurrent garbage collector.   This project would implement a classic on-the-fly collector.</p>
+
+<p>Interested mentors: Steve Blackburn and Daniel Frampton</p>
+
+<h2 id="ProjectProposals2010-TheCompressorMark-CompactGarbageCollector">The Compressor Mark-Compact Garbage Collector</h2>
+
+<p>This project would add the <a href="http://doi.acm.org/10.1145/1133255.1134023" class="external-link" rel="nofollow">Compressor</a> Mark-Compact algorithm to MMTK's suite of collectors, starting with a stop-the-world implementation. <a href="http://jira.codehaus.org/browse/RVM-401" class="external-link" rel="nofollow">RVM-401</a></p>
+
+<p>Interested mentors: Richard Jones</p>
+
+<h2 id="ProjectProposals2010-TheMMTktestharnesstools">The MMTk test harness tools</h2>
+
+<p>There are several possible projects here:</p>
+<ul>
+	<li>Implement a weak memory model, and/or tools for checking data races in<br />
+the simulated memory.</li>
+	<li>Implement a mechanism for running Java applications through the harness.<br />
+The most tractable approach might be to use bytecode rewriting to manage<br />
+the simulated MMTk heap as a shadow of the Java heap.</li>
+	<li>New invariants/checks/tests to detect errors in GC implementations. This could be motivated by a GC implementation project (eg MC^2).</li>
+</ul>
+
+
+<p>Interested mentors: Robin Garner</p>
+
+
+
+
+<h1 id="ProjectProposals2010-Compilerproposals">Compiler proposals</h1>
+
+<h2 id="ProjectProposals2010-Portoftheoptcompilertox86_64">Port of the opt compiler to x86_64</h2>
+
+<p>The opt compiler is completely ported to ppc64, so this would require a similar piece of work for the x86 code generator.  If the baseline compiler is working on x86_64, then the assembler work has already been done, so porting the opt compiler actually should be entirely doable by someone who is comfortable with lowlevel x86/x86_64 debugging.</p>
+
+<h2 id="ProjectProposals2010-Improvedregisterallocatorforx86andx86_64">Improved register allocator for x86 and x86_64</h2>
+
+<p>The current linear scan allocator works best with register rich architectures. This project would look at providing a better allocator for architectures that provide fewer registers.</p>
+
+<p>Interested mentors: Tony Hosking, ELiot Moss</p>
+
+<h2 id="ProjectProposals2010-GIST">GIST</h2>
+
+<p>The CoGenT project at UMass aims to make it easier to generate compiler components given descriptions of compiler IRs and of target machines. One of its tools is a generator of instruction selectors; we call it GIST. We have GIST somewhat working to generate the target dependent part of the Jikes RVM Baseline compiler. </p>
+
+<ul>
+	<li>Rounding out automatic generation of the instruction selector (&quot;code generator&quot;) for the<br />
+Baseline compiler.</li>
+</ul>
+
+
+<ul>
+	<li>Developing automatic generation of BURS rules (which are quite similar to the patterns that<br />
+GIST finds anyway) for the Jikes RVM Opt compiler.</li>
+</ul>
+
+
+<p>We would first create code generators for existing targets (x86 and PowerPC) to validate the work, and could then proceed to new target (64-bit x86, and look at new platforms, though a complete platform port has somewhat broader scope).</p>
+
+<ul>
+	<li>Generating peephole optimizers using GIST is also a possibility, though at this stage perhaps more challenging.</li>
+</ul>
+
+
+<ul>
+	<li>Creating a quality &quot;generic&quot; register allocator for the Opt compiler that a GIST-related tool could target would be an excellent project. This could work along the lines of &quot;A Generalized Algorithm for Graph-Coloring Register Allocation&quot; by Smith, Ramsey, and Holloway (PLDI, 2004), possibly with coalescing as well.</li>
+</ul>
+
+
+<ul>
+	<li>It would also be attractive to follow a similar plan for generating linear-scan register allocators for the Jikes RVM Opt compiler from machine descriptions.</li>
+</ul>
+
+
+<ul>
+	<li>Finally, GIST, augmented with suitable cost models for each target, could be used to generate<br />
+instruction schedulers automatically.</li>
+</ul>
+
+
+<p>Any of these projects would advance both Jikes RVM and the CoGenT tools.</p>
+
+<p>Interested mentors: Eliot Moss and Chip Weems</p>
+
+
+<h2 id="ProjectProposals2010-Objectsplitting">Object splitting</h2>
+
+<p>This project involves a profiling infrastructure to measure field hotness, changes to the JIT compilers to deal with accesses to cold fields, and changes to the garbage collector(s) to allocate cold fields out of the way of hot objects. Given such an infrastructure, future work could then study alternative implementations, or ideas such as the lazy allocation of the cold fields.</p>
+
+<p>Interested mentor: Matthias Hauswirth</p>
+
+
+
+
+<h1 id="ProjectProposals2010-RuntimeServices">Runtime Services</h1>
+
+<h2 id="ProjectProposals2010-ExtendingVMMagic">Extending VM Magic</h2>
+
+<p>Jikes RVM uses an extended variant on Java, which includes special types and intrinsic methods that are essential to the internals of the VM but that cannot be expressed in regular Java.   For example, we implement an <code>Address</code> type, which corresponds roughly to C's <code>void*</code>.  This type has a magical size (the size of an architectural word), and magic semantics (for example you can de reference it and even prefetch on it).  None of these semantics could be implemented with regular Java.</p>
+
+<p>An important feature of VM Magic which has not been properly implemented is compound types (roughly equivalent to C's <code>struct</code> types).   Such types would be very useful within Jikes RVM because they represent compound types without the overhead and restriction of an object header. This project will implement compound types for Jikes RVM.</p>
+
+<p>A useful reference is the 2009 paper describing VM Magic, including some of these unimplemented features (<a href="http://cs.anu.edu.au/~Steve.Blackburn/pubs/abstracts.html#vmmagic-vee-2009" class="external-link" rel="nofollow">available here</a>).</p>
+
+<p>Interested mentors: Steve Blackburn and Daniel Frampton</p>
+
+<h2 id="ProjectProposals2010-Support(asubsetof)theJVMToolInterface(JVMTI)">Support (a subset of) the JVM Tool Interface (JVMTI)</h2>
+
+<p>The <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jvmti/jvmti.html" class="external-link" rel="nofollow">JVMTI</a> is large. This project would concentrate on providing support for GC-related JVMTI functionality.</p>
+
+<p>Suggested by: Suriya Subramanian<br />
+Interested mentors: Steve Blackburn and Richard Jones</p>
+
+<h2 id="ProjectProposals2010-Supportforjmap,jhat,jstack">Support for jmap, jhat, jstack</h2>
+
+<p>This project would provide support for JVM debugging facilities such as <a href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/share/jmap.html" class="external-link" rel="nofollow">jmap</a> which dumps an application's heap, <a href="http://java.sun.com/javase/6/docs/technotes/tools/share/jhat.html" class="external-link" rel="nofollow">jhat</a> which examines the dumped heap, and <a href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/share/jstack.html" class="external-link" rel="nofollow">jstack</a> which dumps an application's stack.</p>
+
+<p>Suggested by: Suriya Subramanian<br />
+Interested mentors: Steve Blackburn</p>
+
+<h2 id="ProjectProposals2010-IntegrationwithMaxineVM&#39;sInspector">Integration with Maxine VM's Inspector</h2>
+
+<p>The Maxine Inspector <a href="http://wikis.sun.com/display/MaxineVM/Inspector" class="external-link" rel="nofollow">http://wikis.sun.com/display/MaxineVM/Inspector</a> plays many roles:</p>
+<ul>
+	<li>object, class, and method browser;</li>
+	<li>code views include disassembled machine code, disassembled bytecode, and source;</li>
+	<li>low-level debugger (imagine gdb or dbx) with visual displays of threads, registers, stacks,  * stack frames, thread local values, breakpoints, memory watchpoints, etc.;</li>
+	<li>intermediate representation debugger; etc.</li>
+</ul>
+
+
+<p>This project would provide an interface to the Inspector.</p>
+
+<p>Suggested by: Suriya Subramanian<br />
+Interested mentors: Steve Blackburn</p>
+
+<h2 id="ProjectProposals2010-ProbesforDTrace">Probes for DTrace</h2>
+
+<p>DTrace allows user-space code to add so-called USDT (User-level Statically Defined Tracing) probes (see example below). It would be useful to be able to use DTrace to correlate system behavior (e.g. scheduling, thread migration, ...) with behavior of the Jikes RVM (e.g. locking, GC, ...).</p>
+
+<p>Interested mentors: Matthias Hauswirth</p>
+
+
+
+<h1 id="ProjectProposals2010-OtherproposalsrelatingtoJikesRVM">Other proposals relating to Jikes RVM</h1>
+
+<h2 id="ProjectProposals2010-GetthenewDaCapobenchmarks(dacapo-9.12-bach)runningonJikesRVM.">Get the new DaCapo benchmarks (dacapo-9.12-bach) running on Jikes RVM.</h2>
+
+<p>A number of the new DaCapo benchmarks don't run on Jikes RVM.   This project would be to figure out why each failing program is failing and get make fixes to Jikes RVM and/or its class libraries to make the programs work.  This would be of significant value to the Jikes RVM research community. </p>
+
+<p>Interested mentors: Steve Blackburn</p>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

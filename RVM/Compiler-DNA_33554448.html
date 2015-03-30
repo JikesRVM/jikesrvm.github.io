@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Compiler DNA</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Care-and-Feeding_73910.html">Care and Feeding</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Modifying-the-RVM_74061.html">Modifying the RVM</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Compiler DNA
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Ian Rogers</span>, last modified by <span class='editor'> David Grove</span> on Jul 03, 2008
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>The Jikes RVM adaptive system uses the compiler DNA found in org.jikesrvm.adaptive.recompilation.CompilerDNA. The important values in here are the compilationRates and the speedupRates. If you modify Jikes RVM then it's likely you need to recalibrate the adaptive system for your changes. The following are the steps you need to perform to do this:</p>
+<ol>
+	<li>run the compiler-dna test harness (&quot;ant -f test.xml -Dtest-run.name=compiler-dna&quot;). This will automatically compile and run Jikes RVM on SPEC JVM '98. You will want to configure the ant property external.lib.dir to be a directory containing your SPEC JVM '98 directory. Your SPEC JVM '98 directory must be named &quot;SPECjvm98&quot;.</li>
+	<li>load the xml file &quot;results/tests/compiler-dna/Report.xml&quot; into either an XML viewer (such as a web browser) or into a text editor</li>
+	<li>find the section named <em>Measure_Compilation_Base</em>, then look within this section for statistics and find the static <em>Base.bcb/ms</em>. For example, '&lt;statistic key=&quot;Base.bcb/ms&quot; value=&quot;1069.66&quot;/&gt;'. In the compilationRates array this will be the value of element 0, it corresponds to how many bytecodes the baseline compiler can compile per millisecond.</li>
+	<li>find the section named <em>Measure_Compilation_Opt_0</em> and the statistic <em>Opt.bcb/ms</em>. This is element 1 in the compilationRates array.</li>
+	<li>find the section named <em>Measure_Compilation_Opt_1</em> and the statistic <em>Opt.bcb/ms</em>. This is element 2 in the compilationRates array.</li>
+	<li>find the section named <em>Measure_Compilation_Opt_2</em> and the statistic <em>Opt.bcb/ms</em>. This is element 3 in the compilationRates array.</li>
+	<li>find the section named <em>Measure_Performance_Base</em> and the statistic named <em>aggregate.best.score</em> and record its value. For example, for '&lt;statistic key=&quot;aggregate.best.score&quot; value=&quot;28.90&quot;/&gt;' you would record 28.90.</li>
+	<li>find the section named <em>Measure_Performance_Opt_0</em> and the statistic named <em>aggregate.best.score</em>. Divide this value by the value you recorded in step 7, this is the value for element 1 in the speedupRates array. For example, for '&lt;statistic key=&quot;aggregate.best.score&quot; value=&quot;137.50&quot;/&gt;' the speedupRates array element 1 should have a value of 4.76.</li>
+	<li>find the section named <em>Measure_Performance_Opt_1</em> and the statistic named <em>aggregate.best.score</em>. As with stage 8 divide this value by the value recorded in step 7, this is the value for element 2 in the speedupRates array.</li>
+	<li>find the section named <em>Measure_Performance_Opt_2</em> and the statistic named <em>aggregate.best.score</em>. As with stage 8 divide this value by the value recorded in step 7, this is the value for element 3 in the speedupRates array.</li>
+</ol>
+
+
+<p>You should then save CompilerDNA and recompile a production RVM which will use these values.</p>
+
+<p> If you are frequently changing the compiler dna, you may want to use the command line option -X:aos:dna=&lt;file name&gt; to dynamically load compiler dna data without having to rebuild Jikes RVM. </p>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

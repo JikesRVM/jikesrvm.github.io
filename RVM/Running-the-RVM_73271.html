@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Running the RVM</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Care-and-Feeding_73910.html">Care and Feeding</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Running the RVM
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Peter Donald</span>, last modified by <span class='editor'> Erik Brangs</span> on Jan 29, 2014
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>Jikes<a href="Trademarks_73266.html">&trade;</a> RVM executes Java virtual machine byte code instructions from <code>.class</code> files. It does <em>not</em> compile Java<a href="Trademarks_73266.html">&trade;</a> source code. Therefore, you must compile all Java source files into bytecode using your favorite Java compiler.</p><p>For example, to run class <code>foo</code> with source code in file <code>foo.java</code>:</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>% javac foo.java
+% rvm foo</pre>
+</div></div><p>The general syntax is</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm [rvm options...] class [args...]</pre>
+</div></div><p>You may choose from a myriad of options for the <code>rvm</code> command-line. Options fall into two categories: <em>standard</em> and <em>non-standard</em>. Non-standard options are preceded by &quot;<code><strong>-X:</strong></code>&quot; and differ between virtual machines (e.g. Jikes RVM's options may not be available in HotSpot and vice-versa).</p><h3 id="RunningtheRVM-StandardCommand-LineOptions">Standard Command-Line Options</h3><p>We currently support a subset of the JDK 1.5 standard options. Below is a list of all options and their descriptions. Unless otherwise noted each option is supported in Jikes RVM.</p><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>Option</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>{-cp or -classpath} &lt;directories and zip/jar files separated by &quot;:&quot;&gt;</p></td><td class="confluenceTd"><p>set search path for application classes and resources</p></td></tr><tr><td class="confluenceTd"><p>-D&lt;name&gt;=&lt;value&gt;</p></td><td class="confluenceTd"><p>set a system property</p></td></tr><tr><td class="confluenceTd"><p>-verbose:[ class | gc | jni ]</p></td><td class="confluenceTd"><p>enable verbose output</p></td></tr><tr><td class="confluenceTd"><p>-version</p></td><td class="confluenceTd"><p>print current VM version and terminate the run</p></td></tr><tr><td class="confluenceTd"><p>-showversion</p></td><td class="confluenceTd"><p>print current VM version and continue running</p></td></tr><tr><td class="confluenceTd"><p>-fullversion</p></td><td class="confluenceTd"><p>like &quot;-version&quot;, but with more information</p></td></tr><tr><td class="confluenceTd"><p>-? or -help</p></td><td class="confluenceTd"><p>print help message</p></td></tr><tr><td class="confluenceTd"><p>-X</p></td><td class="confluenceTd"><p>print help on non-standard options</p></td></tr><tr><td class="confluenceTd"><p>-jar</p></td><td class="confluenceTd"><p>execute a jar file</p></td></tr><tr><td class="confluenceTd"><p>-javaagent:&lt;jarpath&gt;[=&lt;options&gt;]</p></td><td class="confluenceTd"><p>load Java programming language agent, see java.lang.instrument</p></td></tr></tbody></table></div><h3 id="RunningtheRVM-Non-StandardCommand-LineOptions">Non-Standard Command-Line Options</h3><p>It is generally the case that the non-standard options may change from one release to another. However, the core and memory non-standard options that are listed here don't change often.</p><p>The bulk of the non-standard options are grouped according to the subsystem that they control. See below for details.</p><h4 id="RunningtheRVM-CoreNon-StandardCommand-LineOptions">Core Non-Standard Command-Line Options</h4><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>Option</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>-X:verbose</p></td><td class="confluenceTd"><p>Print out additional lowlevel information for GC and hardware trap handling</p></td></tr><tr><td class="confluenceTd"><p>-X:verboseBoot=&lt;number&gt;</p></td><td class="confluenceTd"><p>Print out additional information while VM is booting, using verbosity level &lt;number&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:sysLogfile=&lt;filename&gt;</p></td><td class="confluenceTd"><p>Write standard error message to &lt;filename&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:ic=&lt;filename&gt;</p></td><td class="confluenceTd"><p>Read boot image code from &lt;filename&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:id=&lt;filename&gt;</p></td><td class="confluenceTd"><p>Read boot image data from &lt;filename&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:ir=&lt;filename&gt;</p></td><td class="confluenceTd"><p>Read boot image ref map from &lt;filename&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:vmClasses=&lt;path&gt;</p></td><td class="confluenceTd"><p>Load the org.jikesrvm.* and java.* classes from &lt;path&gt;</p></td></tr><tr><td class="confluenceTd"><p>-X:processors=&lt;number|&quot;all&quot;&gt;</p></td><td class="confluenceTd"><p>The number of processors that the garbage collector will use</p></td></tr></tbody></table></div><h4 id="RunningtheRVM-MemoryNon-StandardCommand-LineOptions">Memory Non-Standard Command-Line Options</h4><div class="table-wrap"><table class="confluenceTable"><tbody><tr><th class="confluenceTh"><p>Option</p></th><th class="confluenceTh"><p>Description</p></th></tr><tr><td class="confluenceTd"><p>-Xms&lt;number&gt;&lt;unit&gt;</p></td><td class="confluenceTd"><p>Initial size of heap where &lt;number&gt; is an integer, an extended-precision floating point or a hexadecimal value and &lt;unit&gt; is one of T (Terabytes), G (Gigabytes), M (Megabytes), pages (of size 4096), K (Kilobytes) or &lt;no unit&gt; for bytes</p></td></tr><tr><td class="confluenceTd"><p>-Xmx&lt;number&gt;&lt;unit&gt;</p></td><td class="confluenceTd"><p>Maximum size of heap. See above for definition of &lt;number&gt; and &lt;unit&gt;</p></td></tr></tbody></table></div><h4 id="RunningtheRVM-SubsystemNon-StandardCommand-LineOptions">Subsystem Non-Standard Command-Line Options</h4><p>The other non-standard command line options are not listed here because they will change from time to time. To get a current list of these options, you can do the following:</p><ol><li><p>To find out which subsystems are available in the image you're using:</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -X</pre>
+</div></div></li><li><p>To get information about the options for a specific subsystem (e.g. the garbage collection subsystem)</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -X:gc:help</pre>
+</div></div></li><li><p>To find out the current values of the options for a specific subystem (e.g. the optimizing compiler subsystem)</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -X:opt:printOptions</pre>
+</div></div></li></ol><h2 id="RunningtheRVM-RunningJikesRVMwithvalgrind">Running Jikes RVM with valgrind</h2><p> Jikes RVM can run under valgrind, as of SVN revision 6791 (29-Aug-2007).  Applying a patch of this revision to release 3.2.1 should also produce a working system.  Versions of valgrind CVS prior to release 3.0 are also known to have worked.</p><p>To run a Jikes RVM build with valgrind, use the <code>-wrap</code> flag to invoke valgrind, eg</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>rvm -wrap &quot;path/to/valgrind --smc-check=all &lt;valgrind-options&gt;&quot; &lt;jikesrvm-options&gt; ...</pre>
+</div></div><p>this will insert the invocation of valgrind at the appropriate place for it to operate on Jikes RVM proper rather than a wrapper script. </p><p>Under some circumstances, valgrind will load shared object libraries or allocate memory in areas of the heap that conflict with Jikes RVM.  Using the flag -X:gc:eagerMmapSpaces=true will prevent and/or detect this.  If this flag reveals errors while mapping the spaces, you will need to rearrange the heap to avoid the addresses that valgrind is occupying.</p>
+                    </div>
+
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Mar 30, 2015 16:28</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
