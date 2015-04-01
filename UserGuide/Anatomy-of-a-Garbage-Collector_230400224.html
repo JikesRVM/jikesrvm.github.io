@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Anatomy of a Garbage Collector</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Architecture_73917.html">Architecture</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="MMTk_73767.html">MMTk</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Anatomy of a Garbage Collector
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Robin Garner</span>, last modified on Aug 27, 2013
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h4 id="AnatomyofaGarbageCollector-***Workinprogress***">*** Work in progress ***</h4><p>This page gives a brief outline of the major control flows in the execution of a garbage collector in MMTk.  For simplicity, we focus on the MarkSweep collector, although much of the discussion will be relevant to other collectors. </p><p>This page assumes you have a basic knowledge of garbage collection, for those that don't, please see one of the standard texts such as <a href="http://gchandbook.org/" class="external-link" rel="nofollow">The Garbage Collection Handbook</a>.<span style="font-size: 10.0pt;line-height: 13.0pt;"> </span></p><h2 id="AnatomyofaGarbageCollector-StructureofaPlan"><span style="font-size: 10.0pt;line-height: 13.0pt;">Structure of a Plan</span></h2><p><span style="font-size: 10.0pt;line-height: 13.0pt;">An MMTk Plan is required to provide 5 classes.  They are required to have consistent names which start with the same name and have a suffix that indicates which class it inherits from. in the case of the MarkSweep plan, the name <u>is</u> &quot;MS&quot;.</span></p><ul><li>MS - this is a singleton class that is a subclass of <code>org.mmtk.plan.Plan</code>.  <span style="font-size: 10.0pt;line-height: 13.0pt;"> This class encapsulates data structures that are shared among multiple threads.</span></li><li><span style="font-size: 10.0pt;line-height: 13.0pt;">MSMutator - subclass of org.mmtk.plan.MutatorContext.  This class encapsulates data structures that are local to a single mutator thread.  In the case of Jikes RVM, a Thread is actually a subclass of this class for efficiency reasons.</span></li><li><span style="font-size: 10.0pt;line-height: 13.0pt;">MSCollector - subclass of org.mmtk.plan.CollectorContext.  This provides thread-local data structures specific to a garbage collector thread.</span></li><li><span style="font-size: 10.0pt;line-height: 13.0pt;">MSConstraints - subclass of org.mmtk.plan.PlanConstraints.  This provides configuration information that the host virtual machine might need.  It is separated out from the Plan class in order to prevent circular class loading dependencies.</span></li><li><span style="font-size: 10.0pt;line-height: 13.0pt;">MSTraceLocal - subclass of org.mmtk.plan.TraceLocal.  This provides thread-local data structures specific to a particular way of traversing the heap.  In a simple collector like MarkSweep, there is only one of these classes, but in more complex collectors there may be several.  For example, in a generational collector, there will be one TraceLocal class for a nursery collection, and another for a full-heap collection.</span></li></ul><div>The basic architecture of MMTk is that virtual address space is divided into chunks (of 4MB in a 32-bit memory model) that are managed according to a specific <em>policy</em>.  A policy is implemented by an instance of the <code>Space</code> class, and it is in the policy class that the mechanics of a particular mechanism (like mark-sweep) is implemented.  The task of a Plan is to create the policy (Space) objects that manage the heap, and to integrate them into the MMTk framework.  </div><div>MMTk exposes some of this memory management policy to the host VM, by allowing the VM to specify an <em>allocator</em> (represented by a small integer) when allocating space.  The interface exposed to the VM allows it to choose whether an object will move during collection or not, whether the object is large enough to require special handling etc.  The MMTk plan is free (within the semantic guarantees exposed to the VM) to direct each of these allocators to a particular policy.</div><h2 id="AnatomyofaGarbageCollector-Policies">Policies</h2><div>A policy describes how a range of virtual address space is managed.  The base class of all policies is <code>org.mmtk.policy.Space</code>, and a particular instance of a policy is known generically as a <em>space</em>.  The static initializer of a Plan and its subclasses define the spaces that make up an MMTk plan.  </div><div><p> </p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>MS.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public static final MarkSweepSpace msSpace = new MarkSweepSpace(&quot;ms&quot;, VMRequest.create());
+public static final int MARK_SWEEP = msSpace.getDescriptor();</pre>
+</div></div><p>In this code fragment, we see the MS plan defined.  Note that we generally also define a static final <em>space descriptor.</em>  This is an optimization that allows some rapid operations on spaces.</p><p>A <code>Space</code> is a global object, shared among multiple mutator threads.  Each policy will also have one or more thread-local classes which provide unsynchronized allocation.  These classes are subclasses of <code>org.mmtk.utility.alloc.Allocator</code>, and in the case of MarkSweep, it is called <code>MarkSweepLocal</code>.  Instances of <code>MarkSweepLocal</code> are created as part of a mutator context, like this</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>MSMutator.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">protected MarkSweepLocal ms = new MarkSweepLocal(MS.msSpace);</pre>
+</div></div><p>The design pattern is that the local Allocator will allocate space from a thread-local buffer, and when that is exhausted it will allocate a new buffer from the global Space, performing appropriate locking.  The constructor of the MarkSweepLocal specifies the space from which the allocator will allocate global memory.</p></div><h2 id="AnatomyofaGarbageCollector-Allocation"><span style="font-size: 10.0pt;line-height: 13.0pt;">Allocation</span></h2><p><span style="font-size: 10.0pt;line-height: 13.0pt;">MMTk provides two methods for allocating an object.  These are provided by the MSMutator class, to give each plan the opportunity to use fast, unsynchronized thread-local allocation before falling back to a slower synchronized slow-path.</span></p><p><span style="font-size: 10.0pt;line-height: 13.0pt;">The version implemented in MarkSweep looks like this:</span></p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>MSMutator.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public Address alloc(int bytes, int align, int offset, int allocator, int site) {
+  if (allocator == MS.ALLOC_DEFAULT) {
+    return ms.alloc(bytes, align, offset);
+  }
+  return super.alloc(bytes, align, offset, allocator, site);
+}</pre>
+</div></div><p><span style="font-size: 10.0pt;line-height: 13.0pt;">The basic structure of this method is common to all MMTk plans.  First they decide whether the operation applies to this level of abstraction (</span>if (allocator == MS.ALLOC_DEFAULT)), and if so, delegate to the appropriate place, otherwise pass it up the chain to the super-class.  In the case of MarkSweep, MSMutator delegates the allocation to its thread-local MarkSweepLocal object <code>ms</code>.</p><p>The <code>alloc</code> method of <code>MarkSweepLocal</code> is inherited from <code>SegregatedFreeListLocal</code> (mark-sweep is not the only way of managing free-list allocation), and looks like this</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>SegregatedFreeListLocal.java (simplified)</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public final Address alloc(int bytes, int align, int offset) {
+  int sizeClass = getSizeClass(bytes);
+  Address cell = freeList.get(sizeClass);
+  if (!cell.isZero()) {
+    freeList.set(sizeClass, cell.loadAddress());
+    /* Clear the free list link */
+    cell.store(Address.zero());
+    return cell;
+  }
+  return allocSlow(bytes, align, offset);
+}
+</pre>
+</div></div><p>This is a standard pattern for thread-local allocation: first we look in the thread-local space (line 3), and if successful return the result (lines 4-8).  If unsuccessful, we request space from the global policy via the method <code>Allocator.allocSlow</code>.  This is the common interface that all Allocators use to request space from the global policy.  This will eventually call the allocator-specific <code>allocSlowOnce</code> method.  The workings of the allocSlowOnce method are very policy-specific, so not appropriate to look at at this stage, but eventually all policies will attempt to acquire fresh virtual memory via the <code>Space.acquire</code> method.</p><p><code>Space.acquire</code> is the only correct way for a policy to allocate new virtual memory for its own use.  </p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Space.java (simplified)</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public final Address acquire(int pages) {
+  pr.reservePages(pages);
+  // Poll, either fixing budget or requiring GC
+  if (VM.activePlan.global().poll(false, this)) {
+    VM.collection.blockForGC();
+    return Address.zero(); // GC required, return failure
+  }
+  // Page budget is ok, try to acquire virtual memory
+  Address rtn = pr.getNewPages(pagesReserved, pages, zeroed);
+  if (rtn.isZero()) {  // Failed, so force a GC
+    boolean gcPerformed = VM.activePlan.global().poll(true, this);
+    VM.collection.blockForGC();
+    return Address.zero();
+  }
+  return rtn;
+}</pre>
+</div></div><p>The logic of space.acquire is:</p><ul><li>First, poll the plan to find out whether the heap is full.  This logic is performed by the plan, because it has knowledge of copy reserves etc.</li><li>The 'poll' method will request a GC if required, and return <code>true</code> if it has done so.</li><li>Then we wait for GC if required.  'poll' can't wait, because it is called in circumstances that aren't GC safe.</li><li>If Plan.poll(...) returns false (we are within the allowed heap size), we call pr.getNewPages to allocate virtual memory.  At this stage we can find that we have run out of virtual memory, and if so, we force a GC</li><li>If a GC is performed, we return Address.zero(), rather than retrying locally.  In many plans, the next allocation request will be satisfied by re-using space in a page that already belongs to a policy, so the post-GC allocation must be performed further up in the call stack.  The retry logic is handled in <code>Allocator.allocSlowInline</code>.</li></ul><div><p> </p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Allocator.java (simplified)</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public final Address allocSlowInline(int bytes, int alignment, int offset) {
+  boolean emergencyCollection = false;
+  while (true) {
+    Address result = allocSlowOnce(bytes, alignment, offset);
+    if (!result.isZero()) {
+      return result;
+    }
+    if (emergencyCollection) {
+      VM.collection.outOfMemory();
+    }
+    emergencyCollection = Plan.isEmergencyCollection();
+  }
+}
+</pre>
+</div></div><p>This code fragment shows the retry logic in the allocator.  We try allocating using <code>allocSlowOnce</code>, which may recycle partially-used blocks and eventually call <code>Space.acquire</code>.  If a GC occurred, we try again.  Eventually the plan will request an emergency collection which will (for example) cause soft references to be dropped.  If this fails we throw an <code>OutOfMemoryError</code>.</p></div><h2 id="AnatomyofaGarbageCollector-Collection">Collection</h2><h3 id="AnatomyofaGarbageCollector-Scheduling">Scheduling</h3><p>In a stop-the-world garbage collector like MarkSweep, the mutator threads run until memory is exhausted, then all mutator threads are suspended, the collector threads are activated, and they perform a garbage collection.  After the GC is complete, the collector threads are suspended and the mutator threads resume.  MMTk also has some support for concurrent collectors, in which one or more collector threads can be scheduled to run alongside the mutator, either exclusively or in addition to (hopefully briefer) stop-the-world phases. </p><p>Thread scheduling in MMTk is handled by a GC controller thread, implemented in the singleton class <code>org.mmtk.plan.ControllerCollectorContext</code>  <span>held in the static field <code>Plan.controlCollectorContext</code></span><span>.</span> Whenever a collection is initiated, it is done by calling methods on this object.</p><h3 id="AnatomyofaGarbageCollector-Initiating">Initiating</h3><p>As mentioned above, every attempt to allocate fresh virtual memory calls the current plan's <code>poll(...)</code> method.  This initiates a GC by calling <code>controlCollectorContext.request()</code>, which in a stop-the-world collector like MarkSweep pauses the mutator threads and then wakes the collector threads.  The main loop of the garbage collector is simply the <code>run()</code> method of <code>ParallelCollector</code>, shown below.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>ParallelCollector</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public void run() {
+  while(true) {
+    park();
+    collect();
+  }
+}
+</pre>
+</div></div><p>The <code>collect()</code> method is specific to the type of collector, and in <code>StopTheWorldCollector</code> it looks like this</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>StopTheWorldCollector</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public void collect() {
+  Phase.beginNewPhaseStack(Phase.scheduleComplex(global().collection));
+}</pre>
+</div></div><h3 id="AnatomyofaGarbageCollector-CollectorPhases">Collector Phases</h3><p>Every garbage collection consists of a series of steps.  Each step is either executed once (e.g. updating the mark state before marking the heap), or in parallel on all available collector threads (e.g. the parallel mark phase).  The actual work of a step is done by the collectionPhase method of the global, collector or mutator class of a plan.</p><p>In early versions of MMTk, the main collection method was a template method, calling individual methods for each phase of the collection.  As the number of collectors in MMTk grew, this became unwieldy and has been replaced with a configurable mechanism of phases.  </p><p>The class <code>org.mmtk.plan.Simple</code> defines the basic structure of most of MMTk's garbage collectors.  First it defines the phases themselves,</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Simple.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public static final short SET_COLLECTION_KIND = Phase.createSimple(&quot;set-collection-kind&quot;, null);
+public static final short INITIATE            = Phase.createSimple(&quot;initiate&quot;, null);
+public static final short PREPARE             = Phase.createSimple(&quot;prepare&quot;);
+...</pre>
+</div></div><p>Each phase of the collection is represented by a 16-bit integer, an index into a table of Phase objects.  Simple phases are <em>scheduled</em>, and combined into sequences, or complex phases.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>Simple.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">/** Ensure stacks are ready to be scanned */
+protected static final short prepareStacks = Phase.createComplex(&quot;prepare-stacks&quot;, null,
+    Phase.scheduleMutator    (PREPARE_STACKS),
+    Phase.scheduleGlobal     (PREPARE_STACKS));</pre>
+</div></div><p>A simple phase can be scheduled in one of 4 ways: </p><ul><li>Global.  One collector thread is chosen to run the collectionPhase method of the global Plan object.</li><li>Collector.  All collector threads run collectionPhase of the plan's CollectorContext object(s).</li><li>Mutator.  The collector threads run in parallel and iterate over the available MutatorContext objects (ie the mutator threads), and run the mutator's collectionPhase method.  Note that the collector threads are performing work on a per-mutator basis, because in general the mutator threads are stopped at this point.</li><li>Concurrent.  The controller is requested to start a concurrent collectcor thread.</li></ul><p>Between every phase of a collection, the collector threads rendezvous at a synchronization barrier.  The actual execution of a collector's phases is done in the method Phase.processPhaseStack.  This method handles resuming a concurrent collection as well as running a full stop-the-world collection.</p><p>The actual work of a collection phase is done (as mentioned above) in the collectionPhase method of the major Plan classes.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>MS.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">@Inline
+@Override
+public void collectionPhase(short phaseId) {
+  if (phaseId == PREPARE) {
+    super.collectionPhase(phaseId);
+    msTrace.prepare();
+    msSpace.prepare(true);
+    return;
+  }
+  if (phaseId == CLOSURE) {
+    msTrace.prepare();
+    return;
+  }
+  if (phaseId == RELEASE) {
+    msTrace.release();
+    msSpace.release();
+    super.collectionPhase(phaseId);
+    return;
+  }
+  super.collectionPhase(phaseId);
+}</pre>
+</div></div><p>This excerpt shows how the global MS plan implements collectionPhase, illustrating the key phases of a simple stop-the-world collector.  The prepare phase performs tasks such as changing the mark state, the closure phase performs a transifive closure over the heap (the mark phase of a mark-sweep algorithm) and the release phase performs any post-collection steps.  Where possible, a plan is structured so that each layer of inheritance deals only with the objects it creates, i.e. the MS class operates on the msSpace and delegates work on all other spaces to the super-class where they are defined.  By convention the PREPARE phase is performed outside-in (super-class preparation first) and RELEASE is done inside-out (local first, super-class second).</p><h3 id="AnatomyofaGarbageCollector-Tracingtheheap">Tracing the heap</h3><p>The main operation of a tracing collector is the transitive closure operation where all (or a subset) of the object graph is visited.  Some collectors such as generational collectors perform these operations in more than one way, e.g. a nursery collection in a generational collector does not trace through pointers into the mature space, while a full-heap collection does.  All MMTk collectors are designed to run using several parallel threads, using data structures that have unsynchronized thread-local and synchronized global components in the same way as MMTk's policy classes.</p><p>MMTk's trace operation uses the following terminology:</p><ul><li>An <em>edge</em> is a reference in the heap from one reference field to the object (or <em>node</em>) it points to.</li><li><em>Tracing</em> an object is the policy-defined operation performed by the collector on an object.  In a mark-sweep policy this means setting the mark state of the object.  In a copying policy this means moving the object to its new location.</li><li><em>Scanning</em> is the process of identifying the reference fields of an object and processing the objects reachable from each of them.</li></ul><p>Each distinct transitive closure operation is defined as a subclass of TraceLocal.  The closure is performed in the collectionPhase method of the plan-specific CollectorContext class</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeHeader panelHeader pdl" style="border-bottom-width: 1px;"><b>MSCollector.java</b></div><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: true" style="font-size:12px;">public void collectionPhase(short phaseId, boolean primary) {
+  ...
+  if (phaseId == MS.CLOSURE) {
+    fullTrace.completeTrace();
+    return;
+  }
+  ...
+}</pre>
+</div></div><p>The initial starting point for the closure is computed by the STACK_ROOTS and ROOTS phases, which add root locations to a buffer by calling TraceLocal.reportDelayedRootEdge.  The closure operation proceeds by invoking traceObiect on each root location (in method processRootEdge), and then invoking scanObject on each heap object encountered.  Note that the CLOSURE operation is performed multiple times in each GC, due to processing of reference types.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:25</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

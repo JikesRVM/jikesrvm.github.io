@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Coding Conventions</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Care-and-Feeding_73910.html">Care and Feeding</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Modifying-the-RVM_74061.html">Modifying the RVM</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Coding Conventions
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Peter Donald</span>, last modified by <span class='editor'> Erik Brangs</span> on Sep 24, 2014
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h3 id="CodingConventions-AssertionsinJikesRVMandMMTk">Assertions in Jikes RVM and MMTk</h3><p>Partly for historical reasons, we use our own built-in assertion facility rather than the one that appeared in Sun®'s JDK 1.4. All assertion checks have one of the two forms:</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>if (VM.VerifyAssertions)  VM._assert(condition)
+if (VM.VerifyAssertions)  VM._assert(condition,  message)</pre>
+</div></div><p><code>VM.VerifyAssertions</code> is a <code>public static final</code> field. The <code>config.assertions</code> configuration variable determines <code>VM.VerifyAssertions</code>' value. If <code>config.assertions</code> is set to <code>none</code>, Jikes RVM has no assertion overhead.</p><p>If you use the form without a <em>message</em>, then the default message &quot;<code>vm internal error at:</code>&quot; will appear.</p><p>If you use the form with a <em>message</em> the message <em>must</em> be a single string literal. Doing string appends in assertions can be a source of horrible performance problems when assertions are enabled (i.e. most development builds). If you want to provide a more detailed error message when the assertion fails, then you must use the following coding pattern:</p><div class="preformatted panel" style="border-width: 1px;"><div class="preformattedContent panelContent">
+<pre>if (VM.VerifyAssertions &amp;&amp; condition) {
+  ... build message ...
+  VM._assert(VM.NOT_REACHED, message);
+}</pre>
+</div></div><p>An assertion failure is always followed by a stack dump.</p><p>Use <code>VM.ExtremeAssertions</code> instead of <code>VM.VerifyAssertions</code> if the assertion is costly to check but generally useful. These kinds of assertions are only enabled when <code>config.assertions</code> is set to <code>extreme</code>.</p><p>Use <code>IR.SANITY_CHECK</code> or <code>IR.PARANOID</code> to guard assertions that relate to the intermediate representation in the optimizing compiler.</p><h3 id="CodingConventions-AssertionsintheMMTkTestHarness">Assertions in the MMTk Test Harness</h3><p>The assert keyword may be used in the MMTk Harness.</p><h3 id="CodingConventions-ErrorHandling">Error Handling</h3><p>All code in the system needs to detect and handle errors. If you know that your code does not handle certain situations, you should aim to write the code in way that detects these situations. The code also needs to be documented well enough so that users get a hint about the source of the problem. Keep in mind that the Jikes RVM is also used by students who may not be as familiar with the domain as researchers are.</p><h4 id="CodingConventions-Examples">Examples</h4><ul><li>The code does not work at all in a certain situation, e.g. it gives incorrect results when the optimizing compiler is enabled or a certain optimization is turned on. In this case, the best approach is to detect the situation and fail fast. This can be done using assertions. You can use <code>VM.sysFail(..)</code> for builds without assertions if correct execution after failure is impossible.</li><li>A compiler optimizations fails. The correct approach is to throw an <code>OptimizingCompilerException</code> (e.g. via one of the static methods provided by that class). This will lead to a hard failure when <code>-X:vm:errorsFatal=true</code> is set (which is the case in regression tests). In other cases, the VM will just revert to using the baseline compiler.</li><li>A command line option has a limited range of values. In MMTk, the correct approach is to implement the <code>validate()</code> method for the option. In other places, the value of the option needs to be checked at a suitable time.</li></ul><p> </p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:25</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

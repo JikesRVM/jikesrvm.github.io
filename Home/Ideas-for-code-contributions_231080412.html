@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Ideas for code contributions</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Home_71108.html">Home</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="How-to-Help_74074.html">How to Help</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Ideas for code contributions
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Erik Brangs</span>, last modified on Mar 12, 2015
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>This page highlights some ideas for code contributions. Some of these selections also appear in our <a href="Issue-Tracker_74082.html">issue tracker</a>. Please volunteer to pluck these fruit, or suggest high-priority, but low-effort tasks by creating new tracker entries. If you want to help out and don't know what to do, ask us on the <a href="Mailing-Lists_74161.html">mailing lists</a> and mention what kind of tasks you're interested in.</p><h1 id="Ideasforcodecontributions-Low-hangingfruit(highpriority,low-effort)">Low-hanging fruit (high priority, low-effort)</h1><ul><li><strong>Complete missing pieces of library interface</strong>: There are a handful of methods in Jikes RVM's implementation of a few core library classes (<a href="http://www.sourceforge.net/support/tracker.php?aid=1147437" class="external-link" rel="nofollow">java.lang.Class</a>, <a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1147439&amp;group_id=128805&amp;atid=712768" class="external-link" rel="nofollow">java.lang.Runtime</a>, <a href="http://www.sourceforge.net/support/tracker.php?aid=1147440" class="external-link" rel="nofollow">java.lang.Throwable</a>) that throw VM_UnimplementedError. Provide an implementation for one of these methods.</li><li><strong>Improve efficiency of some optimizing compiler phase</strong>: Many of the optimizing compiler passes use sub-optimal data structures, and compile-time could easily be improved. Some simple phases to start with include the local optimizations and flow-insensitive optimizations.</li><li><strong>Implement missing JNI functionality</strong>: See tracker items: <a href="http://jira.codehaus.org/browse/RVM-565" class="external-link" rel="nofollow">CreateJavaVM</a>, <a href="http://jira.codehaus.org/browse/RVM-566" class="external-link" rel="nofollow">Attach/DetachCurrentThread</a>. <a href="http://jira.codehaus.org/browse/RVM-119" class="external-link" rel="nofollow">OnUnload</a> is also missing but not a high priority because the Jikes RVM currently does <a href="http://jira.codehaus.org/browse/RVM-324" class="external-link" rel="nofollow">not implement class unloading</a>.</li><li><strong><a href="http://jira.codehaus.org/browse/RVM-567" class="external-link" rel="nofollow"><strong>Strip mining</strong></a></strong>: This optimization would be profitable, by reducing the overhead of yield point checks in tight loops.</li><li><strong><a href="http://jira.codehaus.org/browse/RVM-564" class="external-link" rel="nofollow"><strong>Global Array Bounds Check Elimination</strong></a></strong>: While the literature presents several algorithms for array bounds check elimination, the optimizing compiler does not have a complete implementation. Note that there are some non-trivial technical difficulties with <a href="http://dl.acm.org/citation.cfm?id=358438.349342" class="external-link" rel="nofollow">ABCD</a>, regarding integer overflow. A simple range propagation dataflow solver would be an improvement over what the system has now (namely nothing).</li></ul><h1 id="Ideasforcodecontributions-Highpriority,largeeffort">High priority, large effort</h1><ul><li><strong><a href="http://docs.codehaus.org/jira.codehaus.org/browse/RVM-549" rel="nofollow">Support for OpenJDK as a class library</a>:</strong> We have received community contributions for OpenJDK support. However, the patch set is large and not split into commits. Some parts of the patch set probably need to be changed or rewritten. You can help by grouping changes into commits and testing those. Reviews would also be helpful.</li><li><strong><a href="http://jira.codehaus.org/browse/RVM-977" class="external-link" rel="nofollow">Support for x64</a></strong><strong>:</strong> The situation is basicly the same as for OpenJDK.</li><li><strong>Improve situation for the optimizing compiler so that we can enable <a href="http://jira.codehaus.org/browse/RVM-656" class="external-link" rel="nofollow">previously disabled optimizations</a></strong>: There are a number of optimizations in the opt compiler that are currently disabled by default because they are considered too buggy. We currently don't have proper tests for the optimizing compilers so we need to write a lot of tests to ensure that the compiler works correctly. The compiler-internal IR verification (and its paranoid variant) could also be improved. There are also opportunities in the refactoring of the <a href="http://jira.codehaus.org/browse/RVM-239" class="external-link" rel="nofollow">phase organisation</a>.</li></ul><p>A number of other possible projects can be found on the Project proposals / ideas pages that are linked from for our <a href="http://docs.codehaus.org/display/RVM/Google+Summer+of+Code" rel="nofollow">Google Summer of Code pages</a>.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:31</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

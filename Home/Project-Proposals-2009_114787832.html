@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Project Proposals 2009</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Home_71108.html">Home</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Google-Summer-of-Code_74383603.html">Google Summer of Code</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Google-Summer-of-Code-2009_114787304.html">Google Summer of Code 2009</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Project Proposals 2009
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Ian Rogers</span>, last modified on Jan 20, 2009
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>This page captures project proposals for Jikes RVM for the Google SoC 2009. The page organizes projects into the major components of Jikes RVM they effect, these are: Garbage Collector (MMTk), Compilers and the Runtime System. We also have other projects that relate to Jikes RVM.</p>
+
+<h2 id="ProjectProposals2009-GarbageCollector(MMTk)proposals">Garbage Collector (MMTk) proposals</h2>
+
+<p>The Memory Management Toolkit (MMTk) is a renowned precise garbage collection framework that is used in Jikes RVM but also other run-time systems like Rotor and Singularity.</p>
+
+<h3 id="ProjectProposals2009-NewGarbageCollectionImplementationsforMMTk">New Garbage Collection Implementations for MMTk</h3>
+
+<p>We would be interested in hearing about adding new GC implementations to MMTk. Our highest priorities are <a href="http://doi.acm.org/10.1145/949343.949329" class="external-link" rel="nofollow">on-the-fly garbage collectors</a> (<a href="http://jira.codehaus.org/browse/RVM-400" class="external-link" rel="nofollow">RVM-400</a>), the <a href="http://doi.acm.org/10.1145/1133255.1134023" class="external-link" rel="nofollow">Compressor</a>(<a href="http://jira.codehaus.org/browse/RVM-401" class="external-link" rel="nofollow">RVM-401</a>), and a classic <a href="http://doi.acm.org/10.1145/359460.359470" class="external-link" rel="nofollow">Baker collector</a>(<a href="http://jira.codehaus.org/browse/RVM-403" class="external-link" rel="nofollow">RVM-403</a>).</p>
+
+<p>Implementing and debugging a garbage collector is difficult, if you apply for a GC implementation project please explain your knowledge of the collector in question and your experience at implementing garbage collectors.</p>
+
+<p>Interested mentors: Steve Blackburn</p>
+
+<h3 id="ProjectProposals2009-GarbageCollectionVisualization">Garbage Collection Visualization</h3>
+
+<p>Progress has been made on this project since 2008 and we should update the project proposal accordingly. How can it build on last year's work? What about the tuning fork framework?</p>
+
+<h3 id="ProjectProposals2009-SeparateHeapForVMobjects">Separate Heap For VM objects</h3>
+
+<p>In most JVMs there is no confusion between memory allocated for the application and memory allocated by the running of the VM itself (for example a call to malloc() within the JIT). However, in Jikes RVM, the VM and the application are both written in Java. Moreover, they currently share the same heap. It would be very desirable to improve this situation and separately allocate VM and application objects. Aside from cleaner accounting and behaving more like a production JVM, there may be opportunities for performance optimizations since the lifetimes of objects created by the JIT will typically be bounded by the invocation of a single compilation, as an example.</p>
+
+<p>This project would start by identifying all transitions from the application into the VM proper and channeling all such transitions through a zero-cost &quot;trap&quot;, which simply serves as a marker. The trap can be viewed as analogous to a kernel trap in the OS setting. The project would also involve writing a simple checking routine which would walk the stack and determine whether execution was currently within the VM or application context. The combination of these mechanisms could then be used to identify and verify all application&lt;-&gt;VM transitions.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-399" class="external-link" rel="nofollow">RVM-399</a></p>
+
+<p>Interested mentors: Steve Blackburn</p>
+
+<h2 id="ProjectProposals2009-Compilerproposals">Compiler proposals</h2>
+
+<p>Jikes RVM provides a quick baseline compiler that is easy to port, and a more advanced optimizing compiler. The optimizing compiler has been used for research into advanced optimizations for Java, such as new SSA forms for removing redundant instructions and parallelization. The baseline compiler has been used by ported to different architectures, used for instrumentation and used in different JVM projects.</p>
+
+<h3 id="ProjectProposals2009-OptimizingCompilerRestructure">Optimizing Compiler Restructure</h3>
+
+<p>We need to improve the compiler driver. Currently things are hard to understand and the compiler is very brittle.</p>
+
+<h3 id="ProjectProposals2009-x8664compilersupport">x86 64 compiler support</h3>
+
+<p>Jikes RVM support code generation for 64bit Intel CPUs, but bugs remain in garbage collection and implementation of the optimizing compiler hasn't yet been undertaken. This project will complete 64bit support.</p>
+
+<p>Interested mentors: Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-Reducecostofinliningruntimeservices">Reduce cost of inlining runtime services</h3>
+
+<p>This project will look to reduce the cost of optimizing services repeatedly within the optimizing compiler. </p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-148" class="external-link" rel="nofollow">RVM-148</a></p>
+
+<p>Interested mentors: Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-Loopunrolling">Loop unrolling</h3>
+
+<p>Implement a better loop unrolling phase taking into account various considerations about when and how to unroll.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-404" class="external-link" rel="nofollow">RVM-404</a> </p>
+
+<p>Interested mentors: Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-Copyeliminatingbaselinecompiler">Copy eliminating baseline compiler</h3>
+
+<p>Work on this has been undertaken so we should update/remove this proposal.</p>
+
+<h3 id="ProjectProposals2009-strictfpsupport">strictfp support</h3>
+
+<p>This project will look to extend existing compilers to have strictfp support to enable the execution of strict math code. </p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-235" class="external-link" rel="nofollow">RVM-235</a></p>
+
+<p>Interested mentors: Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-EmbeddedJikesRVM">Embedded Jikes RVM</h3>
+
+<p>Support for architectures like ARM.</p>
+
+<h2 id="ProjectProposals2009-Runtimeservices">Runtime services</h2>
+
+
+<h3 id="ProjectProposals2009-ClassUnloading">Class Unloading</h3>
+
+<p>Currently all classes share a &quot;Java table-of-contents&quot; or the JTOC which has no support for unloading classes. We need to restructure the JTOC interface to support class unloading by making it per class loader, or per class. This is likely to also involve looking into modifying the current calling conventions.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-324" class="external-link" rel="nofollow">RVM-324</a></p>
+
+<p>Interested mentors: Robin Garner, Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-LockReservation/Biasing">Lock Reservation/Biasing</h3>
+
+<p>Lock reservation and biasing are ways of giving threads ownership of objects so that they can avoid or use cheaper tests to confirm their ownership of an object. Handling contention and releasing ownership of the objects is complicated. This project will look to implement these schemes in the RVM.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-290" class="external-link" rel="nofollow">RVM-290</a> </p>
+
+<p>Interested mentors: Tony Hosking, Ian Rogers</p>
+
+<h3 id="ProjectProposals2009-JavaNativeAccess">Java Native Access</h3>
+
+<p>Implement a cleaner, more code in Java, native syscall interface that wraps libraries like JNA does. Move C code into Jikes RVM.</p>
+
+<h3 id="ProjectProposals2009-FlexibleThreading">Flexible Threading</h3>
+
+<p>Update this proposal to fix the thread model and reintroduce a greenthread mode of execution.</p>
+
+<h3 id="ProjectProposals2009-JVMTIimplementation">JVMTI implementation</h3>
+
+<p>Implement JVMTI to interface C debuggers and tools with Jikes RVM.</p>
+
+<h3 id="ProjectProposals2009-Harmonyclasslibraryintegration">Harmony class library integration</h3>
+
+<p>The Apache Harmony project provides open source class libraries and virtual machines that are aiming to be certified as Java compatible. The Harmony libraries are already used by a number of products, such as Google's Android, and have been integrated into Jikes RVM. This project will continue this integration to solve problematic areas such as integration of the runtime system with Harmony.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-358" class="external-link" rel="nofollow">RVM-358</a><br />
+<a href="http://wiki.apache.org/general/SummerOfCode2008#harmony-vm-2" class="external-link" rel="nofollow">Harmony-VM-2</a></p>
+
+<p>Interested mentors: Ian Rogers, Tim Ellison</p>
+
+<h3 id="ProjectProposals2009-OpenJDKclasslibraryintegration">OpenJDK class library integration</h3>
+
+<p>Continued integration?</p>
+
+<h3 id="ProjectProposals2009-Modularity">Modularity</h3>
+
+<p>Currently there is a connection between different parts of the RVM that is less than desirable. For example, the on-stack-replacement algorithm is implemented in parts in the class loader. We would like to have better isolation of components to more easily allow plug in replacements to be created. Such changes are likely to have an effect across the code base, so interacting with the development community will be important.</p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-405" class="external-link" rel="nofollow">RVM-405</a></p>
+
+<p>Interested mentors: Ian Rogers</p>
+
+<h2 id="ProjectProposals2009-ProjectsrelatingtoJikesRVM">Projects relating to Jikes RVM</h2>
+
+
+<h3 id="ProjectProposals2009-WorkonthecontinuedintegrationoftheRVMwithJNODE">Work on the continued integration of the RVM with JNODE</h3>
+
+<p>This project will look to continue to harmonize development effort of the Jikes RVM with the JNode operating system. </p>
+
+<p><a href="http://jira.codehaus.org/browse/RVM-382" class="external-link" rel="nofollow">RVM-382</a></p>
+
+<p>Interested mentors: Ian Rogers, Peter Barth, Fabien Duminy</p>
+
+<h3 id="ProjectProposals2009-JikesRVMfornewlanguages">Jikes RVM for new languages</h3>
+
+<p>JSR-292 support in Jikes RVM.. Untyped languages such as Jikes RVM for JavaScript</p>
+
+<h3 id="ProjectProposals2009-PearColator">PearColator</h3>
+
+<p>Development of PearColator as a Jikes RVM SoC project.</p>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:31</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>

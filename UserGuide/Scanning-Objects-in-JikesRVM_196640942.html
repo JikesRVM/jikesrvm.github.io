@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Scanning Objects in JikesRVM</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="User-Guide_73933.html">User Guide</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Architecture_73917.html">Architecture</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="MMTk_73767.html">MMTk</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Scanning Objects in JikesRVM
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Robin Garner</span>, last modified on Aug 30, 2013
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>One of the services that MMTk expects a virtual machine to perform on its behalf is the scanning of objects, i.e. identifying and processing the pointer fields of the live objects it encounters during collection. In principle the implementation of this interface is simple, but there are two moderately complex optimizations layered on top of this.</p><p>From MMTk's point of view, each time an object requires scanning it passes it to the VM, along with a TransitiveClosure object. The VM is expected to identify the pointers and invoke the processEdge method on each of the pointer fields in the object.  The rationale for the current object scanning scheme is presented <a href="http://portal.acm.org/citation.cfm?id=1993484" class="external-link" rel="nofollow">in this paper</a>.</p><h2 id="ScanningObjectsinJikesRVM-JikesRVMtoMMTkInterface">JikesRVM to MMTk Interface</h2><p>MMTk requires its host virtual machine to provide an implementation of the class org.mmtk.vm.Scanning as its interface to scanning objects.  JikesRVM's implementation of this class is found under the source tree MMTk/ext/vm/jikesrvm, in the class org.jikesrvm.mm.mmtk.Scanning.  The methods we are interested in are <em>scanObject(TransitiveClosure, ObjectReference)</em> and <em>specializedScanObject(int, TransitiveClosure, ObjectReference).</em></p><p>In MMTk, each plan defines one or more TransitiveClosure operations.  Simple full-heap collectors like MarkSweep only define one TransitiveClosure, but complex plans like GenImmix or the RefCount plans define several.  MMTk allows the plan to request specialized scanning on a closure-by-closure basis, closures that are specialized call <em>specializedScanObject</em> while unspecialized ones call scanObject.  Specialization is covered in more detail below.</p><p>In the absence of hand-inlined scanning, or if specialization is globally disabled, scanning reverts to the fallback method in org.jikesrvm.mm.mminterface.SpecializedScanMethod.  This method can be regarded as the basic underlying mechanism, and is worth understanding in detail.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">RVMType type = ObjectModel.getObjectType(objectRef.toObject());
+    int[] offsets = type.getReferenceOffsets();</pre>
+</div></div><p><span style="font-size: 10.0pt;line-height: 13.0pt;">This code fetches the array of offsets that JikesRVM uses to identify the pointer fields in the object.  This array is constructed by the classloader when a class is resolved.</span></p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">if (offsets != REFARRAY_OFFSET_ARRAY) {
+  for(int i=0; i &lt; offsets.length; i++) {
+    trace.processEdge(objectRef, objectRef.toAddress().plus(offsets[i]));
+  }</pre>
+</div></div><p>One distinguished value (actually null) is used to identify arrays of reference objects, and this block of code scans scalar objects by tracing each of the fields at the offsets given by the offset array.</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">} else {
+   for(int i=0; i &lt; ObjectModel.getArrayLength(objectRef.toObject()); i++) {
+    trace.processEdge(objectRef, objectRef.toAddress().plus(i &lt;&lt; LOG_BYTES_IN_ADDRESS));
+  }
+}</pre>
+</div></div><p>The other case is reference arrays, for which we fetch the array length and scan each of the elements.</p><p>The internals of trace.processEdge vary by collector and by collection type (e.g. nursery/full-heap in a generational collector), and the details need not concern us here.</p><h2 id="ScanningObjectsinJikesRVM-HandInlining">Hand Inlining</h2><p>Hand inlining was introduced in February 2011, and uses a cute technique to encode 3 bits of metadata into the TIB pointer in an object's header.  The 7 most frequent object patterns are encoded into these bits, and then special-case code is written for each of them.</p><p>Hand inlining produces an average-case speedup slightly better than specialization, but performs poorly on some benchmarks.  This is why we use it in combination with specialization.</p><h2 id="ScanningObjectsinJikesRVM-SpecializedScanning">Specialized Scanning</h2><p>Specialized Scanning was introduced in September 2007.  It speeds up GC by removing the process of fetching and interpreting the offset array that describes each object, by jumping directly to a hard-coded method for scanning objects with a particular pattern.</p><p>The departure point from &quot;standard&quot; java into the specialized scanning method is <code>SpecializedScanMethod.invoke(...)</code>, which looks like this</p><div class="code panel pdl" style="border-width: 1px;"><div class="codeContent panelContent pdl">
+<pre class="theme: Confluence; brush: java; gutter: false" style="font-size:12px;">@SpecializedMethodInvoke
+@NoInline
+public static void invoke(int id, Object object, TransitiveClosure trace) {
+  /* By default we call a non-specialized fallback */
+  fallback(object, trace);
+}
+</pre>
+</div></div><p>The <code>@SpecializedMethodInvoke</code> annotation signals to the compiler that it should dispatch to one of the specialized method slots in the TIB</p><pre><span style="font-size: 10.0pt;line-height: 13.0pt;font-family: Arial , Helvetica , FreeSans , sans-serif;">Creation of specialized methods is handled by the class </span><code style="font-size: 10.0pt;line-height: 13.0pt;">org.jikesrvm.classloader.SpecializedMethodManager</code><span style="font-size: 10.0pt;line-height: 13.0pt;font-family: Arial , Helvetica , FreeSans , sans-serif;">.</span></pre>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:25</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
