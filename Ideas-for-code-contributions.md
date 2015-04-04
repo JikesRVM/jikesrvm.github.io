@@ -1,4 +1,4 @@
---- 
+---
 layout: default 
 title: Ideas for code contributions
 ---

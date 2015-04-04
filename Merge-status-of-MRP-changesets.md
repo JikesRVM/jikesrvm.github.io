@@ -1,3 +1,8 @@
+---
+layout: default 
+title: Merge Status of MRP changesets
+---
+
 Almost all of the changes in MRP are potentially useful for Jikes RVM. This page lists the merge status for the changesets in MRP.
 
 Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.com/codehaus/mrp) and not to the one at [Google Code](http://code.google.com/p/metacircular/source/list) (the commit ids are different!).
