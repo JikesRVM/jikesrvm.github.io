@@ -1,7 +1,7 @@
 ---
 layout: home 
 title: Jikes RVM Home
- ---
+---
 
 Jikes RVM (Research Virtual Machine) provides a flexible open testbed
 to prototype virtual machine technologies and experiment with a large
