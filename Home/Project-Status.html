@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RVM : Project Status</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">RVM</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="Home.html">Home</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            RVM : Project Status
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+        
+    
+        
+    
+            Created by <span class='author'> Erik Brangs</span>, last modified on Mar 25, 2015
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <h1 id="ProjectStatus-Generalprojectstatus">General project status</h1><p>Jikes RVM is currently the most popular platform for virtual machine research. This popularity is reflected in the particpation on the <a href="Mailing-Lists.html">mailing lists</a> where most questions can be answered.</p><p>Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the <a href="http://docs.codehaus.org/display/RVM/Experimental+Guidelines">compiler replay</a> feature enables researchers to control mutator variation. The <a href="http://docs.codehaus.org/display/RVM/The+MMTk+Test+Harness">MMTk test harness</a> can be used to test collectors.</p><p>In contrast to this, the compilers are currently a weak spot in the Jikes RVM. For example, the Static Single Assignment (SSA) form in the compilers is currently disabled because of bugs.</p><p>The Jikes RVM is not state-of-the-art in some areas. In particular, Jikes RVM currently does not provide 64-bit Intel Support. Another big limitation is the lack of support for the OpenJDK class library. The project has received community contributions to improve those shortcomings but the code is not yet in the mainline. The Jikes RVM would also profit from efforts directed to stability improvements and bugfixes. For example, Jikes RVM currently cannot run all of the <a href="http://www.dacapobench.org/" class="external-link" rel="nofollow">Dacapo</a> 9.12 benchmarks.</p><p>The Jikes RVM team aims to provide at least one release every year.</p><p><em>Note: The information on this page refers to the status in the code repository and not to the status in the current release.</em></p><p><em>Note: If you want to help, please see <a href="How-to-Help.html">How to Help</a> or inquire via the mailing lists.<br /></em></p><h2 id="ProjectStatus-Near-termgoals">Near-term goals</h2><ul><li>Add support for the OpenJDK class libraries</li><li>Add Intel 64-bit support</li></ul><h2 id="ProjectStatus-Preliminarylong-termgoals(stillneedfurtherdiscussion)">Preliminary long-term goals (still need further discussion)</h2><ul><li>Improve stability</li><li>Improve compliance with JVM spec</li><li>Write unit tests for all classes</li><li>Improve and extend test suites</li><li>Add support for relevant new platforms (ARM?)</li><li>Merge relevant changes from MRP</li></ul><h1 id="ProjectStatus-Detailedprojectstatus">Detailed project status</h1><p>This section provides more detailed project status information for the components. If you think an important point is missing here, please contact us via the mailing lists.</p><h2 id="ProjectStatus-Benchmarks">Benchmarks</h2><ul><li>DaCapo 2006-MR-2 runs on Jikes RVM</li><li>Some benchmarks of DaCapo 9.12 work</li><li>Parts of SPECjvm2008 work (see <a href="http://jira.codehaus.org/browse/RVM-484" class="external-link" rel="nofollow">RVM-484</a>)</li></ul><h2 id="ProjectStatus-Community">Community</h2><ul><li>Jikes RVM has a large community in its intended audience (researchers)</li><li>Core team consists wholly of volunteers: no paid developers</li><li>Jikes RVM is currently not packaged for any major distribution</li></ul><h2 id="ProjectStatus-MemoryManagement">Memory Management</h2><ul><li>Generational Immix (the default collector) is stable</li><li>The other collectors are reasonably stable but have some bugs (as shown by the regression tests)</li><li>The MarkCompact collector is currently <a href="http://jira.codehaus.org/browse/RVM-1039" class="external-link" rel="nofollow">too buggy</a> to use</li><li>Notable omissions in the collector choices include Baker-style collectors, the Compressor and on-the-fly collectors. <strong>Note: There is an implementation of the <a href="http://jira.codehaus.org/browse/RVM-893" class="external-link" rel="nofollow">Sapphire</a></strong><strong> garbage collector for Jikes RVM but as far as we know there's currently nobody working on getting the code into the mainline.</strong></li><li>MMTk currently doesn't <a href="https://jira.codehaus.org/browse/RVM-816" class="external-link" rel="nofollow">deal correctly</a> with page sizes</li></ul><h2 id="ProjectStatus-Runtime">Runtime</h2><ul><li>The runtime is reasonably modular but it doesn't make very good use of interfaces</li><li>Jikes RVM currently does not follow the JVM specification</li><li>Several features normally found in commercial JVMs are not implemented: strictfp, JMX and JVMTI are currently unsupported</li></ul><h2 id="ProjectStatus-AdaptiveOptimizationSystem">Adaptive Optimization System</h2><ul><li>The AOS provides a good level of control via compiler replay</li><li>The AOS provides clear extension points</li><li>Jikes RVM currently uses only one compilation thread at runtime and the current AOS model does not support multiple compilation threads</li><li>The provided AOS models do not support Feedback-Directed Optimizations</li></ul><h2 id="ProjectStatus-Compilers">Compilers</h2><ul><li>SSA form is disabled. Scalar SSA form may be fixable; Heap SSA form is considered too broken</li><li>Many optimizations are disabled because they rely on SSA or are considered too buggy</li><li>Some standard optimizations are missing, e.g. Global Array Bound check elimination</li><li>Java Memory Model (JMM) is not correctly implemented</li><li>Bootimage compilation is single-threaded by default because it is too unrealiable with multiple threads</li></ul><h2 id="ProjectStatus-Infrastructure">Infrastructure</h2><ul><li>Regression tests are run regulary and reports are sent to the regressions mailing list</li><li>Core team members have access to a Jenkins server to view test results in detail</li><li>More regression machines would be useful, in particular PowerPC machines that can be accessed by all team members</li><li>Currently no code review tools in use</li><li>Some unit tests (via JUnit) exist but most classes don't have unit tests</li></ul>
+                    </div>
+
+                    
+                 
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 01, 2015 16:31</p>
+                    <div id="footer-logo"><a href="http://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
