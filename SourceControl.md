@@ -48,7 +48,7 @@ which uses your sourceforge ssh key for authentication.
 
 ### Commit messages
 
-Please write a commit message that describes the purpose of the change. If you are committing code to fix a jira issue please include the identifier (i.e. RVM-53) in the commit message. If you are committing code supplied by another individual please indicate the individual.
+Please write a commit message that describes the purpose of the change. If you are committing code to fix a JIRA issue please include the identifier (i.e. RVM-53) in the commit message. If you are committing code supplied by another individual please indicate the individual.
 
 ### Commit content
 

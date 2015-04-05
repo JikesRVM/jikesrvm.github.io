@@ -109,9 +109,11 @@ Jikes RVM uses either the class libraries produced by the [GNU Classpath project
 
 Thanks to [David R. Hanson](http://research.microsoft.com/~drh), [Christoper W. Fraser](http://research.microsoft.com/~cwfraser), and [Todd Proebsting](http://research.microsoft.com/~toddpro) for making available the [iburg tool](http://cs.princeton.edu/software/iburg), which we've enhanced for use in Jikes RVM.
 
-Thanks to [Codehaus](http://www.codehaus.org) and [Sourceforge](http://www.sourceforge.org) for providing hosting services.
+Thanks to [Atlassian](https://www.atlassian.com] and [Sourceforge](http://www.sourceforge.org) for providing hosting services.
 
 Thanks to the [GCC Compile Farm Project](https://gcc.gnu.org/wiki/CompileFarm) for providing access to PPC machines for free software development.
+
+Thanks to Ben Walding and Bob McWhirter from [Openxource](http://openxource.com/) who provided hosting services to the Jikes RVM project via Codehaus in the past.
 
 ### The Jalapeño Research Project
 

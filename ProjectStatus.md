@@ -42,7 +42,7 @@ This section provides more detailed project status information for the component
 
 - DaCapo 2006-MR-2 runs on Jikes RVM
 - Some benchmarks of DaCapo 9.12 work
-- Parts of SPECjvm2008 work (see [RVM-484](http://jira.codehaus.org/browse/RVM-484))
+- Parts of SPECjvm2008 work (see [RVM-484](http://xtenlang.atlassian.net/browse/RVM-484))
 
 ## Community
 
@@ -54,9 +54,9 @@ This section provides more detailed project status information for the component
 
 - Generational Immix (the default collector) is stable
 - The other collectors are reasonably stable but have some bugs (as shown by the regression tests)
-- The MarkCompact collector is currently [too buggy](http://jira.codehaus.org/browse/RVM-1039) to use
-- Notable omissions in the collector choices include Baker-style collectors, the Compressor and on-the-fly collectors. **Note: There is an implementation of the [Sapphire](http://jira.codehaus.org/browse/RVM-893)**** garbage collector for Jikes RVM but as far as we know there's currently nobody working on getting the code into the mainline.**
-- MMTk currently doesn't [deal correctly](https://jira.codehaus.org/browse/RVM-816) with page sizes
+- The MarkCompact collector is currently [too buggy](http://xtenlang.atlassian.net/browse/RVM-1039) to use
+- Notable omissions in the collector choices include Baker-style collectors, the Compressor and on-the-fly collectors. **Note: There is an implementation of the [Sapphire](http://xtenlang.atlassian.net/browse/RVM-893) garbage collector for Jikes RVM but as far as we know there's currently nobody working on getting the code into the mainline.**
+- MMTk currently doesn't [deal correctly](https://xtenlang.atlassian.net/browse/RVM-816) with page sizes
 
 ## Runtime
 

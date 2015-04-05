@@ -125,7 +125,7 @@ Jikes RVM has been successfully used with the SimICS functional simulator.
 
 For some research, cycle accurate simulation is necessary (as opposed to functional simulation). People at UMass and U Texas created [DSS](http://www-ali.cs.umass.edu/DSS/), which is an extension of SimpleScalar to support the needs of Jikes RVM. However, it does not support versions of Jikes RVM more recent than 2.4.4 because of a variety of new dependencies in Jikes RVM and GNU Classpath that emerged after 2.4.4. People at U Texas and ANU investigated and determined that the effort involved in bringing DSS up to speed was too great to warrant the effort involved.
 
-A number of people at ANU, U Texas and Kent are using [PTLSim](http://ptlsim.org). However PTLSim does not currently support Jikes RVM due to a bug in its IA32 signal handling code. PTLSim is however stable in IA32-64, so once a [port](http://jira.codehaus.org/browse/RVM-711) of Jikes RVM to IA32-64 is done, it should be possible to simulate Jikes RVM over PTLSim.
+A number of people at ANU, U Texas and Kent are using [PTLSim](http://ptlsim.org). However PTLSim does not currently support Jikes RVM due to a bug in its IA32 signal handling code. PTLSim is however stable in IA32-64, so once a [port](http://xtenlang.atlassian.net/browse/RVM-711) of Jikes RVM to IA32-64 is done, it should be possible to simulate Jikes RVM over PTLSim.
 
 ### MMTk
 

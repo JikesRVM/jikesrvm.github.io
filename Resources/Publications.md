@@ -39,7 +39,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 
 - R. Shahriyar, S. M. Blackburn, and D. Frampton
 - ACM SIGPLAN International Symposium on Memory Management, ISMM ‘12, Beijing, China, June 15-16, 2012
-- Source code available in the Jikes RVM repository as of August 2012 (see [RVM-979](https://jira.codehaus.org/browse/RVM-979))
+- Source code available in the Jikes RVM repository as of August 2012 (see [RVM-979](https://xtenlang.atlassian.net/browse/RVM-979))
 
 ### [Barriers Reconsidered: Friendlier Still!](http://doi.acm.org/10.1145/2258996.2259004)
 
@@ -240,19 +240,19 @@ If you would like to see a paper listed then please send details to the [RVM res
 
 - Ian Rogers, Jisheng Zhao and Ian Watson
 - [Implementation, Compilation, Optimization of Object-Oriented Languages, Programs and Systems (ICOOOLPS)](http://icooolps.loria.fr/), Cyprus, 7 July 2008.
-- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://jira.codehaus.org/browse/RVM-515)
+- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://xtenlang.atlassian.net/browse/RVM-515)
 
 ### [Pure Method Analysis within Jikes RVM](ftp://ftp.cs.man.ac.uk/pub/apt/papers/ZhaoRogersKirkhamWatson_ICOOOLPS2008_purity.pdf)
 
 - Jisheng Zhao, Ian Rogers, Chris Kirkham and Ian Watson
 - [Implementation, Compilation, Optimization of Object-Oriented Languages, Programs and Systems (ICOOOLPS)](http://icooolps.loria.fr/), Cyprus, 7 July 2008.
-- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://jira.codehaus.org/browse/RVM-516)
+- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://xtenlang.atlassian.net/browse/RVM-516)
 
 ### [Approaches to Reflective Method Invocation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/RogersZhaoWatson_ICOOOLPS2008_reflection.pdf)
 
 - Ian Rogers, Jisheng Zhao and Ian Watson
 - [Implementation, Compilation, Optimization of Object-Oriented Languages, Programs and Systems (ICOOOLPS)](http://icooolps.loria.fr/), Cyprus, 7 July 2008.
-- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://jira.codehaus.org/browse/RVM-517)
+- [Presentation](ftp://ftp.cs.man.ac.uk/pub/apt/papers/Rogers_ICOOOLPS2008_presentation.ppt), [tracker and source code](http://xtenlang.atlassian.net/browse/RVM-517)
 
 ### Speculative Multithreading: An Object-Driven Approach
 

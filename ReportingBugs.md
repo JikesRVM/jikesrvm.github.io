@@ -9,9 +9,7 @@ Thank you for coming to this page. We are sorry if you are experiencing difficul
 
 ## How to report bugs
 
-_ **Note: we're currently in the process of migrating the bug tracker. Please report bugs on the mailing lists in the meantime.** _
-
-The Jikes RVM Bug Tracker is managed using a system called JIRA, which is really friendly to use. To avoid spam, JIRA does require a user account when reporting or commenting on issues.
+The Jikes RVM Bug Tracker is managed using a system called [JIRA](https://xtenlang.atlassian.net/browse/RVM), which is really friendly to use. To avoid spam, JIRA does require a user account when reporting or commenting on issues.
 
 You can also report your bug on the researchers [mailing list](/MailingLists/). Do not report bugs on the core mailing list unless you are willing to work on a solution.
 
