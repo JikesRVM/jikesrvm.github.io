@@ -11,11 +11,11 @@ There are various roles people play in the Jikes RVM project. The more you contr
 
 ### User
 
-_Users_ are the people who use Jikes RVM, without contributing code or documentation to the project. Users are encouraged to participate through the mailing lists, asking questions, providing suggestions, and helping other users. Users are also encouraged to report problems using the [bug tracking system](Issue-Tracker.html#IssueTracker-bug). Anyone can be a user.
+_Users_ are the people who use Jikes RVM, without contributing code or documentation to the project. Users are encouraged to participate through the mailing lists, asking questions, providing suggestions, and helping other users. Users are also encouraged to report problems using the [bug tracking system](/IssueTracker/). Anyone can be a user.
 
 ### Contributor
 
-A user who [contributes](Contributions.html) code or documentation becomes a _contributor_. Contributors are the people who contribute enhancements, bug fixes, documentation, or other work that is incorporated into the system. Anyone can be a contributor.
+A user who [contributes](/Contributions/) code or documentation becomes a _contributor_. Contributors are the people who contribute enhancements, bug fixes, documentation, or other work that is incorporated into the system. Anyone can be a contributor.
 
 The most efficient way to make non-trivial contributions to the project's documentation (User Guide and other online material) is to edit the wiki pages yourself. If you are interested in contributing in this fashion, please contact one of the Steering Committee members to ask for edit permissions to our wiki space.
 
