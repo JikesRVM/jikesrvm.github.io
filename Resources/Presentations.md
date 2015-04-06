@@ -14,7 +14,7 @@ This page contains slides from stand-alone presentations. Some of the [Publicati
 
 - Download: [PowerPoint](ftp://ftp.cs.man.ac.uk/pub/apt/presentations/irogers_fosdem07.ppt) (5.8MB)
 
-## Dynamic Compilation and Adaptive Optimization in Virtual Machines
+<h2 id="Presentations-dynamic-compilation">Dynamic Compilation and Adaptive Optimization in Virtual Machines</h2>
 
 - Authors: '' [Matthew Arnold](http://www.research.ibm.com/people/m/marnold), [Stephen Fink](http://www.research.ibm.com/people/s/sfink), [David Grove](http://www.research.ibm.com/people/d/dgrove), and [Michael Hind](http://www.research.ibm.com/people/h/hind)''
 - Instructor: [Michael Hind](http://www.research.ibm.com/people/h/hind)
@@ -31,7 +31,7 @@ This page contains slides from stand-alone presentations. Some of the [Publicati
 
 - Download: [PDF](http://www.research.ibm.com/people/h/hind/ACACES06.pdf) (3.3MB)
 
-## MMTk: The Memory Management Toolkit
+<h2 id="Presentations-mmtk">MMTk: The Memory Management Toolkit</h2>
 
 - Presentors: '' [Steve Blackburn](http://cs.anu.edu.au/~Steve.Blackburn) and [Perry Cheng](http://www.research.ibm.com/people/p/perryche)''
 - Conference: [ISMM'04](http://www.research.ibm.com/ismm04), October 23, 2004 (ISMM'04 Tutorial)
@@ -44,7 +44,7 @@ This page contains slides from stand-alone presentations. Some of the [Publicati
 - Event: Group presentation at University of Alberta, March 20, 2003.
 - Download: [PowerPoint (280K)](http://www.cs.ualberta.ca/~amaral/courses/605-jit/jikesIR.ppt) or [PDF (247K)](http://www.ugrad.cs.ubc.ca/~cs411/2006W2/handouts/jikes-IR-shane-brewer.pdf)
 
-## The Design and Implementation of the Jikes RVM Optmizing Compiler
+<h2 id="Presentations-rvm">The Design and Implementation of the Jikes RVM Optmizing Compiler</h2>
 
 - Presentors: ''David Grove and Michael Hind''
 - Conference: [OOPSLA '02](http://www.oopsla.org), November 5, 2002 (OOPSLA '02 Tutorial)

@@ -727,7 +727,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 - ''2005 International Symposium on Code Generation and Optimization'', San Jose, California, March 2005.
 - '''(Source code available as of version 2.3.5 of Jikes RVM.)'''
 
-### [The Jikes Research Virtual Machine project: Building an open-source research community](http://www.research.ibm.com/journal/sj/442/alpern.pdf)
+<h3 id="Publications-rvmoss"><a href="http://www.research.ibm.com/journal/sj/442/alpern.pdf">The Jikes Research Virtual Machine project: Building an open-source research community</a></h3>
 
 - B. Alpern, [S. Augart](http://www.augart.com), [S.M. Blackburn](http://cs.anu.edu.au/%7ESteve.Blackburn), M. Butrico, A. Cocchi, [P Cheng](http://www.research.ibm.com/people/p/perryche), J. Dolby, [S. Fink](http://www.research.ibm.com/people/s/sfink), [D. Grove](http://www.research.ibm.com/people/d/dgrove), [M. Hind](http://www.research.ibm.com/people/h/hind), [K.S. McKinley](http://www.cs.utexas.edu/users/mckinley), M. Mergen, [J.E.B. Moss](http://ali-www.cs.umass.edu/%7Emoss), T. Ngo, [V. Sarkar](http://www.research.ibm.com/people/v/vsarkar), and M. Trapp.
 - '' [IBM Systems Journal](http://www.research.ibm.com/journal/sj)'', Vol 44, No 2, 2005.
@@ -1016,7 +1016,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 - [Igor Pechtchanski](http://www.cs.nyu.edu/phd_students/pechtcha) and [Vivek Sarkar](http://www.research.ibm.com/people/v/vsarkar).
 - [''Joint ACM Java Grande - ISCOPE 2002 Conference''](http://charm.cs.uiuc.edu/javagrandeIscope), Seatle, Washington, November 3-5, 2002.
 
-### [Experiences Porting the Jikes RVM to Linux/IA32](http://www.research.ibm.com/people/d/dgrove/papers/jvm02.html)
+<h3 id="Publications-port"><a href="http://www.research.ibm.com/people/d/dgrove/papers/jvm02.html">Experiences Porting the Jikes RVM to Linux/IA32</a></h3>
 
 - Bowen Alpern, Maria Butrico, Tony Cocchi, Julian Dolby, [Stephen Fink](http://www.research.ibm.com/people/s/sfink), [David Grove](http://www.research.ibm.com/people/d/dgrove), and Ton Ngo.
 - ''2nd Java Virtual Machine Research and Technology Symposium (JVM '02)'', San Francisco, California, August 1-2, 2002.
@@ -1185,7 +1185,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 - ''3rd ACM Workshop on Feedback-Directed and Dynamic Optimization (FDDO-3)'', December 10, 2000, Monterey, California.
 - '''(Source code available as of version 2.0.0 of Jikes RVM.)'''
 
-### [Adaptive Optimization in the Jalapeño JVM](http://www.cs.virginia.edu/%7Esoffa/cs851/arnold.pdf)
+<h3 id="Publications-aos"><a href="http://www.cs.virginia.edu/%7Esoffa/cs851/arnold.pdf">Adaptive Optimization in the Jalapeño JVM</a></h3>
 
 - [Matthew Arnold](http://www.research.ibm.com/people/m/marnold), [Stephen Fink](http://www.research.ibm.com/people/s/sfink), [David Grove](http://www.research.ibm.com/people/d/dgrove), [Michael Hind](http://www.research.ibm.com/people/h/hind), and [Peter F. Sweeney](http://www.research.ibm.com/people/p/pfs).
 - ''ACM SIGPLAN Conference on Object-Oriented Programming Systems, Languages, and Applications (OOPSLA 2000)'', Minneapolis, Minnesota, October 15-19, 2000.
@@ -1229,8 +1229,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 - [Manish Gupta](http://www.research.ibm.com/people/g/gupta), [Jong-Deok Choi](http://www.research.ibm.com/people/j/jdchoi), and [Michael Hind](http://www.research.ibm.com/people/h/hind).
 - '' 14th European Conference on Object-Oriented Programming (ECOOP 2000),'', June 12-16, 2000, Cannes, France.
 
-### [The Jalapeño Virtual Machine](http://www.research.ibm.com/journal/sj/391/alpern.pdf)
-
+<h3 id="Publications-jalapeno"><a href="http://www.research.ibm.com/journal/sj/391/alpern.pdf">The Jalapeño Virtual Machine</a></h3>
 - B. Alpern, C. R. Attanasio, J. J. Barton, M. G. Burke, [P Cheng](http://www.research.ibm.com/people/p/perryche), [J.-D. Choi](http://www.research.ibm.com/people/j/jdchoi), A. Cocchi, [S. J. Fink](http://www.research.ibm.com/people/s/sfink), [D. Grove](http://www.research.ibm.com/people/d/dgrove), [M. Hind](http://www.research.ibm.com/people/h/hind), S. F. Hummel, D. Lieber, V. Litvinov, M. F. Mergen, T. Ngo, J. R. Russell, [V. Sarkar](http://www.research.ibm.com/people/v/vsarkar), M. J. Serrano, J. C. Shepherd, S. E. Smith, V. C. Sreedhar, H. Srinivasan, and J. Whaley.
 - ''IBM System Journal'', Vol 39, No 1, February 2000.
 - '''(Source code available as of version 2.0.0 of Jikes RVM.)'''
@@ -1242,7 +1241,7 @@ If you would like to see a paper listed then please send details to the [RVM res
 
 ## 1999
 
-### [Implementing Jalapeño in Java](http://cs.anu.edu.au/%7ESteve.Blackburn/teaching/comp4700/resources/papers/jalapeno-oopsla-1999.pdf)
+<h3 id="Publications-jalapenoinjava"><a href="http://cs.anu.edu.au/%7ESteve.Blackburn/teaching/comp4700/resources/papers/jalapeno-oopsla-1999.pdf">Implementing Jalapeño in Java</a></h3>
 
 - Bowen Alpern, Dick Attanasio, John J. Barton, Anthony Cocchi, Susan Flynn Hummel, Derek Lieber, Mark Mergen, Ton Ngo, Janice Shepherd, and Stephen Smith.
 - ''1999 ACM SIGPLAN Conference on Object-Oriented Programming Systems, Languages, and Applications (OOPSLA '99)'', Denver, Colorado, November 1, 1999.
