@@ -5,7 +5,7 @@ title: Research Archive
 
 For science to advance, researchers must be able to reproduce past results, and ultimately improve on them. In systems software research, results often depend on myriad implementation details that cannot be conveyed in a research paper. Although many systems research papers include information on algorithms, benchmarks, and experimental methodology, this information ultimately fails to facilitate reproducible results.
 
-Jikes RVM is a [widely adopted](Publications_73971.html) open source research infrastructure. We would like to encourage researchers to publish source code used in their studies, and thus, allow others to build on their results.
+Jikes RVM is a [widely adopted](/Publications/) open source research infrastructure. We would like to encourage researchers to publish source code used in their studies, and thus, allow others to build on their results.
 
 We hope to facilitate this practice by providing a [Research Archive](http://sourceforge.net/tracker/?atid=723235&group_id=128805&func=browse) mechanism, where researchers can contribute patches against specific versions of Jikes RVM that either reproduce a published research result or are useful research infrastructure that is not included in the main repository.
 

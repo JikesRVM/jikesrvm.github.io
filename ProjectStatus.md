@@ -5,9 +5,9 @@ title: Project Status
 
 # General project status
 
-Jikes RVM is currently the most popular platform for virtual machine research. This popularity is reflected in the particpation on the [mailing lists](Mailing-Lists.html) where most questions can be answered.
+Jikes RVM is currently the most popular platform for virtual machine research. This popularity is reflected in the particpation on the [mailing lists](/MailingLists/) where most questions can be answered.
 
-Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the [compiler replay](http://docs.codehaus.org/display/RVM/Experimental+Guidelines) feature enables researchers to control mutator variation. The [MMTk test harness](http://docs.codehaus.org/display/RVM/The+MMTk+Test+Harness) can be used to test collectors.
+Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the [compiler replay](/UserGuide/Experimental-Guidelines_73336.html) feature enables researchers to control mutator variation. The [MMTk test harness](/UserGuide/The-MMTk-Test-Harness_91750431.html) can be used to test collectors.
 
 In contrast to this, the compilers are currently a weak spot in the Jikes RVM. For example, the Static Single Assignment (SSA) form in the compilers is currently disabled because of bugs.
 
@@ -17,8 +17,7 @@ The Jikes RVM team aims to provide at least one release every year.
 
 _Note: The information on this page refers to the status in the code repository and not to the status in the current release._
 
-_Note: If you want to help, please see [How to Help](How-to-Help.html) or inquire via the mailing lists.  
-_
+_Note: If you want to help, please see [How to Help](/HowToHelp/) or inquire via the mailing lists._
 
 ## Near-term goals
 

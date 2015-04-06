@@ -3,7 +3,7 @@ layout: default
 title: Dissertations
 ---
 
-Below is a list of all dissertations that use Jikes RVM. We **strongly encourage** authors to utilize the [Research Archive](http://sourceforge.net/tracker/?group_id=128805&atid=723235) to **publish source code** used in their studies, and thus, allow others to build on their results. For information on reviewed papers, see the main [Publications](Publications_73971.html) page.
+Below is a list of all dissertations that use Jikes RVM. We **strongly encourage** authors to utilize the [Research Archive](http://sourceforge.net/tracker/?group_id=128805&atid=723235) to **publish source code** used in their studies, and thus, allow others to build on their results. For information on reviewed papers, see the main [Publications](/Resources/Publications/) page.
 
 ## 2013
 

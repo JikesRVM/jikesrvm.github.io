@@ -19,5 +19,5 @@ title: Trademarks
 
 **Intel** is a registered trademark of Intel Corporation.
 
-Other product names mentioned herein may be the trademarks or registered trademarks of their respective owners. If you are aware of any trademarks in this document that we have failed to attribute properly, please notify us by [opening a bug report](Issue-Tracker.html#IssueTracker-bug).
+Other product names mentioned herein may be the trademarks or registered trademarks of their respective owners. If you are aware of any trademarks in this document that we have failed to attribute properly, please notify us by [opening a bug report](/IssueTracker/).
 

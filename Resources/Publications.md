@@ -5,7 +5,7 @@ title: Publications
 
 Below is a list of publications that use Jikes RVM. This list includes both papers written by Jikes RVM developers, as well as users of the system. We **strongly encourage** authors to utilize the [Research Archive](http://sourceforge.net/tracker/?group_id=128805&atid=723235) to **publish source code** used in their studies, and thus, allow others to build on their results. When the implementation described in a paper is available in a Jikes RVM release, this is noted with the paper.
 
-Information of dissertations relating to the Jikes RVM is [available here](Dissertations_73972.html).
+Information of dissertations relating to the Jikes RVM is [available here](/Resources/Dissertations/).
 
 If you would like to see a paper listed then please send details to the [RVM researchers mailing list](/MailingLists).
 
