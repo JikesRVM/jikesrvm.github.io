@@ -20,7 +20,7 @@ application resources such as objects, threads, and operating-system
 interfaces.
 
 Many
-[researchers](/CurrentUsers/) have
+[researchers](/Resources/CurrentUsers/) have
 found that Jikes RVM provides a useful vehicle for
 [research](/Resources/) on
 the frontiers of virtual machine technologies (over 188
