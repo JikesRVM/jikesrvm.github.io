@@ -53,7 +53,7 @@ Despite these limitations Jikes RVM can run many preexisting substantial Java ap
 
 #### Why is Jikes RVM of interest to the research community?
 
-In 2001, early versions of Jikes RVM were made available to 16 universities under a pre-release license. These universities found that Jikes RVM provides the best available vehicle for research on the frontiers of virtual machine technology. Many of these universities discarded their own efforts in building a VM for research purposes, in favor of using Jikes RVM. Furthermore, since the open source release of Jikes RVM in Oct 2001, dozens of [publications](http://docs.codehaus.org/display/RVM/Publications) have appeared at top conferences written by users of the system. Furthermore, numerous [courses](http://docs.codehaus.org/display/RVM/Courses) have been taught using Jikes RVM. Over 80 [universities](http://docs.codehaus.org/display/RVM/Current+Users) have used Jikes RVM.
+In 2001, early versions of Jikes RVM were made available to 16 universities under a pre-release license. These universities found that Jikes RVM provides the best available vehicle for research on the frontiers of virtual machine technology. Many of these universities discarded their own efforts in building a VM for research purposes, in favor of using Jikes RVM. Furthermore, since the open source release of Jikes RVM in Oct 2001, dozens of [publications](/Resources/Publications/) have appeared at top conferences written by users of the system. Furthermore, numerous [courses](/Resources/Courses) have been taught using Jikes RVM. Over 80 [universities](/Resources/CurrentUsers/) have used Jikes RVM.
 
 Properties of Jikes RVM that these researchers have found useful are:
 
