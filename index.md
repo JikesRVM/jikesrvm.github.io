@@ -28,7 +28,7 @@ the frontiers of virtual machine technologies (over 188
 36
 [dissertations](/Resources/Dissertations/)),
 as well as [teaching
-courses](/Resources/Courses). If
+courses](/Resources/Courses/). If
 you are looking for where to start reading about the Jikes RVM we have
 a [recommended reading](/RecommendedReading/) page.
 
