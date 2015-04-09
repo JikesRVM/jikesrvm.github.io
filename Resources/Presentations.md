@@ -54,7 +54,7 @@ This page contains slides from stand-alone presentations. Some of the [Publicati
   - This tutorial presents an overview of the Jikes RVM optimizing compiler. The first part of the tutorial covers the structure of the compiler, focusing on the requirements, goals, and design of its intermediate representation (IR). The second part of the tutorial covers some of the compiler's extensive set of analyses and optimizations, ranging from simple local analyzes to SSA-based flow-sensitive optimizations with type-based heap analysis. The last part covers the integration of the optimizing compiler into the adaptive optimization system, focusing on instrumentation compilation and feedback-directed optimizations.
   - Specific issues to be covered include: optimizing the memory model, precise exceptions, and dynamic class loading; compiler requirements for runtime support of garbage collection maps, scheduling (yield points), exception tables, line number information; compiler/runtime system cooperation for fast object allocation and runtime services (for example dynamic type checking or invokeinterface); compiler structure for multiple platforms; tracing an interesting method (for example, one of our enumeration loops from the compiler) through key optimizations to illustrate how type analysis, inlining, scalar replacement, plus a set of traditional optimizations work together; etc.
 
-- Download: [PDF](http://docs.codehaus.org/download/attachments/74737/oopsla02-tutorial.pdf?version=1&modificationDate=1349985434873&api=v2) (4,250KB)
+- Download: [PDF](/files/oopsla02-tutorial.pdf) (4,250KB)
 
 ## The Design and Implementation of the Jikes RVM Optmizing Compiler
 
