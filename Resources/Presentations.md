@@ -36,7 +36,7 @@ This page contains slides from stand-alone presentations. Some of the [Publicati
 - Presentors: '' [Steve Blackburn](http://cs.anu.edu.au/~Steve.Blackburn) and [Perry Cheng](http://www.research.ibm.com/people/p/perryche)''
 - Conference: [ISMM'04](http://www.research.ibm.com/ismm04), October 23, 2004 (ISMM'04 Tutorial)
 - Abstract: MMTk is a framework for construction of garbage collectors within the open-source Jikes Research Virtual Machine. The tutorial was given by two of its creators.
-- Download: [PDF](http://www.research.ibm.com/ismm04/slides/mmtk-tutorial.pdf) (325KB)
+- Download: [PDF](/files/mmtk-tutorial.pdf) (325KB)
 
 ## Jikes RVM Optimizing Compiler Intermediate Code Representation
 
