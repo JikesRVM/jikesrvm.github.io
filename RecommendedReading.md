@@ -25,8 +25,8 @@ To learn more about the system, you may want to read:
 - [Tutorial slides](/Resources/Presentations)  
 
   - [MMTk memory management toolkit](/Resources/Presentations#Presentations-mmtk) (Oct. 2004)
-  - [Optimizing compiler and adaptive system](attachments/74737/229707442.pdf) (Nov. 2002)
+  - [Optimizing compiler and adaptive system](/files/oopsla02-tutorial.pdf) (Nov. 2002)
   - [Complete system](/Resources/Presentations#Presentations-rvm) (Sept. 2001)
-  - General field of [dynamic compilation and adaptive optimization](/Resources/Presentations#Presentations-dynamic-compilation) (June. 2004)
+  - General field of [dynamic compilation and adaptive optimization](/files/aos-pldi2004.pdf) (June. 2004)
 
 - [User Guide](/UserGuide/)
