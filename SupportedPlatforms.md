@@ -5,26 +5,27 @@ title: Supported Platforms
 
 # Well-supported platforms
 
-The Jikes RVM version 3.1.2 runs on the following systems:
+The Jikes RVM version 3.1.3 runs on the following systems:
 
 - IA-32 Linux [®](/Trademarks/)
-- PowerPC 32 and 64 AIX [™](/Trademarks/) (big endian only)
-- PowerPC 32 and 64 Linux [®](/Trademarks/) (big endian)
+- PowerPC 64 Linux [®](/Trademarks/) (big endian)
 
 Regression tests are regularly run for these platforms.
 
 # Less well-supported platforms
 
-We also support the following operating systems:
+We also support the following platforms:
 
 - OS X
 - Solaris
+- AIX
+- PowerPC 32
 
-We rely on the help of the community to provide support for these platforms because we do not have any regression machines for them.
-
-Jikes RVM on Solaris may not work out-of-the-box as it does not seem to get much use.
+We rely on the help of the community to provide support for these platforms. We do not have any regression machines for them so the current development version (or release) may be broken at any given time on these platforms. If you notice a problem on these platforms, please consider providing a patch to correct the problem.
 
 # Currently unsupported platforms
+
+We are happy to take patches to support more platforms.
 
 ## Architectures
 
@@ -34,5 +35,4 @@ Jikes RVM on Solaris may not work out-of-the-box as it does not seem to get much
 
 ## Operating Systems
 
-- Windows is currently [not supported](http://xtenlang.atlassian.net/browse/RVM-630). If you are interested in support for Windows, you can take a look at [Metacircular Research Platform](http://mrp.codehaus.org), a fork of the Jikes RVM. It provides support for building on Windows (using the class libraries from the now retired Apache Harmony project).
-- Other operating systems are not officially supported.
+- Windows is [not supported](http://xtenlang.atlassian.net/browse/RVM-630). If you are interested in support for Windows, you can take a look at [Metacircular Research Platform](http://mrp.codehaus.org), a fork of the Jikes RVM. It provides support for building on Windows (using the class libraries from the now retired Apache Harmony project).
