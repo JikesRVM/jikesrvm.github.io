@@ -9,7 +9,7 @@ Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.co
 
 The first MRP-specific commit is 870e57d18ce7c99e8d8c00b5e0adfe7b2f953280 (Set up trunk directory) from Thu Feb 26 19:20:50 2009 +0000
 
-All MRP commits up until 3037c82141b021c456765806e4fbe6f400846a06 (Remove unnecessary stat from DynamicLibrary.) from Sat Feb 28 00:14:34 2009 +0000 have been processed.
+All MRP commits up until 3037c82141b021c456765806e4fbe6f400846a06 (Remove unnecessary stat from DynamicLibrary.) from Sat Feb 28 00:14:34 2009 +0000 have been processed and entered in the tables below.
 
 ## Completely merged Changesets (ordered from earliest to latest MRP commit)
 
@@ -48,6 +48,12 @@ All MRP commits up until 3037c82141b021c456765806e4fbe6f400846a06 (Remove unnece
 | [792bfdcfa96368780e982119081950c00b97fb58](https://github.com/codehaus/mrp/commit/792bfdcfa96368780e982119081950c00b97fb58) | Only changes to use arg path instead of arg value have been merged | [8aea28a807abdda44c4a3c12258431a612406874](http://sourceforge.net/p/jikesrvm/code/ci/8aea28a807abdda44c4a3c12258431a612406874/) (use &lt;arg path&gt; instead of &lt;arg value&gt;) |
 | [3d257cd17d156d58273b7b2f5595ad540317c8ec](https://github.com/codehaus/mrp/commit/3d257cd17d156d58273b7b2f5595ad540317c8ec) | Only the primitive array store helper changes were merged | [b7eaa05705dccf494e098bf6d61b092b26adbbda](http://sourceforge.net/p/jikesrvm/code/ci/b7eaa05705dccf494e098bf6d61b092b26adbbda/) |
 | [8780f9f0896aef463c179181587e0a9ef95943f9](https://github.com/codehaus/mrp/commit/8780f9f0896aef463c179181587e0a9ef95943f9) | Only the x64 BaselineMagic fixes were merged. In particular, JTOC changes were not merged. |  [109610b5123fcc20e96c7b6b3b2cea24f7e901f6](http://sourceforge.net/p/jikesrvm/code/ci/109610b5123fcc20e96c7b6b3b2cea24f7e901f6/) (generator name changes) [82531721bff3b0cde4e6a74ab2d9e4a763a5df8](http://sourceforge.net/p/jikesrvm/code/ci/382531721bff3b0cde4e6a74ab2d9e4a763a5df8/) (magic bug fixes) [1b6ed7221b7a8970ee968be36d5dba08c0d047a8](http://sourceforge.net/p/jikesrvm/code/ci/1b6ed7221b7a8970ee968be36d5dba08c0d047a8) (fix for emit_unresolved_getstatic) |
+
+Changesets that need reviewing
+
+| MRP Commit | Reason for review |
+| --- | --- |
+| [0486d1bc63283d31672de8a63d4b67c6f23d7f98](https://github.com/codehaus/mrp/commit/0486d1bc63283d31672de8a63d4b67c6f23d7f98) | Cheap null checks were broken in the Jikes RVM. They caused an intermittent pmd crash and were therefore removed by Daniel Frampton in commit [235ebbc823625da920485c8ed0cc47d52ba7cd4a](http://sourceforge.net/p/jikesrvm/code/ci/235ebbc823625da920485c8ed0cc47d52ba7cd4a). A thorough review of the MRP commit and a reliable test case would be beneficial. |
 
 ## Changesets that will not be merged (ordered from earliest to latest MRP commit)
 
