@@ -56,6 +56,7 @@ All MRP commits up until 3037c82141b021c456765806e4fbe6f400846a06 (Remove unnece
 | MRP Commit | Reason for review |
 | --- | --- |
 | [0486d1bc63283d31672de8a63d4b67c6f23d7f98](https://github.com/codehaus/mrp/commit/0486d1bc63283d31672de8a63d4b67c6f23d7f98) | Cheap null checks were broken in the Jikes RVM. They caused an intermittent pmd crash and were therefore removed by Daniel Frampton in commit [235ebbc823625da920485c8ed0cc47d52ba7cd4a](http://sourceforge.net/p/jikesrvm/code/ci/235ebbc823625da920485c8ed0cc47d52ba7cd4a). A thorough review of the MRP commit and a reliable test case would be beneficial. |
+| [4ec46a091c2773e1821c8525d3d0555154438064](https://github.com/codehaus/mrp/commit/4ec46a091c2773e1821c8525d3d0555154438064) <br> [0fe989066fde2fe3d13a55c6788e7786a1504d5e](https://github.com/codehaus/mrp/commit/0fe989066fde2fe3d13a55c6788e7786a1504d5e) | [RVM-799](https://xtenlang.atlassian.net/browse/RVM-799) Conversion to reserve-commit-approach for memory management. The changes to the Classpath patches are only merge cleanups and thus not relevant. |
 
 ## Changesets that will not be merged (ordered from earliest to latest MRP commit)
 
