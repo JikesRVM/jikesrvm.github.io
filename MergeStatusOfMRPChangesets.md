@@ -56,7 +56,6 @@ All MRP commits up until df8d479d65a2e31d768e9555ff6cc58e18290116 (WIP: tidy up 
 | MRP Commit | Reason for review |
 | --- | --- |
 | [0486d1bc63283d31672de8a63d4b67c6f23d7f98](https://github.com/codehaus/mrp/commit/0486d1bc63283d31672de8a63d4b67c6f23d7f98) | Cheap null checks were broken in the Jikes RVM. They caused an intermittent pmd crash and were therefore removed by Daniel Frampton in commit [235ebbc823625da920485c8ed0cc47d52ba7cd4a](http://sourceforge.net/p/jikesrvm/code/ci/235ebbc823625da920485c8ed0cc47d52ba7cd4a). A thorough review of the MRP commit and a reliable test case would be beneficial. |
-| [4ec46a091c2773e1821c8525d3d0555154438064](https://github.com/codehaus/mrp/commit/4ec46a091c2773e1821c8525d3d0555154438064) <br> [0fe989066fde2fe3d13a55c6788e7786a1504d5e](https://github.com/codehaus/mrp/commit/0fe989066fde2fe3d13a55c6788e7786a1504d5e) | [RVM-799](https://xtenlang.atlassian.net/browse/RVM-799) Conversion to reserve-commit-approach for memory management. The changes to the Classpath patches are only merge cleanups and thus not relevant. |
 
 ## Changesets that will not be merged (ordered from earliest to latest MRP commit)
 
@@ -68,6 +67,8 @@ All MRP commits up until df8d479d65a2e31d768e9555ff6cc58e18290116 (WIP: tidy up 
 | [6801f6047342f494bc0685b605ac9289a60d62c0](https://github.com/codehaus/mrp/commit/6801f6047342f494bc0685b605ac9289a60d62c0) <br>[94a8f7b6544222f5db8decc752c53d8cc4ef4d5c](https://github.com/codehaus/mrp/commit/94a8f7b6544222f5db8decc752c53d8cc4ef4d5c)  <br>[492547e056df1a0cb255eec5b069f2a5d553f9bc](https://github.com/codehaus/mrp/commit/492547e056df1a0cb255eec5b069f2a5d553f9bc) <br>[3001384d9b46932148239cf35232a1f72ce5be84](https://github.com/codehaus/mrp/commit/3001384d9b46932148239cf35232a1f72ce5be84) <br>[2a5174b09393ea2334376a3b68300ca88105fd21](https://github.com/codehaus/mrp/commit/2a5174b09393ea2334376a3b68300ca88105fd21) <br>[4f46e92cc2c79c1ef6af3420b82c0c80798b15c2](https://github.com/codehaus/mrp/commit/4f46e92cc2c79c1ef6af3420b82c0c80798b15c2) <br>[bd0a42691d57ca29515e306f4a0873926c168b59](https://github.com/codehaus/mrp/commit/bd0a42691d57ca29515e306f4a0873926c168b59) | Apache Harmony fixes |
 | [ec9018cbda6fee0d6d22ecda95b4ce049dc776e6](https://github.com/codehaus/mrp/commit/ec9018cbda6fee0d6d22ecda95b4ce049dc776e6) | IIRC fixed independently in the Jikes RVM |
 | [87eba37d88cb43637c52bc57f1104a0290d17314](https://github.com/codehaus/mrp/commit/87eba37d88cb43637c52bc57f1104a0290d17314) | Merge cleanup |
+| [4ec46a091c2773e1821c8525d3d0555154438064](https://github.com/codehaus/mrp/commit/4ec46a091c2773e1821c8525d3d0555154438064) <br> [0fe989066fde2fe3d13a55c6788e7786a1504d5e](https://github.com/codehaus/mrp/commit/0fe989066fde2fe3d13a55c6788e7786a1504d5e) | Needs independent fix in the Jikes RVM because we do not use Harmony, see [RVM-799](https://xtenlang.atlassian.net/browse/RVM-799). The changes to the Classpath patches are only merge cleanups and thus not relevant. |
+
 
 ## Unprocessed Changesets
 
