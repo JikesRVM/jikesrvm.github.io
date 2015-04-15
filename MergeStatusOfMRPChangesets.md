@@ -9,7 +9,7 @@ Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.co
 
 The first MRP-specific commit is 870e57d18ce7c99e8d8c00b5e0adfe7b2f953280 (Set up trunk directory) from Thu Feb 26 19:20:50 2009 +0000
 
-All MRP commits up until 3037c82141b021c456765806e4fbe6f400846a06 (Remove unnecessary stat from DynamicLibrary.) from Sat Feb 28 00:14:34 2009 +0000 have been processed and entered in the tables below.
+All MRP commits up until df8d479d65a2e31d768e9555ff6cc58e18290116 (WIP: tidy up boot image runner) from Tue Mar 3 15:45:41 2009 +0000 have been processed and entered in the tables below.
 
 ## Completely merged Changesets (ordered from earliest to latest MRP commit)
 
