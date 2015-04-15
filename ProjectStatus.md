@@ -31,7 +31,7 @@ _Note: If you want to help, please see [How to Help](/HowToHelp/) or inquire via
 - Write unit tests for all classes
 - Improve and extend test suites
 - Add support for relevant new platforms (ARM?)
-- Merge relevant changes from MRP
+- [Merge relevant changes from MRP](/MergeStatusOfMRPChangesets/)
 
 # Detailed project status
 
