@@ -1,9 +1,7 @@
 ---
 layout: default
 title: Research Archive
-redirect_from: 
-  - /Research+Archive
-  - /Research+Archive/
+redirect_from: "Research+Archive"
 ---
 
 For science to advance, researchers must be able to reproduce past results, and ultimately improve on them. In systems software research, results often depend on myriad implementation details that cannot be conveyed in a research paper. Although many systems research papers include information on algorithms, benchmarks, and experimental methodology, this information ultimately fails to facilitate reproducible results.
