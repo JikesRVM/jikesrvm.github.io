@@ -1,8 +1,4 @@
-// TODO convert to latex with proper inclusion of eps image which we didn't have before
-Life Cycle of a Compiled Method
-===============================
-:author: David Grove
-:date: 07-07-2008
+\begin{section}{Life Cycle of a Compiled Method}
 
 In early implementations of Jikes RVM's adaptive system, compilation required holding a global lock that serialized compilation and also prevented classloading from occurring concurrently with compilation.  This bottleneck was removed in version 2.1.0 by switching to a finer-grained locking discipline to coordinate compilation, speculative optimization, and class loading. Since no published description of this locking protocol exists outside of the source code, we briefly summarize the life cycle of a compiled method here.
 
@@ -11,6 +7,12 @@ When Jikes RVM compiles a method, it creates a compiled method object to represe
 Each time a class is loaded, the system checks the invalidation database to identify the set of compiled methods to mark as obsolete,
 because this classloading action invalidates speculative optimizations previously applied to that method.  A method may transition from either compiling or installed to obsolete due to a classloading-induced invalidation.  A method can also transition from installed to obsolete when the adaptive system selects a method for optimizing recompilation and a new compiled method is installed to replace it.
 
-image:images/93224965.eps[life cycle of a compiled method]
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{images/93224965.eps}
+\caption{life cycle of a compiled method}
+\end{figure}
 
-Once a method is marked obsolete, it will never be invoked again.  However, before the generated code for the compiled method can be garbage collected, all existing invocations of the compiled method must be complete.  A compiled method transitions from obsolete to  dead when no invocations of it exist on any thread stack.  Jikes RVM detects this as part of the stack scanning phase of garbage collection; as stack frames are scanned, their compiled methods are marked as active.  Any obsolete method that is not marked as active when stack scanning completes is marked as dead and the reference to it is removed from the compiled method table.  It will then be freed during the next garbage collection
+Once a method is marked obsolete, it will never be invoked again.  However, before the generated code for the compiled method can be garbage collected, all existing invocations of the compiled method must be complete.  A compiled method transitions from obsolete to  dead when no invocations of it exist on any thread stack.  Jikes RVM detects this as part of the stack scanning phase of garbage collection; as stack frames are scanned, their compiled methods are marked as active.  Any obsolete method that is not marked as active when stack scanning completes is marked as dead and the reference to it is removed from the compiled method table.  It will then be freed during the next garbage collection.
+
+\end{section}
