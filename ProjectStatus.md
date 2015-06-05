@@ -21,17 +21,18 @@ _Note: If you want to help, please see [How to Help](/HowToHelp/) or inquire via
 
 ## Near-term goals
 
-- Add support for the OpenJDK class libraries
 - Add Intel 64-bit support
+- [Merge relevant changes from MRP](/MergeStatusOfMRPChangesets/)
 
 ## Preliminary long-term goals (still need further discussion)
 
+- Add support for the OpenJDK class libraries
+- Improve and extend test suites
 - Improve stability
 - Improve compliance with JVM spec
 - Write unit tests for all classes
-- Improve and extend test suites
 - Add support for relevant new platforms (ARM?)
-- [Merge relevant changes from MRP](/MergeStatusOfMRPChangesets/)
+
 
 # Detailed project status
 
@@ -61,7 +62,7 @@ This section provides more detailed project status information for the component
 
 - The runtime is reasonably modular but it doesn't make very good use of interfaces
 - Jikes RVM currently does not follow the JVM specification
-- Several features normally found in commercial JVMs are not implemented: strictfp, JMX and JVMTI are currently unsupported
+- Several features normally found in commercial JVMs are not implemented: strictfp and JVMTI are currently unsupported. There is partial support for JMX with GNU Classpath.
 
 ## Adaptive Optimization System
 
