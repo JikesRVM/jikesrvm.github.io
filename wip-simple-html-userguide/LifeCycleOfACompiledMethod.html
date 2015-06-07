@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
+  "http://www.w3.org/TR/html4/loose.dtd">  
+<html > 
+<head><title>Life Cycle of a Compiled Method</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<!-- html,2 --> 
+<meta name="src" content="index.tex"> 
+<meta name="date" content="2015-06-07 17:17:00"> 
+<link rel="stylesheet" type="text/css" href="index.css"> 
+</head><body 
+>
+<!--l. 2--><div class="crosslinks"><p class="noindent">[<a 
+href="IR.html" >next</a>] [<a 
+href="CostBenefitModel.html" >prev</a>] [<a 
+href="CostBenefitModel.html#tailCostBenefitModel.html" >prev-tail</a>] [<a 
+href="#tailLifeCycleOfACompiledMethod.html">tail</a>] [<a 
+href="index.html#LifeCycleOfACompiledMethod.html" >up</a>] </p></div>
+<h3 class="sectionHead"><span class="titlemark">5   </span> <a 
+ id="x6-60005"></a>Life Cycle of a Compiled Method</h3>
+<!--l. 4--><p class="noindent" >In early implementations of Jikes RVM&#8217;s adaptive system, compilation required
+holding a global lock that serialized compilation and also prevented classloading from
+occurring concurrently with compilation. This bottleneck was removed in version
+2.1.0 by switching to a finer-grained locking discipline to coordinate compilation,
+speculative optimization, and class loading. Since no published description of this
+locking protocol exists outside of the source code, we briefly summarize the life cycle
+of a compiled method here.
+<!--l. 6--><p class="noindent" >When Jikes RVM compiles a method, it creates a compiled method object to
+represent this particular compilation of the source method. A compiled method has a
+unique id, and stores the compiled code and associated compiler meta-data. After a
+brief initialization phase, the compiled method transitions from uncompiled to
+compiling when compilation begins. During compilation, the optimizing
+compiler may perform speculative optimizations that can be invalidated
+by future class loading. Each time the compiler so speculates, it records a
+relevant entry in an invalidation database. Upon finishing compilation, the
+system checks to ensure that the current compilation has not already been
+invalidated by concurrent classloading. If it has not, then the system installs the
+compiled code, and subsequent invocations will branch to the newly created
+code.
+<!--l. 8--><p class="noindent" >Each time a class is loaded, the system checks the invalidation database
+to identify the set of compiled methods to mark as obsolete, because this
+classloading action invalidates speculative optimizations previously applied to that
+method. A method may transition from either compiling or installed to obsolete
+due to a classloading-induced invalidation. A method can also transition
+from installed to obsolete when the adaptive system selects a method for
+optimizing recompilation and a new compiled method is installed to replace
+it.
+<!--l. 11--><p class="noindent" ><hr class="figure"><div class="figure" 
+>
+                                                                  
+
+                                                                  
+<a 
+ id="x6-60011"></a>
+                                                                  
+
+                                                                  
+<!--l. 13--><p class="noindent" ><img 
+src="index0x.png" alt="PIC" class="graphics" width="345.0pt" height="240.52472pt" ><!--tex4ht:graphics  
+name="index0x.png" src="images/93224965.eps"  
+-->
+<br /> <div class="caption" 
+><span class="id">Figure&#x00A0;1: </span><span  
+class="content">life cycle of a compiled method</span></div><!--tex4ht:label?: x6-60011 -->
+                                                                  
+
+                                                                  
+<!--l. 15--><p class="noindent" ></div><hr class="endfigure">
+<!--l. 17--><p class="noindent" >Once a method is marked obsolete, it will never be invoked again. However, before
+the generated code for the compiled method can be garbage collected, all existing
+invocations of the compiled method must be complete. A compiled method
+transitions from obsolete to dead when no invocations of it exist on any thread
+stack. Jikes RVM detects this as part of the stack scanning phase of garbage
+collection; as stack frames are scanned, their compiled methods are marked
+as active. Any obsolete method that is not marked as active when stack
+scanning completes is marked as dead and the reference to it is removed from
+the compiled method table. It will then be freed during the next garbage
+collection.
+                                                                  
+
+                                                                  
+<!--l. 3--><div class="crosslinks"><p class="noindent">[<a 
+href="IR.html" >next</a>] [<a 
+href="CostBenefitModel.html" >prev</a>] [<a 
+href="CostBenefitModel.html#tailCostBenefitModel.html" >prev-tail</a>] [<a 
+href="LifeCycleOfACompiledMethod.html" >front</a>] [<a 
+href="index.html#LifeCycleOfACompiledMethod.html" >up</a>] </p></div>
+<!--l. 3--><p class="noindent" ><a 
+ id="tailLifeCycleOfACompiledMethod.html"></a> 
+</body></html> 

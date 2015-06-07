@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
+  "http://www.w3.org/TR/html4/loose.dtd">  
+<html > 
+<head><title>Magic</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<!-- html,2 --> 
+<meta name="src" content="index.tex"> 
+<meta name="date" content="2015-06-07 17:17:00"> 
+<link rel="stylesheet" type="text/css" href="index.css"> 
+</head><body 
+>
+<!--l. 2--><div class="crosslinks"><p class="noindent">[<a 
+href="RawMemoryAccess.html" >next</a>] [<a 
+href="#tailMagic.html">tail</a>] [<a 
+href="index.html#Magic.html" >up</a>] </p></div>
+<h3 class="sectionHead"><span class="titlemark">1   </span> <a 
+ id="x2-10001"></a>Magic</h3>
+<!--l. 4--><p class="noindent" >Most Java runtimes rely upon the foreign language APIs of the underlying
+platform operating system to implement runtime behaviour which involves
+interaction with the underlying platform. Runtimes also occasionally employ small
+segments of machine code to provide access to platform hardware state. Note
+that this is expedient rather than mandatory. With a suitably smart Java
+bytecode compiler it would be quite possible to implement a full Java-in-Java
+runtime i.e. one comprising only compiled Java code (the JNode project is an
+attempt to implement a runtime along these lines; the Xerox, MIT, Lambda
+and TI Explorer Lisp machine implementations and the Xerox Smalltalk
+implementation were highly successful attemtps at fully compiled language
+runtimes).
+<!--l. 6--><p class="noindent" >This section provides information on <span id="textcolor1"><span 
+class="msam-10">&#x22C6;</span></span> magic <span id="textcolor2"><span 
+class="msam-10">&#x22C6;</span></span> which is an escape hatch that
+Jikes<sup class="textsuperscript"><span 
+class="cmr-9">TM</span></sup> RVM provides to implement functionality that is not possible using the pure
+Java<sup class="textsuperscript"><span 
+class="cmr-9">TM</span></sup> programming language. For example, the Jikes RVM garbage collectors
+and runtime system must, on occasion, access memory or perform unsafe
+casts. The compiler will also translate a call to Magic.threadSwitch() into a
+                                                                  
+
+                                                                  
+sequence of machine code that swaps out old thread registers and swaps in new
+ones, switching execution to the new thread&#8217;s stack resumed at its saved
+PC
+<!--l. 8--><p class="noindent" >There are three mechanisms via which the Jikes RVM <span id="textcolor3"><span 
+class="msam-10">&#x22C6;</span></span> magic <span id="textcolor4"><span 
+class="msam-10">&#x22C6;</span></span> is implemented:
+     <ul class="itemize1">
+     <li class="itemize">Compiler  Intrinsics:  Most  methods  are  within  class  librarys  but  some
+     functions are built in (that is, intrinsic) to the compiler. These are referred
+     to as intrinsic functions or intrinsics.
+     </li>
+     <li class="itemize">Compiler Pragmas: Some intrinsics are do not provide any behaviour but
+     instead provide information to the compiler that modifies optimizations,
+     calling  conventions  and  activation  frame  layout.  We  rever  to  these
+     mechanisms as compiler pragmas.
+     </li>
+     <li class="itemize">Unboxed Types: Besides the primitive types, all Java values are boxed
+     types. Conceptually, they are represented by a pointer to a heap object.
+     However, an unboxed type is represented by the value itself. All methods
+     on an unboxed type must be Compiler Intrinsics.</li></ul>
+<!--l. 15--><p class="noindent" >The mechanisms are used to implement the following functionality:
+     <ul class="itemize1">
+     <li class="itemize"><a 
+href="RawMemoryAccess.html#x3-20002">RawMemoryAccess</a>: Unfetted access to memory.
+     </li>
+     <li class="itemize">Uninterruptible Code: Declaring code to be uninterruptible.
+     </li>
+     <li class="itemize">Alternative Calling Conventions: Declaring different calling conventions
+     and activation frame layout.</li></ul>
+                                                                  
+
+                                                                  
+<!--l. 2--><div class="crosslinks"><p class="noindent">[<a 
+href="RawMemoryAccess.html" >next</a>] [<a 
+href="Magic.html" >front</a>] [<a 
+href="index.html#Magic.html" >up</a>] </p></div>
+<!--l. 2--><p class="noindent" ><a 
+ id="tailMagic.html"></a> 
+</body></html> 

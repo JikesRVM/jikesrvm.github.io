@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"  
+  "http://www.w3.org/TR/html4/loose.dtd">  
+<html > 
+<head><title>IR</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
+<!-- html,2 --> 
+<meta name="src" content="index.tex"> 
+<meta name="date" content="2015-06-07 17:17:00"> 
+<link rel="stylesheet" type="text/css" href="index.css"> 
+</head><body 
+>
+<!--l. 3--><div class="crosslinks"><p class="noindent">[<a 
+href="LifeCycleOfACompiledMethod.html" >prev</a>] [<a 
+href="LifeCycleOfACompiledMethod.html#tailLifeCycleOfACompiledMethod.html" >prev-tail</a>] [<a 
+href="#tailIR.html">tail</a>] [<a 
+href="index.html#IR.html" >up</a>] </p></div>
+<h3 class="sectionHead"><span class="titlemark">6   </span> <a 
+ id="x7-70006"></a>IR</h3>
+<!--l. 5--><p class="noindent" >The optimizing compiler intermediate representation (IR) is held in an object of type
+<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">IR</span></span></span> and includes a list of instructions. Every instruction is classified into one of the
+pre-defined instruction formats. Each instruction includes an operator and zero or
+more operands. Instructions are grouped into basic blocks; basic blocks are
+constrained to having control-flow instructions at their end. Basic blocks fall-through
+to other basic blocks or contain branch instructions that have a destination basic
+block label. The graph of basic blocks is held in the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">cfg</span></span></span> (control-flow graph) field of
+IR.
+<!--l. 8--><p class="noindent" >This section documents basic information about the intermediate instruction. For a
+tutorial based introduction to the material it is highly recommended that you read
+&#8221;Jikes RVM Optimizing Compiler Intermediate Code Representation&#8221;.
+<!--l. 10--><p class="noindent" >
+<h4 class="subsectionHead"><span class="titlemark">6.1   </span> <a 
+ id="x7-80006.1"></a>IR Operators</h4>
+<!--l. 12--><p class="noindent" >The IR operators are defined by the class <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Operators</span></span></span>, which in turn is
+automatically generated from a template by a driver. The input to the driver
+are two files, both called <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">OperatorList.dat</span></span></span>. One input file resides in
+<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">$RVM_ROOT/rvm/src-generated/opt-ir</span></span></span> and defines machine-independent operators.
+The other resides in <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">$RVM_ROOT/rvm/src-generated/opt-ir/$\{arch\}</span></span></span> and defines
+machine-dependent operators, where <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">$\{arch\}</span></span></span> is the specific instruction
+architecture of interest.
+<!--l. 16--><p class="noindent" >Each operator in <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">OperatorList.dat</span></span></span> is defined by a five-line record, consisting
+of:
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">SYMBOL</span></span></span>: a static symbol to identify the operator
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">INSTRUCTION_FORMAT</span></span></span>:  the  instruction  format  class  that  accepts  this
+     operator.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">TRAITS</span></span></span>: a set of characteristics of the operator, composed with a bit-wise
+     or (<span 
+class="cmsy-10">|</span>) operator. See Operator.java for a list of valid traits.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">IMPLDEFS</span></span></span>:  set  of  registers  implicitly  defined  by  this  operator;  usually
+     applies only to machine-dependent operators
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">IMPLUSES</span></span></span>: set of registers implicitly used by this operator; usually applies
+     only to machine-dependent operators</li></ul>
+                                                                  
+
+                                                                  
+<!--l. 26--><p class="noindent" >For example, the entry in <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">OperatorList.dat</span></span></span> that defines the integer addition
+operator is <!--l. 27-->
+<div class="lstlisting" id="listing-5"><span class="label"><a 
+ id="x7-8001r1"></a></span>INT_ADD&#x00A0;<br /><span class="label"><a 
+ id="x7-8002r2"></a></span>Binary&#x00A0;<br /><span class="label"><a 
+ id="x7-8003r3"></a></span>none&#x00A0;<br /><span class="label"><a 
+ id="x7-8004r4"></a></span><span 
+class="cmmi-10">&#x003C;</span>blank&#x00A0;line<span 
+class="cmmi-10">&#x003E;</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-8005r5"></a></span><span 
+class="cmmi-10">&#x003C;</span>blank&#x00A0;line<span 
+class="cmmi-10">&#x003E;</span>
+</div>
+<!--l. 35--><p class="noindent" >The operator for a conditional branch based on values of two references is defined by
+<!--l. 36-->
+<div class="lstlisting" id="listing-6"><span class="label"><a 
+ id="x7-8006r1"></a></span>REF_IFCOMP&#x00A0;<br /><span class="label"><a 
+ id="x7-8007r2"></a></span>IntIfCmp&#x00A0;<br /><span class="label"><a 
+ id="x7-8008r3"></a></span>branch&#x00A0;<span 
+class="cmsy-10">|</span>&#x00A0;conditional&#x00A0;<br /><span class="label"><a 
+ id="x7-8009r4"></a></span><span 
+class="cmmi-10">&#x003C;</span>blank&#x00A0;line<span 
+class="cmmi-10">&#x003E;</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-8010r5"></a></span><span 
+class="cmmi-10">&#x003C;</span>blank&#x00A0;line<span 
+class="cmmi-10">&#x003E;</span>
+</div>
+<!--l. 43--><p class="noindent" >Additionally, the machine-specific OperatorList.dat file contains another line of
+information for use by the assembler. See the file for details.
+<!--l. 48--><p class="noindent" >
+<h4 class="subsectionHead"><span class="titlemark">6.2   </span> <a 
+ id="x7-90006.2"></a>Instruction Format</h4>
+<!--l. 50--><p class="noindent" >Every IR instruction fits one of the pre-defined Instruction Formats. The Java package
+<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">org.jikesrvm.compilers.opt.ir</span></span></span> defines roughly 75 architecture-independent
+instruction formats. For each instruction format, the package includes a class that
+defines a set of static methods by which optimizing compiler code can access an
+instruction of that format.
+<!--l. 52--><p class="noindent" >For example, <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">INT_MOVE</span></span></span> instructions conform to the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Move</span></span></span> instruction format. The
+following code fragment shows code that uses the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Operators</span></span></span> interface and the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Move</span></span></span>
+instruction format:
+<!--l. 54-->
+<div class="lstlisting" id="listing-7"><span class="label"><a 
+ id="x7-9001r1"></a></span><span 
+class="cmbx-10">import</span>&#x00A0;org.jikesrvm.compilers.opt.ir.<span 
+class="cmsy-10">*</span>;&#x00A0;<br /><span class="label"><a 
+ id="x7-9002r2"></a></span><span 
+class="cmbx-10">class</span>&#x00A0;X&#x00A0;<span 
+class="cmsy-10">{</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9003r3"></a></span>&#x00A0;&#x00A0;<span 
+class="cmbx-10">void</span>&#x00A0;foo(Instruction&#x00A0;s)&#x00A0;<span 
+class="cmsy-10">{</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9004r4"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;<span 
+class="cmbx-10">if</span>&#x00A0;(Move.conforms(s))&#x00A0;<span 
+class="cmsy-10">{</span>&#x00A0;<span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">//</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">if</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">this</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">instruction</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">fits</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">the</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">Move</span><span 
+class="cmti-10">&#x00A0;</span><span 
+class="cmti-10">format</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9005r5"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RegisterOperand&#x00A0;r1&#x00A0;=&#x00A0;Move.getResult(s);&#x00A0;<br /><span class="label"><a 
+ id="x7-9006r6"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;Operand&#x00A0;r2&#x00A0;=&#x00A0;Move.getVal(s);&#x00A0;<br /><span class="label"><a 
+ id="x7-9007r7"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;System.out.println(&#8221;Found_a_move_instruction:_&#8221;&#x00A0;+&#x00A0;r1&#x00A0;+&#x00A0;&#8221;_:=_&#8221;&#x00A0;+&#x00A0;r2);&#x00A0;<br /><span class="label"><a 
+ id="x7-9008r8"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;<span 
+class="cmsy-10">}</span>&#x00A0;<span 
+class="cmbx-10">else</span>&#x00A0;<span 
+class="cmsy-10">{</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9009r9"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;System.out.println(s&#x00A0;+&#x00A0;&#8221;_is_not_a_MOVE&#8221;);&#x00A0;<br /><span class="label"><a 
+ id="x7-9010r10"></a></span>&#x00A0;&#x00A0;&#x00A0;&#x00A0;<span 
+class="cmsy-10">}</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9011r11"></a></span>&#x00A0;&#x00A0;<span 
+class="cmsy-10">}</span>&#x00A0;<br /><span class="label"><a 
+ id="x7-9012r12"></a></span><span 
+class="cmsy-10">}</span>
+</div>
+<!--l. 69--><p class="noindent" >This example shows just a subset of the access functions defined for the Move format.
+Other static access functions can set each operand (in this case, <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Result</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">Val</span></span></span>),
+query each operand for nullness, clear operands, create Move instructions, mutate
+other instructions into Move instructions, and check the index of a particular operand
+field in the instruction. See the Javadoc<sup class="textsuperscript"><span 
+class="cmr-9">TM</span></sup> reference for a complete description of the
+API.
+<!--l. 71--><p class="noindent" >Each fixed-length instruction format is defined in the text file
+<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">$RVM_ROOT/rvm/src-generated/opt-ir/InstructionFormatList.dat</span></span></span>. Each record
+in this file has four lines:
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">NAME</span></span></span>: the name of the instruction format
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">SIZES</span></span></span>: the number of operands defined, defined and used, and used
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">SIZES</span></span></span>: the number of operands defined, defined and used, and used
+                                                                  
+
+                                                                  
+         <ul class="itemize2">
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">D/DU/U</span></span></span>: Is this operand a def, use, or both?
+         </li>
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">NAME</span></span></span>: the unique name to identify the operand
+         </li>
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">TYPE</span></span></span>: the type of the operand (a subclass of Operand)
+         </li>
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">[opt]</span></span></span>: is this operand optional?</li></ul>
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">VARSIG</span></span></span>: a description of repeating operands, used for variable-length
+     instructions.</li></ul>
+<!--l. 87--><p class="noindent" >So for example, the record that defines the Move instruction format is
+<!--l. 89--><p class="noindent" >TODO the original page has more text but no new formatting elements.
+                                                                  
+
+                                                                  
+<!--l. 37--><div class="crosslinks"><p class="noindent">[<a 
+href="LifeCycleOfACompiledMethod.html" >prev</a>] [<a 
+href="LifeCycleOfACompiledMethod.html#tailLifeCycleOfACompiledMethod.html" >prev-tail</a>] [<a 
+href="IR.html" >front</a>] [<a 
+href="index.html#IR.html" >up</a>] </p></div>
+<!--l. 37--><p class="noindent" ><a 
+ id="tailIR.html"></a> 
+</body></html> 
