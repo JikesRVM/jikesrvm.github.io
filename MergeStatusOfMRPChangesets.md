@@ -9,7 +9,7 @@ Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.co
 
 The first MRP-specific commit is 870e57d18ce7c99e8d8c00b5e0adfe7b2f953280 (Set up trunk directory) from Thu Feb 26 19:20:50 2009 +0000
 
-All MRP commits up until 6784db17395a1e3c1410c2ab5bb5eb8c69f81ecd (PowerPC OS/X build fixes.) from Wed Mar 18 12:14:21 2009 +0000 have been processed and entered in the tables below.
+All MRP commits up until 67df59fcda76d61c760007842df1c26de4edb634 (Fail when an unexpected JNI version is returned indicating an error.) from Thu Mar 19 09:21:13 2009 +0000 have been processed and entered in the tables below.
 
 ## Completely merged Changesets (ordered from earliest to latest MRP commit)
 
@@ -42,6 +42,7 @@ All MRP commits up until 6784db17395a1e3c1410c2ab5bb5eb8c69f81ecd (PowerPC OS/X 
 | [50efc8345defb218a6e365788675d83a4046f070](https://github.com/codehaus/mrp/commit/50efc8345defb218a6e365788675d83a4046f070) | bug fixes for PPC bootloader | [4788d9c0cb3bf80267aa9878ed5ab0286430c0e2](http://sourceforge.net/p/jikesrvm/code/ci/4788d9c0cb3bf80267aa9878ed5ab0286430c0e2) (removal of libvm) |
 | [1b7dc59456ebbaf42ca9cfb3b8164396bab706d4](https://github.com/codehaus/mrp/commit/1b7dc59456ebbaf42ca9cfb3b8164396bab706d4) | removal of Monitor class for the callback at plan exit | [2414457cb5c7f7be1ac89cb723f08df4e717fff6](http://sourceforge.net/p/jikesrvm/code/ci/2414457cb5c7f7be1ac89cb723f08df4e717fff6) |
 | [aff2f53807af1dabd1c5f404bc34c6c5f073c71c](https://github.com/codehaus/mrp/commit/aff2f53807af1dabd1c5f404bc34c6c5f073c71c) | formatting | [ef8d6ad3084c109a691abf28336ce5d3981fd6ec](http://sourceforge.net/p/jikesrvm/code/ci/ef8d6ad3084c109a691abf28336ce5d3981fd6ec) (formatting changes for jvm.c) |
+| [67df59fcda76d61c760007842df1c26de4edb634](https://github.com/codehaus/mrp/commit/67df59fcda76d61c760007842df1c26de4edb634) | stricter checking of JNI version | [69f0003bd6baee304935ee5a41d127026bf7f15e](http://sourceforge.net/p/jikesrvm/code/ci/69f0003bd6baee304935ee5a41d127026bf7f15e) |
 | [882a2e7d6ba450262e46ee2119be1e934aa3f0f7](https://github.com/codehaus/mrp/commit/882a2e7d6ba450262e46ee2119be1e934aa3f0f7)  | MRP-1 / [RVM-826](http://xtenlang.atlassian.net/browse/RVM-826) - was merged from MRP without attribution in the commit message | [3624be6f51983f3f385c8031015c548c1cef006a](http://sourceforge.net/p/jikesrvm/code/ci/3624be6f51983f3f385c8031015c548c1cef006a) |
 | [babc48ae94546e868dc5ca3910f563c2e61989f9](https://github.com/codehaus/mrp/commit/babc48ae94546e868dc5ca3910f563c2e61989f9) | MRP-9 / [RVM-829](https://xtenlang.atlassian.net/browse/RVM-829) | [7cca607624dd44af0385a5dbe3d291399a7b630f](http://docs.codehaus.org/sourceforge.net/p/jikesrvm/code/ci/7cca607624dd44af0385a5dbe3d291399a7b630f) |
 | [f04f14178f9a5114dd61f505af0d8addf8b2a7b4](https://github.com/codehaus/mrp/commit/f04f14178f9a5114dd61f505af0d8addf8b2a7b4) | lcmp tests. | [018fa1e241338ef29b55ae4eac9ad1470d25d8e9](http://sourceforge.net/p/jikesrvm/code/ci/018fa1e241338ef29b55ae4eac9ad1470d25d8e9) |
