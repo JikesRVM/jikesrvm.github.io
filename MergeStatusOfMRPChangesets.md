@@ -9,7 +9,7 @@ Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.co
 
 The first MRP-specific commit is 870e57d18ce7c99e8d8c00b5e0adfe7b2f953280 (Set up trunk directory) from Thu Feb 26 19:20:50 2009 +0000
 
-All MRP commits up until 44c5c9b33f16ec52ba12294ea7a1ce8842414738 (Work around for Harmony bug HARMONY-6138) from Fri Apr 3 14:20:39 2009 +0100 have been processed and entered in the tables below.
+All MRP commits up until 9d29b83cb0d632883991d08478f3b95ceb5a24ed (Small Windows fixes to get into VM.boot) from Wed Apr 8 12:20:53 2009 +0100 have been processed and entered in the tables below.
 
 ## Completely merged Changesets (ordered from earliest to latest MRP commit)
 
