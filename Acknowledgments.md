@@ -85,6 +85,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - Carl Ritson
 - Quentin Sabah
 - João Reys Santos
+- Aritra Sengupta
 - [Andreas Sewe](http://www.stg.tu-darmstadt.de/staff/andreas_sewe/)
 - Rifat Shahriyar
 - Aleksey Shipilev
