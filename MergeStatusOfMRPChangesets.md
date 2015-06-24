@@ -9,7 +9,7 @@ Commit ids refer to the [codehaus GitHub MRP repository mirror](http://github.co
 
 The first MRP-specific commit is 870e57d18ce7c99e8d8c00b5e0adfe7b2f953280 (Set up trunk directory) from Thu Feb 26 19:20:50 2009 +0000
 
-All MRP commits up until 105fa582dd8a1355ee42bf38ed9575978dcd0087 (Checkstyle fix) from Wed Jun 3 00:31:16 2009 +0100 have been processed and entered in the tables below.
+All MRP commits up until 637b1c2657d10880498498469e71ff30e672e732 (Fix off by 1 for branch profiles > 2^31) from Wed Jun 3 15:21:04 2009 +0100 have been processed and entered in the tables below.
 
 ## Completely merged Changesets (ordered from earliest to latest MRP commit)
 
@@ -72,6 +72,7 @@ All MRP commits up until 105fa582dd8a1355ee42bf38ed9575978dcd0087 (Checkstyle fi
 | [2fd1f13248c89c6b14513f1d365bb4b9265adcfb](https://github.com/codehaus/mrp/commit/2fd1f13248c89c6b14513f1d365bb4b9265adcfb) | improvements to LightMonitor | [cfbb3291cd2c42cef911750dca57bab3d2201e51](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/cfbb3291cd2c42cef911750dca57bab3d2201e51) |
 | [6c8a8f532b7cdc95528e9b553182e87d5b8f0e1f](https://github.com/codehaus/mrp/commit/6c8a8f532b7cdc95528e9b553182e87d5b8f0e1f) | x64 array access fixes for normal Java arrays | [e41eb8c941ab4149f7b0ea67dd5c4528a1d0b681](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/e41eb8c941ab4149f7b0ea67dd5c4528a1d0b681) |
 | [81a3ea8b7c8b0ac5b933450fe5ef73fb18ba4f08](https://github.com/codehaus/mrp/commit/81a3ea8b7c8b0ac5b933450fe5ef73fb18ba4f08) | Remove mach timebase info | [993a906e8c1003c8ebc4b19b62d8d8ee003cbe16](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/993a906e8c1003c8ebc4b19b62d8d8ee003cbe16) |
+| [704d9bd99a38a3c3652761ac0827b9bbe5491ec4](https://github.com/codehaus/mrp/commit/704d9bd99a38a3c3652761ac0827b9bbe5491ec4) <br> [637b1c2657d10880498498469e71ff30e672e732](https://github.com/codehaus/mrp/commit/637b1c2657d10880498498469e71ff30e672e732) | edge counter improvements (MRP-11 / [RVM-1118](https://xtenlang.atlassian.net/browse/RVM-1118)) | [67cfcc596b90fda2babae2817072cfd4889ff79f](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/67cfcc596b90fda2babae2817072cfd4889ff79f) |
 | [e06fa2993725be95515596cfcb74c7b007b2561e](https://github.com/codehaus/mrp/commit/e06fa2993725be95515596cfcb74c7b007b2561e) | x64 array access fixes for unboxed arrays | [e41eb8c941ab4149f7b0ea67dd5c4528a1d0b681](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/e41eb8c941ab4149f7b0ea67dd5c4528a1d0b681) |
 | [b67bdb597057df6ed682bf2732cbf3fac2dd3251](https://github.com/codehaus/mrp/commit/b67bdb597057df6ed682bf2732cbf3fac2dd3251) | Add support for MOVSXDQ | [36fc720f2841ebecfe3ba106b876399603dc18cc](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/36fc720f2841ebecfe3ba106b876399603dc18cc) |
 | [633ffa0d990f51bee29c4e7e5b8e4eb32047adaf](https://github.com/codehaus/mrp/commit/633ffa0d990f51bee29c4e7e5b8e4eb32047adaf) | various baseline compiler 64-bit fixes | [a64b192a540aa41cc9b41a8b5ee7369278830373](http://hg.code.sourceforge.net/p/jikesrvm/code/rev/a64b192a540aa41cc9b41a8b5ee7369278830373) |
@@ -146,6 +147,7 @@ All MRP commits up until 105fa582dd8a1355ee42bf38ed9575978dcd0087 (Checkstyle fi
 | [ea8b0be486e766afcd3ab5327a630f844c680c49](https://github.com/codehaus/mrp/commit/ea8b0be486e766afcd3ab5327a630f844c680c49) | Already fixed in Jikes RVM |
 | [39c748d57340ed66c59d698d64cc71a4bb8356e5](https://github.com/codehaus/mrp/commit/39c748d57340ed66c59d698d64cc71a4bb8356e5) | Removal of unused files |
 | [bee01390c061dfbe746f79bd45affdae94529b33](https://github.com/codehaus/mrp/commit/bee01390c061dfbe746f79bd45affdae94529b33) | Support for thread priorities, fixed independently in the Jikes RVM with another approach |
+| [5f385e87013675eb7b95e614bbe22c4fce0aa1c8](https://github.com/codehaus/mrp/commit/5f385e87013675eb7b95e614bbe22c4fce0aa1c8) | Problem wasn't present in the Jikes RVM |
 
 
 ## Unprocessed Changesets
