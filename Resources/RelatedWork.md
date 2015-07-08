@@ -31,7 +31,7 @@ Note that almost all JVMs mentioned here are licensed under the GPL. Because the
 
 ## Metacircular Research Platform
 
-The [Metacircular Research Platform](http://mrp.codehaus.org/) is fork of the Jikes RVM and licensed under the EPL.
+The [Metacircular Research Platform](https://github.com/codehaus/mrp) is fork of the Jikes RVM and licensed under the EPL.
 
 ## JamVM
 
@@ -69,7 +69,7 @@ The [CACAO JVM](http://www.complang.tuwien.ac.at/cacaojvm/) is a JVM from the [C
 
 ## GCspy
 
-[GCspy](http://www.cs.kent.ac.uk/projects/gc/gcspy/) is a framework for spying on and visualizing the activity of a garbage collector. GCspy is supported by the [Jikes RVM and MMTk](http://docs.codehaus.org/display/RVM/Using+GCSpy).
+[GCspy](http://www.cs.kent.ac.uk/projects/gc/gcspy/) is a framework for spying on and visualizing the activity of a garbage collector. GCspy is supported by the [Jikes RVM and MMTk](/UserGuide/Using-GCSpy_73247.html).
 
 ## MPS
 

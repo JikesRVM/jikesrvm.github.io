@@ -5,7 +5,7 @@ title: Issue Tracker
 
 The Jikes RVM manages bugs, feature requests, tasks and patches using the JIRA [issue tracker](https://xtenlang.atlassian.net/browse/RVM). When submitting an issue, please take a moment to read and follow our advice for [Reporting Bugs](/ReportingBugs/).
 
-The [Research Archive](http://docs.codehaus.org/display/RVM/Research+Archive) is also maintained within another [issue tracker](http://sourceforge.net/tracker/?group_id=128805&atid=723235).
+The [Research Archive](/Resources/Research+Archive) is also maintained within another [issue tracker](http://sourceforge.net/tracker/?group_id=128805&atid=723235).
 
 ## Current Trackers
 

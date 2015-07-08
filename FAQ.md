@@ -43,7 +43,7 @@ A distinguishing characteristic of Jikes RVM is that it is implemented in the Ja
 
 #### What is the relationship to the Jalapeño project?
 
-Jikes RVM is an enhanced open source version of the code developed under the Jalapeño research project from December 1997 to October 2001. A [historical overview](http://docs.codehaus.org/display/RVM/Publications#Publications-Publications-rvmoss) of the project is now available.
+Jikes RVM is an enhanced open source version of the code developed under the Jalapeño research project from December 1997 to October 2001.
 
 #### Is Jikes RVM for all programmers?
 

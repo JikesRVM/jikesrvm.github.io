@@ -35,7 +35,7 @@ We are happy to take patches to support more platforms. However, we can't guaran
 
 ## Operating Systems
 
-- Windows is [not supported](http://xtenlang.atlassian.net/browse/RVM-630). If you are interested in support for Windows, you can take a look at [Metacircular Research Platform](http://mrp.codehaus.org), a fork of the Jikes RVM. It provides support for building on Windows (using the class libraries from the now retired Apache Harmony project). If you want to add Windows support to Jikes RVM, the easiest way to proceed is probably roughly as follows:
+- Windows is [not supported](http://xtenlang.atlassian.net/browse/RVM-630). If you are interested in support for Windows, you can take a look at [Metacircular Research Platform](https://github.com/codehaus/mrp), a fork of the Jikes RVM. It provides support for building on Windows (using the class libraries from the now retired Apache Harmony project). If you want to add Windows support to Jikes RVM, the easiest way to proceed is probably roughly as follows:
 1. Add [OpenJDK support to Jikes RVM](https://xtenlang.atlassian.net/browse/RVM-549) (which is a lot of work).
 2. Merge relevant changes for Windows support from the Metacircular Research Platform to Jikes RVM. Your best bet is to search the [MRP status page](/MergeStatusOfMRPChangesets/) for relevant changesets first. That should get you most of the changes. The rest can likely be found by searching MRP's history (i.e. files and commit messages) for Windows or Win or something similar.
 3. Finish the port to Windows.

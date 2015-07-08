@@ -15,9 +15,6 @@ This page highlights some ideas for code contributions. Some of these selections
 
 # High priority, large effort
 
-- **[Support for OpenJDK as a class library](http://docs.codehaus.org/xtenlang.atlassian.net/browse/RVM-549):** We have received community contributions for OpenJDK support. However, the patch set is large and not split into commits. Some parts of the patch set probably need to be changed or rewritten. You can help by grouping changes into commits and testing those. Reviews would also be helpful.
+- **[Support for OpenJDK as a class library](https://xtenlang.atlassian.net/browse/RVM-549):** We have received community contributions for OpenJDK support. However, the patch set is large and not split into commits. Some parts of the patch set probably need to be changed or rewritten. You can help by grouping changes into commits and testing those. Reviews would also be helpful.
 - **[Support for x64](http://xtenlang.atlassian.net/browse/RVM-977)**** :** The situation is basicly the same as for OpenJDK.
 - **Improve situation for the optimizing compiler so that we can enable [previously disabled optimizations](http://xtenlang.atlassian.net/browse/RVM-656)** : There are a number of optimizations in the opt compiler that are currently disabled by default because they are considered too buggy. We currently don't have proper tests for the optimizing compilers so we need to write a lot of tests to ensure that the compiler works correctly. The compiler-internal IR verification (and its paranoid variant) could also be improved. There are also opportunities in the refactoring of the [phase organisation](http://xtenlang.atlassian.net/browse/RVM-239).
-
-A number of other possible projects can be found on the Project proposals / ideas pages that are linked from for our [Google Summer of Code pages](http://docs.codehaus.org/display/RVM/Google+Summer+of+Code).
-
