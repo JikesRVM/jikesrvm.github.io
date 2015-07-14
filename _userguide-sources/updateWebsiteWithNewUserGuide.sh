@@ -3,6 +3,9 @@
 # Builds a new userguide and updates the website.
 # Note: error handling is practically non existent.
 
+# To inspect the result, you will need to build a local
+# version of the website with Jekyll.
+
 # FIXME: Links in the built user guide are broken.
 # They must be adapted for Jekyll with post-processing,
 # e.g. with sed.

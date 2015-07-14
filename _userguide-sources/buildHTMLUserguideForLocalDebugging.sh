@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Builds a HTML version of the userguide for debugging
+# that can be viewed in a webbrowser.
+
 mainFile="userguide.tex"
 buildDir="userguide-for-local-debugging"
 
