@@ -1,0 +1,37 @@
+\setNextFileName{CostBenefitModel.html}
+\begin{section}{Cost Benefit Model}
+The Jikes RVM Adaptive Optimization System attempts to evaluate the break-even point for each action using an online competitive algorithm.  It relies on an analytic model to estimate the costs and benefits of each selective recompilation action, and evaluates the best actions according to the model predictions online.
+
+A key advantage of this approach is that it allows a designer to extend the simple "break-even" cost-benefit model to account for more sophisticated adaptive policies, such as selective compilation with multiple optimization levels, on-stack-replacement, and long-running analyses.
+
+In general, each potential action will incur some cost and may confer some benefit. For example, recompiling a method will certainly consume some CPU cycles, but could speed up the program execution by generating better code. In this discussion we focus on costs and benefits defined in terms of time (CPU cycles). However, in general, the controller could consider other measures of cost and benefit, such as memory footprint, garbage allocated, or locality disrupted.
+
+The controller will take some action when it estimates the benefit to exceed the cost. More precisely, when the controller wakes at time $t$, it considers a set of $n$ available actions, the set $A = \{A_1, A_2, ..., A_n\}$. For any subset $S$ in $P(A)$, the controller can estimate the cost $C(S)$ and benefit $B(S)$ of performing all actions $A_i$ in $S$. The controller will attempt to choose the subset $S$ that maximizes $B(S) - C(S)$. Obviously $S = \{\}$ has $B(S) = C(S) = 0$; the controller takes no action if it cannot find a profitable course.
+
+In practice, the precise cost and benefit of each action cannot be known; so, the controller must rely on estimates to make decisions.
+
+The basic model the controller uses to decide which method to recompile, at which optimization level, and at what time is as follows.
+
+Suppose that when the controller wakes at time $t$, and each method $m$ is currently optimized at optimization level $m_i, 0 \leq i \leq k$. Let $M$ be the set of loaded methods in the program. Let $A_{jm}$ be the action "recompile method m at optimization level $j$, or do nothing if $j = i$."
+
+The controller must choose an action for each $m$ in $M$. The set of available actions is $Actions = \{A_{jm} | 0 \leq j \leq k, m \in M\}$.
+
+Each action has an estimated cost and benefit: $C(A_{jm})$, the cost of taking action $A_{jm}$, for $0 \leq j \leq k$ and $T(A_{jm})$, the expected time the program will spend executing method $m$ in the future, if the controller takes action $A_{jm}$.
+
+For $S$ in $Actions$, define $C(S) = \sum_{s \in S} C(s)$. Given $S$, for each $m$ in $M$, define $A_{min_m}$ to be the action $A_{jm}$ in $S$ that minimizes $T(A_{jm})$.  Then define $T(S) = \sum_{m \in M} T(A_{min_m})$.
+
+Using these estimated values, the controller chooses the set $S$ that minimizes $C(S) + T(S)$. Intuitively, for each method $m$, the controller chooses the recompilation level $j$ that minimizes the expected future compilation time and running time of $m$.
+
+It remains to define the functions $C$ and $T$ for each recompilation action. The basic model models the cost $C$ of compiling a method $m$ at level $j$ as a linear function of the size of $m$. The linear function is determined by an offline experiment to fit constants to the model.
+
+The basic model estimates that the speedup for any optimization level $j$ is constant. The implementation determines the constant speedup factor for each optimization level offline, and uses the speedup to compute $T$ for each method and optimization level.
+
+We assume that if the program has run for time $t$, then the program will run for another $t$ units, and then terminate. We further assume program behavior in the future will resemble program behavior in the past. Therefore, for each method we estimate that if no optimization action is performed $T(A_{jm})$ is equal to the time spent executing method $m$ so far.
+
+Let $M=(m_1, ..., m_k)$ be the $k$ compiled methods. When the controller wakes at time $t$, each compiled method $m$ has been sampled $\sum m$ times. Let $\delta$ be the sampling interval, measured in seconds. The controller estimates that method $m$ has executed $\delta \sum m$ seconds so far, and will execute for another $\delta \sum m$ seconds in the future.
+
+When driving recompilation based on sampling, the controller can limit its attention to the set of methods that were sampled in the previous sampling interval. This optimization does not lose precision; if the number of samples associated with a method has not changed, then the controller's estimate of the method's future execution time will not change. This implies that if the controller were to consider a
+method that does not appear in the previous sampling interval, the controller would make exactly the same decision it did the last time it considered the method. This optimization, limiting the number of methods the controller must examine in each sampling interval, greatly reduces the amount of work performed by the controller.
+
+Suppose the controller recompiles method m from optimization level $i$ to optimization level $j$ after having seen $\sum m$ samples. Let $S_i$ and $S_j $be the speedup ratios for optimization levels $i$ and $j$, respectively. After optimizing at level $j$, we adjust the sample data to represent the system state as if it had executed method $m$ at optimization level $j$ since program startup. So, we set the new number of samples for $m$ to be $\sum m \cdot (S_i/S_j)$. Thus to compute the time spent in $m$, we need know only one number, the "effective" number of samples.
+\end{section}
