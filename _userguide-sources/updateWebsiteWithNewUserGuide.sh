@@ -6,9 +6,7 @@
 # To inspect the result, you will need to build a local
 # version of the website with Jekyll.
 
-# FIXME: Links in the built user guide are broken.
-# They must be adapted for Jekyll with post-processing,
-# e.g. with sed.
+# FIXME images are in the wrong place for Jekyll.
 
 mainFile="userguide.tex"
 websiteFile="index.tex"
@@ -16,6 +14,7 @@ websiteFile="index.tex"
 tmpDir="userguide-for-website-build-tmp"
 frontmatterFile="jekyll-frontmatter"
 tmpFile="cat-tmp-html"
+sedTmpFile="sed-tmp-html"
 
 # Copy files to build dir
 rm -rf $tmpDir
@@ -41,7 +40,9 @@ htlatex $websiteFile "html-website.cfg,html,3"
 for htmlFile in *.html
 do
   cat $frontmatterFile $htmlFile > $tmpFile
-  mv $tmpFile $htmlFile
+  # Note: directory must be manually inserted
+  sed 's|\"\(.*\)\.html#|\"/userguide-wip/\1\/index.html#|g' $tmpFile > $sedTmpFile
+  mv $sedTmpFile $htmlFile
 done
 
 # Copy new CSS
@@ -61,5 +62,6 @@ rm $frontmatterFile
 
 # Update 
 cd ..
+# Note directory is hardcoded because we're hardcoding it into the sed expression above
 rm -rf ../userguide-wip
 mv $tmpDir ../userguide-wip
