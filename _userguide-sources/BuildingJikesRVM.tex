@@ -1,0 +1,92 @@
+\setNextFileName{BuildingJikesRVM.html}
+\begin{section}{Building Jikes RVM}
+
+This guide describes how to build Jikes RVM. The first section is an overview of the Jikes RVM build process and this is followed by your system requirements and a detailed description of the steps required to build Jikes RVM.
+
+Once you have things working, as described below, the buildit  script will provide a fast and easy way to build the system.  We recommend you get things working as described below first, so you can be sure you've met the requisite dependencies etc.
+
+\begin{subsection}{Overview}
+
+\begin{subsubsection}{Compiling the source code}
+The majority of Jikes RVM is written in Java and will be compiled into class files just as with other Java applications. There is also a small portion of Jikes RVM that is written in C that must be compiled with a C compiler such as gcc.  Jikes RVM uses \href{https://ant.apache.org}{Ant} version 1.7.0 or later as the build tool that orchestrates the build process and executes the steps required in building Jikes RVM.
+
+Jikes RVM requires a complete install of ant, including the optional tasks. These are present if you download and install ant manually. Some Linux distributions have decided to break ant into multiple packages. So if you are installing on a platform such as Debian you may need to install another package such as 'ant-optional'.
+\end{subsubsection}
+
+\begin{subsubsection}{Generating source code}
+
+The build process also generates Java and C source code based on build time constants such as the selected instruction architecture, garbage collectors and compilers. The generation of the source code occurs prior to the compilation phase.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Bootstrapping the RVM}
+
+Jikes RVM compiles Java class files and produces arrays of code and data. To build itself Jikes RVM will execute on an existing Java Virtual Machine and compiles a copy of it's own class files into a boot image for the code and data using the boot image writer tool. The set of files compiled is called the \hyperref[sec:primordialclasslist]{Primordial Class List}. The boot image runner is a small C program that loads the boot image and transfers control flow into Jikes RVM.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Class libraries}
+
+The Java class library is the mechanism by which Java programs communicate with the outside world. Jikes RVM has configurable class library support, the most mature of which is the the \href{http://www.gnu.org/software/classpath/}{GNU Classpath} class library.
+
+For GNU Classpath, the developer can either specify a particular version of GNU Classpath to use. By default the build process will download and build GNU Classpath.
+
+Previous releases of the Jikes RVM had support for the Apache Harmony class library. This is no longer developed or supported because Apache Harmony development \href{https://harmony.apache.org/}{was stopped}. Support for OpenJDK is planned, but not yet implemented.
+
+\end{subsubsection}
+
+\end{subsection}
+
+\begin{subsection}{Target Requirements}
+
+\begin{subsubsection}{Architectures }
+The PowerPC (or ppc) and ia32 instruction set architectures are supported by Jikes RVM.
+
+Intel's Instruction Set Architectures (ISAs) get known by different names:
+
+\begin{itemize}
+  \item IA-32 is the name used to describe processors such as 386, 486 and the Pentium processors. It is popularly called x86 or sometimes in our documentation as x86-32.
+  \item IA-32e is the name used to describe the extension of the IA-32 architecture to support 8 more registers and a 64-bit address space. It is popularly called x86\textunderscore 64 or AMD64, as AMD chips were the first to support it. It is found in processors such AMD's Opteron and Athlon 64, as well      as in Intel's own Pentium 4 processors that have EM64T in their name.
+  \item IA-64 is the name of Intel's Itanium processor ISA.
+\end{itemize}
+
+Jikes RVM currently supports the IA-32 ISA and work on IA32-e is in progress. As IA-32e is backward compatible with IA-32, Jikes RVM can be built and run upon IA-32e processors. The IA-64 architecture supports IA-32 code through a compatibility mode or through emulation and Jikes RVM should run in this configuration. Native IA-64 is not supported.
+\end{subsubsection}
+
+On PowerPC, only big endian is supported.
+
+\begin{subsubsection}{Operating Systems}
+Jikes RVM is capable of running on any operating system that is supported by the GNU Classpath library, low level library support is implemented and memory layout is defined. The low level library support includes interaction with the threading and signal libraries, memory management facilities and dynamic library loading services. The memory layout must also be known, as Jikes RVM will attempt to locate the boot image code and data at specific memory locations. These memory locations must not conflict with where the native compiler places it's code and data. Operating systems that are known to work include Linux and OS X. At one stage a port to win32 was completed but it was never integrated into the main Jikes RVM codebase. AIX was supported previously but support has been removed due to lack of demand. The same applies for support of Mac OS on PPC.
+
+Note: Current implementation of Jikes RVM implies that system native libraries (like GTK+) have been compiled with frame pointers. Most of Linux distribution have frame pointers enabled in most of the packages, but some explicitly use \verb+-fomit-frame-pointer+ thus producing the library that can't be used with Jikes RVM.
+\end{subsubsection}
+
+\begin{subsubsection}{Support Matrix}
+The platform support matrix table details the targets that have historically been supported and the current status of the support. The target.name column is the identifier that Jikes RVM uses to identify this 
+target. ??? means that we don't have regression machines for this platform so the Jikes RVM team can't guarantee that the target works at a given point in time. We rely on the community to provide a Jikes RVM implementation on these platforms.
+
+\begin{table}
+\centering
+\begin{tabular}{lcccc}
+target.name & OS & ISA & Address size & Status \\
+ia32-linux & Linux & IA32 & 32 bits & OK \\
+ia32-osx & OS X & IA32 & 32 bits & ??? \\
+ia32-solaris & Solaris & IA32 & 32 bits & ??? \\
+ia32-cygwin & Windows & IA32 & 32 bits & NYI \\
+x86\textunderscore 64-linux & Linux & IA32 & \textbf{32 bits} & OK \\
+x86\textunderscore 64-osx & OS X & IA32 & \textbf{32 bits} & ??? \\
+x86\textunderscore 64\textunderscore m64-linux & Linux & IA32e & \textbf{64 bits} & \href{https://xtenlang.atlassian.net/browse/RVM-977}{WIP} \\
+x86\textunderscore 64\textunderscore m64-osx & OS X & IA32e & \textbf{64 bits} & ??? \\
+ppc32-linux & Linux & ppc32 (big e.) & 32 bits & ??? \\
+ppc64-linux & Linux & ppc64 (big e.) & 64 bits & OK \\
+\end{tabular}
+\caption{platform support matrix}
+\end{table}
+
+x86\textunderscore 64 is currently only supported using the legacy 32bit addressing mode and instructions. You need to install the 32-bit versions of the required libraries to build and use the x86\textunderscore 64 configurations.
+
+\end{subsubsection}
+
+\end{subsection}
+
+\end{section}
