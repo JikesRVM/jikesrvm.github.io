@@ -15,6 +15,7 @@ tmpDir="userguide-for-website-build-tmp"
 frontmatterFile="jekyll-frontmatter"
 tmpFile="cat-tmp-html"
 sedTmpFile="sed-tmp-html"
+sedTmpFileImage="sed-tmp-html-image"
 
 # Copy files to build dir
 rm -rf $tmpDir
@@ -41,8 +42,11 @@ for htmlFile in *.html
 do
   cat $frontmatterFile $htmlFile > $tmpFile
   # Note: directory must be manually inserted
-  sed 's|\"\(.*\)\.html#|\"/userguide-wip/\1\/index.html#|g' $tmpFile > $sedTmpFile
-  mv $sedTmpFile $htmlFile
+  # Note: : is excluded to make sure that we only match relative links,
+  #  i.e. href="/something/bla.html" and not something like href="http://example.com"
+  sed 's|href=\"\([^:]*\)\.html#|href=\"/userguide-wip/\1\/index.html#|g' $tmpFile > $sedTmpFile
+  sed 's|src=\"\(.*\)\.png|src=\"/userguide-wip/\1\.png|g' $sedTmpFile > $sedTmpFileImage
+  mv $sedTmpFileImage $htmlFile
 done
 
 # Copy new CSS
