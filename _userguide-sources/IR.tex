@@ -2,28 +2,28 @@
 \setNextFileName{IR.html}
 \begin{section}{IR}
 
-The optimizing compiler intermediate representation (IR) is held in an object of type \verb#IR# and includes a list of instructions. Every instruction is classified into one of the pre-defined instruction formats. Each instruction includes an operator and zero or more operands. Instructions are grouped into basic blocks; basic blocks are constrained to having control-flow instructions at their end. Basic blocks fall-through to other basic blocks or contain branch instructions that have a destination basic block label. The graph of basic blocks is held in the \verb#cfg# (control-flow graph) field of IR.
+The optimizing compiler intermediate representation (IR) is held in an object of type \spverb#IR# and includes a list of instructions. Every instruction is classified into one of the pre-defined instruction formats. Each instruction includes an operator and zero or more operands. Instructions are grouped into basic blocks; basic blocks are constrained to having control-flow instructions at their end. Basic blocks fall-through to other basic blocks or contain branch instructions that have a destination basic block label. The graph of basic blocks is held in the \spverb#cfg# (control-flow graph) field of IR.
 
 % TODO link to the intermediate code representation in the final version of this page
 This section documents basic information about the intermediate instruction. For a tutorial based introduction to the material it is highly recommended that you read "Jikes RVM Optimizing Compiler Intermediate Code Representation".
 
 \begin{subsection}{IR Operators}
 
-The IR operators are defined by the class \verb#Operators#, which in turn is automatically generated from a template by a driver. The input to the driver are two files, both called \verb#OperatorList.dat#. One input file resides in
-\verb#$RVM_ROOT/rvm/src-generated/opt-ir# and defines machine-independent operators. The other resides in
-\verb#$RVM_ROOT/rvm/src-generated/opt-ir/$\{arch\}# and defines machine-dependent operators, where \verb#$\{arch\}# is the specific instruction architecture of interest.
+The IR operators are defined by the class \spverb#Operators#, which in turn is automatically generated from a template by a driver. The input to the driver are two files, both called \spverb#OperatorList.dat#. One input file resides in
+\spverb#$RVM_ROOT/rvm/src-generated/opt-ir# and defines machine-independent operators. The other resides in
+\spverb#$RVM_ROOT/rvm/src-generated/opt-ir/$\{arch\}# and defines machine-dependent operators, where \spverb#$\{arch\}# is the specific instruction architecture of interest.
 
-Each operator in \verb#OperatorList.dat# is defined by a five-line record, consisting of:
+Each operator in \spverb#OperatorList.dat# is defined by a five-line record, consisting of:
 
 \begin{itemize}
-  \item \verb#SYMBOL#: a static symbol to identify the operator
-  \item \verb#INSTRUCTION_FORMAT#: the instruction format class that accepts this operator.
-  \item \verb#TRAITS#: a set of characteristics of the operator, composed with a bit-wise or (\textbar ) operator. See Operator.java for a list of valid traits.
-  \item \verb#IMPLDEFS#: set of registers implicitly defined by this operator; usually applies only to machine-dependent operators
-  \item \verb#IMPLUSES#: set of registers implicitly used by this operator; usually applies only to machine-dependent operators
+  \item \spverb#SYMBOL#: a static symbol to identify the operator
+  \item \spverb#INSTRUCTION_FORMAT#: the instruction format class that accepts this operator.
+  \item \spverb#TRAITS#: a set of characteristics of the operator, composed with a bit-wise or (\textbar ) operator. See Operator.java for a list of valid traits.
+  \item \spverb#IMPLDEFS#: set of registers implicitly defined by this operator; usually applies only to machine-dependent operators
+  \item \spverb#IMPLUSES#: set of registers implicitly used by this operator; usually applies only to machine-dependent operators
 \end{itemize}
 
-For example, the entry in \verb#OperatorList.dat# that defines the integer addition operator is
+For example, the entry in \spverb#OperatorList.dat# that defines the integer addition operator is
 \begin{lstlisting}
 INT_ADD
 Binary
@@ -47,9 +47,9 @@ Additionally, the machine-specific OperatorList.dat file contains another line o
 
 \begin{subsection}{Instruction Format}
 
-Every IR instruction fits one of the pre-defined Instruction Formats. The Java package \verb#org.jikesrvm.compilers.opt.ir# defines roughly 75 architecture-independent instruction formats. For each instruction format, the package includes a class that defines a set of static methods by which optimizing compiler code can access an instruction of that format.
+Every IR instruction fits one of the pre-defined Instruction Formats. The Java package \spverb#org.jikesrvm.compilers.opt.ir# defines roughly 75 architecture-independent instruction formats. For each instruction format, the package includes a class that defines a set of static methods by which optimizing compiler code can access an instruction of that format.
 
-For example, \verb#INT_MOVE# instructions conform to the \verb#Move# instruction format. The following code fragment shows code that uses the \verb#Operators# interface and the \verb#Move# instruction format:
+For example, \spverb#INT_MOVE# instructions conform to the \spverb#Move# instruction format. The following code fragment shows code that uses the \spverb#Operators# interface and the \spverb#Move# instruction format:
 
 \begin{lstlisting}[language=Java]
 import org.jikesrvm.compilers.opt.ir.*;
@@ -66,21 +66,21 @@ class X {
 }
 \end{lstlisting}
 
-This example shows just a subset of the access functions defined for the Move format. Other static access functions can set each operand (in this case, \verb#Result# and \verb#Val#), query each operand for nullness, clear operands, create Move instructions, mutate other instructions into Move instructions, and check the index of a particular operand field in the instruction. See the Javadoc™ reference for a complete description of the API.
+This example shows just a subset of the access functions defined for the Move format. Other static access functions can set each operand (in this case, \spverb#Result# and \spverb#Val#), query each operand for nullness, clear operands, create Move instructions, mutate other instructions into Move instructions, and check the index of a particular operand field in the instruction. See the Javadoc™ reference for a complete description of the API.
 
-Each fixed-length instruction format is defined in the text file \verb#$RVM_ROOT/rvm/src-generated/opt-ir/InstructionFormatList.dat#. Each record in this file has four lines:
+Each fixed-length instruction format is defined in the text file \spverb#$RVM_ROOT/rvm/src-generated/opt-ir/InstructionFormatList.dat#. Each record in this file has four lines:
 
 \begin{itemize}
-\item \verb#NAME#: the name of the instruction format
-\item \verb#SIZES#: the number of operands defined, defined and used, and used
-\item \verb#SIZES#: the number of operands defined, defined and used, and used
+\item \spverb#NAME#: the name of the instruction format
+\item \spverb#SIZES#: the number of operands defined, defined and used, and used
+\item \spverb#SIZES#: the number of operands defined, defined and used, and used
       \begin{itemize}
-        \item \verb#D/DU/U#: Is this operand a def, use, or both?
-        \item \verb#NAME#: the unique name to identify the operand
-        \item \verb#TYPE#: the type of the operand (a subclass of Operand)
-        \item \verb#[opt]#: is this operand optional?
+        \item \spverb#D/DU/U#: Is this operand a def, use, or both?
+        \item \spverb#NAME#: the unique name to identify the operand
+        \item \spverb#TYPE#: the type of the operand (a subclass of Operand)
+        \item \spverb#[opt]#: is this operand optional?
       \end{itemize}
-\item \verb#VARSIG#: a description of repeating operands, used for variable-length instructions.
+\item \spverb#VARSIG#: a description of repeating operands, used for variable-length instructions.
 \end{itemize}
 
 
