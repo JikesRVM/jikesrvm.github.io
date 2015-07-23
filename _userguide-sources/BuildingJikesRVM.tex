@@ -145,7 +145,6 @@ pkg-get will greatly simplify installing GNU packages on Solaris. Our patches re
 There are a number of ant properties that are used to control the build process of Jikes RVM. These properties may either be specified on the command line by \spverb+-Dproperty=variable+ or they may be specified in a file named \spverb+.ant.properties+ in the base directory of the jikesrvm source tree. The \spverb+.ant.properties+ file is a standard Java property file with each line containing a \spverb+property=variable+ and comments starting with a \spverb+#+ and finishing at the end of the line. The following table describes some properties that are commonly specified.
 
 % TODO port content for links
-% TODO link for Configuring the RVM in config.name
 % TODO link for building patched versions in patch.name
 % TODO link for unit tests in require.rvm-unit-tests
 % TODO links for require.checkstyle
@@ -156,7 +155,7 @@ There are a number of ant properties that are used to control the build process 
 Property & Description & Default \\
 host.name & The name of the host environment used for building Jikes RVM. The host environment defines the paths to the tools used during the build, e.g. the path to the C compiler. The name should match one of the files located in the \spverb+build/hosts/+ directory minus the '.properties' extension. & None \\
 target.name & The name of the target environment for Jikes RVM. The name should match one of the files located in the \spverb+build/targets/+ directory minus the '.properties' extension. This should only be specified when cross compiling the Jikes RVM. See \hyperref[sec:crossplatformbuilding]{Cross-Platform Building} for a detailed description of cross compilation. & \$\{host.name\} \\
-config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section Configuring the RVM. & None \\
+config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section \hyperref[sec:configuringjikesrvm]{Configuring Jikes RVM}. & None \\
 patch.name & An identifier for the current patch applied to the source tree. See Building Patched Versions for a description of how this fits into the standard usage patterns of Jikes RVM. & ``\,'' \\
 com\-po\-nents.dir & The directory where Ant looks for external components when building the RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
 dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jikesrvm.\newline dir\}/dist \\
@@ -178,8 +177,7 @@ The configuration files in \spverb+build/targets/+ and \spverb+build/hosts/+ are
 
 \begin{subsubsection}{Selecting a Configuration}
 
-% TODO link for configuring the RVM
-A configuration in terms of Jikes RVM is the combination of build time parameters and component selection used for a particular Jikes RVM image. The Configuring the RVM section describes the details of how to define a configuration. Typical configuration names include:
+A configuration in terms of Jikes RVM is the combination of build time parameters and component selection used for a particular Jikes RVM image. The section \hyperref[sec:configuringjikesrvm]{Configuring Jikes RVM} section describes the details of how to define a configuration. Typical configuration names include:
 \begin{itemize}
   \item \textbf{production}: This configuration defines a fully optimized version of the Jikes RVM.
   \item \textbf{development}: This configuration is the same as production but with debug options enabled. The debug options perform internal verification of Jikes RVM which means that it builds and executes more slowly.
