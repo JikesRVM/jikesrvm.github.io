@@ -1,0 +1,18 @@
+\begin{section}{Building Patched Versions}
+\label{sec:buildingpatchedversions}
+
+As part of the research process there will be a need to evaluate a set of changes to the source tree. To make this process easier the property named patch.name can be set to a non-empty string. This will cause the output directory to have the name \spverb+${config.name}_${target.name}_${config.variant}+ rather than \spverb+${config.name}_${target.name}+, thus making it easy to differentiate between the patched and unpatched runtimes.
+
+The following steps will create a runtime without the patch in \texttt{dist/prototype\_ia32-linux} and a runtime with the patch applied in \texttt{dist/prototype\_ia32-linux\_ReadBarriers}:
+
+\begin{lstlisting}
+% cd $RVM_ROOT
+% ant -Dconfig.name=prototype -Dhost.name=ia32-linux
+% patch -p0 < ReadBarriers.diff
+% ant -Dconfig.variant=ReadBarriers -Dconfig.name=prototype -Dhost.name=ia32-linux
+% patch -R -p0 < ReadBarriers.diff
+\end{lstlisting}
+
+The \spverb+config.variant+ property is also supported and reported as part of the test infrastructure.
+
+\end{section}
