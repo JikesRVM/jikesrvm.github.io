@@ -1,0 +1,39 @@
+\setNextFileName{TestRunDescriptions.html}
+\begin{section}{Test Run Descriptions}
+\label{sec:testrundescriptions}
+
+The Jikes RVM project contains several different test runs with different purposes. This document attempts to capture the purpose of each different test run.
+
+\begin{subsection}{pre-commit}
+
+This test run MUST be run prior to committing code. It is relatively short and is designed to capture as many potential bugs in the shortest possible time. It is expected that the pre-commit test run will take 7-15 minutes on modern intel architecture.
+
+\end{subsection}
+
+\begin{subsection}{core}
+
+There is a set of workloads we consider important (i.e. dacapo and SPEC*). There is a set of build configurations we consider important (ie prototype, development, production). We as a group wish to guarantee that all important workloads will will run correctly on all important build configurations, i.e. We should NEVER regress. The core test run is designed to identify as early as possible any failures in this matrix of build configuration x workload. It is run continuously 24 hours a day (or at least every time a change is made). It is expected that the core test run will take 2-6 hours to complete depending on the environment.
+
+The best way to identify the failures is to stress test the system by forcing frequent garbage collections and compilation at specific optimization levels (and perhaps frequent thread switching and frequent OSR events in the future). It is critical that we have a stable research base so intermittent failures are NOT acceptable. If we can not pass a stress test then there is no guarantee that we have a stable research base.
+
+\end{subsection}
+
+\begin{subsection}{sanity}
+
+The sanity test runs cover a larger number of build configurations and workloads. They may not always pass and may test many of the less frequently used configurations (gctrace, gcspy, and individual stress tests) and less important workloads. Performance tests are also included in this test run. Something we use to gauge the health of the project as a whole and to track regressions. These are run once a day on major platforms. These time to complete can vary but expected to take several hours at the least.
+
+\end{subsection}
+
+\begin{subsection}{Other test runs}
+
+A set of test runs that are used for testing specific aspects of the system from performance, gcmap bug finding, io hammering etc. There may also be a set of personal/site-specific test runs included in this set that are not checked into Mercurial repository.
+
+\end{subsection}
+
+\begin{subsection}{Summary}
+
+We must NEVER regress in the core test run. The pre-commit test run attempts to ensure no core regressions this while keeping running time reasonable. The sanity test run gives us an overall picture on the health of the code base. While the other test runs are used at different times for different purposes.
+
+\end{subsection}
+
+\end{section}
