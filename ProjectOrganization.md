@@ -17,7 +17,7 @@ _Users_ are the people who use Jikes RVM, without contributing code or documenta
 
 A user who [contributes](/Contributions/) code or documentation becomes a _contributor_. Contributors are the people who contribute enhancements, bug fixes, documentation, or other work that is incorporated into the system. Anyone can be a contributor.
 
-The most efficient way to make non-trivial contributions to the project's documentation (User Guide and other online material) is to edit the wiki pages yourself. If you are interested in contributing in this fashion, please contact one of the Steering Committee members to ask for edit permissions to our wiki space.
+The most efficient way to make non-trivial contributions to the project's documentation (User Guide and other online material) is to edit the sources  yourself. If you are interested in contributing in this fashion, please clone our [GitHub repository](https://github.com/JikesRVM/jikesrvm.github.io) and send us patches or pull requests.
 
 ### Jikes RVM Team Member
 

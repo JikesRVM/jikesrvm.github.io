@@ -5,7 +5,7 @@ title: Contributions
 
 # Contributing Documentation
 
-If you want to help us improve our User Guide and other online documentation, please contact a Steering Committee Member and ask for editing permissions for our wiki space.
+The website and the user guide are built from the contents of our [GitHub repo](https://github.com/JikesRVM/jikesrvm.github.io) . If you want to help us improve our User Guide and other online documentation, please send your patches to the [core mailing list](/MailingLists/) or open a pull request on GitHub.
 
 # Contributing Code
 
