@@ -1,0 +1,65 @@
+\setNextFileName{CodingStyle.html}
+\begin{section}{Coding Style}
+\label{sec:codingstyle}
+
+Regrettably, some code in the current system does not follow any consistent coding style. This is an unfortunate residuum of the system's evolution.
+
+We use checkstyle to support a gradually expanding subset of coding conventions.  The current set of enforced checkstyle rules are defined by \texttt{\$RVM\_ROOT/build/check\-style/rvm-checks.xml} and are verified as part of the pre-commit test run. To check for violations of the coding style without running the tests, \hyperref[sec:usingbuildit]{use buildit} or run "ant checkstyle" from the command line.
+
+\begin{subsection}{File Headers}
+
+Every file needs to have the license header.
+
+A Java example of the notices follows.
+
+\begin{lstlisting}[language=Java]
+/*
+ *  This file is part of the Jikes RVM project (http://jikesrvm.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License. You
+ *  may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  See the COPYRIGHT.txt file distributed with this work for information
+ *  regarding copyright ownership.
+ */
+package org.jikesrvm;
+
+import org.jikesrvm.classloader.ClassLoader; // FILL ME IN
+
+/**
+ * TODO Substitute a brief description of what this program or library does.
+ */
+\end{lstlisting}
+
+\end{subsection}
+
+\begin{subsection}{Coding style description}
+
+The Jikes™ RVM coding style guidelines are similar to the Sun® Microsystems "Code Conventions for the Java™ Programming Language", with a few exceptions listed below. Most of the style guide is intuitive; however, please read through the document (or at least look at its sample code).
+
+We have adopted four modifications to the Sun code conventions:
+
+\begin{itemize}
+  \item \textbf{Two-space indenting} The Sun coding convention suggests 4 space indenting; however with 80-column lines and four-space indenting, there is very little room left for code. Thus, we recommend using 2 space indenting. There are to be no tabs in the source files or trailing white space on any line.
+  \item \textbf{132 column lines in exceptional cases} The Sun coding convention is that lines be no longer than 80 columns. Several Jikes RVM contributors have found this constraining. Therefore, we allow 132 column lines for exceptional cases, such as to avoid bad line breaks.
+  \item \spverb+if (VM.VerifyAssertions)+ As a special case, the condition \texttt{if \newline (VM.VerifyAssertions)} is usually immediately followed by the call to \spverb+VM._assert()+, with a single space substituting for the normal newline-and-indentation. See the \hyperref[sec:codingconventions]{coding conventions} for an example.
+  \item \textbf{Capitalized fields} Under the Sun coding conventions, and as specified in The Java Language Specification, Second Edition, the names of fields begin with a lowercase letter. (The only exception they give is for some final static constants, which have names \spverb+ALL_IN_CAPITAL_LETTERS+, with underscores separating them.) That convention reserves IdentifiersBeginningWithACapitalLetterFollowedByMixedCase for the names of classes and interfaces. However, most of the final fields in the Configuration class and the Properties interface also are in that format. Since the VM class inherits fields from both Properties and Configuration, that's how we get VM.VerifyAssertions, etc.
+\end{itemize}
+
+\end{subsection}
+
+\begin{subsection}{Javadoc requirements}
+
+All non-trivial files should contain descriptive comments in \href{http://www.oracle.com/technetwork/java/javase/documentation/index-jsp-135444.html}{Javadoc™} form so that documentation can be generated automatically. Of course, additional non-Javadoc source code comments should appear as appropriate.
+\begin{enumerate}
+  \item Classes, methods and fields should have a block comment describing them if it makes sense. There is no need to add comments merely for the sake of commenting. For example, it is not necessary to add a comment for a method if the comment does not provide more information than the signature and the method name already do.
+  \item JavaDoc comments must not be copied from methods that are being overriden. If the comment from the method that you are overriding is sufficient, you do not need to provide JavaDoc for the newly added method - JavaDoc will automatically copy the JavaDoc from the overriden method. If you want to extend the comment from the overriden method with new information, use {@inheritDoc} to copy the comment from the superclass and add your text.
+  \item JavaDoc for methods contains a short description of their arguments (using \spverb+@param+), the return value (using \spverb+@return+) and the exceptions they may throw (using \spverb+@throws+).
+  \item Each class should include \spverb+@see+ and \spverb+@link+ references as appropriate.
+\end{enumerate}
+\end{subsection}
+
+\end{section}

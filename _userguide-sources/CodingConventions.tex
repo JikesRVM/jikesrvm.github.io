@@ -1,0 +1,56 @@
+\setNextFileName{CodingConventions.html}
+\begin{section}{Coding Conventions}
+\label{sec:codingconventions}
+
+\begin{subsection}{Assertions in Jikes RVM and MMTk}
+
+Partly for historical reasons, we use our own built-in assertion facility rather than the one that appeared in Sun®'s JDK 1.4. All assertion checks have one of the two forms:
+
+\begin{lstlisting}[language=Java]
+if (VM.VerifyAssertions)  VM._assert(condition)
+if (VM.VerifyAssertions)  VM._assert(condition,  message)
+\end{lstlisting}
+
+\spverb+VM.VerifyAssertions+ is a \spverb+public static final+ field. The \texttt{con\-fig.as\-ser\-tions} configuration variable determines \spverb+VM.VerifyAssertions+' value. If \texttt{con\-fig.as\-ser\-tions} is set to none, Jikes RVM has no assertion overhead.
+
+If you use the form without a message, then the default message "vm internal error at:" will appear.
+
+If you use the form with a message the message must be a single string literal. Doing string appends in assertions can be a source of horrible performance problems when assertions are enabled (i.e. most development builds). If you want to provide a more detailed error message when the assertion fails, then you must use the following coding pattern:
+
+\begin{lstlisting}[language=Java]
+if (VM.VerifyAssertions && condition) {
+  ... build message ...
+  VM._assert(VM.NOT_REACHED, message);
+}
+\end{lstlisting}
+
+An assertion failure is always followed by a stack dump.
+
+Use \spverb+VM.ExtremeAssertions+ instead of \spverb+VM.VerifyAssertions+ if the assertion is costly to check but generally useful. These kinds of assertions are only enabled when \spverb+config.assertions+ is set to \spverb+extreme+.
+
+Use \spverb+IR.SANITY_CHECK+ or \spverb+IR.PARANOID+ to guard assertions that relate to the intermediate representation in the optimizing compiler.
+
+\end{subsection}
+
+\begin{subsection}{Assertions in the MMTk Test Harness}
+
+The assert keyword may be used in the MMTk Harness.
+
+\end{subsection}
+
+\begin{subsection}{Error Handling}
+
+All code in the system needs to detect and handle errors. If you know that your code does not handle certain situations, you should aim to write the code in way that detects these situations. The code also needs to be documented well enough so that users get a hint about the source of the problem. Keep in mind that the Jikes RVM is also used by students who may not be as familiar with the domain as researchers are.
+
+\begin{subsubsection}{Examples}
+  \begin{itemize}
+    \item The code does not work at all in a certain situation, e.g. it gives incorrect results when the optimizing compiler is enabled or a certain optimization is turned on. In this case, the best approach is to detect the situation and fail fast. This can be done using assertions. You can use VM.sysFail(..) for builds without assertions if correct execution after failure is impossible.
+    \item A compiler optimizations fails. The correct approach is to throw an OptimizingCompilerException (e.g. via one of the static methods provided by that class). This will lead to a hard failure when -X:vm:errorsFatal=true is set (which is the case in regression tests). In other cases, the VM will just revert to using the baseline compiler.
+    \item A command line option has a limited range of values. In MMTk, the correct approach is to implement the validate() method for the option. In other places, the value of the option needs to be checked at a suitable time.
+  \end{itemize}
+\end{subsubsection}
+
+\end{subsection}
+ 
+
+\end{section}

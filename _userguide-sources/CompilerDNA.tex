@@ -1,0 +1,31 @@
+\setNextFileName{CompilerDNA.html}
+\begin{section}{Compiler DNA}
+\label{sec:compilerdna}
+
+TODO: The test in this section was copied from the old user guide. It should be updated for \href{https://xtenlang.atlassian.net/browse/RVM-584}{the updated compiler dna test run}.
+
+The Jikes RVM adaptive system uses the compiler DNA found in \newline \spverb+org.jikesrvm.adaptive.recompilation.CompilerDNA+. The important values in here are the \spverb+compilationRates+ and the \spverb+speedupRates+. If you modify Jikes RVM then it's likely you need to recalibrate the adaptive system for your changes.
+
+In Jikes RVM 3.1.3 or earlier, do the following:
+
+\begin{enumerate}
+    \item run the compiler-dna test harness ("ant -f test.xml -Dtest-run.name=compiler-dna"). This will automatically compile and run Jikes RVM on SPEC JVM '98. You will want to configure the ant property external.lib.dir to be a directory containing your SPEC JVM '98 directory. Your SPEC JVM '98 directory must be named "SPECjvm98".
+    \item load the xml file \spverb+results/tests/compiler-dna/Report.xml+ into either an XML viewer (such as a web browser) or into a text editor
+    \item find the section named \spverb+Measure_Compilation_Base+, then look within this section for statistics and find the static Base.bcb/ms. For example, \spverb+<statistic key="Base.bcb/ms" value="1069.66"/>+. In the \newline \spverb+compilationRates+ array this will be the value of element 0, it corresponds to how many bytecodes the baseline compiler can compile per millisecond.
+    \item find the section named \spverb+Measure_Compilation_Opt_0+ and the statistic Opt.bcb/ms. This is element 1 in the \spverb+compilationRates+ array.
+    \item find the section named \spverb+Measure_Compilation_Opt_1+ and the statistic Opt.bcb/ms. This is element 2 in the \spverb+compilationRates+ array.
+    \item find the section named \spverb+Measure_Compilation_Opt_2+ and the statistic Opt.bcb/ms. This is element 3 in the \spverb+compilationRates+ array.
+    \item find the section named \spverb+Measure_Performance_Base+ and the statistic named \spverb+aggregate.best.score+ and record its value. For example, for \spverb+<statistic key="aggregate.best.score" value="28.90"/>+ you would record 28.90.
+    \item find the section named \spverb+Measure_Performance_Opt_0+ and the statistic \spverb+named aggregate.best.score+. Divide this value by the value you recorded in step 7, this is the value for element 1 in the \spverb+speedupRates+ array. For example, for \spverb+<statistic key="aggregate.best.score" value="137.50"/>+ the \spverb+speedupRates+ array element 1 should have a value of 4.76.
+    \item find the section named \spverb+Measure_Performance_Opt_1+ and the statistic named \spverb+aggregate.best.score+. As with stage 8 divide this value by the value recorded in step 7, this is the value for element 2 in the \spverb+speedupRates+ array.
+    \item find the section named \spverb+Measure_Performance_Opt_2+ and the statistic named \spverb+aggregate.best.score+. As with stage 8 divide this value by the value recorded in step 7, this is the value for element 3 in the \spverb+speedupRates+ array.
+\end{enumerate}
+
+In Jikes RVM 3.1.4 or later, the directory for the test results (e.g. \newline \spverb+results/tests/compiler-dna/+) should contain a file \spverb+CompilerDNA.xml+. Copy the contents into \spverb+CompilerDNA+ and modify them so that the code compiles.
+
+You should then save \spverb+CompilerDNA+ and recompile a production RVM which will use these values.
+
+If you are frequently changing the compiler dna, you may want to use the command line option \spverb+-X:aos:dna=<file name>+ to dynamically load compiler dna data without having to rebuild Jikes RVM.
+
+
+\end{section}
