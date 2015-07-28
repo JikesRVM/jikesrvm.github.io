@@ -1,0 +1,127 @@
+\setNextFileName{AddingANewGarbageCollector.html}
+\begin{section}{Adding a new garbage collector}
+\label{sec:addinganewgarbagecollector}
+
+
+\begin{subsection}{Overview}
+
+This document describes how to add a new garbage collector to Jikes RVM.  We don't address how to design a new GC algorithm, just how to add a "new" GC to the system and then build it.  We do this by cloning an existing GC.  We leave it to you to design your own GC!
+
+\end{subsection}
+
+\begin{subsection}{Prerequisites}
+
+Ensure that you have got a clean copy of the source (either a recent release or the hg tip) and can correctly and successfully build one of the base garbage collectors.  There's little point in trying to build your own until you can reliably build an existing one.  I suggest you start with MarkSweep, and that you use the \hyperref[sec:usingbuildit]{buildit} script:
+
+\begin{lstlisting}
+$ bin/buildit <targetmachine> BaseBase MarkSweep
+\end{lstlisting}
+
+Then test your GC:
+
+\begin{lstlisting}
+$ bin/buildit <targetmachine> -t gctest BaseBase MarkSweep
+\end{lstlisting}
+
+You should have seen some output like this:
+
+\begin{lstlisting}
+test:
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] InlineAllocation (default) : SUCCESS
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] ReferenceTest (default) : SUCCESS
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] ReferenceStress (default) : SUCCESS
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] FixedLive (default) : SUCCESS
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] LargeAlloc (default) : SUCCESS
+     [echo] Test Result for [BaseBaseMarkSweep|gctest] Exhaust (default) : SUCCESS  
+\end{lstlisting}
+
+If this is not working, you should probably go and (re) read the section in the user guide on \hyperref[cha:careandfeeding]{how to build and run} the VM.
+
+\end{subsection}
+
+\begin{subsection}{Cloning the MarkSweep GC}
+
+ The best way to do this is in eclipse or a similar tool (see here for how to work with eclipse):
+\begin{enumerate}
+    \item Clone the \textit{org.mmtk.plan.marksweep as org.mmtk.plan.\textbf{mygc}}
+      \begin{enumerate}
+        \item You can do this with Eclipse:
+          \begin{enumerate}
+            \item Navigate to org.mmtk.plan.marksweep (within MMTk/src)
+            \item Right click over org.mmtk.plan.marksweep and select "Copy"
+            \item Right click again, and select "Paste", and name the target \newline org.mmtk.plan.mygc (or whatever you like)
+            \item This will have cloned the marksweep GC in a new package called org.mmtk.plan.mygc
+          \end{enumerate}
+        \item or by hand:
+          \begin{enumerate}
+            \item Copy the directory MMTk/org/mmtk/plan/marksweep to \newline MMTk/org/mmtk/plan/mygc
+            \item Edit each file within MMTk/org/mmtk/plan/mygc and change its package declaration to org.mmtk.plan.mygc
+          \end{enumerate}
+        \item We can leave the GC called "MS" for now (the file names will all be MMTk/org/mmtk/plan/mygc/MS*.java)
+      \end{enumerate}
+    \item Clone the BaseBaseMarkSweep.properties file as BaseBaseMyGC.properties:
+      \begin{enumerate}
+        \item Go to build/configs, and right click over BaseBaseMarkSweep.properties, and select "Copy"
+        \item Right click and select "Paste", and paste as BaseBaseMyGC.properties
+        \item Edit BaseBaseMyGC.properties, changing the text:
+\begin{lstlisting}
+config.mmtk.plan=org.mmtk.plan.marksweep.MS
+\end{lstlisting}
+to
+\begin{lstlisting}
+config.mmtk.plan=org.mmtk.plan.mygc.MS
+\end{lstlisting}
+      \end{enumerate}
+    \item Now test your new GC:
+\end{enumerate}
+\begin{lstlisting}
+$ bin/buildit <targetmachine> -t gctest BaseBase MyGC
+\end{lstlisting}
+
+
+You should have got similar output to your test of MarkSweep above.
+
+That's it.  You're done. \smiley
+
+\end{subsection}
+
+\begin{subsection}{Making it Prettier}
+
+You may have noticed that when you cloned the package \textit{org.mmtk.plan.marksweep}, all the classes retained their old names (although in your new namespace; \textit{org.mmtk.plan.\textbf{mygc}}).  You can trivially change the class names in an IDE like eclipse.  You can do the same with your favorite text editor, but you'll need to be sure that you change the references carefully.  To change the class names in eclipse, just follow the procedure below for each class in \textit{org.mmtk.plan.\textbf{mygc}}:
+\begin{enumerate}
+  \item Navigate to the class you want changed (eg  org.mmtk.plan.mygc.MS)
+  \item Right click on the class (MS) and select \textit{"Refactor\textrightarrow\ Rename..."} and then type in your new name, (eg \textit{MyGC})
+  \item Do the same for each of the other classes:
+    \begin{itemize}
+      \item MS \textrightarrow\  MyGC
+      \item MSCollector \textrightarrow\  MyGCCollector
+      \item MSConstraints \textrightarrow\  MyGCConstraints
+      \item MSMutator \textrightarrow\  MyGCMutator
+      \item MSTraceLocal \textrightarrow\  MyGCTraceLocal
+    \end{itemize}
+  \item Edit your configuration/s to ensure they refer to the renamed classes (since your IDE is unlikely to have done this automatically for you)
+    \begin{itemize}
+      \item Go to \textit{build/configs}, and edit each file \textit{*MyGC.properties} to refer to your renamed classes
+    \end{itemize}
+\end{enumerate}
+
+\end{subsection}
+
+\begin{subsection}{Beyond BaseBaseMyGC}
+
+You probably want to build with configurations other than just BaseBase.  If so, clone configurations from MarkSweep, just as you did above (for example, clone \textit{FullAdaptiveMarkSweep} as \textit{FullAdaptive\textbf{MyGC}}). It's best to leave the Fast configurations for last, when you're sure that your GC is working correctly.
+
+\end{subsection}
+
+\begin{subsection}{What Next?}
+
+Once you have this working, you have successfully created and tested your own GC without writing a line of code! You are ready to start the slightly more tricky process of writing your own garbage collector code.
+
+% TODO link for MMTk test harness
+If you are writing a new GC, you should definitely be aware of the MMTk test harness, which allows you to test and debug MMTk in a very well contained pure Java environment, without the rest of Jikes RVM.  This allows you to write unit tests and corner cases, and moreover, allows you to edit and debug MMTk entirely from within your IDE.
+
+\end{subsection}
+
+\end{section}
+
+
