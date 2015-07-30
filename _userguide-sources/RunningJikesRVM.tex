@@ -1,0 +1,47 @@
+\setNextFileName{RunningJikesRVM.html}
+\begin{section}{Running Jikes RVM}
+\label{sec:runningjikesrvm}
+
+Jikes\textsuperscript{TM} RVM executes Java virtual machine byte code instructions from \spverb+.class+ files. It does \textit{not} compile Java\textsuperscript{TM} source code. Therefore, you must compile all Java source files into bytecode using a Java compiler.
+
+For example, to run class foo with source code in file foo.java:
+
+\begin{lstlisting}
+% javac foo.java
+% rvm foo
+\end{lstlisting}
+
+The general syntax is
+
+\begin{lstlisting}
+rvm [rvm options...] class [args...]
+\end{lstlisting}
+
+You may choose from a myriad of options for the rvm command-line. Options fall into two categories: \textit{standard} and \textit{non-standard}. Non-standard options are preceded by "-X:" and differ between virtual machines (e.g. Jikes RVM's options may not be available in HotSpot and vice-versa).
+
+\begin{subsection}{Standard Command-Line Options}
+
+We currently support a subset of the JDK 1.5 standard options. Below is a list of all options and their descriptions. Unless otherwise noted each option is supported in Jikes RVM.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{0.5\textwidth}p{0.4\textwidth}}
+Option & Description \\
+\spverb+-cp+ or \spverb+-classpath+ (directories and \newline zip/jar files separated by ":") & set search path for application classes and resources \\
+\spverb+-D<name>=<value>+ & set a system property \\
+-verbose:[class\textbar gc\textbar jni] & enable verbose output \\
+-version & print current VM version and terminate the run \\
+-showversion & print current VM version and continue running \\
+-fullversion & like "-version", but with more information \\
+-? or -help & print help message \\
+-X & print help on non-standard options \\
+-jar & execute a jar file \\
+\spverb+-javaagent:<jarpath>[=<options>]+ & load Java programming language agent, see \spverb+java.lang.instrument+ \\
+\end{tabular}
+\end{table}
+
+\end{subsection}
+
+% TODO continue porting this section
+
+\end{section}
