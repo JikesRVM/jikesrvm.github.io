@@ -42,6 +42,79 @@ Option & Description \\
 
 \end{subsection}
 
-% TODO continue porting this section
+\begin{subsection}{Non-Standard Command-Line Options}
+
+It is generally the case that the non-standard options may change from one release to another. However, the core and memory non-standard options that are listed here don't change often.
+
+The bulk of the non-standard options are grouped according to the subsystem that they control. See below for details.
+
+\begin{subsubsection}{Core Non-Standard Command-Line Options}
+
+\begin{table}[H]
+\begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
+Option & Description \\
+\spverb+-X:verbose+ & Print out additional lowlevel information for GC and hardware trap handling \\
+\spverb+-X:verboseBoot=<number>+ & Print out additional information while VM is booting, using verbosity level \spverb+<number>+ \\
+\spverb+-X:sysLogfile=<filename>+ & Write standard error message to \spverb+<filename>+ \\
+\spverb+-X:ic=<filename>+ & Read boot image code from \spverb+<filename>+ \\
+\spverb+-X:id=<filename>+ & Read boot image data from \spverb+<filename>+ \\
+\spverb+-X:ir=<filename>+ & Read boot image ref map from \spverb+<filename>+ \\
+\spverb+-X:vmClasses=<path>+ & Load the \spverb+org.jikesrvm.*+ and \spverb+java.*+ classes from \spverb+<path>+ \\
+\spverb+-X:processors=<number|"all">+ & The number of processors that the garbage collector will use \\
+\end{tabular}
+\end{table}
+
+\end{subsubsection}
+
+\begin{subsubsection}{Memory Non-Standard Command-Line Options}
+
+\begin{table}[h]
+\begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
+Option & Description \\
+\spverb+-Xms<number><unit>+ & Initial size of heap where \spverb+<number>+ is an integer, an extended-precision floating point or a hexadecimal value and \spverb+<unit>+ is one of T (Terabytes), G (Gigabytes), M (Megabytes), pages (of size 4096), K (Kilobytes) or \spverb+<no unit>+ for bytes \\
+\spverb+-Xmx<number><unit>+ & Maximum size of heap. See above for definition of \spverb+<number>+ and \spverb+<unit>+ \\
+\end{tabular}
+\end{table}
+
+\end{subsubsection}
+
+\begin{subsubsection}{Subsystem Non-Standard Command-Line Options}
+
+The other non-standard command line options are not listed here because they will change from time to time. To get a current list of these options, you can do the following:
+\begin{itemize}
+  \item To find out which subsystems are available in the image you're using:
+    \begin{lstlisting}
+rvm -X
+    \end{lstlisting}
+  \item To get information about the options for a specific subsystem (e.g. the garbage collection subsystem)
+    \begin{lstlisting}
+rvm -X:gc:help
+    \end{lstlisting}
+  \item To find out the current values of the options for a specific subystem (e.g. the optimizing compiler subsystem)
+    \begin{lstlisting}
+rvm -X:opt:printOptions
+    \end{lstlisting}
+\end{itemize}
+
+\end{subsubsection}
+
+\end{subsection}
+
+\begin{subsection}{Running Jikes RVM with Valgrind}
+
+Jikes RVM can run under valgrind, as of 29-Aug-2007. Applying a patch of this revision to release 3.2.1 should also produce a working system.  Versions of valgrind CVS prior to release 3.0 are also known to have worked. The current hg tip should also work with Valgrind.
+
+To run a Jikes RVM build with valgrind, use the -wrap flag to invoke valgrind, eg
+\begin{lstlisting}
+rvm -wrap "path/to/valgrind --smc-check=all <valgrind-options>" <jikesrvm-options> ...
+\end{lstlisting}
+
+Note that the full path to valgrind must be specified.
+
+This will insert the invocation of valgrind at the appropriate place for it to operate on Jikes RVM proper rather than a wrapper script. 
+
+Under some circumstances, valgrind will load shared object libraries or allocate memory in areas of the heap that conflict with Jikes RVM.  Using the flag \spverb+-X:gc:eagerMmapSpaces=true+ will prevent and/or detect this.  If this flag reveals errors while mapping the spaces, you will need to rearrange the heap to avoid the addresses that Valgrind is occupying.
+
+\end{subsection}
 
 \end{section}
