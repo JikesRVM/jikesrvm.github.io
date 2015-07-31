@@ -27,7 +27,7 @@ Note that almost all JVMs mentioned here are licensed under the GPL. Because the
 
 ## Maxine Research VM
 
-[Maxine](http://labs.oracle.com/projects/maxine/) is a meta-circular JVM with a strong focus an modularity. It is being developed at Oracle Labs. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the [Maxine Inspector](https://wikis.oracle.com/display/MaxineVM/The+Maxine+Inspector).
+[Maxine](http://kenai.com/projects/maxine) is a meta-circular JVM with a strong focus an modularity. It is being developed at Oracle Labs. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the Maxine Inspector.
 
 ## Metacircular Research Platform
 
