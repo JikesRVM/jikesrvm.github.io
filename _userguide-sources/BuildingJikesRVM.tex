@@ -146,9 +146,6 @@ pkg-get will greatly simplify installing GNU packages on Solaris. Our patches re
 
 There are a number of ant properties that are used to control the build process of Jikes RVM. These properties may either be specified on the command line by \spverb+-Dproperty=variable+ or they may be specified in a file named \spverb+.ant.properties+ in the base directory of the jikesrvm source tree. The \spverb+.ant.properties+ file is a standard Java property file with each line containing a \spverb+property=variable+ and comments starting with a \spverb+#+ and finishing at the end of the line.
 
-% TODO port content for links
-% TODO links for require.checkstyle
-
 \begin{table}
 \centering
 \begin{tabular}{p{0.15\linewidth}p{0.6\linewidth}p{0.15\linewidth}}
@@ -162,7 +159,7 @@ dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jik
 build.dir & The directory where Ant stores the intermediate artifacts generated when building the Jikes RVM. & \$\{jikesrvm.\newline dir\}/tar\-get \\
 com\-po\-nents.\-cache.\-dir & The directory where Ant caches downloaded components.  If you explicitly download a component, place it in this directory. & (Undefined, forcing download) \\
 require.rvm-unit-tests & If set to \spverb+true+, run \hyperref[sec:testingjikesrvm]{unit tests} on the built Jikes RVM image. Use with care as it will significantly increase build times for configurations that are compiled using a non-optimizing compiler (see below). & (Undefined, tests are not run) \\
-require.\newline checkstyle & Only useful if you want to contribute changes to the Jikes RVM. If set to true, run checkstyle during the build to check for violations of the Jikes RVM Coding Style and Coding Conventions for assertions. & (Undefined, no checks run) \\
+require.\newline checkstyle & Only useful if you want to \href{http://www.jikesrvm.org/Contributions/}{contribute} changes to the Jikes RVM. If set to true, run checkstyle during the build to check for violations of the Jikes RVM \hyperref[sec:codingstyle]{Coding Style} and \hyperref[sec:codingconventions]{Coding Conventions} for assertions. & (Undefined, no checks run) \\
 rvm.debug-symbols & If set to true, build the Jikes RVM with debug symbols for the bootloader code and the code in the bootimage. Note: this is not enabled by default because it causes build failures for configurations that build the bootimage with the optimizing compiler (see \href{https://xtenlang.atlassian.net/browse/RVM-1084}{RVM-1084}). & (Undefined, no symbols built) \\
 protect.config-files & Define this property if you do not want the build process to update configuration files when auto downloading components. & (Undefined) \\
 \end{tabular}
@@ -209,8 +206,7 @@ The next step in building Jikes RVM is to run the ant command \spverb+ant+ or \s
 
 \begin{subsubsection}{Running the RVM}
 
-% TODO link for Running the RVM (rename it to Running Jikes RVM)
-Jikes RVM can be executed in a similar way to most Java Virtual Machines. The difference is that the command is \spverb+rvm+ and resides in the runtime directory (i.e. \spverb+${dist.dir}/${config.name}_${target.name}+). See Running the RVM for a complete list of command line options.
+Jikes RVM can be executed in a similar way to most Java Virtual Machines. The difference is that the command is \spverb+rvm+ and resides in the runtime directory (i.e. \spverb+${dist.dir}/${config.name}_${target.name}+). See \hyperref[sec:runningjikesrvm]{Running Jikes RVM} for a list of command line options.
 
 \end{subsubsection}
 
