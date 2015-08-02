@@ -1,0 +1,43 @@
+\setNextFileName{Preliminaries.html}
+\begin{section}{Preliminaries}
+\label{sec:preliminaries}
+
+\begin{subsection}{Getting MMTk and Jikes RVM and Eclipse working}
+\begin{enumerate}
+  \item \hyperref[sec:getthesource]{Download} the latest Jikes RVM release (or use hg tip)
+  \item Ensure you can \hyperref[sec:buildingsjikesrvm]{Build} and \hyperref[sec:runningjikesrvm]{Run the RVM}.
+  \item Ensure you can build and run the BaseBaseNoGC configuration (build with: \spverb+bin/buildit localhost BaseBaseNoGC+, run with something like:
+    \begin{lstlisting}
+dist/BaseBaseNoGC_ia32-linux/rvm HelloWorld
+    \end{lstlisting}
+    Note that this configuration \textit{does not} perform garbage collection so can only run small benchmarks which do not exhaust available memory. This configuration will be used as the basis for the tutorial.
+  \item Ensure that your source is \hyperref[sec:editingjikesrvminanide]{successfully imported} (and editable) within an IDE such as Eclipse.
+  \item Set up an \hyperref[sec:themmtktestharness]{Eclipse Run configuration} for the \spverb+NoGC+ plan using the MMTk Test Harness.
+\end{enumerate}
+
+\end{subsection}
+
+\begin{subsection}{Creating The Base Tutorial Collector}
+
+\begin{enumerate}
+  \item Copy the \spverb+org.mmtk.plan.nogc+ package to \spverb+org.mmtk.plan.tutorial+ (copy and paste the package in Eclipse).
+  \item Rename the constituent classes from \spverb+NoGC*+ to \spverb+Tutorial*+ (use Refactor \textrightarrow\ Rename on each class within the \spverb+org.mmtk.plan.tutorial+ package in Eclipse).
+  \item Edit file class \spverb+org.mmtk.harness.PlanSpecificConfig+, and add the following lines 
+     \begin{lstlisting}[breakatwhitespace=false]
+register(new PlanSpecific("org.mmtk.plan.tutorial.Tutorial").addExpectedSpaces("default"), "Tutorial");
+     \end{lstlisting}
+to the static initializer (look for "NoGC").
+  \item Modify your MMTk Harness Eclipse Run Configuration to use the new Plan (the name of the plan is the second parameter to the "register" method you inserted above), and click 'Run' to run it.
+  \item Build and run the resulting collector. \newline Build with something like:
+    \begin{lstlisting}
+bin/buildit localhost BaseBaseTutorial
+    \end{lstlisting}
+    run with something like:
+    \begin{lstlisting}
+dist/BaseBaseTutorial_ia32-linux/rvm HelloWorld
+    \end{lstlisting}
+\end{enumerate}
+
+\end{subsection}
+
+\end{section}

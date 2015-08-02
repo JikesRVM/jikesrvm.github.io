@@ -1,0 +1,225 @@
+\setNextFileName{BuildingAMarkSweepCollector.html}
+\begin{section}{Building a Mark-sweep Collector}
+\label{sec:buildingamarksweepcollector}
+
+We will now modify the \spverb+Tutorial+ collector to perform allocation and collection according to a mark-sweep policy. First we will change the allocation from bump-allocation to free-list allocation (but still no collector whatsoever), and then we will add a mark-sweep collection policy, yielding a complete mark-sweep collector.
+
+\begin{subsection}{Free-list Allocation}
+
+This step will change your simple collector from using a bump pointer to a free list (but still without any garbage collection).
+
+\begin{enumerate}
+  \item Update the constraints for this collector to reflect the constraints of a mark-sweep system, by updating \spverb+TutorialConstraints+ as follows:
+    \begin{itemize}
+      \item \spverb+gcHeaderBits()+ should return \texttt{Mark\-Sweep\-Space.LOCAL\_GC\_BITS\_REQUIRED}.
+      \item \spverb+gcHeaderWords()+ should return \texttt{Mark\-Sweep\-Space.GC\_HEADER\_WORDS\_REQUIRED}.
+      \item The \spverb+maxNonLOSDefaultAllocBytes()\spverb+ method should be added, overriding one provided by the base class, and should return \texttt{Se\-gre\-ga\-ted\-Free\-List\-Spa\-ce.MAX\_FREELIST\_OBJECT\_BYTES} (because this reflects the largest object size that can be allocated with the free list allocator).
+    \end{itemize}
+  \item In \spverb+Tutorial+, replace the \spverb+ImmortalSpace+ with a \spverb+MarkSweepSpace+:
+    \begin{enumerate}
+      \item rename the variable \spverb+noGCSpace+ to \spverb+msSpace+ (right-click, Refactor \textrightarrow\ Rename...)
+      \item rename the variable \spverb+NOGC+ to \spverb+MARK_SWEEP+ (right-click, Refactor \textrightarrow\ Rename...)
+      \item change the type and static initialization of \spverb+msSpace+ to
+        \begin{lstlisting}
+public static final MarkSweepSpace msSpace = new MarkSweepSpace("ms", VMRequest.discontiguous());
+        \end{lstlisting}
+      \item add an import for MarkSweepSpace and remove the redundant import for ImmortalSpace.
+    \end{enumerate}
+  \item In \spverb+TutorialMutator+, replace the \spverb+ImmortalLocal+ (a bump pointer) with a \spverb+MarkSweepLocal+ (a free-list allocator)
+    \begin{enumerate}
+      \item change the type of \spverb+nogc+ and change the static initializer appropriately.
+      \item change the appropriate import statement from \spverb+ImmortalLocal+ to \spverb+MarkSweepLocal+.
+      \item rename the variable \spverb+nogc+ to \spverb+ms+ (right-click, Refactor \textrightarrow\ Rename...)
+    \end{enumerate}
+  \item Also in \spverb+TutorialMutator+, fix \spverb+postAlloc()+ to initialize the mark-sweep header:
+\begin{lstlisting}[language=Java] 
+if (allocator == Tutorial.ALLOC_DEFAULT) {
+  Tutorial.msSpace.postAlloc(ref);
+} else {
+  super.postAlloc(ref, typeRef, bytes, allocator);
+}
+\end{lstlisting}
+  \item In \spverb+PlanSpecificConfig+, find the line for \spverb+Tutorial+, and change \spverb+"default"+ to \spverb+"ms"+
+\end{enumerate}
+
+With these changes, \spverb+Tutorial+ should now work, just as it did before, only exercising a free list (mark-sweep) allocator rather than a bump pointer (immortal) allocator. Create a \spverb+BaseBaseTutorial+ build, and test your system to ensure it performs just as it did before. You may notice that its memory is exhausted slightly earlier because the free list allocator is slightly less efficient in space utilization than the bump pointer allocator.
+
+\end{subsection}
+
+\begin{subsection}{Mark-Sweep Collection}
+
+The next change required is to perform mark-and-sweep collection whenever the heap is exhausted. The \spverb+poll()+ method of a plan is called at appropriate intervals by other MMTk components to ask the plan whether a collection is required.
+\begin{enumerate}
+  \item Change \spverb+TutorialConstraints+ so that it inherits constraints from a collecting plan:
+    \begin{lstlisting}[language=Java]
+public class TutorialConstraints extends StopTheWorldConstraints
+    \end{lstlisting}
+  \item The plan needs to know how to perform a garbage collection. Collections are performed in phases, coordinated by data structures defined in \spverb+StopTheWorld+, and have global and thread-local components. First ensure the global components are behaving correctly. These are defined in \spverb+Tutorial+ (which is implicitly \textit{global}).
+    \begin{enumerate}
+      \item Make \spverb+Tutorial+ extend \spverb+StopTheWorld+ (for stop-the-world garbage collection) rather than \spverb+Plan+ (the superclass of \spverb+StopTheWorld+):
+        \begin{lstlisting}[language=Java]
+public class Tutorial extends StopTheWorld
+        \end{lstlisting}
+       \item Rename the trace variable to \spverb+msTrace+ (right-click, Refactor \textrightarrow\ Rename...)
+       \item Add code to ensure that \spverb+Tutorial+ performs the correct global collection phases in \spverb+collectionPhase()+:
+         \begin{enumerate}
+           \item First remove the assertion that the code is never called (\spverb+if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(false);+).
+           \item Add the prepare phase, preparing both the global tracer (\spverb+msTrace+) and the space (\spverb+msSpace+), after first performing the preparation phases associated with the superclasses. Using the commented template in \spverb+Tutorial.collectionPhase()+, set the following within the clause for \spverb+phaseId == PREPARE+:
+             \begin{lstlisting}[language=Java]
+if (phaseId == PREPARE) {
+  super.collectionPhase(phaseId);
+  msTrace.prepare();
+  msSpace.prepare(true);
+  return;
+}
+             \end{lstlisting}
+           \item Add the closure phase, again preparing the global tracer (\spverb+msTrace+):
+             \begin{lstlisting}[language=Java]
+if (phaseId == CLOSURE) {
+  msTrace.prepare();
+  return;
+}
+             \end{lstlisting}
+           \item Add the release phase, releasing the global tracer (\spverb+msTrace+) and the space (\spverb+msSpace+) before performing the release phases associated with the superclass:
+             \begin{lstlisting}[language=Java]
+if (phaseId == RELEASE) {
+  msTrace.release();
+  msSpace.release();
+  super.collectionPhase(phaseId);
+  return;
+}
+             \end{lstlisting}
+           \item Finally ensure that for all other cases, the phases are delegated to the superclass, uncommenting the following after all of the above conditionals:
+             \begin{lstlisting}[language=Java]
+super.collectionPhase(phaseId);
+             \end{lstlisting}
+         \end{enumerate}
+       \item Add a new accounting method that determines how much space a collection needs to yield to the mutator. The method, \spverb+getPagesUsed+, overrides the one provided in the \spverb+StopTheWorld+ superclass:
+         \begin{lstlisting}[language=Java]
+@Override
+public int getPagesUsed() {
+  return super.getPagesUsed() + msSpace.getPagesUsed();
+}
+         \end{lstlisting}
+       \item Add a new method that determines whether an object will move during collection:
+         \begin{lstlisting}[language=Java]
+@Override
+public boolean willNeverMove(ObjectReference object) {
+  if (Space.isInSpace(MARK_SWEEP, object))
+    return true;
+  return super.willNeverMove(object);
+}
+         \end{lstlisting}
+    \end{enumerate}
+  \item Next ensure that Tutorial correctly performs \textit{local} collection phases. These are defined in \spverb+TutorialCollector+.
+    \begin{enumerate}
+      \item Make \spverb+TutorialCollector+ extend \spverb+StopTheWorldCollector+:
+        \begin{enumerate}
+          \item Extend the class (\texttt{public class Tutorial\-Collector ex\-tends Stop\-The\-World\-Collector}).
+          \item Import \spverb+StopTheWorldCollector+.
+          \item Remove some methods now implemented by \texttt{Stop\-The\-World\-Col\-lec\-tor}: \spverb+collect()+ and (if present) \spverb+concurrentCollect()+ and \newline \spverb+concurrentCollectionPhase()+.
+        \end{enumerate}
+      \item Add code to ensure that \spverb+Tutorial+ performs the correct global collection phases in \spverb+collectionPhase()+:
+        \begin{enumerate}
+           \item First remove the assertion that the code is never called (\spverb+if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(false);+).
+           \item Add the prepare phase, preparing both the local tracer (\spverb+trace+) after first performing the preparation phases associated with the superclasses. Using the commented template in \spverb+TutorialCollector.collectionPhase()+, set the following within the clause for \spverb+phaseId == PREPARE+:
+             \begin{lstlisting}[language=Java]
+if (phaseId == Tutorial.PREPARE) {
+  super.collectionPhase(phaseId, primary);
+  trace.prepare();
+  return;
+}
+             \end{lstlisting}
+           \item Add the closure phase, completing the local tracer (\spverb+trace+):
+             \begin{lstlisting}[language=Java]
+if (phaseId == Tutorial.CLOSURE) {
+  trace.completeTrace();
+  return;
+}
+             \end{lstlisting}
+           \item Add the release phase, releasing the local tracer (\spverb+trace+) before performing the release phases associated with the superclass:
+             \begin{lstlisting}[language=Java]
+if (phaseId == Tutorial.RELEASE) {
+  trace.release();
+  super.collectionPhase(phaseId, primary);
+  return;
+}
+             \end{lstlisting}
+           \item Finally ensure that for all other cases, the phases are delegated to the superclass, uncommenting the following after all of the above conditionals:
+             \begin{lstlisting}[language=Java]
+super.collectionPhase(phaseId, primary);
+             \end{lstlisting}
+         \end{enumerate}
+    \end{enumerate} 
+  \item Finally ensure that \spverb+Tutorial+ correctly performs local mutator-related collection activities:
+    \begin{enumerate}
+      \item Make \spverb+TutorialMutator+ extend \spverb+StopTheWorldMutator+:
+        \begin{enumerate}
+          \item Extend the class: \texttt{pu\-blic class Tu\-to\-rial\-Mu\-ta\-tor ex\-tends Stop\-The\-World\-Mu\-ta\-tor}.
+          \item Import \spverb+StopTheWorldMutator+.
+        \end{enumerate}
+      \item Update the mutator-side collection phases:
+        \begin{enumerate}
+          \item First remove the assertion that the code is never called (\spverb+if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(false);+).
+          \item Add the prepare phase to \spverb+collectionPhase()+ which prepares mutator-side data structures (namely the per-thread free lists) for the startof a collection:
+            \begin{lstlisting}[language=Java]
+if (phaseId == Tutorial.PREPARE) {
+  super.collectionPhase(phaseId, primary);
+  ms.prepare();
+  return;
+}
+            \end{lstlisting}
+          \item Add the release phase to \spverb+collectionPhase()+ which re-initializes mutator-side data structures (namely the per-thread free lists) after the end of a collection:
+            \begin{lstlisting}[language=Java]
+if (phaseId == Tutorial.RELEASE) {
+  ms.release();
+  super.collectionPhase(phaseId, primary);
+  return;
+}
+            \end{lstlisting}
+          \item Finally, delegate all other phases to the superclass:
+            \begin{lstlisting}[language=Java]
+super.collectionPhase(phaseId, primary);
+            \end{lstlisting}
+        \end{enumerate}
+    \end{enumerate}
+\end{enumerate}
+
+With these changes, \spverb+Tutorial+ should now work with both mark-sweep allocation \textit{and} collection. Create a \spverb+BaseBaseTutorial+ build, and test your system to ensure it performs just as it did before. You can observe the effect of garbage collection as the program runs by adding \spverb+-X:gc:verbose=1+ to your command line as the first argument after \spverb+rvm+. If you run a very simple program (such as \spverb+HelloWorld+), you might not observe any garbage collection. In that case, try running a larger program such as a DaCapo benchmark. You may also observe that the output from \spverb+-X:gc:verbose=1+ indicates that the heap is growing. Dynamic heap resizing is normal default behavior for a JVM. You can override this by providing minimum (\spverb+-Xms+) and maximum (\spverb+-Xmx+) heap sizes (these are standard arguments respected by all JVMs. The heap size should be specified in bytes as an integer and a unit (K, M, G), for example: \spverb+-Xms20M -Xmx20M+.
+
+\end{subsection}
+
+\begin{subsection}{Optimized Mark-sweep Collection}
+
+MMTk has a unique capacity to allow specialization of the performance-critical scanning loop. This is particularly valuable in collectors which have more than one mode of collection (such as in a generational collector), so each of the collection paths is explicitly specialized at build time, removing conditionals from the hot portion of the tracing loop at the core of the collector. Enabling this involves just two small steps:
+\begin{enumerate}
+  \item Indicate the number of specialized scanning loops and give each a symbolic name, which at this stage is just one since we have a very simple collector:
+    \begin{enumerate}
+      \item Override the \spverb+numSpecializedScans()+ getter method in \texttt{Tu\-to\-rial\-Con\-strain\-ts}:
+        \begin{lstlisting}[language=Java]
+@Override
+public int numSpecializedScans() { return 1; }
+        \end{lstlisting}
+      \item Define a constant to represent our (only) specialized scan in \spverb+Tutorial+ (we will call this scan "mark"):
+        \begin{lstlisting}[language=Java]
+public static final int SCAN_MARK = 0;
+        \end{lstlisting}
+     \end{enumerate}
+  \item Register the specialized method:
+    \begin{enumerate}
+      \item Add the following line to \spverb+registerSpecializedMethods()+ method in \spverb+Tutorial+:
+        \begin{lstlisting}[language=Java, breakatwhitespace=false]
+TransitiveClosure.registerSpecializedScan(SCAN_MARK, TutorialTraceLocal.class);
+        \end{lstlisting}
+      \item Add \spverb+Tutorial.SCAN_MARK+ as the first argument to the superclass constructor for \spverb+TutorialTraceLocal+:
+        \begin{lstlisting}[language=Java]
+public TutorialTraceLocal(Trace trace) {
+  super(Tutorial.SCAN_MARK, trace);
+}
+        \end{lstlisting}
+    \end{enumerate}
+\end{enumerate}
+
+\end{subsection}
+
+\end{section}
