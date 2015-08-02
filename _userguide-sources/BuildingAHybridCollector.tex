@@ -18,7 +18,7 @@ public boolean movesObjects() { return true; }
         \end{lstlisting}
       \item Remove the restriction on default alloc bytes (since default allocation will now go to a bump-pointed space). To do this, remove the override of \spverb+maxNonLOSDefaultAllocBytes()+.
       \item Add a restriction on the maximum size that may be copied into the (default) non-LOS mature space:
-        \begin{lstlisting}[language=Java,breakatwhitespace=false]
+        \begin{lstlisting}[language=Java]
 @Override
 public int maxNonLOSCopyBytes() { return SegregatedFreeListSpace.MAX_FREELIST_OBJECT_BYTES;}
         \end{lstlisting}
@@ -26,7 +26,7 @@ public int maxNonLOSCopyBytes() { return SegregatedFreeListSpace.MAX_FREELIST_OB
   \item In \spverb+Tutorial+, add a nursery space:
     \begin{enumerate}
       \item Create a new space, \spverb+nurserySpace+, of type \spverb+CopySpace+. The new space will initially be a from-space, so provide \spverb+false+ as the third argument. Initialize the space with a contiguous virtual memory region consuming 0.15 of the heap by passing "0.15" and "true" as arguments to the constructor of VMRequest(more on this later). Create and initialize a new integer constant to hold the descriptor for this new space:
-        \begin{lstlisting}[language=Java,breakatwhitespace=false]
+        \begin{lstlisting}[language=Java]
 public static final CopySpace nurserySpace = new CopySpace("nursery", false, VMRequest.highFraction(0.15f));
 public static final int NURSERY = nurserySpace.getDescriptor();
         \end{lstlisting}
@@ -121,7 +121,7 @@ public boolean willNotMoveInCurrentCollection(ObjectReference object) {
 }
     \end{lstlisting}
   \item Modify \spverb+PlanSpecificConfig+ to add the new \spverb+nursery+ space:
-    \begin{lstlisting}[language=Java, breakatwhitespace=false]
+    \begin{lstlisting}[language=Java]
 new PlanSpecific("org.mmtk.plan.tutorial.Tutorial").addExpectedSpaces("ms", "nursery"), "Tutorial");
     \end{lstlisting}
 \end{enumerate}

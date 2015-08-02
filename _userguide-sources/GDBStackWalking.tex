@@ -9,7 +9,7 @@ Sometimes it is desirable to examine the state of the Java stack whilst using GD
 1) To learn about the stack frame layout on IA32, look at rvm/src/org/jikes\-rvm/ia32/Stack\-frame\-Layout\-Constants.java
 
 Currently (2009/10/23) the layout is: 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 +4: return address
 fp -> 0: caller's fp
 -4: method id
@@ -20,7 +20,7 @@ fp -> 0: caller's fp
 
 3) To find the offset of field RVMThread.framePointer, add the following lines to the end of BootImageWriter.main(String[]):
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false,language=Java]
+\begin{lstlisting}[language=Java]
     // added to get framePointer offset from RVMThread to manually walk stacks in GDB
     say("offset of RVMThread.framePointer== " + ArchEntrypoints.framePointerField.getOffset());
 \end{lstlisting}
@@ -31,20 +31,20 @@ Do a build to print this info. On my config I got +148, but this can change betw
 
 5) Setting a break point on this address
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 (gdb) break *0x351eae9c
 Breakpoint 2 at 0x351eae9c
 \end{lstlisting}
 
 And run the program to the break point
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 Breakpoint 2, 0x351eae9c in ?? ()
 \end{lstlisting}
 
 Step some instructions into the method and then dump the registers
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 (gdb) stepi 30
 0x351eaf03 in ?? ()
 (gdb) info registers
@@ -68,7 +68,7 @@ gs             0x37	55
 
 The current FP is stored in RVMThread.framePointer which we found out in 3) is at offset +148. ESI points to the current RVMThread object so we can access the FP value like so:
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 (gdb) x ($esi+148)
 0x41007620:	0x420e1954
 \end{lstlisting}
@@ -77,7 +77,7 @@ Note that the FP is at a higher address than ESP which is what we would expect
 
 The return address is at FP+4 so to get the return address we can do:
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 (gdb) x (*($esi+148))+4
 0x420e1958:	0x351eadde
 \end{lstlisting}
@@ -86,7 +86,7 @@ We can look in RVM.map for the largest method address smaller than 0x351eadde wh
 
 Get the return address from the next frame
 
-\begin{lstlisting}[breaklines=true,breakatwhitespace=false]
+\begin{lstlisting}
 (gdb) x *(*($esi+148))+4
 0x420e1980:	0x352ebd1e
 \end{lstlisting}
