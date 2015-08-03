@@ -1,11 +1,10 @@
-% TODO convert to LaTeX. code blocks can probably be done via (lst)listings, rest shouldn't be a problem
 \setNextFileName{IR.html}
 \begin{section}{IR}
+\label{sec:ir}
 
 The optimizing compiler intermediate representation (IR) is held in an object of type \spverb#IR# and includes a list of instructions. Every instruction is classified into one of the pre-defined instruction formats. Each instruction includes an operator and zero or more operands. Instructions are grouped into basic blocks; basic blocks are constrained to having control-flow instructions at their end. Basic blocks fall-through to other basic blocks or contain branch instructions that have a destination basic block label. The graph of basic blocks is held in the \spverb#cfg# (control-flow graph) field of IR.
 
-% TODO link to the intermediate code representation in the final version of this page
-This section documents basic information about the intermediate instruction. For a tutorial based introduction to the material it is highly recommended that you read "Jikes RVM Optimizing Compiler Intermediate Code Representation".
+This section documents basic information about the intermediate represenation. For a tutorial based introduction to the material it is highly recommended that you read the presentation \href{http://www.jikesrvm.org/Resources/Presentations/}{Jikes RVM Optimizing Compiler Intermediate Code Representation}.
 
 \begin{subsection}{IR Operators}
 
@@ -40,14 +39,14 @@ branch | conditional
 <blank line>
 <blank line>
 \end{lstlisting}
-Additionally, the machine-specific OperatorList.dat file contains another line of information for use by the assembler. See the file for details.
+Additionally, the machine-specific \spverb+OperatorList.dat+ file contains another line of information for use by the assembler. See the file for details.
 
 \end{subsection}
 
 
 \begin{subsection}{Instruction Format}
 
-Every IR instruction fits one of the pre-defined Instruction Formats. The Java package \spverb#org.jikesrvm.compilers.opt.ir# defines roughly 75 architecture-independent instruction formats. For each instruction format, the package includes a class that defines a set of static methods by which optimizing compiler code can access an instruction of that format.
+Every IR instruction fits one of the pre-defined \textit{Instruction Formats}. The Java package \spverb#org.jikesrvm.compilers.opt.ir# defines roughly 75 architecture\hyp independent instruction formats. For each instruction format, the package includes a class that defines a set of static methods by which optimizing compiler code can access an instruction of that format.
 
 For example, \spverb#INT_MOVE# instructions conform to the \spverb#Move# instruction format. The following code fragment shows code that uses the \spverb#Operators# interface and the \spverb#Move# instruction format:
 
@@ -83,10 +82,40 @@ Each fixed-length instruction format is defined in the text file \spverb#$RVM_RO
 \item \spverb#VARSIG#: a description of repeating operands, used for variable-length instructions.
 \end{itemize}
 
-
 So for example, the record that defines the Move instruction format is
 
-TODO the original page has more text but no new formatting elements.
+\begin{lstlisting}
+Move
+1 0 1
+"D Result RegisterOperand" "U Val Operand"
+<blank line>
+\end{lstlisting}
+
+This specifies that the \spverb+Move+ format has two operands, one def and one use. The def is called \spverb+Result+ and must be of type \spverb+RegisterOperand+. The use is called \spverb+Val+ and must be of type \spverb+Operand+.
+
+A few instruction formats have variable number of operands. The format for these records is given at the top of \spverb+InstructionFormatList.dat+. For example, the record for the variable-length \spverb+Call+ instruction format is:
+
+\begin{lstlisting}
+Call
+1 0 3 1 U 4
+"D Result RegisterOperand" \
+"U Address Operand" "U Method MethodOperand" "U Guard Operand opt"
+"Param Operand"
+\end{lstlisting}
+
+This record defines the \spverb+Call+ instruction format. The second line indicates that this format always has at least 4 operands (1 def and 3 uses), plus a variable number of uses of one other type. The trailing 4 on line 2 tells the template generator to generate special constructors for cases of having 1, 2, 3, or 4 of the extra operands. Finally, the record names the \spverb+Call+ instruction operands and constrains the types. The final line specifies the name and types of the variable-numbered operands. In this case, a \spverb+Call+ instruction has a variable number of (use) operands called \spverb+Param+. Client code can access the \spverb+ith+ parameter operand of a Call instruction \spverb+s+ by calling \spverb+Call.getParam(s,i)+.
+
+A number of instruction formats share operands of the same semantic meaning and name. For convenience in accessing like instruction formats, the template generator supports four common operand access types:
+\begin{itemize}
+  \item \spverb+ResultCarrier+: provides access to an operand of type \spverb+RegisterOperand+ named \spverb+Result+.
+  \item \spverb+GuardResultCarrier+: provides access to an operand of type \spverb+RegisterOperand+ named \spverb+GuardResult+.
+  \item \spverb+LocationCarrier+: provides access to an operand of type \spverb+LocationOperand+ named \spverb+Location+.
+  \item \spverb+GuardCarrier+: provides access to an operand of type \spverb+Operand+ named \spverb+Guard+.
+\end{itemize}
+
+For example, for any instruction \spverb+s+ that carries a \spverb+Result+ operand (eg. \spverb+Move+, \spverb+Binary+, and \spverb+Unary+ formats), client code can call \spverb+ResultCarrier.conforms(s)+ and \spverb+ResultCarrier.getResult(s)+ to access the \spverb+Result+ operand.
+
+Finally, a note on rationale. Religious object-oriented philosophers will cringe at the \spverb+InstructionFormats+. Instead, all this functionality could be implemented more cleanly with a hierarchy of instruction types exploiting (multiple) inheritance. We rejected the class hierarchy approach due to efficiency concerns of frequent virtual/interface method dispatch and type checks. Recent improvements in our interface invocation sequence and dynamic type checking algorithms may alleviate some of this concern.
 
 \end{subsection}
 

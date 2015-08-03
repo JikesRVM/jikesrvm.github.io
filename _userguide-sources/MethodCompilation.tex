@@ -1,0 +1,34 @@
+\setNextFileName{MethodCompilation.html}
+\begin{section}{Method Compilation}
+\label{sec:methodcompilation}
+
+The fundamental unit for optimization in Jikes RVM is a single method. The optimization of a method consists of a series of compiler phases performed on the method. These phases transform the IR (intermediate representation) from bytecodes through HIR (high-level intermediate representation), LIR (low-level intermediate representation), and MIR (machine intermediate representation) and finally into machine code. Various optimizing transformations are performed at each level of IR.
+
+An object of the class \spverb+CompilationPlan+ contains all the information necessary to generate machine code for a method. An instance of this class includes, among other fields, the \spverb+RVMMethod+ to be compiled and the array of \spverb+OptimizationPlanElements+ which define the compilation steps. The execute method of an \spverb+CompilationPlan+ invokes the optimizing compiler to generate machine code for the method, executing the compiler phases as listed in the plan's \spverb+OptimizationPlanElements+.
+
+The \spverb+OptimizationPlanner+ class defines the standard phases used in a compilation. This class contains a static field, called \spverb+masterPlan+, which contains all possible \spverb+OptimizationPlanElements+. The structure of the master plan is a tree. Any element may either be an atomic element (a leaf of the tree), or an aggregate element (an internal node of the tree). The master plan has the following general structure:
+\begin{itemize}
+  \item elements which convert bytecodes to HIR
+  \item elements which perform optimization transformations on the HIR
+    \begin{itemize}
+      \item elements which perform optimization transformations using SSA form
+    \end{itemize}
+  \item elements which convert HIR to LIR
+  \item elements which perform optimization transformations on the LIR
+    \begin{itemize}
+      \item elements which perform optimization transformations using SSA form
+    \end{itemize}
+  \item elements which convert LIR to MIR
+  \item elements which perform optimization transformations on MIR
+  \item elements which convert MIR to machine code
+\end{itemize}
+
+A client (compiler driver) constructs a specific optimization plan by including all the \spverb+OptimizationPlanElements+ contained in the master plan which are appropriate for this compilation instance. Whether or not an element should be part of a compilation plan is determined by its \spverb+shouldPerform+ method. For each atomic element, the values in the \spverb+OptOptions+ object are generally used to determine whether the element should be included in the compilation plan. Each aggregate element must be included when any of its component elements must be included.
+
+Each element must have a perform method defined which takes the IR as a parameter. It is expected, but not required, that the \spverb+perform+ method will modify the IR. The \spverb+perform+ method of an aggregate element will invoke the \spverb+perform+ methods of its elements.
+
+Each atomic element is an object of the final class \texttt{OptimizationPlanAtomicElement}. The main work of this class is performed by its phase, an object of type \spverb+CompilerPhase+. The \spverb+CompilerPhase+ class is not final; each phase overrides this class, in particular it overrides the \spverb+perform+ method, which is invoked by its enclosing element's \spverb+perform+ method. All the state associated with the element is contained in the \spverb+CompilerPhase+; no state is in the element.
+
+Every optimization plan consists of a selection of elements from the master plan; thus two optimization plans associated with different methods will share the same component element objects. Clearly, it is undesirable to share state associated with a particular compilation phase between two different method compilations. In order to prevent this, the perform method of an atomic element creates a new instance of its phase immediately before calling the phase's perform method. In the case where the phase contains no state the \spverb+newExecution+ method of \spverb+CompilerPhase+ can be overridden to return the phase itself rather than a clone of the phase.
+
+\end{section}

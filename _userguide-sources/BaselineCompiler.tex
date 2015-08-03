@@ -1,0 +1,26 @@
+\setNextFileName{BaselineCompiler.html}
+\begin{section}{Baseline Compiler}
+\label{sec:baselinecompiler}
+
+\begin{subsection}{General Architecture}
+
+The goal of the baseline compiler is to efficiently generate code that is "obviously correct." It also needs to be easy to port to a new platform and self contained (the entire baseline compiler must be included in all Jikes RVM boot images to support dynamically loading other compilers). 
+
+Roughly two thirds of the baseline compiler is machine-independent. The main file is \spverb+BaselineCompiler+ and its parent \spverb+TemplateCompilerFramework+. The main platform-dependent file is \spverb+BaselineCompilerImpl+.
+
+Baseline compilation consists of two main steps: GC map computation (discussed below) and code generation. The code generation in the baseline compilers is mostly straightforward, consisting of a single pass through the bytecodes of the method being compiled.
+
+Differences in the hardware architectures lead to slightly different implementation strategies for the baseline compilers. For example, the IA32 baseline compiler does not try to optimize register usage, instead the bytecode operand stack is held in memory. This leads to bytecodes that push a constant onto the stack, creating a memory write in the generated machine code. The number of memory accesses in the IA32 baseline compiler corresponds directly to the number of bytecodes. In contrast to this, the PPC baseline compiler does some register allocation of local variables (and should probably do even more register allocation to properly exploit the register set).
+
+\spverb+TemplateCompilerFramework+ contains the main code generation switch statement that invokes the appropriate \spverb+emit<bytecode>_+ method of \texttt{Ba\-se\-li\-ne\-Com\-pi\-ler\-Impl}.
+
+\end{subsection}
+
+\begin{subsection}{GC Maps}
+
+The baseline compiler computes GC maps by abstractly interpreting the bytecodes to determine which expression stack slots and local variables contain references at the start of each bytecode. There are additional compilations to handle JSRs; see the source code for details. This strategy of computing a single GC map that applies to all the internal GC points for each bytecode slightly constrains code generation. The code generator must ensure that the GC map remains valid at all GC points (including implicit GC points introduced by null pointer exceptions). It also forces the baseline compiler to report reference parameters for the various invoke bytecodes as live in the GC map for the call (because the GC map also needs to cover the various internal GC points that happen before the call is actually performed). Note that this is not an issue for the optimizing compiler which computes GC maps for each machine code instruction that is a GC point.
+
+\end{subsection}
+
+\end{section}
+

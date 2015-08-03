@@ -1,0 +1,13 @@
+\setNextFileName{ThreadingAndYielding.html}
+\begin{section}{Threading and Yielding}
+\label{sec:threadingandyielding}
+
+Jikes RVM creates a native thread for each Java thread that is started. Each compiler generates yield points, which are program points where the running thread checks to determine if it should yield to another thread. The compilers insert yield points in method prologues, method epilogues, and on loop backedges.
+
+The adaptive optimization system piggybacks on this yieldpoint mechanism to gather profile data. The thread scheduler provides an
+extension point by which the runtime measurments component can install listeners that execute each time a yieldpoint is taken. Such listeners primarily serve to sample program execution to identify frequently-executed methods and call edges. Because these samples occur at well-known locations (prologues, epilogues, and loop backedges), the listener can easily attribute each sample to the appropriate Java source method.
+
+The Jikes RVM implementation introduces a weakness with this mechanism, in that samples can only occur in regions of code that have yieldpoints.  Some low-level Jikes RVM subsystems, such as the thread scheduler and the garbage collector, elide yieldpoints because
+those regions of code rely on delicate state invariants that preclude thread switching. These uninterruptible regions can distort sampling accuracy by artificially inflating the probability of sampling  the first yieldpoint executed after the program leaves an uninterruptible region of code.
+
+\end{section}
