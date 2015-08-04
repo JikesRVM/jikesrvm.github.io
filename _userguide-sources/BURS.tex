@@ -1,0 +1,84 @@
+\setNextFileName{BURS.html}
+\begin{section}{BURS}
+\label{sec:burs}
+
+The optimizing compiler uses the Bottom-Up Rewrite System (BURS) for instruction selection. BURS is essentially a tree pattern matching system derived from \href{https://github.com/drh/iburg}{Iburg} by David R. Hanson. (See "Engineering a Simple, Efficient Code-Generator Generator" by Fraser, Hanson, and Proebsting, LOPLAS 1(3), Sept. 1992, doi: \href{http://dx.doi.org/10.1145/151640.151642}{10.1145/151640.151642}). The instruction selection rules for each architecture are specified in an architecture-specific file located in \texttt{\$RVM\_ROOT/rvm/src-generated/opt-burs/\$\{arch\}}, where \spverb+${arch}+ is the specific instruction architecture of interest. The rules are used in generating a parser, which transforms the IR.
+
+Each rule is defined by a four-line record, consisting of:
+\begin{itemize}
+  \item \spverb+PRODUCTION+: the tree pattern to be matched. The format of each pattern is explained below.
+  \item \spverb+COST+: the cost of matching the pattern as opposed to skipping it. It is a Java\textsuperscript{TM} expression that evaluates to an integer.
+  \item \spverb+FLAGS+: The flags for the operation:
+    \begin{itemize}
+      \item \spverb+NOFLAGS+: this production performs no operation
+      \item \spverb+EMIT_INSTRUCTION+: this production will emit instructions
+      \item \spverb+LEFT_CHILD_FIRST+: visit child on left-and side of production first
+      \item \spverb+RIGHT_CHILD_FIRST+: visit child on right-hand side of production first
+    \end{itemize}
+  \item \spverb+TEMPLATE+: Java code to emit
+\end{itemize}
+
+Each production has a \textit{non-terminal}, which denotes a value, followed by a colon (":"), followed by a dependence tree that produces that value. For example, the rule resulting in memory add on the Intel IA32 architecture is expressed in the following way:
+
+\begin{lstlisting}
+stm:    INT_STORE(INT_ADD_ACC(INT_LOAD(r,riv),riv),OTHER_OPERAND(r, riv))
+ADDRESS_EQUAL(P(p), PLL(p), 17)
+EMIT_INSTRUCTION
+EMIT(MIR_BinaryAcc.mutate(P(p), IA32_ADD, MO_S(P(p), DW), BinaryAcc.getValue(PL(p))));
+\end{lstlisting}
+
+The production in this rule represents the following tree:
+\begin{lstlisting}
+         r     riv
+          \    /
+         INT_LOAD  riv
+             \     /
+           INT_ADD_ACC  r  riv
+                    \   |  /
+                   INT_STORE
+\end{lstlisting}
+
+where \spverb+r+ is a non-terminal that represents a register or a tree producing a register, riv is a non-terminal that represents a register (or a tree producing one) or an immediate value, and \spverb+INT_LOAD+, \spverb+INT_ADD_ACC+ and \spverb+INT_STORE+ are operators (terminals). \spverb+OTHER_OPERAND+ is just an abstraction to make the tree binary.
+
+There are multiple helper functions that can be used in Java code (both cost expressions and generation templates). In all code sequences the name \spverb+p+ is reserved for the current tree node. Some of the helper methods are shortcuts for accessing properties of tree nodes:
+\begin{itemize}
+  \item \spverb+P(p)+ is used to access the instruction associated with the current (root) node,
+  \item \spverb+PL(p)+ is used to access the instruction associated with the left child of the current (root) node (provided it exists),
+  \item \spverb+PR(p)+ is used to access the instruction associated with the right child of the current (root) node (provided it exists),
+    similarly,  \spverb+PLL(p)+,  \spverb+PLR(p)+,  \spverb+PRL(p)+ and  \spverb+PRR(p)+ are used to access the instruction associated with the left child of the left child, right child of the left child, left child of the right child and right child of the right child, respectively, of the current (root) node (provided they exist).
+  \item \spverb+VL(p)+ is used to access the integer constant value associated with the left child of the current (root) node
+  \item \spverb+VR(p)+ is used to access the integer constant value associated with the right child of the current (root) node
+  \item See \spverb+BURS_Common_Helpers+ class for definitions of the helper methods
+\end{itemize}
+
+How the above rule basically reads is as follows:
+If a tree shown above is seen, evaluate the cost expression (which, in this case, calls a helper function to test whether the addresses in the \spverb+STORE (P(p))+ and the \spverb+LOAD (PLL(p))+ instructions are equal. The function returns $17$ if they are, and a special value \spverb+INFINITE+ if not), and if the cost is acceptable, emit the \spverb+STORE+ instruction \spverb+(P(p))+ mutated in place into a machine-dependent add-accumulate instruction (\spverb+IA32_ADD+) that adds a given value to the contents of a given memory location.
+
+The rules file is used to generate a file called ir.brg, which, in turn, is used to produce a file called \spverb+BURS_STATE+.java. Note that if the BURS rules are changed, it is necessary to run \spverb+ant real-clean+ in order to recreate the auto-generated Java source code for the BURS rules.
+
+For more information on helper functions look at \spverb+BURS_Helpers.java+. For more information on the BURS algorithm see \spverb+BURS.java+.
+
+\begin{subsection}{Future directions}
+
+Whilst jburg allows us to do good instruction selection there are a number of areas where it is lacking:
+
+\begin{subsubsection}{Vector operations}
+
+We can't write productions for vector operations unless we match an entire tree of operations. For example, it would be nice to write a rule of the form:
+
+\begin{lstlisting}
+(r, r): ADD(r,r), ADD(r,r)
+\end{lstlisting}
+
+if say the architecture supported a vector add operation (ie SIMD). Unfortunately we can't have tuples on the LHS of expressions and the comma represents that matching two coverings is necessary. \href{http://doi.acm.org/10.1145/343647.343679}{Leupers} has shown how to achieve this result with a modified BURS system. Their syntax is:
+
+\begin{lstlisting}
+r: ADD(r,r)
+r: ADD(r,r)
+\end{lstlisting}
+
+\end{subsubsection}
+
+\end{subsection}
+
+\end{section}

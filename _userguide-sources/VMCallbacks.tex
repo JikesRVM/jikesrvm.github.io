@@ -1,0 +1,59 @@
+\setNextFileName{VMCallbacks.html}
+\begin{section}{VM Callbacks}
+\label{sec:vmcallbacks}
+
+Jikes\textsuperscript{TM} RVM provides callbacks for many runtime events of interest to the Jikes RVM programmer, such as classloading, VM boot image creation, and VM exit. The callbacks allow arbitrary code to be executed on any of the supported events.
+
+The callbacks are accessed through the nested interfaces defined in the \spverb+Callbacks+ class. There is one interface per event type. To be notified of an event, register an instance of a class that implements the corresponding interface with \spverb+Callbacks+ by calling the corresponding \spverb+add...()+ method. For example, to be notified when a class is instantiated, first implement the \texttt{Call\-backs.Class\-In\-stan\-tia\-ted\-Mo\-ni\-tor} interface, and then call \texttt{Call\-backs.add\-Class\-In\-stan\-tia\-ted\-Mo\-ni\-tor()} with an instance of your class. When any class is instantiated, the \texttt{no\-ti\-fy\-Class\-In\-stan\-tia\-ted} method in your instance will be invoked.
+
+The appropriate interface names can be obtained by appending "Monitor" to the event names (e.g. the interface to implement for the MethodOverride event is \texttt{Call\-backs.Me\-thod\-Over\-ri\-de\-Mo\-ni\-tor}). Likewise, the method to register the callback is "add", followed by the name of the interface (e.g. the register method for the above interface is \texttt{Call\-backs.add\-Me\-thod\-Over\-ri\-de\-Mo\-ni\-tor()}).
+
+Since the events for which callbacks are available are internal to the VM, there are limitations on the behavior of the callback code. For example, as soon as the exit callback is invoked, all threads are considered daemon threads (i.e. the VM will not wait for any new threads created in the callbacks to complete before exiting). Thus, if the exit callback creates any threads, it has to join() with them before returning. These limitations may also produce some unexpected behavior. For example, while there is an elementary safeguard on any classloading callback that prevents recursive invocation (i.e. if the callback code itself causes classloading), there is no such safeguard across events, so, if there are callbacks registered for both ClassLoaded and ClassInstantiated events, and the ClassInstantiated callback code causes dynamic class loading, the ClassLoaded callback will be invoked for the new class, but not the ClassInstantiated callback.
+
+Examples of callback use can be seen in the \spverb+Controller+ class in the adaptive system.
+
+%TODO port rest of the content
+
+\begin{subsection}{An Example: Modifying SPECjvm98 to Report the End of a Run}
+
+The SPECjvm\textregistered 98 benchmark suite is configured to run one or more benchmarks a particular number of times. For example, the following runs the compress benchmark for 5 iterations:
+\begin{lstlisting}
+rvm SpecApplication -m5 -M5 -s100 -a _201_compress
+\end{lstlisting}
+
+It is sometimes useful to have the VM notified when the application has completed an iteration of the benchmark. This can be performed by using the Callbacks interface. The specifics are specified below:
+\begin{enumerate}
+  \item Modify \spverb+spec/harness/ProgramRunner.java+:
+    \begin{enumerate}
+      \item add an import statement for the \spverb+Callbacks+ class:
+        \begin{lstlisting}[language=Java]
+import org.jikesrvm.Callbacks;
+        \end{lstlisting}
+      \item before the call to \spverb+runOnce+ add the following:
+        \begin{lstlisting}[language=Java]
+Callbacks.notifyAppRunStart(className, run);
+        \end{lstlisting}
+      \item after the call to runOnce add the following:
+        \begin{lstlisting}[language=Java]
+Callbacks.notifyAppRunComplete(className, run);
+        \end{lstlisting}
+    \end{enumerate}
+  \item Recompile the modified file:
+    \begin{lstlisting}
+javac -classpath .:$RVM_BUILD/RVM.classes:$RVM_BUILD/RVM.classes/rvmrt.jar spec/harness/ProgramRunner.java
+    \end{lstlisting}
+    or create a stub version of Callbacks.java and place it the appropriate directory structure with your modified file, i.e., \spverb+org/jikesrvm/Callbacks.java+
+  \item  Run Jikes RVM as you normally would using the SPECjvm98 benchmarks.
+\end{enumerate}
+
+In the current system the \spverb+Controller+ class will gain control when these callbacks are made and print a message into the AOS log file (by default, placed in Jikes RVM's current working directory and called \spverb+AOSLog.txt+).
+
+\end{subsection}
+
+\begin{subsection}{Another Example: Directing a Recompilation of All Methods During the Application's Execution}
+
+Another callback of interest allows an application to direct the VM to recompile all executed methods at a certain point of the application's execution by calling the \texttt{re\-com\-pi\-le\-All\-Dy\-na\-mi\-cal\-ly\-Loa\-ded\-Me\-thods} method in the \spverb+Callbacks+ class. This functionality can be useful to experiment with the performance effects of when compilation occurs. This VM functionality can be disabled using the \texttt{DIS\-ABLE\_RE\-COM\-PI\-LE\_ALL\_ME\-THODS} boolean flag to the adaptive system.
+
+\end{subsection}
+
+\end{section}
