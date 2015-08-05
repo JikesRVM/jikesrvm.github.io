@@ -1,0 +1,32 @@
+\setNextFileName{UnboxedTypes.html}
+\begin{section}{Unboxed Types}
+\label{sec:unboxedtypes}
+
+If a type is boxed then it means that values of that type are represented by a pointer to a heap object. An unboxed type is represented by the value itself such as \spverb+int+, \spverb+double+, \spverb+float+, \spverb+byte+ etc.
+
+In the Jikes RVM terminology, an unboxed type is a custom unboxed type. Normal Java primitives such as \spverb+int+ are never referred to as unboxed types.
+
+The Jikes RVM also defines a number of unboxed types. Due to a limitation of the way the compiler generates code the Jikes RVM must define an unboxed array type for each unboxed type. The unboxed types are:
+\begin{itemize}
+  \item \spverb+org.vmmagic.unboxed.Address+
+  \item \spverb+org.vmmagic.unboxed.Extent+
+  \item \spverb+org.vmmagic.unboxed.ObjectReference+
+  \item \spverb+org.vmmagic.unboxed.Offset+
+  \item \spverb+org.vmmagic.unboxed.Word+
+  \item \spverb+org.jikesrvm.ArchitectureSpecific.Code+
+\end{itemize}
+
+Values of unboxed types appear only in the virtual machine's stack, registers, or as fields/elements of class/array instances.
+
+Unboxed types may inherit from Object but they are not objects. As such there are some restrictions on the use of unboxed types:
+\begin{itemize}
+  \item A unboxed type instance must not be passed where an \spverb+Object+ is expected. This will type-check, but it is not what you want. A corollary is to avoid overloading a method where the two overloaded versions of the method can only be distinguished by operating on an Object versus an unboxed type. The optimizing compiler can detect \textit{some} invalid uses of unboxed types.
+  \item An unboxed type must not be synchronized on.
+  \item They have no virtual methods.
+  \item They do not support lock operations, generating hashcodes or any other method inherited from \spverb+Object+.
+  \item All methods must be compiler intrinsics.
+  \item  Avoid making an array of an unboxed type. Instead represent it by the array version of unboxed type. i.e. \spverb+org.vmmagic.unboxed.Address[]+ should be replaced with \texttt{org.vm\-ma\-gic.un\-box\-ed.Address\-Ar\-ray} but \texttt{org.vm\-ma\-gic.un\-box\-ed.Address\-Ar\-ray[]} is fine.
+\end{itemize}
+
+
+\end{section}

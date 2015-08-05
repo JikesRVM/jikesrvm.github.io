@@ -1,0 +1,74 @@
+\setNextFileName{CallingConventions.html}
+\begin{section}{Calling Conventions}
+\label{sec:callingconventions}
+
+\begin{subsection}{Architecture-independent concepts}
+
+Stackframe layout and calling conventions may evolve as our understanding of Jikes RVM's performance improves. Where possible, API's should be used to protect code against such changes.
+
+\begin{subsubsection}{Register conventions}
+
+Registers (general purpose, gp, and floating point, fp) can be roughly categorized into four types:
+\begin{itemize}
+  \item \textbf{Scratch:} Needed for method prologue/epilogue. Can be used by compiler between calls.
+  \item \textbf{Dedicated:} Reserved registers with known contents:
+    \begin{itemize}
+      \item \textbf{JTOC} - Jikes RVM Table Of Contents. Globally accessible data: constants, static fields and methods.
+      \item \textbf{FP} - Frame Pointer Current stack frame (thread specific).
+      \item \textbf{TR} - Thread register. An object representing the current \spverb+RVMThread+ instance (the one executing on the CPU containing these registers).
+    \end{itemize}
+  \item \textbf{Volatile ("caller save", or "parameter"):} Like scratch registers, these can be used by the compiler as temporaries, but they are not preserved across calls. Volatile registers differ from scratch registers in that volatiles can be used to pass parameters and result(s) to and from methods.
+  \item \textbf{Nonvolatile ("callee save", or "preserved"):} These can be used (and are preserved across calls), but they must be saved on method entry and restored at method exit. Highest numbered registers are to be used first. (At least initially, nonvolatile registers will not be used to pass parameters.)
+\end{itemize}
+
+\end{subsubsection}
+
+\begin{subsubsection}{Stack conventions}
+
+Stacks grow from high memory to low memory.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Method prologue responsibilities}
+
+(some of these can be omitted for leaf methods):
+\begin{enumerate}
+  \item Execute a stackoverflow check, and grow the thread stack if necessary.
+  \item Save the caller's next instruction pointer (callee's return address)
+  \item Save any nonvolatile floating-point registers used by callee.
+  \item Save any nonvolatile general-purpose registers used by callee.
+  \item Store and update the frame pointer FP.
+  \item Store callee's compiled method ID
+  \item Check to see if the Java\textsuperscript{TM} thread must yield the Processor (and yield if threadswitch was requested).
+\end{enumerate}
+
+\end{subsubsection}
+
+\begin{subsubsection}{Method epilogue responsibilities}
+
+(some of these can be ommitted for leaf methods):
+\begin{enumerate}
+  \item Restore FP to point to caller's stack frame.
+  \item Restore any nonvolatile general-purpose registers used by callee.
+  \item Restore any nonvolatile floating-point registers used by callee.
+  \item Branch to the return address in caller.
+\end{enumerate}
+
+\end{subsubsection}
+
+\end{subsection}
+
+\begin{subsection}{Architecture-specific calling conventions}
+
+The following architecture-specific classes are of interest for calling conventions:
+\begin{itemize}
+  \item \spverb+StackframeLayoutConstants+ for layout of the stack frame
+  \item \spverb+JNICompiler+ for transition to native code
+  \item \spverb+RegisterConstants+ for register definitions
+  \item \spverb+BaselineConstants+ for register usage by the baseline compiler
+  \item \spverb+CallingConventions+ which expands the calling conventions shortly before register allocation in the optimizing compiler
+\end{itemize}
+
+\end{subsection}
+
+\end{section}

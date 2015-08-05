@@ -1,0 +1,53 @@
+\setNextFileName{UninterruptibleCode.html}
+\begin{section}{Uninterruptible Code}
+\label{sec:uninterruptiblecode}
+
+Declaring a method uninterruptible enables a Jikes RVM developer to prevent the Jikes RVM compilers from inserting "hidden" thread switch points in the compiled code for the method. As a result, the code can be written assuming that it cannot involuntarily "lose control" while executing due to a timer-driven thread switch. In particular, neither yield points nor stack overflow checks will be generated for uninterruptible methods.
+When writing uninterruptible code, the programmer is restricted to a subset of the Java language. The following are the restrictions on uninterruptible code.
+
+\begin{itemize}
+  \item Because a stack overflow check represents a potential yield point (if GC is triggered when the stack is grown), stack overflow checks are omitted from the prologues of uninterruptible code. As a result, all uninterruptible code must be able to execute in the stack space available to them when the first uninterruptible method on the call stack is invoked. This is typically about 8K for uninterruptible regions called from mutator code. The collector threads must preallocate enough stack space, since all collector code is uninterruptible. As a result, using recursive methods in the GC subsystem is a bad idea.
+  \item Since no yield points are inserted in uninterruptible code, there will be no timer-driven thread switches while executing it. So, if possible, one should avoid "long running" uninterruptible methods outside of the GC subsystem.
+  \item Certain bytecodes are forbidden in uninterruptible code, because Jikes RVM cannot implement them in a manner that ensures uninterruptibility. The forbidden bytecodes are:
+    \begin{itemize}
+      \item \textit{aastore}
+      \item \textit{invokeinterface}
+      \item \textit{new}
+      \item \textit{newarray}
+      \item \textit{anewarray}
+      \item \textit{athrow}
+      \item \textit{checkcast} and \textit{instanceof} unless the LHS type is a final class
+      \item \textit{monitorenter}
+      \item \textit{monitorexit}
+      \item \textit{multianewarray}
+    \end{itemize}
+  \item Uninterruptible code cannot cause class loading and thus must not contain unresolved \textit{getstatic}, \textit{putstatic}, \textit{getfield}, \textit{putfield}, \textit{invokevirtual}, or \textit{invokestatic} bytecodes.
+  \item Uninterruptible code cannot contain calls to interruptible code. As a consequence, it is illegal to override an uninterruptible virtual method with an interruptible method.
+  \item Uninterruptible methods cannot be \spverb+synchronized+. If you need synchronization in an uninterruptible method, you must use one of the internal locks or synchronization primitives.
+\end{itemize}
+
+We have augmented the baseline compiler to print a warning message when one of these restrictions is violated. The optimizing compiler currently does not check for uninterruptibility violations. Consequently, it is a good idea to compile a boot image with the baseline compiler (e.g. using prototype-opt) after modifying uninterruptible code.
+
+If uninterruptible code were to raise a runtime exception such as \texttt{Null\-Poin\-ter\-Ex\-ce\-ption}, \texttt{Ar\-ray\-In\-dex\-Out\-Of\-Bounds\-Ex\-ce\-ption}, or \texttt{Class\-Cast\-Ex\-ce\-ption}, then it could be interrupted. We assume that such conditions are a programming error (or VM bug) and do not flag bytecodes that might result in one of these exceptions being raised as a violation of uninterruptibility.
+
+In a few cases it is necessary to modify the conditions of checking for uninterruptibility to avoid spurious warning messages. This should be done with extreme care. The checking conditions for a particular method can be modified by using one of the following annotations:
+\begin{itemize}
+  \item \texttt{org.vm\-ma\-gic.prag\-ma.Un\-in\-ter\-rup\-ti\-ble\-No\-Warn} - disables checking for uninterruptibility violations but behaves like \texttt{org.vm\-ma\-gic.pra\-gma.Un\-in\-ter\-rup\-ti\-ble} otherwise. Used for methods that need to be uninterruptible but are \textbf{only} executed when writing the boot image.
+  \item \texttt{org.vm\-ma\-gic.pra\-gma.Un\-pre\-emp\-tib\-le} - instructs the JVM to avoid inserting operations that could trigger garbage collection or thread switching but does not disallow them. Calls to preemptible code will cause warnings. This is used for code that is involved in thread scheduling, locking or the creation of exception objects.
+  \item \texttt{org.vm\-ma\-gic.pra\-gma.Un\-pre\-emp\-tib\-le\-No\-Warn} - used for unpreemptible code that calls interruptible code.
+\end{itemize}
+
+Do not use the annotation \texttt{org.vm\-ma\-gic.prag\-ma.Lo\-gi\-cal\-ly\-Un\-in\-ter\-rup\-ti\-b\-le}. Its usage is being \href{https://xtenlang.atlassian.net/browse/RVM-115}{phased out}.
+
+The following rules determine whether or not a method is uninterruptible.
+\begin{itemize}
+  \item All class initializers are interruptible, since they can only be invoked during class loading.
+  \item All object constructors are interruptible, since they an only be invoked as part of the implementation of the new bytecode.
+  \item If a method is annotated with \texttt{org.vm\-ma\-gic.prag\-ma.In\-ter\-rup\-ti\-ble} then it is interruptible.
+  \item If none of the above rules apply and a method is annotated with \texttt{org.vm\-ma\-gic.prag\-ma.Un\-in\-ter\-rup\-ti\-ble}, then it is uninterruptible.
+  \item If none of the above rules apply and the declaring class is annotated with \texttt{org.vm\-ma\-gic.prag\-ma.Un\-in\-ter\-rup\-ti\-ble} then it is uninterruptible.
+\end{itemize}
+
+Whether to annotate a class or a method with \texttt{org.vm\-ma\-gic.prag\-ma.Un\-in\-ter\-rup\-ti\-ble} is a matter of taste and mainly depends on the ratio of interruptible to uninterruptible methods in a class. If most methods of the class should be uninterruptible, then annotating the class is preferred.
+
+\end{section}

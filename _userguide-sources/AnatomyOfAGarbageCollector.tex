@@ -1,0 +1,260 @@
+\setNextFileName{AnatomyOfAGarbageCollector.html}
+\begin{section}{Anatomy of a Garbage Collector}
+\label{sec:anatomyofagarbagecollector}
+
+\textbf{** Work in progress, contributions appreciated **}
+\newline
+
+This page gives a brief outline of the major control flows in the execution of a garbage collector in MMTk.  For simplicity, we focus on the MarkSweep collector, although much of the discussion will be relevant to other collectors. 
+
+This page assumes you have a basic knowledge of garbage collection. For those that don't, please see one of the standard texts such as \href{http://gchandbook.org/}{The Garbage Collection Handbook}.
+
+\begin{subsection}{Structure of a Plan}
+
+An MMTk Plan is required to provide 5 classes.  They are required to have consistent names which start with the same name and have a suffix that indicates which class it inherits from. in the case of the MarkSweep plan, the name is "MS".
+\begin{itemize}
+  \item \spverb+MS+ - this is a singleton class that is a subclass of \texttt{org.mmtk.plan.Plan}. This class encapsulates data structures that are shared among multiple threads.
+  \item \spverb+MSMutator+ - subclass of \texttt{org.mmtk.plan.MutatorContext}.  This class encapsulates data structures that are local to a single mutator thread.  In the case of Jikes RVM, a Thread is actually a subclass of this class for efficiency reasons.
+  \item \spverb+MSCollector+ - subclass of \texttt{org.mmtk.plan.CollectorContext}.  This provides thread-local data structures specific to a garbage collector thread.
+  \item \spverb+MSConstraints+ - subclass of \texttt{org.mmtk.plan.PlanConstraints}.  This provides configuration information that the host virtual machine might need.  It is separated out from the Plan class in order to prevent circular class loading dependencies.
+  \item \spverb+MSTraceLocal+ - subclass of \texttt{org.mmtk.plan.TraceLocal}.  This provides thread-local data structures specific to a particular way of traversing the heap. In a simple collector like MarkSweep, there is only one of these classes, but in more complex collectors there may be several. For example, in a generational collector, there will be one \texttt{TraceLocal} class for a nursery collection, and another for a full-heap collection.
+\end{itemize}
+
+The basic architecture of MMTk is that virtual address space is divided into chunks (of 4MB in a 32-bit memory model) that are managed according to a specific \textit{policy}. A policy is implemented by an instance of the \spverb+Space+ class, and it is in the policy class that the mechanics of a particular mechanism (like mark-sweep) is implemented. The task of a \spverb+Plan+ is to create the policy (\spverb+Space+) objects that manage the heap, and to integrate them into the MMTk framework.  
+MMTk exposes some of this memory management policy to the host VM, by allowing the VM to specify an allocator (represented by a small integer) when allocating space.  The interface exposed to the VM allows it to choose whether an object will move during collection or not, whether the object is large enough to require special handling etc. The MMTk plan is free (within the semantic guarantees exposed to the VM) to direct each of these allocators to a particular policy.
+
+\end{subsection}
+
+\begin{subsection}{Policies}
+A policy describes how a range of virtual address space is managed.  The base class of all policies is \texttt{org.mmtk.policy.Space}, and a particular instance of a policy is known generically as a space.  The static initializer of a \spverb+Plan+ and its subclasses define the spaces that make up an MMTk plan.  
+
+\begin{lstlisting}[language=Java,title=MS.java]
+public static final MarkSweepSpace msSpace = new MarkSweepSpace("ms", VMRequest.discontiguous());
+public static final int MARK_SWEEP = msSpace.getDescriptor();
+\end{lstlisting}
+
+In this code fragment, we see the \spverb+MS+ plan defined.  Note that we generally also define a \spverb+static final+ space descriptor.  This is an optimization that allows some rapid operations on spaces.
+
+A \spverb+Space+ is a global object, shared among multiple mutator threads.  Each policy will also have one or more thread-local classes which provide unsynchronized allocation.  These classes are subclasses of \texttt{org.mmtk.u\-ti\-li\-ty.al\-loc.Al\-loc\-a\-tor}, and in the case of MarkSweep, it is called \spverb+MarkSweepLocal+.  Instances of \spverb+MarkSweepLocal+ are created as part of a mutator context, like this
+
+\begin{lstlisting}[language=Java,title=MSMutator.java]
+protected MarkSweepLocal ms = new MarkSweepLocal(MS.msSpace);
+\end{lstlisting}
+
+The design pattern is that the local Allocator will allocate space from a thread-local buffer, and when that is exhausted it will allocate a new buffer from the global \spverb+Space+, performing appropriate locking.  The constructor of the \texttt{MarkSweepLocal} specifies the space from which the allocator will allocate global memory.
+
+\end{subsection}
+
+\begin{subsection}{Allocation}
+
+MMTk provides two methods for allocating an object.  These are provided by the \texttt{MS\-Mu\-ta\-tor} class, to give each plan the opportunity to use fast, unsynchronized thread-local allocation before falling back to a slower synchronized slow-path.
+
+The version implemented in MarkSweep looks like this:
+
+\begin{lstlisting}[language=java,title=MSMutator.java]
+public Address alloc(int bytes, int align, int offset, int allocator, int site) {
+  if (allocator == MS.ALLOC_DEFAULT) {
+    return ms.alloc(bytes, align, offset);
+  }
+  return super.alloc(bytes, align, offset, allocator, site);
+}
+\end{lstlisting}
+
+The basic structure of this method is common to all MMTk plans.  First they decide whether the operation applies to this level of abstraction (\spverb+if (allocator == MS.ALLOC_DEFAULT)+), and if so, delegate to the appropriate place, otherwise pass it up the chain to the super-class.  In the case of MarkSweep, \texttt{MS\-Mu\-ta\-tor} delegates the allocation to its thread-local \texttt{MarkSweepLocal} object ms.
+
+The alloc method of \texttt{MarkSweepLocal} is inherited from \texttt{SegregatedFreeListLocal} (mark-sweep is not the only way of managing free-list allocation), and looks like this
+
+\begin{lstlisting}[language=Java, title=SegregatedFreeListLocal.java (simplified)]
+public final Address alloc(int bytes, int align, int offset) {
+  int sizeClass = getSizeClass(bytes);
+  Address cell = freeList.get(sizeClass);
+  if (!cell.isZero()) {
+    freeList.set(sizeClass, cell.loadAddress());
+    /* Clear the free list link */
+    cell.store(Address.zero());
+    return cell;
+  }
+  return allocSlow(bytes, align, offset);
+}
+\end{lstlisting}
+
+This is a standard pattern for thread-local allocation: first we look in the thread-local space (line 3), and if successful return the result (lines 4-8).  If unsuccessful, we request space from the global policy via the method \spverb+Allocator.allocSlow+.  This is the common interface that all Allocators use to request space from the global policy.  This will eventually call the allocator-specific \texttt{allocSlowOnce method}.  The workings of the \texttt{allocSlowOnce} method are very policy-specific, so not appropriate to look at at this stage, but eventually all policies will attempt to acquire fresh virtual memory via the \spverb+Space.acquire+ method.
+
+\spverb+Space.acquire+ is the only correct way for a policy to allocate new virtual memory for its own use.  
+
+
+\begin{lstlisting}[language=Java,title=Space.java (simplified)]
+public final Address acquire(int pages) {
+  pr.reservePages(pages);
+  // Poll, either fixing budget or requiring GC
+  if (VM.activePlan.global().poll(false, this)) {
+    VM.collection.blockForGC();
+    return Address.zero(); // GC required, return failure
+  }
+  // Page budget is ok, try to acquire virtual memory
+  Address rtn = pr.getNewPages(pagesReserved, pages, zeroed);
+  if (rtn.isZero()) {  // Failed, so force a GC
+    boolean gcPerformed = VM.activePlan.global().poll(true, this);
+    VM.collection.blockForGC();
+    return Address.zero();
+  }
+  return rtn;
+}
+\end{lstlisting}
+
+The logic of \spverb+space.acquire+ is:
+\begin{itemize}
+  \item First, poll the plan to find out whether the heap is full.  This logic is performed by the plan, because it has knowledge of copy reserves etc.
+  \item The \spverb+poll+ method will request a GC if required, and return \spverb+true+ if it has done so.
+  \item Then we wait for GC if required. \spverb+poll+ can't wait, because it is called in circumstances that aren't GC safe.
+  \item If \spverb+Plan.poll(...)+ returns \spverb+false+ (we are within the allowed heap size), we call \spverb+pr.getNewPages+ to allocate virtual memory.  At this stage we can find that we have run out of virtual memory, and if so, we force a GC
+  \item If a GC is performed, we return \spverb+Address.zero()+, rather than retrying locally.  In many plans, the next allocation request will be satisfied by re-using space in a page that already belongs to a policy, so the post-GC allocation must be performed further up in the call stack. The retry logic is handled in \spverb+Allocator.allocSlowInline+.
+\end{itemize}
+
+\begin{lstlisting}[language=Java,title=Allocator.java (simplified)]
+public final Address allocSlowInline(int bytes, int alignment, int offset) {
+  boolean emergencyCollection = false;
+  while (true) {
+    Address result = allocSlowOnce(bytes, alignment, offset);
+    if (!result.isZero()) {
+      return result;
+    }
+    if (emergencyCollection) {
+      VM.collection.outOfMemory();
+    }
+    emergencyCollection = Plan.isEmergencyCollection();
+  }
+}
+\end{lstlisting}
+
+This code fragment shows the retry logic in the allocator.  We try allocating using \spverb+allocSlowOnce+, which may recycle partially-used blocks and eventually call \spverb+Space.acquire+.  If a GC occurred, we try again.  Eventually the plan will request an emergency collection which will (for example) cause soft references to be dropped.  If this fails we throw an \spverb+OutOfMemoryError+.
+
+\end{subsection}
+
+\begin{subsection}{Collection}
+
+\begin{subsubsection}{Scheduling}
+
+In a stop-the-world garbage collector like MarkSweep, the mutator threads run until memory is exhausted, then all mutator threads are suspended, the collector threads are activated, and they perform a garbage collection.  After the GC is complete, the collector threads are suspended and the mutator threads resume.  MMTk also has some support for concurrent collectors, in which one or more collector threads can be scheduled to run alongside the mutator, either exclusively or in addition to (hopefully briefer) stop-the-world phases. 
+
+Thread scheduling in MMTk is handled by a GC controller thread, implemented in the singleton class \texttt{org.mmtk.plan.ControllerCollectorContext} held in the static field \texttt{Plan.controlCollectorContext}. Whenever a collection is initiated, it is done by calling methods on this object.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Initiating}
+
+As mentioned above, every attempt to allocate fresh virtual memory calls the current plan's \spverb+poll(...)+ method.  This initiates a GC by calling \texttt{con\-trol\-Col\-lec\-tor\-Con\-text.re\-quest()}, which in a stop-the-world collector like MarkSweep pauses the mutator threads and then wakes the collector threads.  The main loop of the garbage collector is simply the \spverb+run()+ method of \texttt{ParallelCollector}, shown below.
+
+\begin{lstlisting}[language=Java,title=ParallelCollector]
+public void run() {
+  while(true) {
+    park();
+    collect();
+  }
+}
+\end{lstlisting}
+
+The \spverb+collect()+ method is specific to the type of collector, and in \texttt{StopTheWorldCollector} it looks like this
+\begin{lstlisting}[language=Java,title=StopTheWorldCollector]
+public void collect() {
+  Phase.beginNewPhaseStack(Phase.scheduleComplex(global().collection));
+}
+\end{lstlisting}
+
+\end{subsubsection}
+
+\begin{subsubsection}{Collector Phases}
+
+Every garbage collection consists of a series of steps.  Each step is either executed once (e.g. updating the mark state before marking the heap), or in parallel on all available collector threads (e.g. the parallel mark phase).  The actual work of a step is done by the \texttt{collectionPhase} method of the global, collector or mutator class of a plan.
+
+In early versions of MMTk, the main collection method was a template method, calling individual methods for each phase of the collection.  As the number of collectors in MMTk grew, this became unwieldy and has been replaced with a configurable mechanism of phases.  
+
+The class org.mmtk.plan.Simple defines the basic structure of most of MMTk's garbage collectors.  First it defines the phases themselves,
+
+\begin{lstlisting}[language=Java,title=Simple.java]
+public static final short SET_COLLECTION_KIND = Phase.createSimple("set-collection-kind", null);
+public static final short INITIATE            = Phase.createSimple("initiate", null);
+public static final short PREPARE             = Phase.createSimple("prepare");
+...
+\end{lstlisting}
+
+Each phase of the collection is represented by a 16-bit integer, an index into a table of \spverb+Phase+ objects.  Simple phases are scheduled, and combined into sequences, or complex phases.
+
+\begin{lstlisting}[language=Java,title=Simple.java]
+/** Ensure stacks are ready to be scanned */
+protected static final short prepareStacks = Phase.createComplex("prepare-stacks", null,
+    Phase.scheduleMutator    (PREPARE_STACKS),
+    Phase.scheduleGlobal     (PREPARE_STACKS));
+\end{lstlisting}
+
+A simple phase can be scheduled in one of 4 ways: 
+\begin{itemize}
+  \item Global.  One collector thread is chosen to run the \texttt{collectionPhase} method of the global \spverb+Plan+ object.
+  \item Collector.  All collector threads run \texttt{collectionPhase} of the plan's \texttt{CollectorContext} object(s).
+  \item Mutator.  The collector threads run in parallel and iterate over the available \texttt{MutatorContext} objects (ie the mutator threads), and run the mutator's \texttt{collectionPhase} method.  Note that the collector threads are performing work on a per-mutator basis, because in general the mutator threads are stopped at this point.
+  \item Concurrent.  The controller is requested to start a concurrent collectcor thread.
+\end{itemize}
+
+Between every phase of a collection, the collector threads rendezvous at a synchronization barrier.  The actual execution of a collector's phases is done in the method \texttt{Pha\-se.pro\-cess\-Pha\-se\-Stack}.  This method handles resuming a concurrent collection as well as running a full stop-the-world collection.
+
+The actual work of a collection phase is done (as mentioned above) in the \texttt{collectionPhase} method of the major \texttt{Plan} classes.
+
+\begin{lstlisting}[language=Java,title=MS.java]
+@Inline
+@Override
+public void collectionPhase(short phaseId) {
+  if (phaseId == PREPARE) {
+    super.collectionPhase(phaseId);
+    msTrace.prepare();
+    msSpace.prepare(true);
+    return;
+  }
+  if (phaseId == CLOSURE) {
+    msTrace.prepare();
+    return;
+  }
+  if (phaseId == RELEASE) {
+    msTrace.release();
+    msSpace.release();
+    super.collectionPhase(phaseId);
+    return;
+  }
+  super.collectionPhase(phaseId);
+}
+\end{lstlisting}
+
+This excerpt shows how the global MS plan implements \texttt{collectionPhase}, illustrating the key phases of a simple stop-the-world collector.  The prepare phase performs tasks such as changing the mark state, the closure phase performs a transitive closure over the heap (the mark phase of a mark-sweep algorithm) and the release phase performs any post-collection steps.  Where possible, a plan is structured so that each layer of inheritance deals only with the objects it creates, i.e. the MS class operates on the \texttt{msSpace} and delegates work on all other spaces to the super-class where they are defined.  By convention the \texttt{PREPARE} phase is performed outside-in (super-class preparation first) and \texttt{RELEASE} is done inside-out (local first, super-class second).
+
+\end{subsubsection}
+
+\begin{subsubsection}{Tracing the heap}
+
+The main operation of a tracing collector is the transitive closure operation where all (or a subset) of the object graph is visited.  Some collectors such as generational collectors perform these operations in more than one way, e.g. a nursery collection in a generational collector does not trace through pointers into the mature space, while a full-heap collection does.  All MMTk collectors are designed to run using several parallel threads, using data structures that have unsynchronized thread-local and synchronized global components in the same way as MMTk's policy classes.
+
+MMTk's trace operation uses the following terminology:
+\begin{itemize}
+  \item An \textit{edge} is a reference in the heap from one reference field to the object (or node) it points to.
+  \item \textit{Tracing} an object is the policy-defined operation performed by the collector on an object.  In a mark-sweep policy this means setting the mark state of the object.  In a copying policy this means moving the object to its new location.
+  \item \textit{Scanning} is the process of identifying the reference fields of an object and processing the objects reachable from each of them.
+\end{itemize}
+
+Each distinct transitive closure operation is defined as a subclass of \textit{TraceLocal}.  The closure is performed in the \textit{collectionPhase} method of the plan-specific \textit{CollectorContext} class
+
+\begin{lstlisting}[language=Java,title=MSCollector.java]
+public void collectionPhase(short phaseId, boolean primary) {
+  ...
+  if (phaseId == MS.CLOSURE) {
+    fullTrace.completeTrace();
+    return;
+  }
+  ...
+}
+\end{lstlisting}
+
+The initial starting point for the closure is computed by the \spverb+STACK_ROOTS+ and \spverb+ROOTS+ phases, which add root locations to a buffer by calling \texttt{Tra\-ce\-Lo\-cal.re\-port\-De\-lay\-ed\-Root\-Ed\-ge}.  The closure operation proceeds by invoking \texttt{traceObiect} on each root location (in method \texttt{processRootEdge}), and then invoking \texttt{scanObject} on each heap object encountered.  Note that the \texttt{CLOSURE} operation is performed multiple times in each GC, due to processing of reference types.
+
+\end{subsubsection}
+
+\end{subsection}
+
+\end{section}

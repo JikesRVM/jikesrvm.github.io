@@ -1,0 +1,25 @@
+\setNextFileName{MMTk.html}
+\begin{section}{MMTk}
+\label{sec:mmtk}
+
+% TODO missing links
+The garbage collectors for Jikes RVM are provided by MMTk. The document \href{http://cs.anu.edu.au/~Robin.Garner/mmtk-guide.pdf}{MMTk: The Memory Manager Toolkit} describes MMTk and gives a tutorial on how to use and edit it and is the best place to start.  An updated version of the tutorial is available in this \hyperref[cha:mmtktutorial]{guide}. A detailed description of the call chain from the compilers through to MMTk \hyperref[sec:memoryallocationinjikesrvm]{here} is another good place to start understanding how MMTk integrates with Jikes RVM.  \hyperref[sec:anatomyofagarbagecollector]{Anatomy of a Garbage Collector} describes the major building blocks of an MMTk collector and \hyperref[sec:scanningobjectsinjikesrvm]{Scanning Objects in Jikes RV}M describes how objects are scanned for their pointer fields during GC.  MMTk also has a pure Java \hyperref[sec:themmtktestharness]{test harness} that allows development of garbage collectors in an IDE like eclipse.
+
+Jikes RVM can be configured to employ various different allocation managers taken from the MMTk memory management toolkit. Managers divide the available space up as they see fit. However, they normally subdivide the available address range to provide:
+\begin{itemize}
+  \item a metadata area which enables the manager to track the status of allocated and unallocated storage in the rest of the heap.
+  \item an immortal data area used to service allocations of objects which are expected to persist across the whole lifetime of the Jikes RVM runtime (e.g. the boot image)
+  \item a large object space used to service allocations of objects which are larger than some specified size (e.g. a virtual memory page) - the large object space may employ a different allocation and reclamation strategy to that used for other objects.
+  \item a small object allocation area which may be divided into e.g.two semi spaces, a nursery space and a mature space, a set of generations, a non-relocatable buddy hierarchy etc depending upon the allocation and reclamation strategy employed by the memory manager.
+  \item separate spaces for code. These are designed to exclude performance problems that can occur on some architectures when code and data are mixed. See \href{http://dl.acm.org/citation.cfm?doid=1133956.1133980}{this paper} for the original motivation and experiments for a separate code space.
+\end{itemize}
+
+Virtual memory pages are lazily mapped into the RVM's memory image as they are needed.
+
+The main class which is used to interface to the memory manager is called \spverb+Plan+. Each flavor of the manager is implemented by substituting a different implementation of this class. Most plans inherit from class \texttt{Stop\-The\-World\-GC} which ensures that all active mutator threads (i.e. ones which do not perform the job of reclaiming storage) are suspended before reclamation is commenced. The argument passed to \spverb+-X:gc:threads+ determines the number of parallel collector threads that will be used for collection.
+
+Generational collectors employ a plan which inherits from class \spverb+Generational+. Inter alia, this class ensures that a write barrier is employed so that updates from old to new spaces are detected.
+
+Jikes RVM may also use the \hyperref[sec:usinggcspy]{GCSpy} visualization framework. GCSpy allows developers to observe the behavior of the heap and related data structures.
+
+\end{section}
