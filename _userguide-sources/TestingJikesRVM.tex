@@ -30,7 +30,7 @@ Note that the \hyperref[sec:usingbuildit]{buildit script} provides a fast and ea
 There is a number of ant properties that control the test process. Besides the properties that are already defined in \hyperref[sec:buildingjikesrvm]{Building Jikes RVM}, special test properties may also be specified.
 
 
-\begin{table}
+\begin{table}[h]
 \centering
 \begin{tabular}{p{0.2\linewidth}p{0.5\linewidth}p{0.3\linewidth}}
 Property & Description & Default \\
@@ -57,7 +57,7 @@ A \textit{test-run} is defined by a number of properties located in a property f
 
 The property test.configs is a whitespace separated list of test-configuration "tags". Every tag uniquely identifies a particular test-configuration. Every test-configuration is defined by a number of properties in the property file that are prefixed with test.config.\textless tag\textgreater . See the test run property table for the possible properties.
 
-\begin{table}
+\begin{table}[h]
 \centering
 \begin{tabular}{p{0.2\linewidth}p{0.6\linewidth}p{0.2\linewidth}}
 Property & Description & Default \\
@@ -91,18 +91,18 @@ test.config.prototype-opt.tests=${test.set}
 
 Each test can have additional parameters specified that will be used by the test infrastructure when starting the Jikes RVM instance to execute the test. These additional parameters are described in table for test specific parameters.
 
-\begin{table}
+\begin{table}[H]
 \centering
-\begin{tabular}{p{0.2\linewidth}p{0.3\linewidth}p{0.2\linewidth}p{0.3\linewidth}}
+\begin{tabular}{p{0.2\linewidth}p{0.2\linewidth}p{0.3\linewidth}p{0.3\linewidth}}
 Parameter & Description & Default Property & Default Value \\
 initial.heapsize & The initial size of the heap. & \$\{test.initial.heapsize\} & \$\{config.default-heapsize.initial\} \\
 max.heapsize & The initial size of the heap. & \$\{test.max.heapsize\} & \$\{config.default-heapsize.maximum\} \\
-max.opt.level & The maximum optimization level for the tests or an empty string to use the Jikes RVM default. & \$\{test.max.opt.level\} & "" \\
+max.opt.level & The maximum optimization level for the tests or an empty string to use the Jikes RVM default. & \$\{test.max.opt.level\} & ``'' \\
 processors & The number of processors to use for garbage collection for the test or 'all' to use all available processors. & \$\{test.processors\} & all \\
 time.limit & The time limit for the test in seconds. After the time limit expires the Jikes RVM instance will be forcefully terminated. & \$\{test.time.limit\} & 1000 \\
 class.path & The class path for the test. & \$\{test.class.path\} & \\
-extra.args & Extra arguments that are passed to Jikes RVM. & \$\{test.rvm.extra.args\} & "" \\
-exclude & If set to true, the test will be not be executed. & "" \\
+extra.args & Extra arguments that are passed to Jikes RVM. & \$\{test.rvm.extra.args\} & ``'' \\
+exclude & If set to true, the test will be not be executed. & & ``'' \\
 \end{tabular}
 \caption{Test specific parameters}
 \end{table}
