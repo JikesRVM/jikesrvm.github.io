@@ -2,6 +2,190 @@
 \begin{section}{Using GCSpy}
 \label{sec:usinggcspy}
 
-% TODO fill in
+\begin{subsection}{The GCspy Heap Visualisation Framework}
+
+GCspy is a visualisation framework that allows developers to observe the behaviour of the heap and related data structures. For details of the GCspy model, see \href{http://www.cs.kent.ac.uk/pubs/2002/1426/}{GCspy: An adaptable heap visualisation frameworkby Tony Printezis and Richard Jones, OOPSLA'02}. The framework comprises two components that communicate across a socket: a \textit{client} and a \textit{server} incorporated into the virtual machine of the system being visualised. The client is usually a visualiser (written in Java) but the framework also provides other tools (for example, to store traces in a compressed file). The GCspy server implementation for Jikes RVM was contributed by Richard Jones of the University of Kent.
+
+GCspy is designed to be independent of the target system. Instead, it requires the GC developer to describe their system in terms of four GCspy abstractions: \textit{spaces}, \textit{streams}, \textit{tiles} and \textit{events}. This description is transmitted to the visualiser when it connects to the server.
+
+A \textit{space} is an abstraction of a component of the system; it may represent a memory region, a free-list, a remembered-set or whatever. Each space is divided into a number of blocks which are represented by the visualiser as \textit{tiles}. Each space will have a number of attributes -- \textit{streams} -- such as the amount of space used, the number of objects it contains, the length of a free-list and so on.
+
+In order to instrument a Jikes RVM collector with GCspy:
+\begin{enumerate}
+  \item Provide a \spverb+startGCspyServer+ method in that collector's plan. That method initialises the GCspy server with the port on which to communicate and a list of event names, instantiates drivers for each space, and then starts the server.
+  \item Gather data from each space for the tiles of each stream (e.g. before, during and after each collection).
+  \item Provide a driver for each space.
+\end{enumerate}
+
+\textit{Space drivers} handle communication between collectors and the GCspy infrastructure by mapping information collected by the memory manager to the space's streams. A typical space driver will:
+\begin{enumerate}
+  \item Create a GCspy space.
+  \item Create a stream for each attribute of the space.
+  \item Update the tile statistics as the memory manager passes it information.
+  \item Send the tile data along with any summary or control information to the visualiser.
+\end{enumerate}
+
+The Jikes RVM \spverb+SSGCspy+ plan gives an example of how to instrument a collector. It provides GCspy spaces, streams and drivers for the semi-spaces, the immortal space and the large object space, and also illustrates how performance may be traded for the gathering of more detailed information.
+
+\end{subsection}
+
+\begin{subsection}{Installation of GCspy with Jikes RVM}
+
+\begin{subsubsection}{Building GCSpy}
+
+The GCspy client code makes use of the Java Advanced Imaging (JAI) API. The build system will attempt to download and install the JAI component when required but this is only supported on the ia32-linux platform. The build system will also attempt to download and install the GCSpy server when required.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Building Jikes RVM to use GCspy}
+
+To build the Jikes RVM with GCSpy support the configuration parameter \spverb+config.include.gcspy+ must be set to \spverb+true+ such as in the \texttt{BaseBaseSemiSpaceGCspy} configuration. You can also have the Jikes RVM build process create a script to start the GCSpy client tool if GCSpy was built with support for client component. To achieve this the configuration parameter \texttt{con\-fig.in\-clu\-de.gc\-spy-client} must be set to \spverb+true+.
+
+The following steps build the Jikes RVM with support for GCSpy on linux-ia32 platform.
+\begin{lstlisting}
+$ cd $RVM_ROOT
+$ ant -Dhost.name=ia32-linux -Dconfig.name=BaseBaseSemiSpaceGCspy -Dconfig.include.gcspy-client=1
+\end{lstlisting}
+
+It is also possible to build the Jikes RVM with GCSpy support but link it against a fake stub implementation rather than the real GCSpy implementation. This is achieved by setting the configuration parameter \spverb+config.include.gcspy-stub+ to \spverb+true+. This is used in the nightly testing process.
+
+\end{subsubsection}
+
+\begin{subsubsection}{Running Jikes RVM with GCspy}
+
+To start Jikes RVM with GCSpy enabled you need to specify the port the GCSpy server will listen on.
+\begin{lstlisting}
+$ cd $RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux
+$ ./rvm -Xms20m -X:gc:gcspyPort=3000 -X:gc:gcspyWait=true &
+\end{lstlisting}
+
+Then you need to start the GCspy visualiser client.
+\begin{lstlisting}
+$ cd $RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux
+$ ./tools/gcspy/gcspy
+\end{lstlisting}
+
+After this you can specify the port and host to connect to (i.e. localhost:3000) and click the "Connect" button in the bottom right-hand corner of the visualiser.
+
+\end{subsubsection}
+
+\end{subsection}
+
+\begin{subsection}{Command line arguments}
+
+Additional GCspy-related arguments to the \spverb+rvm+ command:
+\begin{itemize}
+  \item \spverb+-X:gc:gcspyPort=<port>+ \newline
+    The number of the port on which to connect to the visualiser. The default is port 0, which signifies no connection.
+  \item \spverb+-X:gc:gcspyWait=<true|false>+ \newline
+    Whether Jikes RVM should wait for a visualiser to connect.
+  \item \spverb+-X:gc:gcspyTilesize=<size>+ \newline
+    How many KB are represented by one tile. The default value is 128.
+\end{itemize}
+
+\end{subsection}
+
+\begin{subsection}{Writing GCspy drivers}
+
+To instrument a new collector with GCspy, you will probably want to subclass your collector and to write new drivers for it. The following sections explain the modifications you need to make and how to write a driver. You may use \texttt{org.mmtk.plan.se\-mi\-spa\-ce.gc\-spy} and its drivers as an example.
+
+The recommended way to instrument a Jikes RVM collector with GCspy is to create a gcspy subdirectory in the directory of the collector being instrumented, e.g. \texttt{MMTk/src/org/mmtk/plan/se\-mi\-spa\-ce/gc\-spy}. In that directory, we need 5 classes:
+\begin{itemize}
+  \item \spverb+SSGCspy+,
+  \item \spverb+SSGCspyCollector+,
+  \item \spverb+SSGCspyConstraints+,
+  \item \spverb+SSGCspyMutator+ and
+  \item \spverb+SSGCspyTraceLocal+.
+\end{itemize}
+
+\spverb+SSGCspy+ is the plan for the instrumented collector. It is a subclass of \spverb+SS+.
+
+\spverb+SSGCspyConstraints+ extends \spverb+SSConstraints+ to provide methods \spverb+boolean needsLinearScan()+ and \spverb+boolean withGCspy()+, both of which return \spverb+true+.
+
+\spverb+SSGCspyTraceLocal+ extends \spverb+SSTraceLocal+ to override methods \spverb+traceObject+ and \spverb+willNotMove+ to ensure that tracing deals properly with GCspy objects: the \spverb+GCspyTraceLocal+ file will be similar for any instrumented collector.
+
+The instrumented collector, \spverb+SSGCspyCollector+, extends \spverb+SSCollector+. It needs to override \spverb+collectionPhase+.
+
+Similarly, \spverb+SSGCspyMutator+ extends \spverb+SSMutator+ and must also override its parent's methods \spverb+collectionPhase+, to allow the allocators to collect data; and its \spverb+alloc+ and \spverb+postAlloc+ methods to allocate GCspy objects in GCspy's heap space.
+
+\begin{subsubsection}{The Plan}
+
+\spverb+SSGCspy.startGCspyServer+ is called immediately before the "main" method is loaded and run. It initialises the GCspy server with the port on which to communicate, adds event names, instantiates a driver for each space, and then starts the server, forcing the VM to wait for a GCspy to connect if necessary. This method has the following responsibilities.
+\begin{itemize}
+  \item Initialise the GCspy server: \spverb+server.init(name, portNumber, verbose);+
+  \item Add each event to the ServerInterpreter (`server' for short) \texttt{ser\-ver.add\-Event(event\-ID, event\-Name);}
+  \item Set some general information about the server (e.g. name of the collector, build, etc) \spverb+server.setGeneralInfo(info);+
+  \item Create new drivers for each component to be visualised \spverb+myDriver = new MyDriver(server, args...);+
+\end{itemize}
+
+Drivers extend \spverb+AbstractDriver+ and register their space with the \texttt{ServerInterpreter}. In addition to the server, drivers will take as arguments the name of the space, the MMTk space, the tilesize, and whether this space is to be the main space in the visualiser.
+
+\end{subsubsection}
+
+\begin{subsubsection}{The Collector and Mutator}
+
+Instrumenters will typically want to add data collection points before, during and after a collection by overriding \spverb+collectionPhase+ in \spverb+SSGCspyCollector+ and \spverb+SSGCspyMutator+.
+
+\spverb+SSGCspyCollector+ deals with the data in the semi-spaces that has been allocated there (copied) by the collector. It only does any real work at the end of the collector's last tracing phase, \spverb+FORWARD_FINALIZABLE+.
+
+\spverb+SSGCspyMutator+ is more complex: as well as gathering data for objects that it allocated in From-space at the start of the \spverb+PREPARE_MUTATOR+ phase, it also deals with the immortal and large object spaces.
+
+At a collection point, the collector or mutator will typically
+\begin{enumerate}
+  \item Return if the GCspy port number is 0 (as no client can be connected).
+  \item Check whether the server is connected at this event. If so, the compensation timer (which discounts the time taken by GCspy to ather the data) should be started before gathering data and stopped after it.
+  \item  After gathering the data, have each driver call its transmit method.
+  \item \spverb+SSGCspyCollector+ does not call the GCspy server's \spverb+serverSafepoint+ method, as the collector phase is usually followed by a mutator phase. Instead, \spverb+serverSafepoint+ can be called by \spverb+SSGCspyMutator+ to indicate that this is a point at which the server can pause, play one event, etc.
+\end{enumerate}
+
+Gathering data will vary from MMTk space to space. It will typically be necessary to resize a space before gathering data. For a space,
+\begin{itemize}
+  \item We may need to reset the GCspy driver's data depending on the collection phase.
+  \item  We will pass the driver as a call-back to the allocator. The allocator will typically ask the driver to set the range of addresses from which we want to gather data, using the driver's setRange method. The driver should then iterate through its MMTk space, passing a reference to each object found to the driver's scan method.
+\end{itemize}
+
+\end{subsubsection}
+
+\begin{subsubsection}{The Driver}
+
+GCspy space drivers extend \spverb+AbstractDriver+. This class creates a new GCspy \spverb+ServerSpace+ and initializes the control values for each tile in the space. Control values indicate whether a tile is \textit{used}, \textit{unused}, a \textit{background}, a \textit{separator} or a \textit{link}. The constructor for a typical space driver will:
+\begin{enumerate}
+  \item Create a GCspy Stream for each attribute of a space.
+  \item Initialise the tile statistics in each stream.
+\end{enumerate}
+
+Some drivers may also create a \spverb+LinearScan+ object to handle call-backs from the VM as it sweeps the heap (see above).
+
+The chief roles of a driver are to accumulate tile statistics, and to transmit the summary and control data and the data for all of their streams. Their data gathering interface is the \spverb+scan+ method (to which an object reference or address is passed).
+
+When the collector or mutator has finished gathering data, it calls the transmit of the driver for each space that needs to send its data. Streams may send values of types \spverb+byte, \spverb+short+ or \spverb+int+, implemented through classes \spverb+ByteStream+, \spverb+ShortStream+ or \spverb+IntStream+. A driver's transmit method will typically:
+\begin{enumerate}
+  \item Determine whether a GCspy client is connected and interested in this event, e.g. \spverb+server.isConnected(event)+
+  \item Setup the summaries for each stream, e.g. \texttt{stream.set\-Sum\-ma\-ry(values...);}
+  \item Setup the control information for each tile. e.g.
+    \begin{lstlisting}[language=Java]
+controlValues(CONTROL_USED, start, numBlocks);
+controlValues(CONTROL_UNUSED, end, remainingBlocks);
+    \end{lstlisting}
+  \item Set up the space information, e.g. \spverb+setSpace(info);+
+  \item Send the data for all streams, e.g. \spverb+send(event, numTiles);+
+\end{enumerate}
+
+Note that \spverb+AbstractDriver.send+ takes care of sending the information for all streams (including control data).
+
+\end{subsubsection}
+
+\begin{subsubsection}{Subspaces}
+
+Subspace provides a useful abstraction of a contiguous region of a heap, recording its start and end address, the index of its first block, the size of blocks in this space and the number of blocks in the region. In particular, \spverb+Subspace+ provides methods to:
+\begin{itemize}
+  \item Determine whether an address falls within a subspace;
+  \item Determine the block index of the address;
+  \item Calculate how much space remains in a block after a given address;
+\end{itemize}
+
+\end{subsubsection}
+
+\end{subsection}
 
 \end{section}

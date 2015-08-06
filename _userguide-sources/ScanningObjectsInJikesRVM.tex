@@ -2,4 +2,73 @@
 \begin{section}{Scanning Objects in Jikes RVM}
 \label{sec:scanningobjectsinjikesrvm}
 
+One of the services that MMTk expects a virtual machine to perform on its behalf is the scanning of objects, i.e. identifying and processing the pointer fields of the live objects it encounters during collection. In principle the implementation of this interface is simple, but there are two moderately complex optimizations layered on top of this.
+
+From MMTk's point of view, each time an object requires scanning it passes it to the VM, along with a \texttt{TransitiveClosure} object. The VM is expected to identify the pointers and invoke the \texttt{processEdge} method on each of the pointer fields in the object.  The rationale for the current object scanning scheme is presented in \href{http://portal.acm.org/citation.cfm?id=1993484}{this paper}.
+
+\begin{subsection}{JikesRVM to MMTk Interface}
+
+MMTk requires its host virtual machine to provide an implementation of the class \texttt{org.mmtk.vm.Scan\-ning} as its interface to scanning objects.  Jikes RVM's implementation of this class is found under the source tree \texttt{MMTk/ext/vm/jikes\-rvm}, in the class \texttt{org.jikes\-rvm.mm.mmtk.Scan\-ning}.  The methods we are interested in are \texttt{scan\-Ob\-ject(Tran\-si\-ti\-ve\-Clo\-su\-re, Ob\-ject\-Re\-fer\-ence)} and \texttt{spe\-cial\-iz\-ed\-Scan\-Ob\-ject(int, Tran\-si\-ti\-ve\-Clo\-su\-re, Ob\-ject\-Re\-fer\-en\-ce)}.
+
+In MMTk, each plan defines one or more \texttt{TransitiveClosure} operations.  Simple full-heap collectors like MarkSweep only define one \texttt{TransitiveClosure}, but complex plans like GenImmix or the RefCount plans define several.  MMTk allows the plan to request specialized scanning on a closure-by-closure basis, closures that are specialized call \texttt{specializedScanObject} while unspecialized ones call \texttt{scanObject}.  Specialization is covered in more detail below.
+
+In the absence of hand-inlined scanning, or if specialization is globally disabled, scanning reverts to the fallback method in \texttt{org.jikes\-rvm.mm.mm\-in\-ter\-fa\-ce.Spe\-cial\-iz\-ed\-Scan\-Me\-thod}.  This method can be regarded as the basic underlying mechanism, and is worth understanding in detail.
+
+\begin{lstlisting}[language=Java]
+RVMType type = ObjectModel.getObjectType(objectRef.toObject());
+    int[] offsets = type.getReferenceOffsets();
+\end{lstlisting}
+
+This code fetches the array of offsets that Jikes RVM uses to identify the pointer fields in the object.  This array is constructed by the classloader when a class is resolved.
+
+\begin{lstlisting}[language=Java]
+if (offsets != REFARRAY_OFFSET_ARRAY) {
+  for(int i=0; i < offsets.length; i++) {
+    trace.processEdge(objectRef, objectRef.toAddress().plus(offsets[i]));
+  }
+\end{lstlisting}
+
+One distinguished value (actually \spverb+null+) is used to identify arrays of reference objects, and this block of code scans scalar objects by tracing each of the fields at the offsets given by the offset array.
+\begin{lstlisting}[language=Java]
+} else {
+   for(int i=0; i < ObjectModel.getArrayLength(objectRef.toObject()); i++) {
+    trace.processEdge(objectRef, objectRef.toAddress().plus(i << LOG_BYTES_IN_ADDRESS));
+  }
+}
+\end{lstlisting}
+
+The other case is reference arrays, for which we fetch the array length and scan each of the elements.
+
+The internals of \spverb+trace.processEdge+ vary by collector and by collection type (e.g. nursery/full-heap in a generational collector), and the details need not concern us here.
+
+\end{subsection}
+
+\begin{subsection}{Hand Inlining}
+
+Hand inlining was introduced in February 2011, and uses a cute technique to encode 3 bits of metadata into the TIB pointer in an object's header.  The 7 most frequent object patterns are encoded into these bits, and then special-case code is written for each of them.
+
+Hand inlining produces an average-case speedup slightly better than specialization, but performs poorly on some benchmarks.  This is why we use it in combination with specialization.
+
+\end{subsection}
+
+\begin{subsection}{Specialized Scanning}
+
+Specialized Scanning was introduced in September 2007.  It speeds up GC by removing the process of fetching and interpreting the offset array that describes each object, by jumping directly to a hard-coded method for scanning objects with a particular pattern.
+
+The departure point from "standard" java into the specialized scanning method is \texttt{Spe\-cial\-iz\-ed\-Scan\-Me\-thod.in\-vo\-ke(...)}, which looks like this
+\begin{lstlisting}[language=Java]
+@SpecializedMethodInvoke
+@NoInline
+public static void invoke(int id, Object object, TransitiveClosure trace) {
+  /* By default we call a non-specialized fallback */
+  fallback(object, trace);
+}
+\end{lstlisting}
+
+The \spverb+@SpecializedMethodInvoke+ annotation signals to the compiler that it should dispatch to one of the specialized method slots in the TIB.
+
+Creation of specialized methods is handled by the class \texttt{org.jikes\-rvm.class\-loa\-der.Spe\-cial\-iz\-ed\-Me\-thod\-Ma\-na\-ger}.
+
+\end{subsection}
+
 \end{section}
