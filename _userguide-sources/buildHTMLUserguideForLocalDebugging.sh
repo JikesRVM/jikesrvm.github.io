@@ -24,7 +24,7 @@ htlatex $mainFile "html-website.cfg,html,3"
 rm *.sh
 rm README
 rm *.css
-rm *.log *.aux *.dvi *.4ct *.idv *.lg *.tmp *.xref *.out
+rm *.log *.aux *.dvi *.4ct *.idv *.lg *.tmp *.xref *.out *.synct* *.toc
 rm *.pdf
 rm *.tex
 rm *.cfg
