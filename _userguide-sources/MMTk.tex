@@ -13,7 +13,7 @@ Jikes RVM can be configured to employ various different allocation managers take
   \item separate spaces for code. These are designed to exclude performance problems that can occur on some architectures when code and data are mixed. See \href{http://dl.acm.org/citation.cfm?doid=1133956.1133980}{this paper} for the original motivation and experiments for a separate code space.
 \end{itemize}
 
-Virtual memory pages are lazily mapped into the RVM's memory image as they are needed.
+Virtual memory pages are lazily mapped into Jikes RVM's memory image as they are needed.
 
 The main class which is used to interface to the memory manager is called \spverb+Plan+. Each flavor of the manager is implemented by substituting a different implementation of this class. Most plans inherit from class \texttt{Stop\-The\-World\-GC} which ensures that all active mutator threads (i.e. ones which do not perform the job of reclaiming storage) are suspended before reclamation is commenced. The argument passed to \spverb+-X:gc:threads+ determines the number of parallel collector threads that will be used for collection.
 

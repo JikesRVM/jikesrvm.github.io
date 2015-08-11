@@ -117,7 +117,7 @@ The VM internally uses an OS-based locking implementation, augmented with suppor
 
 Acquiring a Monitor lock, or awaiting notification, may cause the calling \texttt{RVM\-Thread} to block. This prevents the calling thread from acknowledging handshakes until the blocking call returns. In some cases, this is desirable. For example:
 \begin{itemize}
-  \item In the implementation of handshakes, the code already takes special care to use the RVMThread state machine to notify other threads that the caller may block. As such, acquiring a lock or waiting for a notification is safe.
+  \item In the implementation of handshakes, the code already takes special care to use the \texttt{RVM\-Thread} state machine to notify other threads that the caller may block. As such, acquiring a lock or waiting for a notification is safe.
   \item If acquiring a lock that may only be held for a short, guaranteed-bounded length of time, the fact that the thread will ignore handshake requests while blocking is safe - the lock acquisition request will return in bounded time, allowing the thread to acknowledge any pending handshake requests.
 \end{itemize}
 

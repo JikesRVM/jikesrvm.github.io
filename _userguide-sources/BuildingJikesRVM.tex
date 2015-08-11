@@ -20,7 +20,7 @@ The build process also generates Java and C source code based on build time cons
 
 \end{subsection}
 
-\begin{subsection}{Bootstrapping the RVM}
+\begin{subsection}{Bootstrapping Jikes RVM}
 
 Jikes RVM compiles Java class files and produces arrays of code and data. To build itself Jikes RVM will execute on an existing Java Virtual Machine and compiles a copy of it's own class files into a boot image for the code and data using the boot image writer tool. The set of files compiled is called the \hyperref[sec:primordialclasslist]{Primordial Class List}. The boot image runner is a small C program that loads the boot image and transfers control flow into Jikes RVM.
 
@@ -155,7 +155,7 @@ host.name & The name of the host environment used for building Jikes RVM. The ho
 target.name & The name of the target environment for Jikes RVM. The name should match one of the files located in the \spverb+build/targets/+ directory minus the '.properties' extension. This should only be specified when cross compiling the Jikes RVM. See \hyperref[sec:crossplatformbuilding]{Cross-Platform Building} for a detailed description of cross compilation. & \$\{host.name\} \\
 config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM}. & None \\
 patch.name & An identifier for the current patch applied to the source tree. See \hyperref[sec:buildingpatchedversions]{Building Patched Versions} for a description of how this fits into the standard usage patterns of Jikes RVM. & ``\,'' \\
-com\-po\-nents.dir & The directory where Ant looks for external components when building the RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
+com\-po\-nents.dir & The directory where Ant looks for external components when building Jikes RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
 dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jikesrvm.\newline dir\}/dist \\
 build.dir & The directory where Ant stores the intermediate artifacts generated when building the Jikes RVM. & \$\{jikesrvm.\newline dir\}/tar\-get \\
 com\-po\-nents.\-cache.\-dir & The directory where Ant caches downloaded components.  If you explicitly download a component, place it in this directory. & (Undefined, forcing download) \\
@@ -197,13 +197,13 @@ If you wish to manually download components (for example you need to define a pr
 
 \end{subsection}
 
-\begin{subsection}{Building the RVM}
+\begin{subsection}{Building Jikes RVM}
 
 The next step in building Jikes RVM is to run the ant command \spverb+ant+ or \spverb+ant -Dconfig.name=...+. This should build a complete RVM runtime in the directory \spverb+${dist.dir}/${config.name}_${target.name}+. A complete list of documented targets can be listed by executing the command \spverb+ant -projecthelp+.
 
 \end{subsection}
 
-\begin{subsection}{Running the RVM}
+\begin{subsection}{Running Jikes RVM}
 
 Jikes RVM can be executed in a similar way to most Java Virtual Machines. The difference is that the command is \spverb+rvm+ and resides in the runtime directory (i.e. \spverb+${dist.dir}/${config.name}_${target.name}+). See \hyperref[cha:runningjikesrvm]{Running Jikes RVM} for a list of command line options.
 

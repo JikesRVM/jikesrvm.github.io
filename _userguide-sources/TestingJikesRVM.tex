@@ -17,9 +17,9 @@ If you are developing new unit tests, it may be helpful to run them on an existi
 
 See \hyperref[sec:externaltestresources]{External Test Resources} for details or downloading prerequisites for the functional tests. The tests are executed using an Ant build file and produce results that conform to the definition below. The results are aggregated and processed to produce a high level report defining the status of Jikes RVM.
 
-The testing framework was designed to support continuous and periodical execution of tests. A \textit{"test-run"} occurs every time the testing framework is invoked. Every \textit{"test-run"} will execute one or more \textit{"test-configuration"}s. A \textit{"test-configuration"} defines a particular build \textit{"configuration"} (See \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM} for details) combined with a set of parameters that are passed to the RVM during the execution of the tests. i.e. a particular \textit{"test-configuration"} may pass parameters such as \texttt{-X:aos:enable\_recompilation=false -X:aos:initial\_compiler=opt -X:irc:O1} to test the Level 1 Opt compiler optimizations.
+The testing framework was designed to support continuous and periodical execution of tests. A \textit{"test-run"} occurs every time the testing framework is invoked. Every \textit{"test-run"} will execute one or more \textit{"test-configuration"}s. A \textit{"test-configuration"} defines a particular build \textit{"configuration"} (See \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM} for details) combined with a set of parameters that are passed to Jikes RVM during the execution of the tests. i.e. a particular \textit{"test-configuration"} may pass parameters such as \texttt{-X:aos:enable\_recompilation=false -X:aos:initial\_compiler=opt -X:irc:O1} to test the Level 1 Opt compiler optimizations.
 
-Every \textit{"test-configuration"} will execute one or more \textit{"group"}s of tests. Every \textit{"group"} is defined by a Ant build.xml file in a separate sub-directory of \spverb+$RVM_ROOT/testing/tests+. Each \textit{"test"} has a number of input parameters such as the classname to execute, the parameters to pass to the RVM or to the program. The \textit{"test"} records a number of values such as execution time, exit code, result, standard output etc. and may also record a number of statistics if it is a performance test.
+Every \textit{"test-configuration"} will execute one or more \textit{"group"}s of tests. Every \textit{"group"} is defined by a Ant build.xml file in a separate sub-directory of \spverb+$RVM_ROOT/testing/tests+. Each \textit{"test"} has a number of input parameters such as the classname to execute, the parameters to pass to Jikes RVM or to the program. The \textit{"test"} records a number of values such as execution time, exit code, result, standard output etc. and may also record a number of statistics if it is a performance test.
 
 The project includes several different types of test runs and the description of each the test runs and their purpose is given in \hyperref[sec:testrundescriptions]{Test Run Descriptions}.
 
@@ -63,10 +63,10 @@ The property test.configs is a whitespace separated list of test-configuration "
 Property & Description & Default \\
 tests & The names of the test groups to execute. & None \\
 name & The unique identifier for test-configuration. & "" \\
-configuration & The name of the RVM build configuration to test. & \textless tag\textgreater  \\
-target & The name of the RVM build target. This can be used to trigger compilation of a profiled image & "main" \\
+configuration & The name of the Jikes RVM build configuration to test. & \textless tag\textgreater  \\
+target & The name of the Jikes RVM build target. This can be used to trigger compilation of a profiled image & "main" \\
 mode & The test mode. May modify the way test groups execute. See individual groups for details. & "" \\
-extra.rvm.args & Extra arguments that are passed to the RVM. These may be varied for different runs using the same image. & "" \\
+extra.rvm.args & Extra arguments that are passed to the Jikes RVM. These may be varied for different runs using the same image. & "" \\
 \end{tabular}
 \caption{Test run properties}
 \end{table}
