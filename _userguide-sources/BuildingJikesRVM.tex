@@ -1,32 +1,32 @@
 \setNextFileName{BuildingJikesRVM.html}
-\begin{section}{Building Jikes RVM}
-\label{sec:buildingjikesrvm}
+\begin{chapter}{Building Jikes RVM}
+\label{cha:buildingjikesrvm}
 
 This guide describes how to build Jikes RVM. The first section is an overview of the Jikes RVM build process and this is followed by your system requirements and a detailed description of the steps required to build Jikes RVM.
 
 Once you have things working, as described below, the \hyperref[sec:usingbuildit]{buildit script} will provide a fast and easy way to build the system.  We recommend you get things working as described below first, so you can be sure you've met the requisite dependencies etc.
 
-\begin{subsection}{Overview}
+\begin{section}{Overview}
 
-\begin{subsubsection}{Compiling the source code}
+\begin{subsection}{Compiling the source code}
 The majority of Jikes RVM is written in Java and will be compiled into class files just as with other Java applications. There is also a small portion of Jikes RVM that is written in C that must be compiled with a C compiler such as gcc.  Jikes RVM uses \href{https://ant.apache.org}{Ant} version 1.7.0 or later as the build tool that orchestrates the build process and executes the steps required in building Jikes RVM.
 
 Jikes RVM requires a complete install of ant, including the optional tasks. These are present if you download and install ant manually. Some Linux distributions have decided to break ant into multiple packages. So if you are installing on a platform such as Debian you may need to install another package such as 'ant-optional'.
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Generating source code}
+\begin{subsection}{Generating source code}
 
 The build process also generates Java and C source code based on build time constants such as the selected instruction architecture, garbage collectors and compilers. The generation of the source code occurs prior to the compilation phase.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Bootstrapping the RVM}
+\begin{subsection}{Bootstrapping the RVM}
 
 Jikes RVM compiles Java class files and produces arrays of code and data. To build itself Jikes RVM will execute on an existing Java Virtual Machine and compiles a copy of it's own class files into a boot image for the code and data using the boot image writer tool. The set of files compiled is called the \hyperref[sec:primordialclasslist]{Primordial Class List}. The boot image runner is a small C program that loads the boot image and transfers control flow into Jikes RVM.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Class libraries}
+\begin{subsection}{Class libraries}
 
 The Java class library is the mechanism by which Java programs communicate with the outside world. Jikes RVM has configurable class library support, the most mature of which is the the \href{http://www.gnu.org/software/classpath/}{GNU Classpath} class library.
 
@@ -34,13 +34,13 @@ For GNU Classpath, the developer can either specify a particular version of GNU 
 
 Previous releases of the Jikes RVM had support for the Apache Harmony class library. This is no longer developed or supported because Apache Harmony development \href{https://harmony.apache.org/}{was stopped}. Support for OpenJDK is planned, but not yet implemented.
 
-\end{subsubsection}
-
 \end{subsection}
 
-\begin{subsection}{Target Requirements}
+\end{section}
 
-\begin{subsubsection}{Architectures }
+\begin{section}{Target Requirements}
+
+\begin{subsection}{Architectures}
 The PowerPC (or ppc) and ia32 instruction set architectures are supported by Jikes RVM.
 
 Intel's Instruction Set Architectures (ISAs) get known by different names:
@@ -52,17 +52,18 @@ Intel's Instruction Set Architectures (ISAs) get known by different names:
 \end{itemize}
 
 Jikes RVM currently supports the IA-32 ISA and work on IA32-e is in progress. As IA-32e is backward compatible with IA-32, Jikes RVM can be built and run upon IA-32e processors. The IA-64 architecture supports IA-32 code through a compatibility mode or through emulation and Jikes RVM should run in this configuration. Native IA-64 is not supported.
-\end{subsubsection}
 
 On PowerPC, only big endian is supported.
 
-\begin{subsubsection}{Operating Systems}
+\end{subsection}
+
+\begin{subsection}{Operating Systems}
 Jikes RVM is capable of running on any operating system that is supported by the GNU Classpath library, low level library support is implemented and memory layout is defined. The low level library support includes interaction with the threading and signal libraries, memory management facilities and dynamic library loading services. The memory layout must also be known, as Jikes RVM will attempt to locate the boot image code and data at specific memory locations. These memory locations must not conflict with where the native compiler places it's code and data. Operating systems that are known to work include Linux and OS X. At one stage a port to win32 was completed but it was never integrated into the main Jikes RVM codebase. AIX was supported previously but support has been removed due to lack of demand. The same applies for support of Mac OS on PPC.
 
 Note: Current implementation of Jikes RVM implies that system native libraries (like GTK+) have been compiled with frame pointers. Most of Linux distribution have frame pointers enabled in most of the packages, but some explicitly use \spverb+-fomit-frame-pointer+ thus producing the library that can't be used with Jikes RVM.
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Support Matrix}
+\begin{subsection}{Support Matrix}
 The platform support matrix table details the targets that have historically been supported and the current status of the support. The target.name column is the identifier that Jikes RVM uses to identify this 
 target. ??? means that we don't have regression machines for this platform so the Jikes RVM team can't guarantee that the target works at a given point in time. We rely on the community to provide a Jikes RVM implementation on these platforms.
 
@@ -88,61 +89,61 @@ x86\textunderscore 64 is currently only supported using the legacy 32bit address
 
 Note that building on Windows is currently not supported. All previous attempts at building on Windows natively (i.e. without cygwin) used the Apache Harmony classlibrary whose development has been discontinued. Support for building with cygwin is not yet implemented.
 
-\end{subsubsection}
-
 \end{subsection}
 
-\begin{subsection}{Tool Requirements}
+\end{section}
 
-\begin{subsubsection}{Java Virtual Machine}
+\begin{section}{Tool Requirements}
+
+\begin{paragraph}{Java Virtual Machine}
 
 Jikes RVM requires an existing Java Virtual Machine that conforms to Java 6.0 such as Oracle JDK 1.6, OpenJDK/IcedTea 6 or IBM SDK 6.0. We also aim to support the Java 7.0-conformant ans Java 8.8-conformant versions of these virtual machines.
 
 Some Java Virtual Machines are unable to cope with compiling the Java class library so it is recommended that you install one of the above mentioned JVMs if they are not already installed on your system. The remaining build instructions assume that a suitable Java Virtual Machine is on your path. You can run \spverb+java -version+ to check you are using the correct JVM.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsubsection}{Ant}
+\begin{paragraph}{Ant}
 
 Ant version 1.7.0 or later is the tool required to orchestrate the build process. You can download and install the Ant tool from \href{http://ant.apache.org/}{its Apache homepage} if it is not already installed on your system. The remaining build instructions assume that \spverb+$ANT_HOME/bin+ is on your path and points to a full Ant installation (i.e. including the optional tasks). You can run \spverb+ant -version+ to check you are running the correct version of ant.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsubsection}{C compilers}
+\begin{paragraph}{C compilers}
 
 The Jikes RVM build assumes that the GNU Compiler Collection is present on the system. Most modern *nix environments satisfy this requirement. Clang should also work but is untested.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsubsection}{Bison}
+\begin{paragraph}{Bison}
 
 As part of the build process, Jikes RVM uses the bison tool which should be present on most modern *nix environments.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsubsection}{Perl}
+\begin{paragraph}{Perl}
 
 Perl is trivially used as part of the build process but this requirement may be removed in future releases of Jikes RVM. Perl is also used as part of the regression and performance testing framework.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsubsection}{Awk}
+\begin{paragraph}{Awk}
 
 GNU Awk is required as part of the regression and performance testing framework but is not required when building Jikes RVM.
 
-\end{subsubsection}
+\end{paragraph}
 
-\end{subsection}
+\end{section}
 
-\begin{subsubsection}{Extra tools recommended for Solaris}
+\begin{paragraph}{Extra tools recommended for Solaris}
 
 pkg-get will greatly simplify installing GNU packages on Solaris. Our patches require that GNU patch is picked up in preference to Sun's. You can create a symbolic link to \spverb+/usr/bin/gpatch+ from \spverb+/opt/csw/bin/patch+ and make sure \spverb+/opt/csw/bin+ is in your path before \spverb+/usr/bin+ in order to achieve this.
 
-\end{subsubsection}
+\end{paragraph}
 
-\begin{subsection}{Instructions}
+\begin{section}{Instructions}
 
-\begin{subsubsection}{Defining Ant properties}
+\begin{subsection}{Defining Ant properties}
 
 There are a number of ant properties that are used to control the build process of Jikes RVM. These properties may either be specified on the command line by \spverb+-Dproperty=variable+ or they may be specified in a file named \spverb+.ant.properties+ in the base directory of the jikesrvm source tree. The \spverb+.ant.properties+ file is a standard Java property file with each line containing a \spverb+property=variable+ and comments starting with a \spverb+#+ and finishing at the end of the line.
 
@@ -152,13 +153,13 @@ There are a number of ant properties that are used to control the build process 
 Property & Description & Default \\
 host.name & The name of the host environment used for building Jikes RVM. The host environment defines the paths to the tools used during the build, e.g. the path to the C compiler. The name should match one of the files located in the \spverb+build/hosts/+ directory minus the '.properties' extension. & None \\
 target.name & The name of the target environment for Jikes RVM. The name should match one of the files located in the \spverb+build/targets/+ directory minus the '.properties' extension. This should only be specified when cross compiling the Jikes RVM. See \hyperref[sec:crossplatformbuilding]{Cross-Platform Building} for a detailed description of cross compilation. & \$\{host.name\} \\
-config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section \hyperref[sec:configuringjikesrvm]{Configuring Jikes RVM}. & None \\
+config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM}. & None \\
 patch.name & An identifier for the current patch applied to the source tree. See \hyperref[sec:buildingpatchedversions]{Building Patched Versions} for a description of how this fits into the standard usage patterns of Jikes RVM. & ``\,'' \\
 com\-po\-nents.dir & The directory where Ant looks for external components when building the RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
 dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jikesrvm.\newline dir\}/dist \\
 build.dir & The directory where Ant stores the intermediate artifacts generated when building the Jikes RVM. & \$\{jikesrvm.\newline dir\}/tar\-get \\
 com\-po\-nents.\-cache.\-dir & The directory where Ant caches downloaded components.  If you explicitly download a component, place it in this directory. & (Undefined, forcing download) \\
-require.rvm-unit-tests & If set to \spverb+true+, run \hyperref[sec:testingjikesrvm]{unit tests} on the built Jikes RVM image. Use with care as it will significantly increase build times for configurations that are compiled using a non-optimizing compiler (see below). & (Undefined, tests are not run) \\
+require.rvm-unit-tests & If set to \spverb+true+, run \hyperref[cha:testingjikesrvm]{unit tests} on the built Jikes RVM image. Use with care as it will significantly increase build times for configurations that are compiled using a non-optimizing compiler (see below). & (Undefined, tests are not run) \\
 require.\newline checkstyle & Only useful if you want to \href{http://www.jikesrvm.org/Contributions/}{contribute} changes to the Jikes RVM. If set to true, run checkstyle during the build to check for violations of the Jikes RVM \hyperref[sec:codingstyle]{Coding Style} and \hyperref[sec:codingconventions]{Coding Conventions} for assertions. & (Undefined, no checks run) \\
 rvm.debug-symbols & If set to true, build the Jikes RVM with debug symbols for the bootloader code and the code in the bootimage. Note: this is not enabled by default because it causes build failures for configurations that build the bootimage with the optimizing compiler (see \href{https://xtenlang.atlassian.net/browse/RVM-1084}{RVM-1084}). & (Undefined, no symbols built) \\
 protect.config-files & Define this property if you do not want the build process to update configuration files when auto downloading components. & (Undefined) \\
@@ -170,11 +171,11 @@ At a minimum it is recommended that the user specify the \spverb+host.name+ prop
 
 The configuration files in \spverb+build/targets/+ and \spverb+build/hosts/+ are designed to work with a typical install but it may be necessary to overide specific properties. The easiest way to achieve this is to specify the properties to override in the \spverb+.ant.properties+ file.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Selecting a Configuration}
+\begin{subsection}{Selecting a Configuration}
 
-A configuration in terms of Jikes RVM is the combination of build time parameters and component selection used for a particular Jikes RVM image. The section \hyperref[sec:configuringjikesrvm]{Configuring Jikes RVM} section describes the details of how to define a configuration. Typical configuration names include:
+A configuration in terms of Jikes RVM is the combination of build time parameters and component selection used for a particular Jikes RVM image. The section \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM} section describes the details of how to define a configuration. Typical configuration names include:
 \begin{itemize}
   \item \textbf{production}: This configuration defines a fully optimized version of the Jikes RVM.
   \item \textbf{development}: This configuration is the same as production but with debug options enabled. The debug options perform internal verification of Jikes RVM which means that it builds and executes more slowly.
@@ -184,9 +185,9 @@ A configuration in terms of Jikes RVM is the combination of build time parameter
 
 If a user is working on a particular configuration most of the time they may specify the config.name ant property in \spverb+.ant.properties+ otherwise it should be passed in on the command line \spverb+-Dconfig.name=...+.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Fetching Dependencies}
+\begin{subsection}{Fetching Dependencies}
 %TODO link for GCSpy
 %TODO link using gcspy page
 
@@ -196,20 +197,28 @@ To just download and install the GNU Classpath class library you can run the com
 
 If you wish to manually download components (for example you need to define a proxy, so ant is not correctly downloading), you can do so and identify the directory containing the downloads using \spverb+-Dcomponents.cache.dir=<download directory>+ when you build with ant.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Building the RVM}
+\begin{subsection}{Building the RVM}
 
 The next step in building Jikes RVM is to run the ant command \spverb+ant+ or \spverb+ant -Dconfig.name=...+. This should build a complete RVM runtime in the directory \spverb+${dist.dir}/${config.name}_${target.name}+. A complete list of documented targets can be listed by executing the command \spverb+ant -projecthelp+.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Running the RVM}
+\begin{subsection}{Running the RVM}
 
-Jikes RVM can be executed in a similar way to most Java Virtual Machines. The difference is that the command is \spverb+rvm+ and resides in the runtime directory (i.e. \spverb+${dist.dir}/${config.name}_${target.name}+). See \hyperref[sec:runningjikesrvm]{Running Jikes RVM} for a list of command line options.
-
-\end{subsubsection}
+Jikes RVM can be executed in a similar way to most Java Virtual Machines. The difference is that the command is \spverb+rvm+ and resides in the runtime directory (i.e. \spverb+${dist.dir}/${config.name}_${target.name}+). See \hyperref[cha:runningjikesrvm]{Running Jikes RVM} for a list of command line options.
 
 \end{subsection}
 
 \end{section}
+
+\input{BuildingPatchedVersions}
+
+\input{CrossPlatformBuilding}
+
+\input{PrimordialClassList}
+
+\input{UsingBuildit}
+
+\end{chapter}

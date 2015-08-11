@@ -1,6 +1,6 @@
 \setNextFileName{RunningJikesRVM.html}
-\begin{section}{Running Jikes RVM}
-\label{sec:runningjikesrvm}
+\begin{chapter}{Running Jikes RVM}
+\label{cha:runningjikesrvm}
 
 Jikes\textsuperscript{TM} RVM executes Java virtual machine byte code instructions from \spverb+.class+ files. It does \textit{not} compile Java\textsuperscript{TM} source code. Therefore, you must compile all Java source files into bytecode using a Java compiler.
 
@@ -19,7 +19,7 @@ rvm [rvm options...] class [args...]
 
 You may choose from a myriad of options for the rvm command-line. Options fall into two categories: \textit{standard} and \textit{non-standard}. Non-standard options are preceded by "-X:" and differ between virtual machines (e.g. Jikes RVM's options may not be available in HotSpot and vice-versa).
 
-\begin{subsection}{Standard Command-Line Options}
+\begin{section}{Standard Command-Line Options}
 
 We currently support a subset of the JDK 1.5 standard options. Below is a list of all options and their descriptions. Unless otherwise noted each option is supported in Jikes RVM.
 
@@ -40,15 +40,15 @@ Option & Description \\
 \end{tabular}
 \end{table}
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Non-Standard Command-Line Options}
+\begin{section}{Non-Standard Command-Line Options}
 
 It is generally the case that the non-standard options may change from one release to another. However, the core and memory non-standard options that are listed here don't change often.
 
 The bulk of the non-standard options are grouped according to the subsystem that they control. See below for details.
 
-\begin{subsubsection}{Core Non-Standard Command-Line Options}
+\begin{subsection}{Core Non-Standard Command-Line Options}
 
 \begin{table}[H]
 \begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
@@ -64,9 +64,9 @@ Option & Description \\
 \end{tabular}
 \end{table}
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Memory Non-Standard Command-Line Options}
+\begin{subsection}{Memory Non-Standard Command-Line Options}
 
 \begin{table}[h]
 \begin{tabular}{p{0.5\textwidth}p{0.5\textwidth}}
@@ -76,9 +76,9 @@ Option & Description \\
 \end{tabular}
 \end{table}
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Subsystem Non-Standard Command-Line Options}
+\begin{subsection}{Subsystem Non-Standard Command-Line Options}
 
 The other non-standard command line options are not listed here because they will change from time to time. To get a current list of these options, you can do the following:
 \begin{itemize}
@@ -96,11 +96,11 @@ rvm -X:opt:printOptions
     \end{lstlisting}
 \end{itemize}
 
-\end{subsubsection}
-
 \end{subsection}
 
-\begin{subsection}{Running Jikes RVM with Valgrind}
+\end{section}
+
+\begin{section}{Running Jikes RVM with Valgrind}
 
 Jikes RVM can run under valgrind, as of 29-Aug-2007. Applying a patch of this revision to release 3.2.1 should also produce a working system.  Versions of valgrind CVS prior to release 3.0 are also known to have worked. The current hg tip should also work with Valgrind.
 
@@ -115,6 +115,6 @@ This will insert the invocation of valgrind at the appropriate place for it to o
 
 Under some circumstances, valgrind will load shared object libraries or allocate memory in areas of the heap that conflict with Jikes RVM.  Using the flag \spverb+-X:gc:eagerMmapSpaces=true+ will prevent and/or detect this.  If this flag reveals errors while mapping the spaces, you will need to rearrange the heap to avoid the addresses that Valgrind is occupying.
 
-\end{subsection}
-
 \end{section}
+
+\end{chapter}

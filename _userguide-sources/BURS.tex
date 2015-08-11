@@ -1,6 +1,6 @@
 \setNextFileName{BURS.html}
-\begin{section}{BURS}
-\label{sec:burs}
+\begin{subsection}{BURS}
+\label{subsec:burs}
 
 The optimizing compiler uses the Bottom-Up Rewrite System (BURS) for instruction selection. BURS is essentially a tree pattern matching system derived from \href{https://github.com/drh/iburg}{Iburg} by David R. Hanson. (See "Engineering a Simple, Efficient Code-Generator Generator" by Fraser, Hanson, and Proebsting, LOPLAS 1(3), Sept. 1992, doi: \href{http://dx.doi.org/10.1145/151640.151642}{10.1145/151640.151642}). The instruction selection rules for each architecture are specified in an architecture-specific file located in \texttt{\$RVM\_ROOT/rvm/src-generated/opt-burs/\$\{arch\}}, where \spverb+${arch}+ is the specific instruction architecture of interest. The rules are used in generating a parser, which transforms the IR.
 
@@ -58,11 +58,9 @@ The rules file is used to generate a file called ir.brg, which, in turn, is used
 
 For more information on helper functions look at \spverb+BURS_Helpers.java+. For more information on the BURS algorithm see \spverb+BURS.java+.
 
-\begin{subsection}{Future directions}
+\begin{paragraph}{Future directions}
 
-Whilst jburg allows us to do good instruction selection there are a number of areas where it is lacking:
-
-\begin{subsubsection}{Vector operations}
+Whilst jburg allows us to do good instruction selection there are a number of areas where it is lacking, e.g. vector operations.
 
 We can't write productions for vector operations unless we match an entire tree of operations. For example, it would be nice to write a rule of the form:
 
@@ -77,8 +75,6 @@ r: ADD(r,r)
 r: ADD(r,r)
 \end{lstlisting}
 
-\end{subsubsection}
+\end{paragraph}
 
 \end{subsection}
-
-\end{section}

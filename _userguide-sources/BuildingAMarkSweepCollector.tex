@@ -1,10 +1,10 @@
 \setNextFileName{BuildingAMarkSweepCollector.html}
-\begin{section}{Building a Mark-sweep Collector}
-\label{sec:buildingamarksweepcollector}
+\begin{chapter}{Building a Mark-sweep Collector}
+\label{cha:buildingamarksweepcollector}
 
 We will now modify the \spverb+Tutorial+ collector to perform allocation and collection according to a mark-sweep policy. First we will change the allocation from bump-allocation to free-list allocation (but still no collector whatsoever), and then we will add a mark-sweep collection policy, yielding a complete mark-sweep collector.
 
-\begin{subsection}{Free-list Allocation}
+\begin{section}{Free-list Allocation}
 
 This step will change your simple collector from using a bump pointer to a free list (but still without any garbage collection).
 
@@ -44,9 +44,9 @@ if (allocator == Tutorial.ALLOC_DEFAULT) {
 
 With these changes, \spverb+Tutorial+ should now work, just as it did before, only exercising a free list (mark-sweep) allocator rather than a bump pointer (immortal) allocator. Create a \spverb+BaseBaseTutorial+ build, and test your system to ensure it performs just as it did before. You may notice that its memory is exhausted slightly earlier because the free list allocator is slightly less efficient in space utilization than the bump pointer allocator.
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Mark-Sweep Collection}
+\begin{section}{Mark-Sweep Collection}
 
 The next change required is to perform mark-and-sweep collection whenever the heap is exhausted. The \spverb+poll()+ method of a plan is called at appropriate intervals by other MMTk components to ask the plan whether a collection is required.
 \begin{enumerate}
@@ -187,9 +187,9 @@ super.collectionPhase(phaseId, primary);
 
 With these changes, \spverb+Tutorial+ should now work with both mark-sweep allocation \textit{and} collection. Create a \spverb+BaseBaseTutorial+ build, and test your system to ensure it performs just as it did before. You can observe the effect of garbage collection as the program runs by adding \spverb+-X:gc:verbose=1+ to your command line as the first argument after \spverb+rvm+. If you run a very simple program (such as \spverb+HelloWorld+), you might not observe any garbage collection. In that case, try running a larger program such as a DaCapo benchmark. You may also observe that the output from \spverb+-X:gc:verbose=1+ indicates that the heap is growing. Dynamic heap resizing is normal default behavior for a JVM. You can override this by providing minimum (\spverb+-Xms+) and maximum (\spverb+-Xmx+) heap sizes (these are standard arguments respected by all JVMs. The heap size should be specified in bytes as an integer and a unit (K, M, G), for example: \spverb+-Xms20M -Xmx20M+.
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Optimized Mark-sweep Collection}
+\begin{section}{Optimized Mark-sweep Collection}
 
 MMTk has a unique capacity to allow specialization of the performance-critical scanning loop. This is particularly valuable in collectors which have more than one mode of collection (such as in a generational collector), so each of the collection paths is explicitly specialized at build time, removing conditionals from the hot portion of the tracing loop at the core of the collector. Enabling this involves just two small steps:
 \begin{enumerate}
@@ -220,6 +220,6 @@ public TutorialTraceLocal(Trace trace) {
     \end{enumerate}
 \end{enumerate}
 
-\end{subsection}
-
 \end{section}
+
+\end{chapter}

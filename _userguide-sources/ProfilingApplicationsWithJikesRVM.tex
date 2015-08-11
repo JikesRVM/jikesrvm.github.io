@@ -1,6 +1,6 @@
 \setNextFileName{ProfilingApplicationsWithJikesRVM.html}
-\begin{section}{Profiling Applications with Jikes RVM}
-\label{sec:profilingapplicationswithjikesrvm}
+\begin{chapter}{Profiling Applications with Jikes RVM}
+\label{cha:profilingapplicationswithjikesrvm}
 
 The Jikes RVM adaptive system can also be used as a tool for gathering profile data to find application/VM hotspots. In particular, the same low-overhead time-based sampling mechanism that is used to drive recompilation decisions can also be used to produce an aggregate profile of the execution of an application. Here's how.
 
@@ -14,13 +14,13 @@ The sampled methods represent compiled versions of methods, so as methods are re
 
 In addition to the sampling-based mechanisms, the baseline compiler can inject code to gather branch probabilites on all executed conditional branches. This profiling is enabled by default in adaptive configurations of Jikes RVM and can be enabled via the command line in non-adaptive configurations (\spverb+-X:base:edge_counters=true+). In an adaptive configuration, use \newline \spverb+-X:aos:final_report_level=2+ to cause the edge counter data to be dumped to a file. In non-adaptive configurations, enabling edge counters implies that the file should be generated (\spverb+-X:base:edge_counters=true+ is sufficient). The default name of the file is EdgeCounters, which can be changed with \newline \spverb+-X:base:edge_counter_file=<file_name>+. Note that the profiling is only injected in baseline compiled code, so in a normal adaptive configuration, the gathered probabilities only represent a subset of program execution (branches in opt-compiled code are not profiled). Note that unless the bootimage is (a) baseline compiled and (b) edge counters were enabled at bootimage writing time, edge counter data will not be gathered for bootimage code.
 
-\begin{subsection}{Instrumented Event Counters}
+\begin{section}{Instrumented Event Counters}
 
 This section describes how the Jikes RVM optimizing compiler can be used to insert counters in the optimized code to count the frequency of specific events. Infrastructure for counting events is in place that hides many of the implementation details of the counters, so that (hopefully) adding new code to count events should be easy. All of the instrumentation phases described below require an adaptive boot image (any one should work). The code regarding instrumentation lives in the org.jikesrvm.aos package.
 
 To instrument all dynamically compiled code, use the following command line arguments to force all dynamically compiled methods to be compiled by the optimizing compiler: \texttt{-X:aos:enable\_recompilation=false -X:aos:initial\_compiler=opt}
 
-\begin{subsubsection}{Existing Instrumentation Phases}
+\begin{subsection}{Existing Instrumentation Phases}
 
 There are several existing instrumentation phases that can be enabled by giving the adaptive optimization system command line arguments. These counters are not synchronized (as discussed later), so they should not be considered precise.
 
@@ -47,11 +47,11 @@ NOTE: Currently the counters are inserted at the end of HIR, so the counts \text
 
 For an example, see \spverb+Inliner.java+. Look for the code guarded by the flag \spverb+COUNT_FAILED_METHOD_GUARDS+. Enabled by \texttt{-X:aos:in\-sert\_de\-bugging\_coun\-ters=true}
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Writing new instrumentation phases}
+\begin{subsection}{Writing new instrumentation phases}
 
-This subsection describes the event counting infrastructure. It is not a step-by-step for writing new phases, but instead is a description of the main ideas of the counter infrastructure. This description, in combination with the above examples, should be enough to allow new users to write new instrumentation phases.
+This section describes the event counting infrastructure. It is not a step-by-step for writing new phases, but instead is a description of the main ideas of the counter infrastructure. This description, in combination with the above examples, should be enough to allow new users to write new instrumentation phases.
 
 \textbf{Counter Managers:} Counters are created and inserted into the code using the \texttt{Instru\-men\-ted\-Event\-Coun\-ter\-Ma\-na\-ger} interface. The purpose of the counter manager interface is to abstract away the implementation details of the counters, making instrumentation phases simpler and allowing the counter implementation to be changed easily (new counter managers can be used without changing any of the instrumentation phases). Currently there exists only one counter manager, \texttt{Coun\-ter\-Array\-Ma\-na\-ger}, which implements unsynchronized counters. When instrumentation options are turned on in the adaptive system, \spverb+Instrumentation.boot()+ creates an instance of a \texttt{Coun\-ter\-Array\-Ma\-na\-ger}.
 
@@ -62,8 +62,8 @@ Depending on what you are counting, there may be one data object for the whole p
 
 \textbf{Lower Instrumentation Phase:} This phase converts the high level "count event" instruction into the actual counter code by using the counter manager. It currently occurs at the end of LIR, so instrumentation can not be inserted using this mechanism after LIR. This phase does not need to be modified if you add a new phase, except that the \spverb+shouldPerform()+ method needs to have your instrumentation listed, so this phase is run when your instrumentation is turned on.
 
-\end{subsubsection}
-
 \end{subsection}
 
 \end{section}
+
+\end{chapter}

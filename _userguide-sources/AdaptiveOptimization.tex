@@ -1,6 +1,7 @@
+% TODO rename to adaptive optimization system
 \setNextFileName{AdaptiveOptimization.html}
-\begin{section}{Adaptive Optimization}
-\label{sec:adaptiveoptimization}
+\begin{chapter}{Adaptive Optimization}
+\label{cha:adaptiveoptimization}
 
 A comprehensive discussion of the design and implementation of the original Jikes RVM adaptive optimization system is given in the OOPSLA 2000 paper by Arnold, Fink, Grove, Hind and Sweeney. A number of aspects of the system have been changed since 2000, so a better resource is a technical report \href{http://domino.research.ibm.com/library/cyberdig.nsf/1e4115aea78b6e7c85256b360066f0d4/30c2b5bb5352443885256f550066b5c1%21OpenDocument}{Nov. 2004 technical report} that describes the architecture and implementation in some detail. This section of the userguide is based on section 5 of the 2004 technical report.
 
@@ -8,7 +9,7 @@ The implementation of the Jikes RVM adaptive optimization system uses a number o
 
 The adaptive optimization system performs two primary tasks: selective optimization and profile-directed inlining.
 
-\begin{subsection}{Selective Optimization}
+\begin{paragraph}{Selective Optimization}
 
 The goal of selective optimization is to identify regions of code in which the application spends significant execution time (often called ``hot spots''), determine if overall application performance is likely to be improved by further optimizing one or more hot spots, and if so to invoke the optimizing compiler and install the resulting optimized code in the virtual machine.
 
@@ -26,9 +27,9 @@ Later, significant algorithmic improvements in key data structures and additiona
 controller reduced AOS overhead by two orders of magnitude.  These overhead reductions obviate the need to filter events passed
 to the controller.  This resulted in a more effective system with fewer parameters to tune and a sounder theoretical basis.  In general, as we gained experience with the adaptive system implementation, we strove to reduce the number of tuning  parameters.  We believe that the closer the implementation matches the basic theoretical cost-benefit model, the more likely it will perform well and make reasonable and understandable decisions.
 
-\end{subsection}
+\end{paragraph}
 
-\begin{subsection}{Profile-Directed Inlining}
+\begin{paragraph}{Profile-Directed Inlining}
 
 Profile-directed inlining attempts to identify frequently traversed call graph edges, which represent caller-callee relationships, and determine whether it is beneficial to recompile the caller methods
 to allow inlining of the callee methods. In Jikes RVM, profile-directed inlining augments a number of static
@@ -39,6 +40,19 @@ The listener then unregisters itself (stops taking samples) and wakes an organiz
 
 The system currently used is based on Arnold \& Grove's CGO 2005 paper. More details of the sampling scheme and the inlining oracle can be found there, or in the source code.
 
-\end{subsection}
+\end{paragraph}
 
-\end{section}
+\input{AOSController}
+
+\input{Cost-Benefit-Model}
+
+\input{JikesRVMsCompilers}
+
+\input{LifecycleOfACompiledMethod}
+
+\input{LoggingAndDebugging}
+
+%TODO rename this to threading and yieldpoints
+\input{ThreadingAndYielding}
+
+\end{chapter}

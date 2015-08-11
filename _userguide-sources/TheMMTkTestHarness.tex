@@ -1,16 +1,16 @@
 \setNextFileName{TheMMTkTestHarness.html}
-\begin{section}{The MMTk Test Harness}
-\label{sec:themmtktestharness}
+\begin{chapter}{The MMTk Test Harness}
+\label{cha:themmtktestharness}
 
-\begin{subsection}{Overview}
+\begin{section}{Overview}
 
 The MMTk harness is a debugging tool. It allows you to run MMTk with a simple client - a simple Java-like scripting language - which can explicitly allocate objects, create and delete references, etc. This allows MMTk to be run and debugged stand-alone, without the entire VM, greatly simplifying initial debugging and reducing the edit-debug turnaround time. This is all accessible through the command line or an IDE such as eclipse.
 
 The harness can be run standalone or via Eclipse (or other IDE).
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Standalone}
+\begin{section}{Standalone}
 
 \begin{lstlisting}
 ant mmtk-harness
@@ -25,9 +25,9 @@ bin/test-mmtk [options...]
 
 This script prints a PASS/FAIL line as it goes, nd puts detailed output in results/mmtk.
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{In Eclipse}
+\begin{section}{In Eclipse}
 
 \begin{lstlisting}
 bin/buildit localhost --mmtk-eclipse
@@ -71,9 +71,9 @@ Click 'Apply' and then 'Run' to test the configuration.  Eclipse will prompt for
 
 You can configure eclipse to display vmmagic values (Address/ObjectReference/etc) using their toString method through the Eclipse \textrightarrow\ Preferences... \textrightarrow\ Java \textrightarrow\ Debug \textrightarrow\ Detail Formatters menu. The simplest option is to check the box to use toString 'As the label for all variables'.
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Test harness options}
+\begin{section}{Test harness options}
 
 Options are passed to the test harness as 'keyword=value' pairs.  The standard MMTk options that are available through JikesRVM are accepted (leave off the "-X:gc:"), as well as the following harness-specific options:
 
@@ -124,9 +124,9 @@ timeout & Abort collection if a GC takes longer than this value (seconds).  Defa
 \end{longtable}
 \end{center}
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Scripts}
+\begin{section}{Scripts}
 
 The \spverb+MMTk/harness/test-scripts+ directory contains several test scripts.
 
@@ -149,11 +149,11 @@ SpreadAlloc16 & Concurrent free-list allocator test & A multithreaded version of
 \end{tabular}
 \end{table}
 
-\end{subsection}
+\end{section}
 
-\begin{subsection}{Scripting language}
+\begin{section}{Scripting language}
 
-\begin{subsubsection}{Basics}
+\begin{subsection}{Basics}
 
 The language has three types: integer, object and user-defined. The object type behaves essentially like a double array of pointers and integers (odd, I know, but the scripting language is basically concerned with filling up the heap with objects of a certain size and reachability).  User-defined types are like Java objects without methods, 'C' structs, Pascal record types etc.
 
@@ -180,9 +180,9 @@ At this stage, fields can only be dereferenced to one level, eg \spverb+l.next.n
 Object fields are referenced using syntax like \spverb+tmp.int[5]+ or \spverb+tmp.object[i*3]+,
 ie like a struct of arrays of the appropriate types.
 
-\end{subsubsection}
+\end{subsection}
 
-\begin{subsubsection}{Syntax}
+\begin{subsection}{Syntax}
 
 \begin{lstlisting}
 script ::= (method|type)...
@@ -229,16 +229,16 @@ binop ::= "+" | "-" | "*" | "/" | "%" | "&&" | "||" | "==" | "!="
 unop ::= "!" | "-"
 \end{lstlisting}
 
-\end{subsubsection}
-
 \end{subsection}
 
-\begin{subsection}{MMTk Unit Tests}
+\end{section}
+
+\begin{section}{MMTk Unit Tests}
 
 There is a small set of unit tests available for MMTk, using the harness as scaffolding.  These tests can be run in the standard test infrastructure using the 'mmtk-unit-tests' test set, or the shell script 'bin/unit-test-mmtk'.  Possibly more usefully, they can be run from Eclipse.
 
 To run the unit tests in Eclipse, build the mmtk harness project (see above), and add the directory \spverb+testing/tests/mmtk/src+ to your build path (navigate to the directory in the package explorer pane in eclipse, right-click \textrightarrow\ build-path \textrightarrow\ Use as Source Folder).  Either open one of the test classes, or highlight it in the package explorer and press the 'run' button.
 
-\end{subsection}
-
 \end{section}
+
+\end{chapter}
