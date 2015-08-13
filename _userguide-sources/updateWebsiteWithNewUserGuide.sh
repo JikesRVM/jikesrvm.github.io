@@ -35,7 +35,7 @@ rm README
 mv $mainFile $websiteFile
 
 # Generate user guide
-htlatex $websiteFile "html-website.cfg,html,3"
+htlatex $websiteFile "html-website.cfg,xhtml,charset=utf8,3" " -cunihtf -utf8" " -cvalidate"
 
 # Add Jekyll frontmatter
 for htmlFile in *.html

@@ -50,9 +50,9 @@ we call MMTk's \texttt{postAlloc} method to perform initialization that can only
 
 \begin{subsection}{Compiler integration}
 
-The \spverb+allocateScalar+ method discussed above is only actually called from one place, the method \texttt{re\-sol\-ved\-New\-Sca\-lar(int ...)} in the class \texttt{org.jikes\-rvm.run\-ti\-me.Run\-ti\-me\-En\-try\-points}.  This class provides methods that are accessed directly by the compilers, via fields in the \texttt{org.jikes\-rvm.run\-ti\-me.En\-try\-points} class.  The 'resolved' part of the method name indicates that the class of object being allocated is resolved at compile time (recall that the Java Language Spec requires that classes are only loaded, resolved etc when they are needed - sometimes it's necessary to compile code that performs classloading and then allocate the object).
+The \spverb+allocateScalar+ method discussed above is only actually called from one place, the method \texttt{re\-sol\-ved\-New\-Sca\-lar(int ...)} in the class \texttt{org.jikes\-rvm.run\-ti\-me.Run\-ti\-me\-En\-try\-points}. This class provides methods that are accessed directly by the compilers, via fields in the \texttt{org.jikes\-rvm.run\-ti\-me.En\-try\-points} class. The 'resolved' part of the method name indicates that the class of object being allocated is resolved at compile time (recall that the Java Language Spec requires that classes are only loaded, resolved etc when they are needed - sometimes it's necessary to compile code that performs classloading and then allocate the object).
 
-\spverb+RuntimeEntrypoints+ also contains an overload, \texttt{re\-sol\-ved\-New\-Sca\-lar(RVM\-Class)}, that is used by the reflection API to allocate objects.  It's instructive to look at this method, as it performs essentially the same operations as the compiler when compiling the call to \texttt{re\-sol\-ved\-New\-Sca\-lar(int...)}.
+\spverb+RuntimeEntrypoints+ also contains an overload, \texttt{re\-sol\-ved\-New\-Sca\-lar(RVM\-Class)}, that is used by the reflection API to allocate objects. It's instructive to look at this method, as it performs essentially the same operations as the compiler when compiling the call to \texttt{re\-sol\-ved\-New\-Sca\-lar(int...)}.
 
 Working backwards from this point requires delving into the individual compilers.
 
@@ -66,7 +66,7 @@ Similar code exists in the PPC baseline compiler.
 
 \begin{subsubsection}{Optimizing Compiler}
 
-The optimizing compiler is paradoxically somewhat simpler than the baseline compiler, in that injection of the call to the entrypoint is done in an architecture independent level of compiler IR.  (An overview of the JikesRVM optimizing compiler can be found in the paper \href{http://suif.stanford.edu/~jwhaley/papers/javagrande99.pdf}{The Jalapeño Dynamic Optimizing Compiler for Java}).
+The optimizing compiler is paradoxically somewhat simpler than the baseline compiler, in that injection of the call to the entrypoint is done in an architecture independent level of compiler IR.  (An overview of the Jikes RVM optimizing compiler can be found in the paper \href{http://suif.stanford.edu/~jwhaley/papers/javagrande99.pdf}{The Jalape\~no Dynamic Optimizing Compiler for Java}).
 
 In HIR (the high-level Intermediate Representation), allocation is expressed as a 'new' opcode.  During the translation from HIR to LIR (Low-level IR), this and other opcodes are translated into instructions by the class \texttt{org.jikes\-rvm.com\-pi\-lers.opt.hir2lir.Ex\-pand\-Run\-time\-Ser\-vices}.  The method \texttt{per\-form(IR)} performs this translation, selecting particular operations via a large switch statement.  The \spverb+NEW_opcode+ case performs the task we're interested in, doing essentially the same job as the baseline compiler, but generating IR rather than machine instructions.  The compiler generates a 'call' operation, and then (if the compilation policy decides it's required) inlines it.
 
