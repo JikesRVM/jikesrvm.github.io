@@ -16,6 +16,7 @@ frontmatterFile="jekyll-frontmatter"
 tmpFile="cat-tmp-html"
 sedTmpFile="sed-tmp-html"
 sedTmpFileImage="sed-tmp-html-image"
+sedTestFile="sed-test-file"
 
 # Copy files to build dir
 rm -rf $tmpDir
@@ -35,7 +36,7 @@ rm README
 mv $mainFile $websiteFile
 
 # Generate user guide
-htlatex $websiteFile "html-website.cfg,xhtml,charset=utf8,3" " -cunihtf -utf8" " -cvalidate"
+htlatex $websiteFile "html-website.cfg,xhtml,charset=utf8,2" " -cunihtf -utf8" " -cvalidate"
 
 # Add Jekyll frontmatter
 for htmlFile in *.html
@@ -44,8 +45,8 @@ do
   # Note: directory must be manually inserted
   # Note: : is excluded to make sure that we only match relative links,
   #  i.e. href="/something/bla.html" and not something like href="http://example.com"
-  sed 's|href=\"\([^:]*\)\.html#|href=\"/userguide-wip/\1\/index.html#|g' $tmpFile > $sedTmpFile
-  sed 's|src=\"\(.*\)\.png|src=\"/userguide-wip/\1\.png|g' $sedTmpFile > $sedTmpFileImage
+  sed 's|href=\"\([^:]*\)\.html#|href=\"/UserGuide/\1\/index.html#|g' $tmpFile > $sedTmpFile
+  sed 's|src=\"\(.*\)\.png|src=\"/UserGuide/\1\.png|g' $sedTmpFile > $sedTmpFileImage
   mv $sedTmpFileImage $htmlFile
 done
 
@@ -56,16 +57,21 @@ cp index.css ../../css/
 # Remove output that belongs somewhere else
 rm *.css
 # Remove temporary tex files
-rm *.log *.aux *.dvi *.4ct *.idv *.lg *.tmp *.xref *.out
+rm *.log *.aux *.dvi *.4ct *.idv *.lg *.tmp *.xref *.out *.toc *.syncte* *.4tc
 # Remove output files not intended for website
 rm *.pdf
 # Remove source files
-rm *.tex
+rm *.tex*
 rm *.cfg
 rm $frontmatterFile
+
+rm $tmpFile
+rm $frontmatterFile
+rm $sedTmpFile
+rm $sedTestFile
 
 # Update 
 cd ..
 # Note directory is hardcoded because we're hardcoding it into the sed expression above
-rm -rf ../userguide-wip
-mv $tmpDir ../userguide-wip
+rm -rf ../UserGuide/
+mv $tmpDir ../UserGuide/

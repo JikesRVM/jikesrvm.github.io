@@ -17,7 +17,7 @@ cp ../css/custom.css $buildDir
 cd $buildDir
 
 # Generate user guide
-htlatex $mainFile "html-website.cfg,xhtml,charset=utf8,3" " -cunihtf -utf8" " -cvalidate"
+htlatex $mainFile "html-website.cfg,xhtml,charset=utf8,2" " -cunihtf -utf8" " -cvalidate"
 
 # Clean unneeded files. That's not really necessary for debugging but
 # it makes it easier to recognize the current directory.
