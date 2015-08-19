@@ -17,9 +17,7 @@ The [OpenJDK](http://openjdk.dev.java.net/) is the open source JVM and class lib
 
 ## Harmony
 
-The [Apache Harmony](http://harmony.apache.org/) project was trying to create a world class, certified implementation of the Java Platform Standard Edition. It has reached its end of life and has been moved to the [Apache Attic](http://attic.apache.org/).
-
-The project was creating an open source class library that could be used for closed and open source JVMs. The Apache Harmony project released most code under the [Apache License](http://harmony.apache.org/license.html).
+The [Apache Harmony](http://harmony.apache.org/) project was trying to create a world class, certified implementation of the Java Platform Standard Edition. The Apache Harmony project has reached its end of life and has been moved to the [Apache Attic](http://attic.apache.org/). The Apache Harmony project released most code under the [Apache License](http://harmony.apache.org/license.html). Due to its non-copyleft license, the implementation was suitable for use in both closed and open source JVMs.
 
 # JVMs
 
@@ -27,7 +25,7 @@ Note that almost all JVMs mentioned here are licensed under the GPL. Because the
 
 ## Maxine Research VM
 
-[Maxine](http://kenai.com/projects/maxine) is a meta-circular JVM with a strong focus an modularity. It is being developed at Oracle Labs. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the Maxine Inspector.
+[Maxine](http://kenai.com/projects/maxine) is a meta-circular JVM with a strong focus an modularity. It was developed at Oracle Labs. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the Maxine Inspector.
 
 ## Metacircular Research Platform
 
@@ -45,10 +43,6 @@ The [CACAO JVM](http://www.complang.tuwien.ac.at/cacaojvm/) is a JVM from the [C
 
 [Jato](http://www.jatovm.org/) is a JIT-only JVM.
 
-## Moxie
-
-[Moxie](http://moxie.sourceforge.net/) describes itself via the following. "The Moxie project will create an open source platform for developing product-quality JVMs and an environment for JVM innovation. Our goal is to build the most innovation-friendly JVM development platform to date and from it, the most innovative product-quality JVMs. A product-quality JVM has outstanding performance, scalability and reliability. The development philosophy of Moxie is to leverage its openness to draw on the most experienced members of the VM research and development community, from both industry and academia."
-
 ## GCJ
 
 [The GNU Compiler for Java](http://gcc.gnu.org/java/) is an open source Java compiler that statically compiles Java code into native code.
@@ -64,6 +58,11 @@ The [CACAO JVM](http://www.complang.tuwien.ac.at/cacaojvm/) is a JVM from the [C
 ## Joeq&nbsp;
 
 [Joeq](http://joeq.sourceforge.net/) is&nbsp; a JVM implementation using a range of compilers and interpreters. It is written in 100% Java but has the ability to link in native.
+
+## Moxie
+
+[Moxie](http://moxie.sourceforge.net/) is an inactive project. It describes itself via the following. "The Moxie project will create an open source platform for developing product-quality JVMs and an environment for JVM innovation. Our goal is to build the most innovation-friendly JVM development platform to date and from it, the most innovative product-quality JVMs. A product-quality JVM has outstanding performance, scalability and reliability. The development philosophy of Moxie is to leverage its openness to draw on the most experienced members of the VM research and development community, from both industry and academia."
+
 
 # GC Frameworks
 
