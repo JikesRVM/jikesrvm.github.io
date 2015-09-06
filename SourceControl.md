@@ -82,7 +82,7 @@ The authors in the historical Subversion repository map to the following name-em
 - arvin-oss = Arvin Shepherd <arvin@us.ibm.com>
 - augart-oss = Steven Augart <augart@watson.ibm.com>
 - saugart = Steven Augart <saugart@yahoo.com>
-- bacon-oss = David Bacon <bacon@us.ibm.com>
+- bacon-oss = David Bacon <dfb@google.com>
 - butrico-oss = Maria Butrico <butrico@us.ibm.com>
 - dick-oss = Dick Attanasio <dicka@us.ibm.com>
 - dolby-oss = Julian Dolby <dolby@us.ibm.com>
@@ -109,5 +109,5 @@ The authors in the historical Subversion repository map to the following name-em
 - mikebond = Michael Bond <mikebond@cse.ohio-state.edu>
 - pizlo = Filip Pizlo <pizlo@mac.com>
 - bclee123 = Byeongcheol Lee <bclee@cs.utexas.edu>
-- lhellyer = Laurence Hellyer <L.Hellyer@kent.ac.uk>
+- lhellyer = Laurence Hellyer <laurence@hellyer.me>
 - eris2006 = Ashwani Rao <unknown@GSOC-2010>
