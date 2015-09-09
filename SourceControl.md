@@ -72,7 +72,7 @@ The authors in the historical Subversion repository map to the following name-em
 - jalapenoadmin = Jalapeno Admin <jalapeno_admin@ANU>
 - jalapeno = Jalapeno <jalapeno@ANU> 
 - jikesrvmadmin = Jikes RVM Admin <jikesrvmadmin@no_author>
-- dgrove-oss = Dave Grove <groved@us.ibm.com>
+- dgrove-oss = David Grove <groved@us.ibm.com>
 - dframpton-oss = Daniel Frampton <Daniel.Frampton@anu.edu.au>
 - rgarner = Robin Garner <robin.garner@gmail.com>
 - steveb-oss = Steve Blackburn <Steve.Blackburn@anu.edu.au>
