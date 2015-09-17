@@ -68,7 +68,7 @@ The [CACAO JVM](http://www.complang.tuwien.ac.at/cacaojvm/) is a JVM from the [C
 
 ## GCspy
 
-[GCspy](http://www.cs.kent.ac.uk/projects/gc/gcspy/) is a framework for spying on and visualizing the activity of a garbage collector. GCspy is supported by the [Jikes RVM and MMTk](/UserGuide/Using-GCSpy_73247.html).
+[GCspy](http://www.cs.kent.ac.uk/projects/gc/gcspy/) is a framework for spying on and visualizing the activity of a garbage collector. GCspy is supported by the [Jikes RVM and MMTk](/UserGuide/MMTk/index.html#x19-23200016.4)
 
 ## MPS
 

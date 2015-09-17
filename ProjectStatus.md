@@ -7,7 +7,7 @@ title: Project Status
 
 Jikes RVM is currently the most popular platform for virtual machine research. This popularity is reflected in the particpation on the [mailing lists](/MailingLists/) where most questions can be answered.
 
-Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the [compiler replay](/UserGuide/Experimental-Guidelines_73336.html) feature enables researchers to control mutator variation. The [MMTk test harness](/UserGuide/The-MMTk-Test-Harness_91750431.html) can be used to test collectors.
+Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the [compiler replay](/UserGuide/ExperimentalGuidelines/index.html#x8-620006) feature enables researchers to control mutator variation. The [MMTk test harness](/UserGuide/TheMMTkTestHarness/index.html#x13-13100011) can be used to test collectors.
 
 In contrast to this, the compilers are currently a weak spot in the Jikes RVM. For example, the Static Single Assignment (SSA) form in the compilers is currently disabled because of bugs.
 

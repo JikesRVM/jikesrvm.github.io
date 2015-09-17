@@ -24,8 +24,8 @@ You should make it easy for members of the Jikes RVM team to merge your code con
 
 At minimum, you must do the following:
 
-1. Make sure that your contribution follows our [coding style](/UserGuide/Coding-Style_74062.html) and the [coding conventions](/UserGuide/Coding-Conventions_74064.html). Use Checkstyle (e.g. via "ant checkstyle") to check for common errors.
-2. After verifying that there are no checkstyle errors, run the pre-commit [tests](/UserGuide/Testing-the-RVM_72032.html) on your machine.
+1. Make sure that your contribution follows our [coding style](/UserGuide/ModifyingJikesRVM/index.html#x9-840007.3) and the [coding conventions](/UserGuide/ModifyingJikesRVM/index.html#x9-790007.2). Use Checkstyle (e.g. via "ant checkstyle") to check for common errors.
+2. After verifying that there are no checkstyle errors, run the pre-commit [tests](/UserGuide/TestingJikesRVM/index.html#x12-10400010.html) on your machine.
 3. After the pre-commit run is done, you can find the report at results/tests/pre-commit/Report.html in your jikesrvm directory. It should read something like "Total Success Rate: 128/128" (numbers from August 2012). The report will also display the revision number, if applicable. If the revision number ends with a +, you have uncommited changes in your working copy. Check that the uncommited changes are not supposed to be in your patch.
 
 The Jikes RVM team will check for those points.

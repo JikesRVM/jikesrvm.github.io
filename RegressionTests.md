@@ -5,7 +5,7 @@ title: Regression Tests
 
 Regression tests are run every day with Jenkins for IA32 and reports are sent out to the regression [mailing list](/MailingLists). Both Jenkins and the machines are currently only accessible by the core development team. Jenkins tests on PPC will be added at a later date.
 
-[Look here](/UserGuide/Testing-the-RVM_72032.html) if you are looking for how to run our automated tests on your machines.
+[Look here](/UserGuide/TestingJikesRVM/index.html#x12-10400010) if you are looking for how to run our automated tests on your machines.
 
 # PowerPC machines for development
 
