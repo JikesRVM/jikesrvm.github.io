@@ -28,7 +28,7 @@ Once you have checked that your issue has not been reported before, create a new
 1. Give a clear but succinct summary, as this is the title JIRA will assign to your issue.
 2. If possible, state which components of Jikes RVM exhibit the problem, e.g., if your problem is specific to one particular garbage collector or compiler. If the problem is in the documentation (website, user guide, ...), select the component "Documentation".
 3. Clearly identify the environment the problem occurs in:
-  * The version of Jikes RVM which exhibits the problem (If you select the _hg tip_ as a version, please also copy & paste the output of `hg identify` into the Environment field.)
+  * The version of Jikes RVM which exhibits the problem (If you select the _git HEAD_ as a version, please also copy & paste the output of `git rev-parse HEAD` into the Environment field.)
   * The build/target host (`ia32-linux`, `x86_64-osx`, etc.) and configuration (`production`, `prototype-opt`, etc.) you have used when [building the RVM](/UserGuide/BuildingJikesRVM/index.html#x5-60003l)
   * The operating system/distribution and kernel version (Copy & paste the output of `uname -a` into the Environment field.)
   * for problems in the documentation: information to help find the problematic part, e.g. section titles, page numbers or phrases that can easily be found with a full-text search

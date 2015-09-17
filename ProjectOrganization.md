@@ -21,7 +21,7 @@ The most efficient way to make non-trivial contributions to the project's docume
 
 ### Jikes RVM Team Member
 
-A contributor who gives frequent and valuable contributions can be promoted to a _Jikes RVM team member_. Team members have write access to the source code repository, and voting rights allowing them to affect the future of the project. The members of the Jikes RVM team are responsible for virtually all of the day-to-day technical decisions associated with the project. They are the gatekeepers, deciding what new code is added to the system. All contributions will be processed by one or more team members before potential inclusion into the Mercurial repository.
+A contributor who gives frequent and valuable contributions can be promoted to a _Jikes RVM team member_. Team members have write access to the source code repository, and voting rights allowing them to affect the future of the project. The members of the Jikes RVM team are responsible for virtually all of the day-to-day technical decisions associated with the project. They are the gatekeepers, deciding what new code is added to the system. All contributions will be processed by one or more team members before potential inclusion into the Git repository.
 
 A contributor can become a Jikes RVM team member by the following sequential process:
 

@@ -70,7 +70,7 @@ Properties of Jikes RVM that these researchers have found useful are:
 - it has an established user community, including 
   - active mailing lists
   - bug-tracking software
-  - Mercurial repository
+  - Git repository
   - a user's guide
   - a browsable API
   - and nightly regression tests

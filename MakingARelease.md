@@ -6,7 +6,7 @@ title: Making a release
 
 The following are the steps required to make a release of the Jikes RVM.
 
-_**Note: This page hasn't been updated for the recent changes due to the migration yet**_
+_**Note: This page hasn't been updated for the recent changes due to the migrations yet**_
 
 Leading up to a release, here are the steps to take.&nbsp; All commits are to tip (default branch).
 

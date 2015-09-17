@@ -9,9 +9,9 @@ The website and the user guide are built from the contents of our [GitHub repo](
 
 # Contributing Code
 
-If you have extended Jikes RVM and would like to contribute your extension back to the community, please use the [patch tracker](/IssueTracker/) to submit your contribution. Please include the following:
+If you have extended Jikes RVM and would like to contribute your extension back to the community, please use the [patch tracker](/IssueTracker/) to submit your contribution. If you do not want to create an account on the patch tracker, you can also send your patches to the core mailing list. Please include the following in both cases:
 
-- Your contribution in the form of patches or bundles (see below)
+- Your contribution in the form of patches (see below)
 - The appropriate Statement of Origin (see below)
 - A description of the functionality you are contributing
 - The version of Jikes RVM used to create your patch
@@ -41,11 +41,12 @@ You can do the following things to further increase the chances that your contri
 
 ## Contributing patches
 
-Patches should apply against a revision of the main repository. This ensures that your patch can always be applied easily. You can use&nbsp;`hg export` to create patch files from your commits.
+Patches should apply against a revision of the main repository. This ensures that your patch can always be applied easily. If you're providing a series of patches, each patch
+should produce a working system that passes pre-commit.
 
-## Contributing bundles
+## Contributing using pull requests
 
-If you contribute your changes in the form of mercurial bundles, you must make sure that the parent changeset of your first changeset is in the main repository. If it is not,&nbsp;`hg unbundle` will fail and your bundles cannot be imported.
+Use the normal GitHub workflow to submit a pull request at either the main repository (for code) or the github.io repository (for the website).
 
 ## Statement of origin
 
