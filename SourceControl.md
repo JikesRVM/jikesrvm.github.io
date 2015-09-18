@@ -11,13 +11,13 @@ This project uses [Git](http://www.git-scm.com/) to manage its source code. Inst
 
 The following is a link to the online source repository.
 
-[https://github.com/JikesRVM/JikesRVM.git](https://github.com/JikesRVM/JikesRVM.git}
+[https://github.com/JikesRVM/JikesRVM.git](https://github.com/JikesRVM/JikesRVM.git)
 
 ## Repository access
 
 To obtain a copy of the current git "HEAD", use the "git clone" command
 
-$ git clone [https://github.com/JikesRVM/JikesRVM.git](https://github.com/JikesRVM/JikesRVM.git] jikesrvm
+$ git clone [https://github.com/JikesRVM/JikesRVM.git](https://github.com/JikesRVM/JikesRVM.git) jikesrvm
 
 or [fork](https://github.com/JikesRVM/JikesRVM#fork-destination-box) the repository on GitHub.
 
