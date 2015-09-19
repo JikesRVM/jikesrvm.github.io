@@ -139,6 +139,12 @@ The tests are executed by the Ant driver script \textit{test.xml}. The \textit{t
 
 \end{subsection}
 
+\begin{subsection}{Jenkins integration}
+
+Executing a test-run on a recent version of Jikes RVM (later than 3.1.3) also produces a file called \spverb+MinimalReport-JUnitFormat.xml+. This file contains the test results in a format that's suitable for processing as JUnit results in Jenkins. To use this file in Jenkins, select the appropriate job and add a post-build step to publish JUnit test result reports. Ensure that the box "Retain long standard output/error" is \textit{not checked}. If long standard output/error is retained, you will likely run into \texttt{Out\-Of\-Memory\-Errors} when Jenkins parses the results of larger test runs. For example, parsing results from the sanity test run (which contains \textgreater $3000$ test cases) exhausts 5 GB heaps.
+
+\end{subsection}
+
 \end{section}
 
 \end{chapter}
