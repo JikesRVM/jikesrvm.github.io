@@ -13,44 +13,44 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-08-14 14:35:00" /> 
+<meta name="date" content="2015-10-15 16:40:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 14</span><br /><a 
- id="x17-16400014"></a>Core Runtime Services</h2>
+ id="x17-16500014"></a>Core Runtime Services</h2>
 <!--l. 5--><p class="noindent" >The Jikes RVM runtime environment implements a variety of services which a Java
 application relies upon for correct execution. The services include:
 </p>
      <ul class="itemize1">
      <li class="itemize"><a 
-href="#x17-16500014.1">Object Model</a>: The way objects are represented in storage.
+href="#x17-16600014.1">Object Model</a>: The way objects are represented in storage.
      </li>
      <li class="itemize"><a 
-href="#x17-16900014.2">Class   and   Code   Management</a>:   The   mechanism   for   loading,   and
+href="#x17-17000014.2">Class   and   Code   Management</a>:   The   mechanism   for   loading,   and
      representing  classes  from  class  ﬁles.  The  mechanism  that  triggers
      compilation and linking of methods and subsequent storage of generated
      code.
      </li>
      <li class="itemize"><a 
-href="#x17-17800014.3">Thread      Management</a>:      thread      creation,      scheduling      and
+href="#x17-17900014.3">Thread      Management</a>:      thread      creation,      scheduling      and
      synchronization/exclusion
      </li>
      <li class="itemize"><a 
-href="#x17-18300014.4">JNI</a>: Native interface for writing native methods and invoking the virtual
+href="#x17-18400014.4">JNI</a>: Native interface for writing native methods and invoking the virtual
      machine from native code.
      </li>
      <li class="itemize"><a 
-href="#x17-19600014.7">Calling  Conventions</a>:  calling  conventions  used  for  invoking  methods  in
+href="#x17-19700014.7">Calling  Conventions</a>:  calling  conventions  used  for  invoking  methods  in
      Jikes RVM
      </li>
      <li class="itemize"><a 
-href="#x17-19000014.5">Exception  Management</a>:  hardware  exception  trapping  and  software
+href="#x17-19100014.5">Exception  Management</a>:  hardware  exception  trapping  and  software
      exception delivery.
      </li>
      <li class="itemize"><a 
-href="#x17-19100014.6">Bootstrap</a>: getting an initial Java application running in a fully functional
+href="#x17-19200014.6">Bootstrap</a>: getting an initial Java application running in a fully functional
      Java execution environment</li></ul>
 <!--l. 17--><p class="noindent" >The requirement for many of these runtime services is clearly visible in language
 primitives such as <span class="obeylines-h"><span class="verb"><span 
@@ -70,10 +70,10 @@ executed.
 that are speciﬁc to its purpose as a research tool: </p>
      <ul class="itemize1">
      <li class="itemize"><a 
-href="#x17-20300014.8">VM Callbacks</a>: Notﬁcations about potentially interesting events in the
+href="#x17-20400014.8">VM Callbacks</a>: Notﬁcations about potentially interesting events in the
      VM.</li></ul>
 <h3 class="sectionHead"><span class="titlemark">14.1   </span> <a 
- id="x17-16500014.1"></a>Object Model</h3>
+ id="x17-16600014.1"></a>Object Model</h3>
 <!--l. 5--><p class="noindent" >An object model dictates how to represent objects in storage; the best object model
 will maximize eﬃciency of frequent language operations while minimizing storage
 overhead. Jikes RVM&#x2019;s object model is deﬁned by ObjectModel.
@@ -83,7 +83,7 @@ overhead. Jikes RVM&#x2019;s object model is deﬁned by ObjectModel.
 </p><!--l. 7--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.1.1   </span> <a 
- id="x17-16600014.1.1"></a>Overview</h4>
+ id="x17-16700014.1.1"></a>Overview</h4>
 <!--l. 9--><p class="noindent" >Values in the Java<span 
 class="tcrm-1000">™ </span>programming language are either <span 
 class="cmti-10">primitive </span>(e.g. <span class="obeylines-h"><span class="verb"><span 
@@ -127,7 +127,7 @@ thus all null checks can be made implicit.
 </p><!--l. 26--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.1.2   </span> <a 
- id="x17-16700014.1.2"></a>Object Header</h4>
+ id="x17-16800014.1.2"></a>Object Header</h4>
 <!--l. 28--><p class="noindent" >Logically, every object header contains the following components: </p>
      <ul class="itemize1">
      <li class="itemize">textbfTIB Pointer: The TIB (Type Information Block) holds information
@@ -191,7 +191,7 @@ class="cmtt-10">ForwardingWord</span></span></span> which provides methods for o
 <!--l. 53--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.1.3   </span> <a 
- id="x17-16800014.1.3"></a>Field Layout</h4>
+ id="x17-16900014.1.3"></a>Field Layout</h4>
 <!--l. 55--><p class="noindent" >Fields tend to be recorded in the Java class ﬁle in the order they are declared in the
 Java source ﬁle. We lay out ﬁelds in the order they are declared with some exceptions
 to improve alignment and pack the ﬁelds in the object.
@@ -219,7 +219,7 @@ children.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.2   </span> <a 
- id="x17-16900014.2"></a>Class and Code Management</h3>
+ id="x17-17000014.2"></a>Class and Code Management</h3>
 <!--l. 5--><p class="noindent" >The runtime maintains a database of Java instances which identiﬁes the currently
 loaded class and method base. The classloader class base enables the runtime to
 identify and dynamically load undeﬁned classes as they required during execution.
@@ -255,7 +255,7 @@ code.
 </p><!--l. 11--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.2.1   </span> <a 
- id="x17-17000014.2.1"></a>Class Loading</h4>
+ id="x17-17100014.2.1"></a>Class Loading</h4>
 <!--l. 13--><p class="noindent" >Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM implements the Java<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> programming language&#x2019;s dynamic class
@@ -298,7 +298,7 @@ class="cmtt-10">&#x003C;clinit&#x003E;</span></span></span> method so the class 
 <!--l. 26--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.2.2   </span> <a 
- id="x17-17100014.2.2"></a>Code Management</h4>
+ id="x17-17200014.2.2"></a>Code Management</h4>
 <!--l. 28--><p class="noindent" >A compiled method body is an array of machine instructions (stored as ints on
 PowerPC<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> and bytes on x86-32). The Jikes RVM Table of Contents(JTOC), stores
@@ -307,12 +307,12 @@ pointers to static ﬁelds and methods. However, pointers for instance ﬁelds a
 
                                                                   
 instance methods are stored in the receiver class&#x2019;s <a 
-href="#x17-16500014.1">TIB</a>. Consequently, the dispatch
+href="#x17-16600014.1">TIB</a>. Consequently, the dispatch
 mechanism diﬀers between static methods and instance methods.
 </p><!--l. 30--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-17200014.2.2"></a>The JTOC</h5>
+ id="x17-17300014.2.2"></a>The JTOC</h5>
 <!--l. 32--><p class="noindent" >The JTOC holds pointers to each of Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM&#x2019;s global data structures, as well
 as literals, numeric constants and references to String constants. The JTOC
@@ -340,7 +340,7 @@ src="/UserGuide/images/ClassAndCodeManagement-JTOC.png" alt="PIC"
 </p>
 </div><hr class="endfigure" />
 <h5 class="subsubsectionHead"><a 
- id="x17-17300014.2.2"></a>Virtual Methods</h5>
+ id="x17-17400014.2.2"></a>Virtual Methods</h5>
 <!--l. 43--><p class="noindent" >A TIB contains pointers to the compiled method bodies (executable code)
 for the virtual methods and other instance methods of its class. Thus, the
 TIB serves as Jikes RVM&#x2019;s virtual method table. A virtual method dispatch
@@ -352,14 +352,14 @@ bytecode.
 </p><!--l. 47--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-17400014.2.2"></a>Static Fields and Methods</h5>
+ id="x17-17500014.2.2"></a>Static Fields and Methods</h5>
 <!--l. 49--><p class="noindent" >Static ﬁelds and pointers to static method bodies are stored in the JTOC. Static
 method dispatch is simpler than virtual dispatch, since a well-known JTOC entry
 method holds the address of the compiled method body.
 </p><!--l. 53--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-17500014.2.2"></a>Instance Initialization Methods</h5>
+ id="x17-17600014.2.2"></a>Instance Initialization Methods</h5>
 <!--l. 55--><p class="noindent" >Pointers to the bodies of instance initialization methods, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">&#x003C;init&#x003E;</span></span></span>, are stored in the
 JTOC. (They are always dispatched to with the <span class="obeylines-h"><span class="verb"><span 
@@ -367,7 +367,7 @@ class="cmtt-10">invokespecial</span></span></span> bytecode.)
 </p><!--l. 59--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-17600014.2.2"></a>Lazy Method Compilation</h5>
+ id="x17-17700014.2.2"></a>Lazy Method Compilation</h5>
 <!--l. 61--><p class="noindent" >Method slots in a TIB or the JTOC may hold either a pointer to the compiled code,
 or a pointer to the compiled code of the <span 
 class="cmti-10">lazy method invocation stub</span>. When invoked,
@@ -377,7 +377,7 @@ the compiled code.
 </p><!--l. 65--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-17700014.2.2"></a>Interface Methods</h5>
+ id="x17-17800014.2.2"></a>Interface Methods</h5>
 <!--l. 67--><p class="noindent" >Regardless of whether or not a virtual method is overridden, virtual method dispatch
 is still simple since the method will occupy the same TIB oﬀset its deﬁning class and
 in every sub-class. However, a method invoked through an <span class="obeylines-h"><span class="verb"><span 
@@ -406,7 +406,7 @@ class="cmtt-10">InterfaceInvocation</span></span></span>.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.3   </span> <a 
- id="x17-17800014.3"></a>Thread Management</h3>
+ id="x17-17900014.3"></a>Thread Management</h3>
 <!--l. 5--><p class="noindent" >This section provides some explanation of how Java<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> threads are scheduled and
 synchronized by Jikes<sup class="textsuperscript"><span 
@@ -446,7 +446,7 @@ the locking implementation is discussed.
 </p><!--l. 13--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.3.1   </span> <a 
- id="x17-17900014.3.1"></a>Tracking the Thread State</h4>
+ id="x17-18000014.3.1"></a>Tracking the Thread State</h4>
 <!--l. 15--><p class="noindent" >The state of a thread is broken down into two elements: </p>
      <ul class="itemize1">
      <li class="itemize">Should the thread yield at a safe point?
@@ -612,14 +612,14 @@ class="cmtt-10">BLOCKED_IN_JNI</span></span></span>.</li></ul>
 <!--l. 53--><p class="noindent" >The typical algorithm for requesting a thread to block looks as follows:
 </p>
 <!--l. 55-->
-<div class="lstlisting" id="listing-100"><span class="label"><a 
- id="x17-179001r1"></a></span>thread.monitor().lockNoHandshake(); <br /><span class="label"><a 
- id="x17-179002r2"></a></span><span 
+<div class="lstlisting" id="listing-102"><span class="label"><a 
+ id="x17-180001r1"></a></span>thread.monitor().lockNoHandshake(); <br /><span class="label"><a 
+ id="x17-180002r2"></a></span><span 
 class="cmbx-10">if</span> (thread is running) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-179003r3"></a></span>   thread.takeYieldpoint=1; <br /><span class="label"><a 
- id="x17-179004r4"></a></span> <br /><span class="label"><a 
- id="x17-179005r5"></a></span><span 
+ id="x17-180003r3"></a></span>   thread.takeYieldpoint=1; <br /><span class="label"><a 
+ id="x17-180004r4"></a></span> <br /><span class="label"><a 
+ id="x17-180005r5"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -650,12 +650,12 @@ class="cmti-10">,</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">etc</span><span 
 class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-179006r6"></a></span>   thread.setBlockedExecStatus(); <br /><span class="label"><a 
- id="x17-179007r7"></a></span> <br /><span class="label"><a 
- id="x17-179008r8"></a></span>   <span 
+ id="x17-180006r6"></a></span>   thread.setBlockedExecStatus(); <br /><span class="label"><a 
+ id="x17-180007r7"></a></span> <br /><span class="label"><a 
+ id="x17-180008r8"></a></span>   <span 
 class="cmbx-10">if</span> (thread.isInJava()) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-179009r9"></a></span><span 
+ id="x17-180009r9"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -682,7 +682,7 @@ class="cmti-10"> </span><span
 class="cmti-10">else</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">notify</span> <br /><span class="label"><a 
- id="x17-179010r10"></a></span><span 
+ id="x17-180010r10"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -705,7 +705,7 @@ class="cmti-10">native</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">code</span><span 
 class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-179011r11"></a></span><span 
+ id="x17-180011r11"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -733,7 +733,7 @@ class="cmti-10">the</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">lock</span><span 
 class="cmti-10">,</span> <br /><span class="label"><a 
- id="x17-179012r12"></a></span><span 
+ id="x17-180012r12"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -761,7 +761,7 @@ class="cmti-10"> </span><span
 class="cmti-10">safe</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">point</span> <br /><span class="label"><a 
- id="x17-179013r13"></a></span><span 
+ id="x17-180013r13"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -792,7 +792,7 @@ class="cmti-10"> </span><span
 class="cmti-10">since</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">performing</span> <br /><span class="label"><a 
- id="x17-179014r14"></a></span><span 
+ id="x17-180014r14"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -815,7 +815,7 @@ class="cmti-10">the</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">lock</span><span 
 class="cmti-10">,</span> <br /><span class="label"><a 
- id="x17-179015r15"></a></span><span 
+ id="x17-180015r15"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -834,11 +834,11 @@ class="cmti-10">now</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">holding</span><span 
 class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-179016r16"></a></span>   <span 
+ id="x17-180016r16"></a></span>   <span 
 class="cmsy-10">}</span> <span 
 class="cmbx-10">else</span> <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-179017r17"></a></span><span 
+ id="x17-180017r17"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -869,7 +869,7 @@ class="cmti-10">effectively</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">safe</span><span 
 class="cmti-10">”,</span> <br /><span class="label"><a 
- id="x17-179018r18"></a></span><span 
+ id="x17-180018r18"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -903,7 +903,7 @@ class="cmti-10"> </span><span
 class="cmti-10">we</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">hold</span> <br /><span class="label"><a 
- id="x17-179019r19"></a></span><span 
+ id="x17-180019r19"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -926,7 +926,7 @@ class="cmti-10"> </span><span
 class="cmti-10">transition</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">requires</span> <br /><span class="label"><a 
- id="x17-179020r20"></a></span><span 
+ id="x17-180020r20"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -941,11 +941,11 @@ class="cmti-10">the</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">lock</span><span 
 class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-179021r21"></a></span>   <span 
+ id="x17-180021r21"></a></span>   <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-179022r22"></a></span><span 
+ id="x17-180022r22"></a></span><span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-179023r23"></a></span>thread.monitor().unlock();
+ id="x17-180023r23"></a></span>thread.monitor().unlock();
 </div>
 <!--l. 81--><p class="noindent" >Most of the time, you do not have to write such code, as the cases of blocking threads
 are already implemented. For examples of how to utilize these mechanisms,
@@ -1045,7 +1045,7 @@ class="cmtt-10">TERMINATED</span></span></span>: the thread has terminated, and 
 <!--l. 100--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.3.2   </span> <a 
- id="x17-18000014.3.2"></a>Blocking and Handshaking</h4>
+ id="x17-18100014.3.2"></a>Blocking and Handshaking</h4>
 <!--l. 102--><p class="noindent" >Various VM services, such as the garbage collector and locking, may wish to request
 a thread to block. In some cases, we want to block all threads except for the thread
 that makes the request. As well, some VM services may only wish for a ”soft
@@ -1117,7 +1117,7 @@ class="cmtt-10">hardHandshakeSuspend()</span>, but it will only aﬀect the one
 
                                                                   
 <h4 class="subsectionHead"><span class="titlemark">14.3.3   </span> <a 
- id="x17-18100014.3.3"></a>The Monitor API</h4>
+ id="x17-18200014.3.3"></a>The Monitor API</h4>
 <!--l. 116--><p class="noindent" >The VM internally uses an OS-based locking implementation, augmented with
 support for safe lock recursion and awareness of handshakes. The Monitor API
 provides locking and notiﬁcation, similar to a Java lock, and may be implemented
@@ -1147,9 +1147,9 @@ a ”NoHandshake” and ”WithHandshake” version. Consider the following
 code:
 </p>
 <!--l. 126-->
-<div class="lstlisting" id="listing-101"><span class="label"><a 
- id="x17-181001r1"></a></span>someMonitor.lockNoHandshake(); <br /><span class="label"><a 
- id="x17-181002r2"></a></span><span 
+<div class="lstlisting" id="listing-103"><span class="label"><a 
+ id="x17-182001r1"></a></span>someMonitor.lockNoHandshake(); <br /><span class="label"><a 
+ id="x17-182002r2"></a></span><span 
 class="cmti-10">//</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">perform</span><span 
@@ -1164,7 +1164,7 @@ class="cmti-10"> </span><span
 class="cmti-10">critical</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">section</span> <br /><span class="label"><a 
- id="x17-181003r3"></a></span>someMonitor.unlock(); <span 
+ id="x17-182003r3"></a></span>someMonitor.unlock(); <span 
 class="cmti-10">//</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">non</span><span 
@@ -1179,9 +1179,9 @@ class="cmtt-10">someMonitor</span></span></span> are bounded-time as well. If, o
 not bounded-time, we would do:
 </p>
 <!--l. 134-->
-<div class="lstlisting" id="listing-102"><span class="label"><a 
- id="x17-181004r1"></a></span>someMonitor.lockWithHandshake(); <br /><span class="label"><a 
- id="x17-181005r2"></a></span><span 
+<div class="lstlisting" id="listing-104"><span class="label"><a 
+ id="x17-182004r1"></a></span>someMonitor.lockWithHandshake(); <br /><span class="label"><a 
+ id="x17-182005r2"></a></span><span 
 class="cmti-10">//</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">perform</span><span 
@@ -1193,7 +1193,7 @@ class="cmti-10"> </span><span
 class="cmti-10">critical</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">section</span> <br /><span class="label"><a 
- id="x17-181006r3"></a></span>someMonitor.unlock();
+ id="x17-182006r3"></a></span>someMonitor.unlock();
 </div>
 <!--l. 140--><p class="noindent" >In this case, the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">lockWithHandshake()</span></span></span> operation will transition the calling thread to
@@ -1226,7 +1226,7 @@ which discusses the implementation of Java locking.
 </p><!--l. 148--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.3.4   </span> <a 
- id="x17-18200014.3.4"></a>Thin and Biased Locking</h4>
+ id="x17-18300014.3.4"></a>Thin and Biased Locking</h4>
 <!--l. 150--><p class="noindent" >Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM uses a hybrid thin/biased locking implementation that is designed for
 very high performance under any of the following loads: </p>
@@ -1269,13 +1269,13 @@ mechanisms.
                                                                   
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x17-182002x1">A spin lock to protect the data structures.
+  class="enumerate" id="x17-183002x1">A spin lock to protect the data structures.
      </li>
      <li 
-  class="enumerate" id="x17-182004x2">A queue of threads blocked on the lock.
+  class="enumerate" id="x17-183004x2">A queue of threads blocked on the lock.
      </li>
      <li 
-  class="enumerate" id="x17-182006x3">A mechanism for blocked threads to go to sleep until awoken by being
+  class="enumerate" id="x17-183006x3">A mechanism for blocked threads to go to sleep until awoken by being
      dequeued.</li></ol>
 <!--l. 168--><p class="noindent" >The spin lock is a <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.jikesrvm.scheduler.SpinLock</span></span></span>. The queue is implemented in
@@ -1287,30 +1287,30 @@ class="cmtt-10">Monitor</span></span></span> that
 is attached to each thread, accessible via <span 
 class="cmtt-10">RVMThread.monitor()</span>. The basic algorithm
 for lock acquisition is: </p><!--l. 169-->
-<div class="lstlisting" id="listing-103"><span class="label"><a 
- id="x17-182007r1"></a></span>spinLock.lock(); <br /><span class="label"><a 
- id="x17-182008r2"></a></span><span 
+<div class="lstlisting" id="listing-105"><span class="label"><a 
+ id="x17-183007r1"></a></span>spinLock.lock(); <br /><span class="label"><a 
+ id="x17-183008r2"></a></span><span 
 class="cmbx-10">while</span> (<span 
 class="cmbx-10">true</span>) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-182009r3"></a></span>   <span 
+ id="x17-183009r3"></a></span>   <span 
 class="cmbx-10">if</span> (lock available) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-182010r4"></a></span>      acquire the lock; <br /><span class="label"><a 
- id="x17-182011r5"></a></span>      <span 
+ id="x17-183010r4"></a></span>      acquire the lock; <br /><span class="label"><a 
+ id="x17-183011r5"></a></span>      <span 
 class="cmbx-10">break</span>; <br /><span class="label"><a 
- id="x17-182012r6"></a></span>   <span 
+ id="x17-183012r6"></a></span>   <span 
 class="cmsy-10">}</span> <span 
 class="cmbx-10">else</span> <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-182013r7"></a></span>      queue.enqueue(me); <br /><span class="label"><a 
- id="x17-182014r8"></a></span>      spinLock.unlock(); <br /><span class="label"><a 
- id="x17-182015r9"></a></span> <br /><span class="label"><a 
- id="x17-182016r10"></a></span>      me.monitor().lockNoHandshake(); <br /><span class="label"><a 
- id="x17-182017r11"></a></span>      <span 
+ id="x17-183013r7"></a></span>      queue.enqueue(me); <br /><span class="label"><a 
+ id="x17-183014r8"></a></span>      spinLock.unlock(); <br /><span class="label"><a 
+ id="x17-183015r9"></a></span> <br /><span class="label"><a 
+ id="x17-183016r10"></a></span>      me.monitor().lockNoHandshake(); <br /><span class="label"><a 
+ id="x17-183017r11"></a></span>      <span 
 class="cmbx-10">while</span> (queue.isQueued(me)) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-182018r12"></a></span><span 
+ id="x17-183018r12"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -1340,7 +1340,7 @@ class="cmti-10">be</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">dequeued</span><span 
 class="cmti-10">,</span> <br /><span class="label"><a 
- id="x17-182019r13"></a></span><span 
+ id="x17-183019r13"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -1372,7 +1372,7 @@ class="cmti-10"> </span><span
 class="cmti-10">to</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">ensure</span> <br /><span class="label"><a 
- id="x17-182020r14"></a></span><span 
+ id="x17-183020r14"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -1403,7 +1403,7 @@ class="cmti-10"> </span><span
 class="cmti-10">one</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">for</span> <br /><span class="label"><a 
- id="x17-182021r15"></a></span><span 
+ id="x17-183021r15"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -1425,16 +1425,16 @@ class="cmti-10">re</span><span
 class="cmti-10"> </span><span 
 class="cmti-10">blocked</span><span 
 class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-182022r16"></a></span>         me.monitor().waitWithHandshake(); <br /><span class="label"><a 
- id="x17-182023r17"></a></span>      <span 
+ id="x17-183022r16"></a></span>         me.monitor().waitWithHandshake(); <br /><span class="label"><a 
+ id="x17-183023r17"></a></span>      <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-182024r18"></a></span>      me.monitor().unlock(); <br /><span class="label"><a 
- id="x17-182025r19"></a></span>      spinLock.lock(); <br /><span class="label"><a 
- id="x17-182026r20"></a></span>   <span 
+ id="x17-183024r18"></a></span>      me.monitor().unlock(); <br /><span class="label"><a 
+ id="x17-183025r19"></a></span>      spinLock.lock(); <br /><span class="label"><a 
+ id="x17-183026r20"></a></span>   <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-182027r21"></a></span><span 
+ id="x17-183027r21"></a></span><span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-182028r22"></a></span>spinLock.unlock();
+ id="x17-183028r22"></a></span>spinLock.unlock();
 </div>
 <!--l. 194--><p class="noindent" >The algorithm for unlocking dequeues the thread at the head of the queue (if there is
 one) and notiﬁes its <span class="obeylines-h"><span class="verb"><span 
@@ -1453,11 +1453,11 @@ class="cmtt-10">unlock()</span>.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.4   </span> <a 
- id="x17-18300014.4"></a>JNI</h3>
+ id="x17-18400014.4"></a>JNI</h3>
 <!--l. 5--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.1   </span> <a 
- id="x17-18400014.4.1"></a>Overview</h4>
+ id="x17-18500014.4.1"></a>Overview</h4>
 <!--l. 7--><p class="noindent" >This section describes how Jikes RVM interfaces to native code. There are three
 major aspects of this support: </p>
      <ul class="itemize1">
@@ -1473,14 +1473,14 @@ major aspects of this support: </p>
      <li class="itemize">Integration with threading: JNI may be freely used from any Java method.
      The mechanisms required to make this work are discussed in great detail
      in <a 
-href="#x17-17800014.3">Thread Management</a>, and to some extent in the sections that follow.</li></ul>
+href="#x17-17900014.3">Thread Management</a>, and to some extent in the sections that follow.</li></ul>
                                                                   
 
                                                                   
 <!--l. 16--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.2   </span> <a 
- id="x17-18500014.4.2"></a>JNI Functions</h4>
+ id="x17-18600014.4.2"></a>JNI Functions</h4>
 <!--l. 18--><p class="noindent" >All of the 1.1 through 1.4 JNIEnv interface functions are implemented.
 </p><!--l. 20--><p class="noindent" >The functions are deﬁned in the class <span 
 class="cmtt-10">JNIFunctions</span>. Methods of this class are
@@ -1496,11 +1496,11 @@ class="cmtt-10">IN_JNI</span></span></span> to
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_JAVA</span></span></span> using a compare-and-swap; if this fails, the thread may block to
 acknowledge a handshake. See <a 
-href="#x17-17800014.3">Thread Management</a> for more details.
+href="#x17-17900014.3">Thread Management</a> for more details.
 </p><!--l. 26--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.3   </span> <a 
- id="x17-18600014.4.3"></a>Invoking Native Methods</h4>
+ id="x17-18700014.4.3"></a>Invoking Native Methods</h4>
 <!--l. 28--><p class="noindent" >There are two mechanisms whereby RVM may transition from Java code to native
 code.
 </p><!--l. 30--><p class="noindent" >The ﬁrst mechanism is when RVM calls a method of the class <span 
@@ -1525,9 +1525,9 @@ modify the Java heap.
 </p><!--l. 36--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.4   </span> <a 
- id="x17-18700014.4.4"></a>Interactions with Threading</h4>
+ id="x17-18800014.4.4"></a>Interactions with Threading</h4>
 <!--l. 38--><p class="noindent" >See the <a 
-href="#x17-17800014.3">Thread Management</a> subsection for more details on the thread system in
+href="#x17-17900014.3">Thread Management</a> subsection for more details on the thread system in
 Jikes RVM.
 </p><!--l. 40--><p class="noindent" >There are two ways to execute native code: syscalls and JNI. A Java thread that calls
 native code by either mechanism will never be preempted by Jikes RVM, but in the
@@ -1549,7 +1549,7 @@ class="cmtt-10">org.jikesrvm.runtime.FileSystem</span>.
 </p><!--l. 44--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.5   </span> <a 
- id="x17-18800014.4.5"></a>Missing Features</h4>
+ id="x17-18900014.4.5"></a>Missing Features</h4>
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmbx-10">Native Libraries: </span>JNI 1.2 requires that the VM specially treat native
@@ -1600,7 +1600,7 @@ class="cmtt-10">_GetCreatedJavaVMs</span>) is not implemented. This is
 <!--l. 55--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.6   </span> <a 
- id="x17-18900014.4.6"></a>Things JNI Can&#x2019;t Handle</h4>
+ id="x17-19000014.4.6"></a>Things JNI Can&#x2019;t Handle</h4>
                                                                   
 
                                                                   
@@ -1614,7 +1614,7 @@ greatly appreciated.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.5   </span> <a 
- id="x17-19000014.5"></a>Exception Management</h3>
+ id="x17-19100014.5"></a>Exception Management</h3>
 <!--l. 5--><p class="noindent" >The runtime has to deal with the relatively small number of hardware signals which
 can be generated during Java execution. On operating systems other than AIX, an
 attempt to dereference a <span class="obeylines-h"><span class="verb"><span 
@@ -1672,7 +1672,7 @@ exception.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.6   </span> <a 
- id="x17-19100014.6"></a>Bootstrap</h3>
+ id="x17-19200014.6"></a>Bootstrap</h3>
 <!--l. 5--><p class="noindent" >Jikes RVM is started up by a boot program written in C, the bootloader. The
 bootloader is responsible for </p>
      <ul class="itemize1">
@@ -1729,14 +1729,14 @@ exits.
 </p><!--l. 27--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.6.1   </span> <a 
- id="x17-19200014.6.1"></a>Memory Map</h4>
+ id="x17-19300014.6.1"></a>Memory Map</h4>
 <!--l. 29--><p class="noindent" >Jikes RVM divides its available virtual memory space into various segments
 containing either code, or data or a combination of the two. The basic map is as
 follows: </p><!--l. 33-->
-<div class="lstlisting" id="listing-104"><span class="label"><a 
- id="x17-192001r1"></a></span><span 
+<div class="lstlisting" id="listing-106"><span class="label"><a 
+ id="x17-193001r1"></a></span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192002r2"></a></span><span 
+ id="x17-193002r2"></a></span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87"> </span><span 
@@ -1766,7 +1766,7 @@ class="cmtt-8x-x-87">MAX_MAPPABLE_ADDRESS</span><span
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">&#x003C;--+</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192003r3"></a></span><span 
+ id="x17-193003r3"></a></span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87"> </span><span 
@@ -1822,10 +1822,10 @@ class="cmtt-8x-x-87"> </span><span
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">|</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192004r4"></a></span><span 
+ id="x17-193004r4"></a></span><span 
 class="cmtt-8x-x-87">+-------------------------------------------------------------------------+</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192005r5"></a></span><span 
+ id="x17-193005r5"></a></span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">Platform</span><span 
@@ -1874,7 +1874,7 @@ class="cmtt-8x-x-87">Plat</span><span
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192006r6"></a></span><span 
+ id="x17-193006r6"></a></span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">(</span><span 
@@ -1915,7 +1915,7 @@ class="cmtt-8x-x-87">spec</span><span
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192007r7"></a></span><span 
+ id="x17-193007r7"></a></span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">(</span><span 
@@ -1967,20 +1967,20 @@ class="cmtt-8x-x-87"> </span><span
 class="cmtt-8x-x-87"> </span><span 
 class="cmtt-8x-x-87">+</span><span 
 class="cmtt-8x-x-87"> </span><br /><span class="label"><a 
- id="x17-192008r8"></a></span><span 
+ id="x17-193008r8"></a></span><span 
 class="cmtt-8x-x-87">+-------------------------------------------------------------------------+</span>
 </div>
 <!--l. 44--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-19300014.6.1"></a>Boot Segment</h5>
+ id="x17-19400014.6.1"></a>Boot Segment</h5>
 <!--l. 46--><p class="noindent" >The bottom segment of the address space is left for the underlying platform to locate
 the boot program (including statically linked library code) and any dynamically
 allocated data and library code.
 </p><!--l. 50--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-19400014.6.1"></a>Jikes RVM Image Segment</h5>
+ id="x17-19500014.6.1"></a>Jikes RVM Image Segment</h5>
 <!--l. 52--><p class="noindent" >The next area is the one initialized by the boot program to contain the all
 the initial static data, instance data and compiled method code required in
 order for the runtime to be able to function. The required memory data is
@@ -2019,7 +2019,7 @@ containing:
 <!--l. 69--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-19500014.6.1"></a>Jikes RVM Heap Segment</h5>
+ id="x17-19600014.6.1"></a>Jikes RVM Heap Segment</h5>
 <!--l. 71--><p class="noindent" >The Jikes RVM heap segment is used to provide storage for code and data
 created during Java execution. Jikes RVM can be conﬁgured to employ various
 diﬀerent allocation managers taken from the MMTk memory management
@@ -2027,11 +2027,11 @@ toolkit.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.7   </span> <a 
- id="x17-19600014.7"></a>Calling Conventions</h3>
+ id="x17-19700014.7"></a>Calling Conventions</h3>
 <!--l. 5--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.7.1   </span> <a 
- id="x17-19700014.7.1"></a>Architecture-independent concepts</h4>
+ id="x17-19800014.7.1"></a>Architecture-independent concepts</h4>
                                                                   
 
                                                                   
@@ -2041,7 +2041,7 @@ against such changes.
 </p><!--l. 9--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-19800014.7.1"></a>Register conventions</h5>
+ id="x17-19900014.7.1"></a>Register conventions</h5>
 <!--l. 11--><p class="noindent" >Registers (general purpose, gp, and ﬂoating point, fp) can be roughly categorized into
 four types: </p>
      <ul class="itemize1">
@@ -2080,7 +2080,7 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
 <!--l. 26--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-19900014.7.1"></a>Stack conventions</h5>
+ id="x17-20000014.7.1"></a>Stack conventions</h5>
 <!--l. 28--><p class="noindent" >Stacks grow from high memory to low memory.
                                                                   
 
@@ -2088,52 +2088,52 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
 </p><!--l. 32--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-20000014.7.1"></a>Method prologue responsibilities</h5>
+ id="x17-20100014.7.1"></a>Method prologue responsibilities</h5>
 <!--l. 34--><p class="noindent" >(some of these can be omitted for leaf methods):
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x17-200002x1">Execute a stackoverﬂow check, and grow the thread stack if necessary.
+  class="enumerate" id="x17-201002x1">Execute a stackoverﬂow check, and grow the thread stack if necessary.
      </li>
      <li 
-  class="enumerate" id="x17-200004x2">Save the caller&#x2019;s next instruction pointer (callee&#x2019;s return address)
+  class="enumerate" id="x17-201004x2">Save the caller&#x2019;s next instruction pointer (callee&#x2019;s return address)
      </li>
      <li 
-  class="enumerate" id="x17-200006x3">Save any nonvolatile ﬂoating-point registers used by callee.
+  class="enumerate" id="x17-201006x3">Save any nonvolatile ﬂoating-point registers used by callee.
      </li>
      <li 
-  class="enumerate" id="x17-200008x4">Save any nonvolatile general-purpose registers used by callee.
+  class="enumerate" id="x17-201008x4">Save any nonvolatile general-purpose registers used by callee.
      </li>
      <li 
-  class="enumerate" id="x17-200010x5">Store and update the frame pointer FP.
+  class="enumerate" id="x17-201010x5">Store and update the frame pointer FP.
      </li>
      <li 
-  class="enumerate" id="x17-200012x6">Store callee&#x2019;s compiled method ID
+  class="enumerate" id="x17-201012x6">Store callee&#x2019;s compiled method ID
      </li>
      <li 
-  class="enumerate" id="x17-200014x7">Check to see if the Java<sup class="textsuperscript"><span 
+  class="enumerate" id="x17-201014x7">Check to see if the Java<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> thread must yield the Processor (and yield if
      threadswitch was requested).</li></ol>
 <!--l. 47--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x17-20100014.7.1"></a>Method epilogue responsibilities</h5>
+ id="x17-20200014.7.1"></a>Method epilogue responsibilities</h5>
 <!--l. 49--><p class="noindent" >(some of these can be ommitted for leaf methods):
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x17-201002x1">Restore FP to point to caller&#x2019;s stack frame.
+  class="enumerate" id="x17-202002x1">Restore FP to point to caller&#x2019;s stack frame.
      </li>
      <li 
-  class="enumerate" id="x17-201004x2">Restore any nonvolatile general-purpose registers used by callee.
+  class="enumerate" id="x17-202004x2">Restore any nonvolatile general-purpose registers used by callee.
      </li>
      <li 
-  class="enumerate" id="x17-201006x3">Restore any nonvolatile ﬂoating-point registers used by callee.
+  class="enumerate" id="x17-202006x3">Restore any nonvolatile ﬂoating-point registers used by callee.
      </li>
      <li 
-  class="enumerate" id="x17-201008x4">Branch to the return address in caller.</li></ol>
+  class="enumerate" id="x17-202008x4">Branch to the return address in caller.</li></ol>
 <!--l. 61--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.7.2   </span> <a 
- id="x17-20200014.7.2"></a>Architecture-speciﬁc calling conventions</h4>
+ id="x17-20300014.7.2"></a>Architecture-speciﬁc calling conventions</h4>
 <!--l. 63--><p class="noindent" >The following architecture-speciﬁc classes are of interest for calling conventions:
 </p>
                                                                   
@@ -2158,7 +2158,7 @@ class="cmtt-10">CallingConventions</span></span></span> which  expands  the  cal
 <!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">14.8   </span> <a 
- id="x17-20300014.8"></a>VM Callbacks</h3>
+ id="x17-20400014.8"></a>VM Callbacks</h3>
 <!--l. 5--><p class="noindent" >Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM provides callbacks for many runtime events of interest to the Jikes
 RVM programmer, such as classloading, VM boot image creation, and VM exit.
@@ -2207,12 +2207,12 @@ system.
 </p><!--l. 15--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.8.1   </span> <a 
- id="x17-20400014.8.1"></a>An Example: Modifying SPECjvm98 to Report the End of a Run</h4>
+ id="x17-20500014.8.1"></a>An Example: Modifying SPECjvm98 to Report the End of a Run</h4>
 <!--l. 17--><p class="noindent" >The SPECjvm®;98 benchmark suite is conﬁgured to run one or more benchmarks a
 particular number of times. For example, the following runs the compress benchmark
 for 5 iterations: </p><!--l. 18-->
-<div class="lstlisting" id="listing-105"><span class="label"><a 
- id="x17-204001r1"></a></span>rvm SpecApplication <span 
+<div class="lstlisting" id="listing-107"><span class="label"><a 
+ id="x17-205001r1"></a></span>rvm SpecApplication <span 
 class="cmsy-10">−</span>m5 <span 
 class="cmsy-10">−</span>M5 <span 
 class="cmsy-10">−</span>s100 <span 
@@ -2223,38 +2223,38 @@ an iteration of the benchmark. This can be performed by using the Callbacks
 interface. The speciﬁcs are speciﬁed below:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x17-204003x1">Modify <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x17-205003x1">Modify <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">spec/harness/ProgramRunner.java</span></span></span>:
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x17-204005x1">add an import statement for the <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x17-205005x1">add an import statement for the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Callbacks</span></span></span> class: <!--l. 27-->
-         <div class="lstlisting" id="listing-106"><span class="label"><a 
- id="x17-204006r1"></a></span><span 
+         <div class="lstlisting" id="listing-108"><span class="label"><a 
+ id="x17-205006r1"></a></span><span 
 class="cmbx-10">import</span> org.jikesrvm.Callbacks;
          
          </div>
          </li>
          <li 
-  class="enumerate" id="x17-204008x2">before the call to <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x17-205008x2">before the call to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">runOnce</span></span></span> add the following: <!--l. 31-->
-         <div class="lstlisting" id="listing-107"><span class="label"><a 
- id="x17-204009r1"></a></span>Callbacks.notifyAppRunStart(className, run);
+         <div class="lstlisting" id="listing-109"><span class="label"><a 
+ id="x17-205009r1"></a></span>Callbacks.notifyAppRunStart(className, run);
          
          </div>
          </li>
          <li 
-  class="enumerate" id="x17-204011x3">after the call to runOnce add the following: <!--l. 35-->
-         <div class="lstlisting" id="listing-108"><span class="label"><a 
- id="x17-204012r1"></a></span>Callbacks.notifyAppRunComplete(className, run);
+  class="enumerate" id="x17-205011x3">after the call to runOnce add the following: <!--l. 35-->
+         <div class="lstlisting" id="listing-110"><span class="label"><a 
+ id="x17-205012r1"></a></span>Callbacks.notifyAppRunComplete(className, run);
          
          </div>
          </li></ol>
      </li>
      <li 
-  class="enumerate" id="x17-204014x2">Recompile the modiﬁed ﬁle: <!--l. 40-->
-     <div class="lstlisting" id="listing-109"><span class="label"><a 
- id="x17-204015r1"></a></span>javac <span 
+  class="enumerate" id="x17-205014x2">Recompile the modiﬁed ﬁle: <!--l. 40-->
+     <div class="lstlisting" id="listing-111"><span class="label"><a 
+ id="x17-205015r1"></a></span>javac <span 
 class="cmsy-10">−</span>classpath .:<span 
 class="tcrm-1000">$</span>RVM_BUILD/RVM.classes:<span 
 class="tcrm-1000">$</span>RVM_BUILD/RVM.classes/rvmrt.jar spec/harness/ProgramRunner.java
@@ -2269,7 +2269,7 @@ class="cmtt-10">org/jikesrvm/Callbacks.java</span>
                                                                   
      </p></li>
      <li 
-  class="enumerate" id="x17-204017x3">Run Jikes RVM as you normally would using the SPECjvm98 benchmarks.</li></ol>
+  class="enumerate" id="x17-205017x3">Run Jikes RVM as you normally would using the SPECjvm98 benchmarks.</li></ol>
 <!--l. 47--><p class="noindent" >In the current system the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Controller</span></span></span> class will gain control when these callbacks are
 made and print a message into the AOS log ﬁle (by default, placed in Jikes RVM&#x2019;s
@@ -2278,7 +2278,7 @@ class="cmtt-10">AOSLog.txt</span></span></span>).
 </p><!--l. 51--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.8.2   </span> <a 
- id="x17-20500014.8.2"></a>Another Example: Directing a Recompilation of All Methods During the
+ id="x17-20600014.8.2"></a>Another Example: Directing a Recompilation of All Methods During the
 Application&#x2019;s Execution</h4>
 <!--l. 53--><p class="noindent" >Another callback of interest allows an application to direct the VM to recompile all
 executed methods at a certain point of the application&#x2019;s execution by calling

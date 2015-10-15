@@ -13,7 +13,7 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-08-14 14:35:00" /> 
+<meta name="date" content="2015-10-15 16:40:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
@@ -310,8 +310,8 @@ class="cmsy-10">−</span>X:opt:printOptions
  id="x11-1030009.3"></a>Running Jikes RVM with Valgrind</h3>
 <!--l. 105--><p class="noindent" >Jikes RVM can run under valgrind, as of 29-Aug-2007. Applying a patch of this
 revision to release 3.2.1 should also produce a working system. Versions of valgrind
-CVS prior to release 3.0 are also known to have worked. The current hg tip should
-also work with Valgrind.
+CVS prior to release 3.0 are also known to have worked. The current git HEAD
+should also work with Valgrind.
 </p><!--l. 107--><p class="noindent" >To run a Jikes RVM build with valgrind, use the -wrap ﬂag to invoke valgrind, eg
 </p><!--l. 108-->
 <div class="lstlisting" id="listing-63"><span class="label"><a 
@@ -339,6 +339,29 @@ memory in areas of the heap that conﬂict with Jikes RVM. Using the ﬂag
 class="cmtt-10">-X:gc:eagerMmapSpaces=true</span></span></span> will prevent and/or detect this. If this ﬂag reveals
 errors while mapping the spaces, you will need to rearrange the heap to avoid the
 addresses that Valgrind is occupying.
+</p><!--l. 118--><p class="noindent" >If you&#x2019;re using a recent Jikes RVM version (later than 3.1.3), you may want to change
+the line </p><!--l. 119-->
+<div class="lstlisting" id="listing-64"><span class="label"><a 
+ id="x11-103002r1"></a></span><span 
+class="cmbx-10">private</span> <span 
+class="cmbx-10">static</span> <span 
+class="cmbx-10">final</span> <span 
+class="cmbx-10">boolean</span> ALLOW_READS_OF_UNDEFINED_MEMORY = <span 
+class="cmbx-10">true</span>;
+</div>
+<!--l. 123--><p class="noindent" >in <span 
+class="cmtt-10">org.jikesrvm.jni.JNIGenericHelpers </span>to
+</p>
+<!--l. 125-->
+<div class="lstlisting" id="listing-65"><span class="label"><a 
+ id="x11-103003r1"></a></span><span 
+class="cmbx-10">private</span> <span 
+class="cmbx-10">static</span> <span 
+class="cmbx-10">final</span> <span 
+class="cmbx-10">boolean</span> ALLOW_READS_OF_UNDEFINED_MEMORY = <span 
+class="cmbx-10">false</span>;
+</div>
+<!--l. 129--><p class="noindent" >to prevent false positives from Valgrind.
                                                                   
 
                                                                   

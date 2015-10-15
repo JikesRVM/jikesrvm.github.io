@@ -13,7 +13,7 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-08-14 14:35:00" /> 
+<meta name="date" content="2015-10-15 16:40:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
@@ -45,7 +45,7 @@ properties of the Ant build.
 <h3 class="sectionHead"><span class="titlemark">10.2   </span> <a 
  id="x12-10600010.2"></a>Functional and Performance Tests</h3>
 <!--l. 18--><p class="noindent" >See <a 
-href="#x12-11100010.3">External Test Resources</a> for details or downloading prerequisites for the
+href="#x12-11200010.3">External Test Resources</a> for details or downloading prerequisites for the
 functional tests. The tests are executed using an Ant build ﬁle and produce
 results that conform to the deﬁnition below. The results are aggregated
 and processed to produce a high level report deﬁning the status of Jikes
@@ -84,7 +84,7 @@ standard output etc. and may also record a number of statistics if it is a perfo
 test.
 </p><!--l. 24--><p class="noindent" >The project includes several diﬀerent types of test runs and the description of each
 the test runs and their purpose is given in <a 
-href="#x12-12500010.4">Test Run Descriptions</a>.
+href="#x12-12600010.4">Test Run Descriptions</a>.
                                                                   
 
                                                                   
@@ -324,7 +324,7 @@ class="cmti-10">”basic” </span>group.
     <div class="caption" 
 ><span class="id">13cAp1x12-10800010.2.2:
     </span><span  
-class="content">build/test-runs/simple.properties</span></div><!--tex4ht:label?: x12-10800010.2 --><div class="lstlisting" id="listing-64"><span class="label"><a 
+class="content">build/test-runs/simple.properties</span></div><!--tex4ht:label?: x12-10800010.2 --><div class="lstlisting" id="listing-66"><span class="label"><a 
  id="x12-108002r1"></a></span>test.configs=prototype <br /><span class="label"><a 
  id="x12-108003r2"></a></span>test.config.prototype.tests=basic
 </div>
@@ -338,7 +338,7 @@ prototype and prototype-opt test conﬁgurations.
     <div class="caption" 
 ><span class="id">13cAp2x12-10800010.2.2:
     </span><span  
-class="content">build/test-runs/property-expansion.properties</span></div><!--tex4ht:label?: x12-10800010.2 --><div class="lstlisting" id="listing-65"><span class="label"><a 
+class="content">build/test-runs/property-expansion.properties</span></div><!--tex4ht:label?: x12-10800010.2 --><div class="lstlisting" id="listing-67"><span class="label"><a 
  id="x12-108004r1"></a></span>test.set=basic optests dacapo <br /><span class="label"><a 
  id="x12-108005r2"></a></span>test.configs=prototype prototype<span 
 class="cmsy-10">−</span>opt <br /><span class="label"><a 
@@ -597,10 +597,27 @@ run or at <br
 class="newline" /><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">${results.dir}/tests/${test-run.name}/Report.xml</span></span></span> for an XML document
 describing test results.
+</p><!--l. 142--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.2.5   </span> <a 
+ id="x12-11100010.2.5"></a>Jenkins integration</h4>
+<!--l. 144--><p class="noindent" >Executing a test-run on a recent version of Jikes RVM (later than 3.1.3) also
+produces a ﬁle called <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">MinimalReport-JUnitFormat.xml</span></span></span>. This ﬁle contains the test
+results in a format that&#x2019;s suitable for processing as JUnit results in Jenkins. To use
+this ﬁle in Jenkins, select the appropriate job and add a post-build step to publish
+JUnit test result reports. Ensure that the box ”Retain long standard output/error” is
+<span 
+class="cmti-10">not checked</span>. If long standard output/error is retained, you will likely run into
+<span 
+class="cmtt-10">OutOfMemoryErrors </span>when Jenkins parses the results of larger test runs. For example,
+parsing results from the sanity test run (which contains <span 
+class="cmmi-10">&#x003E;</span>3000 test cases) exhausts 5
+GB heaps.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">10.3   </span> <a 
- id="x12-11100010.3"></a>External Test Resources</h3>
+ id="x12-11200010.3"></a>External Test Resources</h3>
 <!--l. 5--><p class="noindent" >The tests included in the source tree are designed to test the correctness and
 performance of the Jikes RVM. This document gives a step by step instructions for
 setting up the external dependencies for these tests.
@@ -610,11 +627,11 @@ class="cmtt-10">external.lib.dir</span></span></span> needs to be set to this lo
 i.e.
 </p>
 <!--l. 9-->
-<div class="lstlisting" id="listing-66"><span class="label"><a 
- id="x12-111001r1"></a></span><span 
+<div class="lstlisting" id="listing-68"><span class="label"><a 
+ id="x12-112001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> echo ”external.lib.dir=/home/peter/Research/External” <span 
 class="cmmi-10">&#x003E;&#x003E;</span> .ant.properties <br /><span class="label"><a 
- id="x12-111002r2"></a></span><span 
+ id="x12-112002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p /home/peter/Research/External
 </div>
@@ -626,7 +643,10 @@ class="cmtt-10">external.lib.dir</span></span></span> property.
 </p><!--l. 16--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.3.1   </span> <a 
- id="x12-11200010.3.1"></a>Open Source Benchmarks</h4>
+ id="x12-11300010.3.1"></a>Open Source Benchmarks</h4>
+                                                                  
+
+                                                                  
 <!--l. 18--><p class="noindent" >In the future other benchmarks such as BigInteger, <a 
 href="http://www.sable.mcgill.ca/ashes/" >Ashes</a> or <a 
 href="http://www.volano.com/benchmarks.html" >Volano</a> may be
@@ -634,7 +654,7 @@ included.
 </p><!--l. 20--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11300010.3.1"></a>Dacapo</h5>
+ id="x12-11400010.3.1"></a>Dacapo</h5>
 <!--l. 22--><p class="noindent" ><a 
 href="http://dacapobench.org" >Dacapo</a> describes itself as ”This benchmark suite is intended as a tool for Java
 benchmarking by the programming language, memory management and
@@ -643,23 +663,20 @@ applications with non-trivial memory loads. The suite is the culmination of
 over ﬁve years work at eight institutions, as part of the DaCapo research
 project, which was funded by a National Science Foundation ITR Grant,
 CCR-0085792.”
-                                                                  
-
-                                                                  
 </p><!--l. 24--><p class="noindent" >The release needs to be downloaded and placed in the <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/dacapo/
 directory. i.e.
 </p>
 <!--l. 26-->
-<div class="lstlisting" id="listing-67"><span class="label"><a 
- id="x12-113001r1"></a></span><span 
+<div class="lstlisting" id="listing-69"><span class="label"><a 
+ id="x12-114001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/dacapo/ <br /><span class="label"><a 
- id="x12-113002r2"></a></span><span 
+ id="x12-114002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/dacapo/ <br /><span class="label"><a 
- id="x12-113003r3"></a></span><span 
+ id="x12-114003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://sourceforge.net/projects/dacapobench/files/archive/2006<span 
 class="cmsy-10">−</span>10/dacapo<span 
 class="cmsy-10">−</span>2006<span 
@@ -668,39 +685,39 @@ class="cmsy-10">−</span>10.jar/download?use_mirror=autoselect”
 <!--l. 34--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11400010.3.1"></a>jBYTEmark</h5>
+ id="x12-11500010.3.1"></a>jBYTEmark</h5>
 <!--l. 36--><p class="noindent" >jBYTEmark was a benchmark developed by Byte.com a long time ago.
 </p>
 <!--l. 38-->
-<div class="lstlisting" id="listing-68"><span class="label"><a 
- id="x12-114001r1"></a></span><span 
+<div class="lstlisting" id="listing-70"><span class="label"><a 
+ id="x12-115001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/jBYTEmark<span 
 class="cmsy-10">−</span>0.9 <br /><span class="label"><a 
- id="x12-114002r2"></a></span><span 
+ id="x12-115002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/jBYTEmark<span 
 class="cmsy-10">−</span>0.9 <br /><span class="label"><a 
- id="x12-114003r3"></a></span><span 
+ id="x12-115003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://img.byte.com/byte/bmark/jbyte.zip <br /><span class="label"><a 
- id="x12-114004r4"></a></span><span 
+ id="x12-115004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> unzip <span 
 class="cmsy-10">−</span>jo jbyte.zip &#x2019;app/class/<span 
 class="tcrm-1000">*</span>&#x2019; <br /><span class="label"><a 
- id="x12-114005r5"></a></span><span 
+ id="x12-115005r5"></a></span><span 
 class="cmmi-10">&#x003E;</span> unzip <span 
 class="cmsy-10">−</span>jo jbyte.zip &#x2019;app/src/jBYTEmark.java&#x2019; <br /><span class="label"><a 
- id="x12-114006r6"></a></span><span 
+ id="x12-115006r6"></a></span><span 
 class="cmmi-10">&#x003E;</span> ... Edit jBYTEmark.java to delete ”while (true) <span 
 class="cmsy-10">{}</span>” at the end of main. ... <br /><span class="label"><a 
- id="x12-114007r7"></a></span><span 
+ id="x12-115007r7"></a></span><span 
 class="cmmi-10">&#x003E;</span> javac jBYTEmark.java <br /><span class="label"><a 
- id="x12-114008r8"></a></span><span 
+ id="x12-115008r8"></a></span><span 
 class="cmmi-10">&#x003E;</span> jar cf jBYTEmark<span 
 class="cmsy-10">−</span>0.9.jar <span 
 class="tcrm-1000">*</span>.class <br /><span class="label"><a 
- id="x12-114009r9"></a></span><span 
+ id="x12-115009r9"></a></span><span 
 class="cmmi-10">&#x003E;</span> rm <span 
 class="cmsy-10">−</span>f <span 
 class="tcrm-1000">*</span>.class jBYTEmark.java
@@ -708,7 +725,7 @@ class="tcrm-1000">*</span>.class jBYTEmark.java
 <!--l. 52--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11500010.3.1"></a>CaﬀeineMark</h5>
+ id="x12-11600010.3.1"></a>CaﬀeineMark</h5>
 <!--l. 54--><p class="noindent" ><a 
 href="http://www.benchmarkhq.ru/cm30/info.html" >CaﬀeineMark</a> describes itself as ”The CaﬀeineMark is a series of tests that measure
 the speed of Java programs running in various hardware and software conﬁgurations.
@@ -718,61 +735,61 @@ memory in the system or on the speed of a computers disk drives or internet
 connection.”
 </p>
 <!--l. 56-->
-<div class="lstlisting" id="listing-69"><span class="label"><a 
- id="x12-115001r1"></a></span><span 
+<div class="lstlisting" id="listing-71"><span class="label"><a 
+ id="x12-116001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/CaffeineMark<span 
 class="cmsy-10">−</span>3.0 <br /><span class="label"><a 
- id="x12-115002r2"></a></span><span 
+ id="x12-116002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/CaffeineMark<span 
 class="cmsy-10">−</span>3.0 <br /><span class="label"><a 
- id="x12-115003r3"></a></span><span 
+ id="x12-116003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.benchmarkhq.ru/cm30/cmkit.zip <br /><span class="label"><a 
- id="x12-115004r4"></a></span><span 
+ id="x12-116004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> unzip cmkit.zip
+                                                                  
+
+                                                                  
 </div>
 <!--l. 65--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11600010.3.1"></a>xerces</h5>
+ id="x12-11700010.3.1"></a>xerces</h5>
 <!--l. 67--><p class="noindent" >Process some large documents using xerces XML parser.
 </p>
 <!--l. 69-->
-<div class="lstlisting" id="listing-70"><span class="label"><a 
- id="x12-116001r1"></a></span><span 
+<div class="lstlisting" id="listing-72"><span class="label"><a 
+ id="x12-117001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT <br /><span class="label"><a 
- id="x12-116002r2"></a></span><span 
+ id="x12-117002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://archive.apache.org/dist/xml/xerces<span 
 class="cmsy-10">−</span>j/Xerces<span 
 class="cmsy-10">−</span>J<span 
 class="cmsy-10">−</span>bin.2.8.1.tar.gz <br /><span class="label"><a 
- id="x12-116003r3"></a></span><span 
+ id="x12-117003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> tar xzf Xerces<span 
 class="cmsy-10">−</span>J<span 
 class="cmsy-10">−</span>bin.2.8.1.tar.gz <br /><span class="label"><a 
- id="x12-116004r4"></a></span><span 
+ id="x12-117004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/xmlFiles <br /><span class="label"><a 
- id="x12-116005r5"></a></span><span 
+ id="x12-117005r5"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/xmlFiles <br /><span class="label"><a 
- id="x12-116006r6"></a></span><span 
+ id="x12-117006r6"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.ibiblio.org/pub/sun<span 
 class="cmsy-10">−</span>info/standards/xml/eg/shakespeare.1.10.xml.zip <br /><span class="label"><a 
- id="x12-116007r7"></a></span><span 
+ id="x12-117007r7"></a></span><span 
 class="cmmi-10">&#x003E;</span> unzip shakespeare.1.10.xml.zip
 </div>
-                                                                  
-
-                                                                  
 <!--l. 80--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11700010.3.1"></a>Soot</h5>
+ id="x12-11800010.3.1"></a>Soot</h5>
 <!--l. 82--><p class="noindent" ><a 
 href="http://sable.github.io/soot/" >Soot</a> describes itself as ”Originally, Soot started oﬀ as a Java optimization
 framework. By now, researchers and practitioners from around the world
@@ -780,53 +797,32 @@ use Soot to analyze, instrument, optimize and visualize Java and Android
 applications.”
 </p>
 <!--l. 84-->
-<div class="lstlisting" id="listing-71"><span class="label"><a 
- id="x12-117001r1"></a></span><span 
+<div class="lstlisting" id="listing-73"><span class="label"><a 
+ id="x12-118001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/soot<span 
 class="cmsy-10">−</span>2.2.3 <br /><span class="label"><a 
- id="x12-117002r2"></a></span><span 
+ id="x12-118002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/soot<span 
 class="cmsy-10">−</span>2.2.3 <br /><span class="label"><a 
- id="x12-117003r3"></a></span><span 
+ id="x12-118003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.sable.mcgill.ca/software/sootclasses<span 
 class="cmsy-10">−</span>2.2.3.jar <br /><span class="label"><a 
- id="x12-117004r4"></a></span><span 
+ id="x12-118004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.sable.mcgill.ca/software/jasminclasses<span 
 class="cmsy-10">−</span>2.2.3.jar
 </div>
 <!--l. 93--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-11800010.3.1"></a>Java Grande Forum Sequential Benchmarks</h5>
+ id="x12-11900010.3.1"></a>Java Grande Forum Sequential Benchmarks</h5>
 <!--l. 95--><p class="noindent" >Java Grande Forum Sequential Benchmarks is a benchmark suite designed for single
 processor execution.
 </p>
 <!--l. 97-->
-<div class="lstlisting" id="listing-72"><span class="label"><a 
- id="x12-118001r1"></a></span><span 
-class="cmmi-10">&#x003E;</span> mkdir <span 
-class="cmsy-10">−</span>p <span 
-class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="label"><a 
- id="x12-118002r2"></a></span><span 
-class="cmmi-10">&#x003E;</span> cd <span 
-class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="label"><a 
- id="x12-118003r3"></a></span><span 
-class="cmmi-10">&#x003E;</span> wget http://www2.epcc.ed.ac.uk/javagrande/seq/jgf_v2.tar.gz <br /><span class="label"><a 
- id="x12-118004r4"></a></span><span 
-class="cmmi-10">&#x003E;</span> tar xzf jgf_v2.tar.gz
-</div>
-<!--l. 106--><p class="noindent" >
-</p>
-<h5 class="subsubsectionHead"><a 
- id="x12-11900010.3.1"></a>Java Grande Forum Multi-threaded Benchmarks</h5>
-<!--l. 108--><p class="noindent" >Java Grande Forum Multi-threaded Benchmarks is a benchmark suite designed for
-parallel execution on shared memory multiprocessors.
-</p>
-<!--l. 110-->
-<div class="lstlisting" id="listing-73"><span class="label"><a 
+<div class="lstlisting" id="listing-74"><span class="label"><a 
  id="x12-119001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
@@ -835,53 +831,74 @@ class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="lab
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="label"><a 
  id="x12-119003r3"></a></span><span 
-class="cmmi-10">&#x003E;</span> wget http://www2.epcc.ed.ac.uk/javagrande/threads/jgf_threadv1.0.tar.gz <br /><span class="label"><a 
+class="cmmi-10">&#x003E;</span> wget http://www2.epcc.ed.ac.uk/javagrande/seq/jgf_v2.tar.gz <br /><span class="label"><a 
  id="x12-119004r4"></a></span><span 
+class="cmmi-10">&#x003E;</span> tar xzf jgf_v2.tar.gz
+</div>
+<!--l. 106--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><a 
+ id="x12-12000010.3.1"></a>Java Grande Forum Multi-threaded Benchmarks</h5>
+<!--l. 108--><p class="noindent" >Java Grande Forum Multi-threaded Benchmarks is a benchmark suite designed for
+parallel execution on shared memory multiprocessors.
+</p>
+<!--l. 110-->
+                                                                  
+
+                                                                  
+<div class="lstlisting" id="listing-75"><span class="label"><a 
+ id="x12-120001r1"></a></span><span 
+class="cmmi-10">&#x003E;</span> mkdir <span 
+class="cmsy-10">−</span>p <span 
+class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="label"><a 
+ id="x12-120002r2"></a></span><span 
+class="cmmi-10">&#x003E;</span> cd <span 
+class="tcrm-1000">$</span>BENCHMARK_ROOT/JavaGrandeForum <br /><span class="label"><a 
+ id="x12-120003r3"></a></span><span 
+class="cmmi-10">&#x003E;</span> wget http://www2.epcc.ed.ac.uk/javagrande/threads/jgf_threadv1.0.tar.gz <br /><span class="label"><a 
+ id="x12-120004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> tar xzf jgf_threadv1.0.tar.gz
 </div>
 <!--l. 119--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-12000010.3.1"></a>JLex Benchmark</h5>
+ id="x12-12100010.3.1"></a>JLex Benchmark</h5>
 <!--l. 121--><p class="noindent" ><a 
 href="http://www.cs.princeton.edu/~appel/modern/java/JLex/" >JLex</a> is a lexical analyzer generator, written for Java, in Java.
 </p>
 <!--l. 123-->
-<div class="lstlisting" id="listing-74"><span class="label"><a 
- id="x12-120001r1"></a></span><span 
+<div class="lstlisting" id="listing-76"><span class="label"><a 
+ id="x12-121001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/JLex<span 
 class="cmsy-10">−</span>1.2.6/classes/JLex <br /><span class="label"><a 
- id="x12-120002r2"></a></span><span 
+ id="x12-121002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/JLex<span 
 class="cmsy-10">−</span>1.2.6/classes/JLex <br /><span class="label"><a 
- id="x12-120003r3"></a></span><span 
+ id="x12-121003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.cs.princeton.edu/˜appel/modern/java/JLex/Archive/1.2.6/Main.java <br /><span class="label"><a 
- id="x12-120004r4"></a></span><span 
+ id="x12-121004r4"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/QBJC <br /><span class="label"><a 
- id="x12-120005r5"></a></span><span 
+ id="x12-121005r5"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/QBJC <br /><span class="label"><a 
- id="x12-120006r6"></a></span><span 
+ id="x12-121006r6"></a></span><span 
 class="cmmi-10">&#x003E;</span> wget http://www.ocf.berkeley.edu/˜horie/qbjlex.txt <br /><span class="label"><a 
- id="x12-120007r7"></a></span><span 
+ id="x12-121007r7"></a></span><span 
 class="cmmi-10">&#x003E;</span> mv qbjlex.txt qb1.lex
-                                                                  
-
-                                                                  
 </div>
 <!--l. 137--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.3.2   </span> <a 
- id="x12-12100010.3.2"></a>Proprietary Benchmarks</h4>
+ id="x12-12200010.3.2"></a>Proprietary Benchmarks</h4>
 <!--l. 139--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-12200010.3.2"></a>SPECjbb2005</h5>
+ id="x12-12300010.3.2"></a>SPECjbb2005</h5>
 <!--l. 141--><p class="noindent" ><a 
 href="http://www.spec.org/jbb2005/" >SPECjbb2005</a> describes itself as ”SPECjbb2005 (Java Server Benchmark) is SPEC&#x2019;s
 benchmark for evaluating the performance of server side Java. Like its predecessor,
@@ -899,8 +916,8 @@ download and use.
 </p><!--l. 143--><p class="noindent" >SPECjbb2005 can be run on command line via:
 </p>
 <!--l. 145-->
-<div class="lstlisting" id="listing-75"><span class="label"><a 
- id="x12-122001r1"></a></span><span 
+<div class="lstlisting" id="listing-77"><span class="label"><a 
+ id="x12-123001r1"></a></span><span 
 class="tcrm-1000">$</span>RVM_ROOT/rvm <span 
 class="cmsy-10">−</span>X:processors=1 <span 
 class="cmsy-10">−</span>Xms400m <span 
@@ -911,21 +928,24 @@ class="cmsy-10">−</span>propfile SPECjbb.props
 <!--l. 149--><p class="noindent" >SPECjbb2005 may also be run as part regression tests.
 </p>
 <!--l. 151-->
-<div class="lstlisting" id="listing-76"><span class="label"><a 
- id="x12-122002r1"></a></span><span 
+                                                                  
+
+                                                                  
+<div class="lstlisting" id="listing-78"><span class="label"><a 
+ id="x12-123002r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjbb2005 <br /><span class="label"><a 
- id="x12-122003r2"></a></span><span 
+ id="x12-123003r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjbb2005 <br /><span class="label"><a 
- id="x12-122004r3"></a></span><span 
+ id="x12-123004r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> ...Extract package here???...
 </div>
 <!--l. 159--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-12300010.3.2"></a>SPECjbb2000</h5>
+ id="x12-12400010.3.2"></a>SPECjbb2000</h5>
 <!--l. 161--><p class="noindent" ><a 
 href="http://www.spec.org/jbb2000/" >SPECjbb2000</a> describes itself as ”SPECjbb2000 (Java Business Benchmark) is
 SPEC&#x2019;s ﬁrst benchmark for evaluating the performance of server-side Java. Joining
@@ -934,26 +954,23 @@ Java users the most objective and representative benchmark for measuring a syste
 ability to run Java applications.” SPECjbb2000 requires a license to download and
 use. Benchmarks should no longer be performed using SPECjbb2000 as the
 benchmarks have very diﬀerent characteristics.
-                                                                  
-
-                                                                  
 </p>
 <!--l. 163-->
-<div class="lstlisting" id="listing-77"><span class="label"><a 
- id="x12-123001r1"></a></span><span 
+<div class="lstlisting" id="listing-79"><span class="label"><a 
+ id="x12-124001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjbb2000 <br /><span class="label"><a 
- id="x12-123002r2"></a></span><span 
+ id="x12-124002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjbb2000 <br /><span class="label"><a 
- id="x12-123003r3"></a></span><span 
+ id="x12-124003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> ...Extract package here???...
 </div>
 <!--l. 171--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x12-12400010.3.2"></a>SPEC JVM98 Benchmarks</h5>
+ id="x12-12500010.3.2"></a>SPEC JVM98 Benchmarks</h5>
 <!--l. 173--><p class="noindent" ><a 
 href="http://www.spec.org/jvm98/" >JVM98</a> features: ”Measures performance of Java Virtual Machines. Applicable to
 networked and standalone Java client computers, either with disk (e.g., PC,
@@ -963,28 +980,31 @@ JDK 1.1 API, or later.” SPEC JVM98 Benchmarks require a license to download an
 use.
 </p>
 <!--l. 175-->
-<div class="lstlisting" id="listing-78"><span class="label"><a 
- id="x12-124001r1"></a></span><span 
+<div class="lstlisting" id="listing-80"><span class="label"><a 
+ id="x12-125001r1"></a></span><span 
 class="cmmi-10">&#x003E;</span> mkdir <span 
 class="cmsy-10">−</span>p <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjvm98 <br /><span class="label"><a 
- id="x12-124002r2"></a></span><span 
+ id="x12-125002r2"></a></span><span 
 class="cmmi-10">&#x003E;</span> cd <span 
 class="tcrm-1000">$</span>BENCHMARK_ROOT/SPECjvm98 <br /><span class="label"><a 
- id="x12-124003r3"></a></span><span 
+ id="x12-125003r3"></a></span><span 
 class="cmmi-10">&#x003E;</span> ...Extract package here???...
 </div>
 <!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">10.4   </span> <a 
- id="x12-12500010.4"></a>Test Run Descriptions</h3>
+ id="x12-12600010.4"></a>Test Run Descriptions</h3>
 <!--l. 5--><p class="noindent" >The Jikes RVM project contains several diﬀerent test runs with diﬀerent
 purposes. This document attempts to capture the purpose of each diﬀerent test
 run.
+                                                                  
+
+                                                                  
 </p><!--l. 7--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.4.1   </span> <a 
- id="x12-12600010.4.1"></a>pre-commit</h4>
+ id="x12-12700010.4.1"></a>pre-commit</h4>
 <!--l. 9--><p class="noindent" >This test run MUST be run prior to committing code. It is relatively short and is
 designed to capture as many potential bugs in the shortest possible time. It is
 expected that the pre-commit test run will take 7-15 minutes on modern intel
@@ -992,13 +1012,10 @@ architecture.
 </p><!--l. 13--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.4.2   </span> <a 
- id="x12-12700010.4.2"></a>core</h4>
+ id="x12-12800010.4.2"></a>core</h4>
 <!--l. 15--><p class="noindent" >There is a set of workloads we consider important (i.e. dacapo and SPEC*). There is
 a set of build conﬁgurations we consider important (ie prototype, development,
 production). We as a group wish to guarantee that all important workloads will will
-                                                                  
-
-                                                                  
 run correctly on all important build conﬁgurations, i.e. We should NEVER
 regress. The core test run is designed to identify as early as possible any
 failures in this matrix of build conﬁguration x workload. It is run continuously
@@ -1014,7 +1031,7 @@ base.
 </p><!--l. 21--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.4.3   </span> <a 
- id="x12-12800010.4.3"></a>sanity</h4>
+ id="x12-12900010.4.3"></a>sanity</h4>
 <!--l. 23--><p class="noindent" >The sanity test runs cover a larger number of build conﬁgurations and workloads.
 They may not always pass and may test many of the less frequently used
 conﬁgurations (gctrace, gcspy, and individual stress tests) and less important
@@ -1025,15 +1042,18 @@ take several hours at the least.
 </p><!--l. 27--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.4.4   </span> <a 
- id="x12-12900010.4.4"></a>Other test runs</h4>
+ id="x12-13000010.4.4"></a>Other test runs</h4>
 <!--l. 29--><p class="noindent" >A set of test runs that are used for testing speciﬁc aspects of the system from
 performance, gcmap bug ﬁnding, io hammering etc. There may also be a set of
-personal/site-speciﬁc test runs included in this set that are not checked into
-Mercurial repository.
+personal/site-speciﬁc test runs included in this set that are not checked into Git
+repository.
+                                                                  
+
+                                                                  
 </p><!--l. 33--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">10.4.5   </span> <a 
- id="x12-13000010.4.5"></a>Summary</h4>
+ id="x12-13100010.4.5"></a>Summary</h4>
 <!--l. 35--><p class="noindent" >We must NEVER regress in the core test run. The pre-commit test run attempts to
 ensure no core regressions this while keeping running time reasonable. The sanity test
 run gives us an overall picture on the health of the code base. While the other test

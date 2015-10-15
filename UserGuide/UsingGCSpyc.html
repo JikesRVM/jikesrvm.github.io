@@ -13,68 +13,68 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-08-14 14:35:00" /> 
+<meta name="date" content="2015-10-15 16:40:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
-<!--l. 114--><div class="crosslinks"><p class="noindent"></p></div>
+<!--l. 113--><div class="crosslinks"><p class="noindent"></p></div>
 <h1 class="partHead"><span class="titlemark">Part III<br /></span><a 
- id="x20-244000III"></a>MMTk Tutorial</h1>
-<!--l. 117--><p class="noindent" >This tutorial will build up a sophisticated garbage collector from scratch, starting
+ id="x20-245000III"></a>MMTk Tutorial</h1>
+<!--l. 116--><p class="noindent" >This tutorial will build up a sophisticated garbage collector from scratch, starting
 with the empty shell that is the NoGC ”collector” in MMTk (collector is a
 misnomer in this case since NoGC does not collect), and gradually adding
 functionality.
-</p><!--l. 119--><p class="noindent" >This tutorial will tell you the mechanics of building a collector in MMTk. It will tell
+</p><!--l. 118--><p class="noindent" >This tutorial will tell you the mechanics of building a collector in MMTk. It will tell
 you how but it does not tell you anything about why. The tutorial thus serves two
 purposes: 1) to give you some insight into the mechanics of MMTk (but not the
 underlying reasons or design rationale), and 2) show you that the mechanics of
 building a non-trivial GC in MMTk is not hard, hopefully giving you conﬁdence to
 start exploring MMTk more deeply.
-</p><!--l. 121--><p class="noindent" >Please use the latest release to work with the tutorial. If you run into trouble
+</p><!--l. 120--><p class="noindent" >Please use the latest release to work with the tutorial. If you run into trouble
 following the instructions, please try again with <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">hg tip</span></span></span>. If the problem persists,
+class="cmtt-10">git HEAD</span></span></span>. If the problem persists,
 please <a 
 href="http://www.jikesrvm.org/ReportingBugs/" >report this as a bug</a>.
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x20-244002x1"><a 
-href="/UserGuide/Preliminaries/index.html#x21-24500017">Preliminaries</a>
+  class="enumerate" id="x20-245002x1"><a 
+href="/UserGuide/Preliminaries/index.html#x21-24600017">Preliminaries</a>
      </li>
      <li 
-  class="enumerate" id="x20-244004x2"><a 
-href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-24800018">Building a Mark-sweep Collector</a>
+  class="enumerate" id="x20-245004x2"><a 
+href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-24900018">Building a Mark-sweep Collector</a>
      </li>
      <li 
-  class="enumerate" id="x20-244006x3"><a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25200019">Building a Hybrid Copying/Mark-Sweep Collector</a></li></ol>
+  class="enumerate" id="x20-245006x3"><a 
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25300019">Building a Hybrid Copying/Mark-Sweep Collector</a></li></ol>
                                                                   
 
                                                                   
 <div class="chapterTOCS">
 <span class="chapterToc" >17 <a 
-href="/UserGuide/Preliminaries/index.html#x21-24500017">Preliminaries</a></span>
+href="/UserGuide/Preliminaries/index.html#x21-24600017">Preliminaries</a></span>
 <br /> <span class="sectionToc" >17.1 <a 
-href="/UserGuide/Preliminaries/index.html#x21-24600017.1">Getting MMTk and Jikes RVM and Eclipse working</a></span>
+href="/UserGuide/Preliminaries/index.html#x21-24700017.1">Getting MMTk and Jikes RVM and Eclipse working</a></span>
 <br /> <span class="sectionToc" >17.2 <a 
-href="/UserGuide/Preliminaries/index.html#x21-24700017.2">Creating The Base Tutorial Collector</a></span>
+href="/UserGuide/Preliminaries/index.html#x21-24800017.2">Creating The Base Tutorial Collector</a></span>
 <br /><span class="chapterToc" >18 <a 
-href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-24800018">Building a Mark-sweep Collector</a></span>
+href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-24900018">Building a Mark-sweep Collector</a></span>
 <br /> <span class="sectionToc" >18.1 <a 
-href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-24900018.1">Free-list Allocation</a></span>
+href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-25000018.1">Free-list Allocation</a></span>
 <br /> <span class="sectionToc" >18.2 <a 
-href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-25000018.2">Mark-Sweep Collection</a></span>
+href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-25100018.2">Mark-Sweep Collection</a></span>
 <br /> <span class="sectionToc" >18.3 <a 
-href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-25100018.3">Optimized Mark-sweep Collection</a></span>
+href="/UserGuide/BuildingAMarkSweepCollector/index.html#x22-25200018.3">Optimized Mark-sweep Collection</a></span>
 <br /><span class="chapterToc" >19 <a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25200019">Building a Hybrid Collector</a></span>
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25300019">Building a Hybrid Collector</a></span>
 <br /> <span class="sectionToc" >19.1 <a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25300019.1">Add a Copying Nursery</a></span>
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25400019.1">Add a Copying Nursery</a></span>
 <br /> <span class="sectionToc" >19.2 <a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25400019.2">Add nursery allocation</a></span>
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25500019.2">Add nursery allocation</a></span>
 <br /> <span class="sectionToc" >19.3 <a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25500019.3">Add copying to the collector</a></span>
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25600019.3">Add copying to the collector</a></span>
 <br /> <span class="sectionToc" >19.4 <a 
-href="/UserGuide/BuildingAHybridCollector/index.html#x23-25600019.4">Make necessary changes to TutorialTraceLocal</a></span>
+href="/UserGuide/BuildingAHybridCollector/index.html#x23-25700019.4">Make necessary changes to TutorialTraceLocal</a></span>
 </div>
                                                                   
 
@@ -87,7 +87,7 @@ href="/UserGuide/BuildingAHybridCollector/index.html#x23-25600019.4">Make necess
                                                                   
 
                                                                   
-<!--l. 135--><div class="crosslinks"><p class="noindent"></p></div>
-<!--l. 135--><p class="noindent" ><a 
+<!--l. 134--><div class="crosslinks"><p class="noindent"></p></div>
+<!--l. 134--><p class="noindent" ><a 
  id="tailUsingGCSpyc.html"></a>  </p> 
 </body></html> 

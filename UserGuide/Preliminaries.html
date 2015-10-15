@@ -13,33 +13,33 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-08-14 14:35:00" /> 
+<meta name="date" content="2015-10-15 16:40:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 17</span><br /><a 
- id="x21-24500017"></a>Preliminaries</h2>
+ id="x21-24600017"></a>Preliminaries</h2>
 <h3 class="sectionHead"><span class="titlemark">17.1   </span> <a 
- id="x21-24600017.1"></a>Getting MMTk and Jikes RVM and Eclipse working</h3>
+ id="x21-24700017.1"></a>Getting MMTk and Jikes RVM and Eclipse working</h3>
 <!--l. 6--><p class="noindent" >
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x21-246002x1"><a 
-href="/UserGuide/GetTheSource/index.html#x4-30002">Download</a> the latest Jikes RVM release (or use hg tip)
+  class="enumerate" id="x21-247002x1"><a 
+href="/UserGuide/GetTheSource/index.html#x4-30002">Download</a> the latest Jikes RVM release (or use git HEAD)
      </li>
      <li 
-  class="enumerate" id="x21-246004x2">Ensure you can <a 
+  class="enumerate" id="x21-247004x2">Ensure you can <a 
 href="/UserGuide/BuildingJikesRVM/index.html#x5-60003">Build</a> and <a 
 href="/UserGuide/RunningJikesRVM/index.html#x11-970009">Run Jikes RVM</a>.
      </li>
      <li 
-  class="enumerate" id="x21-246006x3">Ensure you can build and run the BaseBaseNoGC conﬁguration (build with:
+  class="enumerate" id="x21-247006x3">Ensure you can build and run the BaseBaseNoGC conﬁguration (build with:
      <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">bin/buildit localhost BaseBaseNoGC</span></span></span>, run with something like:
      <!--l. 10-->
-     <div class="lstlisting" id="listing-136"><span class="label"><a 
- id="x21-246007r1"></a></span>dist/BaseBaseNoGC_ia32<span 
+     <div class="lstlisting" id="listing-138"><span class="label"><a 
+ id="x21-247007r1"></a></span>dist/BaseBaseNoGC_ia32<span 
 class="cmsy-10">−</span>linux/rvm HelloWorld
      
      </div>
@@ -49,13 +49,13 @@ class="cmti-10">does not </span>perform garbage collection so can only
      conﬁguration will be used as the basis for the tutorial.
      </p></li>
      <li 
-  class="enumerate" id="x21-246009x4">Ensure that your source is <a 
+  class="enumerate" id="x21-247009x4">Ensure that your source is <a 
 href="/UserGuide/ModifyingJikesRVM/index.html#x9-890007.5">successfully imported</a> (and editable) within an IDE
      such as Eclipse.
      </li>
      <li 
-  class="enumerate" id="x21-246011x5">Set up an <a 
-href="/UserGuide/TheMMTkTestHarness/index.html#x13-13100011">Eclipse Run conﬁguration</a> for the <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x21-247011x5">Set up an <a 
+href="/UserGuide/TheMMTkTestHarness/index.html#x13-13200011">Eclipse Run conﬁguration</a> for the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">NoGC</span></span></span> plan using the MMTk Test
      Harness.</li></ol>
                                                                   
@@ -64,17 +64,17 @@ class="cmtt-10">NoGC</span></span></span> plan using the MMTk Test
 <!--l. 20--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">17.2   </span> <a 
- id="x21-24700017.2"></a>Creating The Base Tutorial Collector</h3>
+ id="x21-24800017.2"></a>Creating The Base Tutorial Collector</h3>
 <!--l. 22--><p class="noindent" >
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x21-247002x1">Copy  the  <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x21-248002x1">Copy  the  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.mmtk.plan.nogc</span></span></span> package  to  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.mmtk.plan.tutorial</span></span></span>
      (copy and paste the package in Eclipse).
      </li>
      <li 
-  class="enumerate" id="x21-247004x2">Rename the constituent classes from <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x21-248004x2">Rename the constituent classes from <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">NoGC*</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial*</span></span></span> (use Refactor
      <span 
@@ -83,30 +83,30 @@ class="cmtt-10">org.mmtk.plan.tutorial</span></span></span> package
      in Eclipse).
      </li>
      <li 
-  class="enumerate" id="x21-247006x3">Edit ﬁle class <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x21-248006x3">Edit ﬁle class <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.mmtk.harness.PlanSpecificConfig</span></span></span>, and add the following
      lines <!--l. 26-->
-     <div class="lstlisting" id="listing-137"><span class="label"><a 
- id="x21-247007r1"></a></span>register(new PlanSpecific(”org.mmtk.plan.tutorial.Tutorial”).addExpectedSpaces(”default”), ”Tutorial”);
+     <div class="lstlisting" id="listing-139"><span class="label"><a 
+ id="x21-248007r1"></a></span>register(new PlanSpecific(”org.mmtk.plan.tutorial.Tutorial”).addExpectedSpaces(”default”), ”Tutorial”);
      
      </div>
      <!--l. 29--><p class="noindent" >to the static initializer (look for ”NoGC”).
      </p></li>
      <li 
-  class="enumerate" id="x21-247009x4">Modify your MMTk Harness Eclipse Run Conﬁguration to use the new Plan
+  class="enumerate" id="x21-248009x4">Modify your MMTk Harness Eclipse Run Conﬁguration to use the new Plan
      (the name of the plan is the second parameter to the ”register” method you
      inserted above), and click &#x2019;Run&#x2019; to run it.
      </li>
      <li 
-  class="enumerate" id="x21-247011x5">Build and run the resulting collector. <br 
+  class="enumerate" id="x21-248011x5">Build and run the resulting collector. <br 
 class="newline" />Build with something like: <!--l. 32-->
-     <div class="lstlisting" id="listing-138"><span class="label"><a 
- id="x21-247012r1"></a></span>bin/buildit localhost BaseBaseTutorial
+     <div class="lstlisting" id="listing-140"><span class="label"><a 
+ id="x21-248012r1"></a></span>bin/buildit localhost BaseBaseTutorial
      
      </div>
      <!--l. 35--><p class="noindent" >run with something like: </p><!--l. 36-->
-     <div class="lstlisting" id="listing-139"><span class="label"><a 
- id="x21-247013r1"></a></span>dist/BaseBaseTutorial_ia32<span 
+     <div class="lstlisting" id="listing-141"><span class="label"><a 
+ id="x21-248013r1"></a></span>dist/BaseBaseTutorial_ia32<span 
 class="cmsy-10">−</span>linux/rvm HelloWorld
      
      </div>
