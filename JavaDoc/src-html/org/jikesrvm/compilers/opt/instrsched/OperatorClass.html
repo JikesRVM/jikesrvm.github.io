@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>//OperatorClass.java<a name="line.13"></a>
+<span class="sourceLineNo">014</span>package org.jikesrvm.compilers.opt.instrsched;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.*;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.ir.*;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.ArrayList;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * Generated from a template.<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * Consists of an operator class and information about resource usage<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * There is only one instance of each OperatorClass, which is stored<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * as a static final field in OperatorClass.  You can compare<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * OperatorClasses using ==.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * Every Operator contains one of these.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * @see Operator<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * @see Operators<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>public final class OperatorClass implements Operators {<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>   // debug level (0 = no debug)<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   private static final int verbose = 0;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>   private static void debug(String s) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>      System.err.println(s);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   }<a name="line.38"></a>
+<span class="sourceLineNo">039</span>   private static String SPACES = null;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>   private static void debug(int depth, String s) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      if (SPACES == null) SPACES = dup(7200, ' ');<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      debug(SPACES.substring(0,depth*2)+s);<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>   // Padding<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   // For internal use only.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   private static final String ZEROS = dup(32, '0');<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   private static String toBinaryPad32(int value) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>      String s = Integer.toBinaryString(value);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>      return ZEROS.substring(s.length())+s;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>   // Returns a special resource type embodying all resources of a given class.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   // For internal use only.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   private static int all_units(int rclass) { return rclass | 0x80000000; }<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>   /**<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    * Empty Resources Mask<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   static int NONE = 0;<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>   /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    * All Resources Mask<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   static int ALL = 0;          // will be filled in<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>   // Generates an array of resource masks, and updating the static field<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   // ALL to contain all of the masks.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   // For internal use only.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   private static int M = 1;    // current mask<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   private static int[] genMasks(int number) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>      int[] rs = new int[number + 1];<a name="line.72"></a>
+<span class="sourceLineNo">073</span>      int rall = 0;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>      for (int i = 0; i &lt; number; i++) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>         if (VM.VerifyAssertions &amp;&amp; M == 0)<a name="line.75"></a>
+<span class="sourceLineNo">076</span>            throw new InternalError("Exceeded 32 resources");<a name="line.76"></a>
+<span class="sourceLineNo">077</span>         //System.err.println("Scheduler: Resource "+M);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>         rs[i] = M;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>         ALL |= M;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>         rall |= M;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>         M &lt;&lt;= 1;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      rs[number] = rall;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      return rs;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>   /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    * Resource Masks<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   private static final int[][] resources = {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      null<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   };<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>   /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    * Total number of resources<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   static final int N = resources.length - 1;<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>   /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    * Resource Names<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   private static final String[] resource_names = {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      null<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   };<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>   /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    * Resources<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    */<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>   /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    * Id of the operator class<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   private int id = 0;<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>   /**<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    * Maximum Latency of any instruction<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   private int maxlat = 0;<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>   /**<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    * Returns the maximum latency of any instruction in the class.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    * Note: it is faster to simply check the field directly, if possible.<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   public int maxLatency() { return maxlat; }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>   /**<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    * Latencies to other classes<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   private final ArrayList&lt;Integer&gt; latencies;<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>   // Returns latency lookup in the hashtable for a given operator class.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   // For internal use only.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   private Object latObj(OperatorClass opclass) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      int latsize = latencies.size();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      Object latObj = null;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      if (latsize &gt; opclass.id) latObj = latencies.get(opclass.id);<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>      // walk through backwards, since any_insn (most general) is first<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      ArrayList&lt;OperatorClass&gt; opcrc = opclass.rclasses;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      for (int i = opcrc.size(); latObj == null &amp;&amp; i &gt; 0; i--) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>         OperatorClass rc = opcrc.get(i - 1);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>         if (latsize &gt; rc.id) latObj = latencies.get(rc.id);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>      }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>      for (int i = rclasses.size(); latObj == null &amp;&amp; i &gt; 0; i--) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>         OperatorClass rc = rclasses.get(i - 1);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>         latObj = rc.latObj(opclass);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>      return latObj;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>   /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    * Sets the operator class (for hierarchy)<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    *<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    * @param opClass operator class<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   public void setOpClass(OperatorClass opClass) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>      rclasses.add(opClass);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>   /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    * Returns the latency between instructions in this class and given class<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    *<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    * @param opclass destination operator class<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    * @return latency to given operator class<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>   public int latency(OperatorClass opclass) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      return (Integer) latObj(opclass);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>   /**<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    * Sets the latency between instructions in this class and given class<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    *<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    * @param opclass destination operator class<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    * @param latency desired latency<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   public void setLatency(OperatorClass opclass, int latency) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      int latencies_size = latencies.size();<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      if (opclass.id &lt; latencies_size) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>         latencies.set(opclass.id, latency);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      else {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>         for(; latencies_size &lt; opclass.id; latencies_size++) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            latencies.add(null);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>         }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>         latencies.add(latency);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>      }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>   }<a name="line.190"></a>
+<span class="sourceLineNo">191</span>   /**<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    * Sets the latency between instructions in given class and this class<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    * @param opclass source operator class<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    * @param latency desired latency<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    */<a name="line.196"></a>
+<span class="sourceLineNo">197</span>   public void setRevLatency(OperatorClass opclass, int latency) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>      opclass.setLatency(this, latency);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>   }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>   /*<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    * Operator Classes<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    */<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>   // Global class embodying all operator classes.  For internal use only.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   private static final OperatorClass any_insn = new OperatorClass(0);<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>   /**<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    * Map from resource to operator class representing that resource<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   private static OperatorClass[] res2class = {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      null<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   };<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>   private static final OperatorClass<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   pseudo_ops = new OperatorClass(<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      0+N+1,<a name="line.218"></a>
+<span class="sourceLineNo">219</span>      new ResourceReservation[] {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>      }<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   );<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   static {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>      LABEL.setOpClass(pseudo_ops);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      BBEND.setOpClass(pseudo_ops);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>      UNINT_BEGIN.setOpClass(pseudo_ops);<a name="line.225"></a>
+<span class="sourceLineNo">226</span>      UNINT_END.setOpClass(pseudo_ops);<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>      pseudo_ops.setLatency(any_insn, 0);<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>   }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>   /**<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    * Resource Classes used by this Operator Class<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    */<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   final ArrayList&lt;OperatorClass&gt; rclasses;<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>   /**<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    * Resource Usage Masks<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>   int[][] masks;<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>   // For internal use only.<a name="line.243"></a>
+<span class="sourceLineNo">244</span>   private OperatorClass(int _id) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>      id = _id;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      rclasses = new ArrayList&lt;OperatorClass&gt;();<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      latencies = new ArrayList&lt;Integer&gt;();<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>   // For internal use only.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   private OperatorClass(int _id, ResourceReservation[] pat) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>      this(_id);<a name="line.252"></a>
+<span class="sourceLineNo">253</span>      allocateMasks(pat);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>      if (verbose &gt;= 2) debug(masks.length+" masks allocated for "+pat.length+<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                              " requests");<a name="line.255"></a>
+<span class="sourceLineNo">256</span>      int[] assign = new int[pat.length];<a name="line.256"></a>
+<span class="sourceLineNo">257</span>      int comb = fillMasks(pat, assign, 0, 0, 0);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      if (false &amp;&amp; comb != masks.length)<a name="line.258"></a>
+<span class="sourceLineNo">259</span>         throw new InternalError("Insufficient Resources");<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   }<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>   /**<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    * Returns the string representation of this operator class.<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    */<a name="line.264"></a>
+<span class="sourceLineNo">265</span>   @Override<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   public String toString() {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>      StringBuffer sb = new StringBuffer("Size=");<a name="line.267"></a>
+<span class="sourceLineNo">268</span>      sb.append(masks.length).append('\n');<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     for (int[] mask : masks) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>       for (int v : mask)<a name="line.270"></a>
+<span class="sourceLineNo">271</span>         sb.append(toBinaryPad32(v)).append('\n');<a name="line.271"></a>
+<span class="sourceLineNo">272</span>       sb.append('\n');<a name="line.272"></a>
+<span class="sourceLineNo">273</span>     }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>      return sb.toString();<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>   // For internal use only.<a name="line.277"></a>
+<span class="sourceLineNo">278</span>   private void allocateMasks(ResourceReservation[] pat) {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      ResourceReservation.sort(pat);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      int maxlen = 0;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      int size = 1;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      ResourceReservation r = new ResourceReservation(-1, -1, -1000);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      int len = -1;<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      OperatorClass[] rss = new OperatorClass[N];<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      for (ResourceReservation p : pat) {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>         rss[p.rclass()] = res2class[p.rclass()];<a name="line.286"></a>
+<span class="sourceLineNo">287</span>         boolean same = p.equals(r);<a name="line.287"></a>
+<span class="sourceLineNo">288</span>         if (!p.conflicts(r)) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>            r = p;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>            if (r.isGlobal())<a name="line.290"></a>
+<span class="sourceLineNo">291</span>               len = 1;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>            else<a name="line.292"></a>
+<span class="sourceLineNo">293</span>               len = resources[r.rclass()].length - 1;<a name="line.293"></a>
+<span class="sourceLineNo">294</span>         } else if (r.isGlobal()) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            throw new InternalError("Insufficient Resources");<a name="line.295"></a>
+<span class="sourceLineNo">296</span>         } else {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            len--;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>         }<a name="line.298"></a>
+<span class="sourceLineNo">299</span>         size *= len;<a name="line.299"></a>
+<span class="sourceLineNo">300</span>         if (same)<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            size /= 2;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>         if (p.start + p.duration &gt; maxlen)<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            maxlen = p.start + p.duration;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>      }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      rclasses.add(any_insn);<a name="line.305"></a>
+<span class="sourceLineNo">306</span>      for (int i = 0; i &lt; N; i++)<a name="line.306"></a>
+<span class="sourceLineNo">307</span>         if (rss[i] != null)<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            rclasses.add(rss[i]);<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      masks = new int[size][];<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      for (int i = 0; i &lt; size; i++)<a name="line.310"></a>
+<span class="sourceLineNo">311</span>         masks[i] = new int[maxlen];<a name="line.311"></a>
+<span class="sourceLineNo">312</span>   }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>   // For internal debug use only.<a name="line.314"></a>
+<span class="sourceLineNo">315</span>   static int depth = 0;<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>   // For internal use only.<a name="line.317"></a>
+<span class="sourceLineNo">318</span>   private int fillMasks(ResourceReservation[] pat, int[] assign,<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                               int all, int rrq, int comb) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>      if (rrq == pat.length) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>         for (int i = 0; i &lt; masks[comb].length; i++)<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            masks[comb][i] = 0;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>         StringBuffer dbSB;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>         if (verbose &gt;= 1) dbSB = new StringBuffer();<a name="line.324"></a>
+<span class="sourceLineNo">325</span>         for (int i = 0; i &lt; pat.length; i++) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            ResourceReservation pi = pat[i];<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            int rc = pi.rclass();<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            int mask = resources[rc][assign[i]];<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            if (verbose &gt;= 1) dbSB.append(toBinaryPad32(mask)).append(" ");<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            for (int j = 0; j &lt; pi.duration; j++)<a name="line.330"></a>
+<span class="sourceLineNo">331</span>               masks[comb][pi.start + j] |= mask;<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            if (maxlat &lt; pi.duration)<a name="line.332"></a>
+<span class="sourceLineNo">333</span>               maxlat = pi.duration;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>         }<a name="line.334"></a>
+<span class="sourceLineNo">335</span>         if (verbose &gt;= 1) debug(dbSB.toString());<a name="line.335"></a>
+<span class="sourceLineNo">336</span>         return comb + 1;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>      }<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      int rc = pat[rrq].rclass();<a name="line.338"></a>
+<span class="sourceLineNo">339</span>      int start = 0;<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      int end = resources[rc].length - 1;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      if (rrq != 0 &amp;&amp; pat[rrq].equals(pat[rrq-1]))<a name="line.341"></a>
+<span class="sourceLineNo">342</span>         start = assign[rrq-1] + 1;<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      boolean ignore = ((rrq != 0 &amp;&amp; !pat[rrq].conflicts(pat[rrq-1])) ||<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                        pat[rrq].isGlobal());<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      if (pat[rrq].isGlobal()) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>         start = end;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>         end++;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      }<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>      for (int i = start; i &lt; end; i++)<a name="line.350"></a>
+<span class="sourceLineNo">351</span>         if (ignore || (resources[rc][i] &amp; all) == 0) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            if (verbose &gt;= 2) debug(depth, rrq+": Res#"+rc+"; Trying "+i+<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                                    "; reserved='"+toBinaryPad32(all)+"'");<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>            depth++;<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            assign[rrq] = i;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            comb = fillMasks(pat, assign, all | resources[rc][i], rrq+1, comb);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>            depth--;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>         }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>      return comb;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>   }<a name="line.362"></a>
+<span class="sourceLineNo">363</span><a name="line.363"></a>
+<span class="sourceLineNo">364</span>   // Generates a string of a given length filled by a given character.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>   // For internal use only.<a name="line.365"></a>
+<span class="sourceLineNo">366</span>   private static String dup(int len, char c) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>      StringBuffer sb = new StringBuffer();<a name="line.367"></a>
+<span class="sourceLineNo">368</span>      for (int i = 0; i &lt; len; i++)<a name="line.368"></a>
+<span class="sourceLineNo">369</span>         sb.append(c);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      return sb.toString();<a name="line.370"></a>
+<span class="sourceLineNo">371</span>   }<a name="line.371"></a>
+<span class="sourceLineNo">372</span>}<a name="line.372"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>NoYieldpointsMonitor (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="NoYieldpointsMonitor (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/NoYieldpointsMonitor.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/scheduler/NoYieldpointsMonitor.html" target="_top">Frames</a></li>
+<li><a href="NoYieldpointsMonitor.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#fields_inherited_from_class_org.jikesrvm.scheduler.Monitor">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.scheduler</div>
+<h2 title="Class NoYieldpointsMonitor" class="title">Class NoYieldpointsMonitor</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">org.jikesrvm.scheduler.Monitor</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.scheduler.NoYieldpointsMonitor</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../src-html/org/jikesrvm/scheduler/NoYieldpointsMonitor.html#line.41">NoYieldpointsMonitor</a>
+extends <a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></pre>
+<div class="block">A heavy condition variable and lock that also disables interrupts while
+ the lock is held.  Extremely useful for any locks that may be acquired,
+ released, or waited upon in the process of performing a GC.
+ <p>
+ Note that calling any of the Nicely methods on an instance of this
+ class is extremely dangerous.  These methods may cause you to block on
+ GC, which seemingly goes against the very intent of this being a "no
+ interrupts" condition variable and lock.  However, it makes a subtle
+ kind of sense to use these methods, <i>if you're calling them on the
+ instance of NoInterruptsCondLock that your thread will wait on when
+ blocking on GC</i>.  This idiom is used quite a bit.
+ <p>
+ To ensure that the Nicely methods are used correctly - that is, that
+ they are only used by the thread that owns the lock - there are assertions
+ in place to ensure that the caller is the owner.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.scheduler.Monitor">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.scheduler.<a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></h3>
+<code><a href="../../../org/jikesrvm/scheduler/Monitor.html#acquireCount">acquireCount</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#holderSlot">holderSlot</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#monitor">monitor</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#recCount">recCount</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jikesrvm/scheduler/NoYieldpointsMonitor.html#NoYieldpointsMonitor()">NoYieldpointsMonitor</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/scheduler/NoYieldpointsMonitor.html#lockNoHandshake()">lockNoHandshake</a></strong>()</code>
+<div class="block">Wait until it is possible to acquire the lock and then acquire it.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/scheduler/NoYieldpointsMonitor.html#lockWithHandshake()">lockWithHandshake</a></strong>()</code>
+<div class="block">Wait until it is possible to acquire the lock and then acquire it.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/scheduler/NoYieldpointsMonitor.html#unlock()">unlock</a></strong>()</code>
+<div class="block">Release the lock.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.scheduler.Monitor">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.scheduler.<a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></h3>
+<code><a href="../../../org/jikesrvm/scheduler/Monitor.html#broadcast()">broadcast</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#lockedBroadcastNoHandshake()">lockedBroadcastNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#lockNoHandshake(org.jikesrvm.scheduler.Monitor)">lockNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#lockWithHandshake(org.jikesrvm.scheduler.Monitor,%20org.vmmagic.unboxed.Word,%20org.jikesrvm.scheduler.Monitor,%20org.vmmagic.unboxed.Word)">lockWithHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#relockNoHandshake(int)">relockNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#relockWithHandshake(int)">relockWithHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#timedWaitAbsoluteNoHandshake(long)">timedWaitAbsoluteNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#timedWaitAbsoluteWithHandshake(long)">timedWaitAbsoluteWithHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#timedWaitRelativeNoHandshake(long)">timedWaitRelativeNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#timedWaitRelativeWithHandshake(long)">timedWaitRelativeWithHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#unlock(boolean,%20org.jikesrvm.scheduler.Monitor)">unlock</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#unlockCompletely()">unlockCompletely</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#waitNoHandshake()">waitNoHandshake</a>, <a href="../../../org/jikesrvm/scheduler/Monitor.html#waitWithHandshake()">waitWithHandshake</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="NoYieldpointsMonitor()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>NoYieldpointsMonitor</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/jikesrvm/scheduler/NoYieldpointsMonitor.html#line.41">NoYieldpointsMonitor</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="lockNoHandshake()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lockNoHandshake</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/scheduler/NoYieldpointsMonitor.html#line.45">lockNoHandshake</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html#lockNoHandshake()">Monitor</a></code></strong></div>
+<div class="block">Wait until it is possible to acquire the lock and then acquire it.
+ There is no bound on how long you might wait, if someone else is
+ holding the lock and there is no bound on how long they will hold it.
+ As well, even if there is a bound on how long a thread might hold a
+ lock but there are multiple threads contending on its acquisition,
+ there will not necessarily be a bound on how long any particular
+ thread will wait until it gets its turn.
+ <p>
+ This blocking method method does not notify the threading subsystem
+ that it is blocking.  Thus, if someone (like, say, the GC) requests
+ that the thread is blocked then their request will block until this
+ method unblocks.  If this sounds like it might be undesirable, call
+ lockNicely instead.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/scheduler/Monitor.html#lockNoHandshake()">lockNoHandshake</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="lockWithHandshake()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lockWithHandshake</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/scheduler/NoYieldpointsMonitor.html#line.55">lockWithHandshake</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html#lockWithHandshake()">Monitor</a></code></strong></div>
+<div class="block">Wait until it is possible to acquire the lock and then acquire it.
+ There is no bound on how long you might wait, if someone else is
+ holding the lock and there is no bound on how long they will hold it.
+ As well, even if there is a bound on how long a thread might hold a
+ lock but there are multiple threads contending on its acquisition,
+ there will not necessarily be a bound on how long any particular
+ thread will wait until it gets its turn.
+ <p>
+ This blocking method method notifies the threading subsystem that it
+ is blocking.  Thus, it may be safer than calling lock.  But,
+ its reliance on threading subsystem accounting methods may mean that
+ it cannot be used in certain contexts (say, the threading subsystem
+ itself).
+ <p>
+ This method will ensure that if it blocks, it does so with the
+ mutex not held.  This is useful for cases where the subsystem that
+ requested you to block needs to acquire the lock you were trying to
+ acquire when the blocking request came.
+ <p>
+ It is usually not necessary to call this method instead of lock(),
+ since most VM locks are held for short periods of time.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/scheduler/Monitor.html#lockWithHandshake()">lockWithHandshake</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="unlock()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>unlock</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/scheduler/NoYieldpointsMonitor.html#line.63">unlock</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html#unlock()">Monitor</a></code></strong></div>
+<div class="block">Release the lock.  This method should (in principle) be non-blocking,
+ and, as such, it does not notify the threading subsystem that it is
+ blocking.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/scheduler/Monitor.html#unlock()">unlock</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler">Monitor</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/NoYieldpointsMonitor.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/scheduler/Monitor.html" title="class in org.jikesrvm.scheduler"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/scheduler/NoYieldpointsMonitor.html" target="_top">Frames</a></li>
+<li><a href="NoYieldpointsMonitor.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#fields_inherited_from_class_org.jikesrvm.scheduler.Monitor">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

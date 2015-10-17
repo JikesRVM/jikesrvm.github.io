@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.lir2mir;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Enumeration;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.ArchitectureSpecificOpt.BURS_Debug;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.ArchitectureSpecificOpt.BURS_STATE;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.ArchitectureSpecificOpt.BURS_TreeNode;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.OptimizingCompilerException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.depgraph.DepGraph;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.depgraph.DepGraphEdge;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.depgraph.DepGraphNode;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import static org.jikesrvm.compilers.opt.ir.Operators.CALL_opcode;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import static org.jikesrvm.compilers.opt.ir.Operators.GUARD_COMBINE;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import static org.jikesrvm.compilers.opt.ir.Operators.GUARD_COND_MOVE;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import static org.jikesrvm.compilers.opt.ir.Operators.GUARD_MOVE;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import static org.jikesrvm.compilers.opt.ir.Operators.IR_PROLOGUE;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import static org.jikesrvm.compilers.opt.ir.Operators.OTHER_OPERAND_opcode;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import static org.jikesrvm.compilers.opt.ir.Operators.RETURN_opcode;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import static org.jikesrvm.compilers.opt.ir.Operators.SYSCALL_opcode;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import static org.jikesrvm.compilers.opt.ir.Operators.YIELDPOINT_OSR_opcode;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.ir.ResultCarrier;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.compilers.opt.ir.operand.AddressConstantOperand;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.compilers.opt.ir.operand.BranchOperand;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jikesrvm.compilers.opt.ir.operand.InlinedOsrTypeInfoOperand;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.jikesrvm.compilers.opt.ir.operand.LongConstantOperand;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.jikesrvm.compilers.opt.util.SpaceEffGraphEdge;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.jikesrvm.compilers.opt.util.SpaceEffGraphNode;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>/**<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * This class contains methods for invoking BURS tree-pattern matching<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * from the OPT Compiler.  BURS is invoked on trees obtained from the<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * dependence graph of a basic block.<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * @see DepGraph<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * @see BURS_STATE<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * @see BURS_TreeNode<a name="line.54"></a>
+<span class="sourceLineNo">055</span> */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>final class NormalBURS extends BURS {<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  private int numTreeRoots;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * Create a BURS object for the given IR.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   *<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * @param ir the IR to translate from LIR to MIR.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  NormalBURS(IR ir) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    super(ir);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>  /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   * Build BURS trees for dependence graph dg, label the trees, and<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * then generate MIR instructions based on the labeling.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   * @param dg the dependence graph.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  public void invoke(DepGraph dg) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    if (DEBUG) dg.printDepGraph();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    BURS_STATE burs = new BURS_STATE(this);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    buildTrees(dg);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    if (haveProblemEdges()) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      problemEdgePrep();<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      handleProblemEdges();<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    orderTrees(dg);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    labelTrees(burs);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    generateTrees(burs);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  ////////////////////////////////<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  // Implementation<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  ////////////////////////////////<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   * Stage 1: Complete the expression trees and identify tree roots.<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * Complete BURS trees by adding leaf nodes as needed, and<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * creating tree edges by calling insertChild1() or insertChild2()<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * This step is also where we introduce intermediate tree nodes for<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * any LIR instruction that has &gt; 2 "real" operands e.g., a CALL.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * We also mark nodes that must be tree roots.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   *<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * @param dg  The dependence graph.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  private void buildTrees(DepGraph dg) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    DepGraphNode bbNodes = (DepGraphNode) dg.firstNode();<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    for (DepGraphNode n = bbNodes; n != null; n = (DepGraphNode) n.getNext()) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      // Initialize n.treeNode<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      BURS_TreeNode cur_parent = new BURS_TreeNode(n);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      n.scratchObject = cur_parent;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      Instruction instr = n.instruction();<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      // cur_parent = current parent node for var length IR instructions<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      // loop for USES of an instruction<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      for (Enumeration&lt;Operand&gt; uses = instr.getUses(); uses.hasMoreElements();) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        // Create tree edge for next use.<a name="line.111"></a>
+<span class="sourceLineNo">112</span>        Operand op = uses.nextElement();<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        if (op == null) continue;<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>        // Set child = BURS_TreeNode for operand op<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        BURS_TreeNode child;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        if (op instanceof RegisterOperand) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>          RegisterOperand regOp = (RegisterOperand) op;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>          // ignore validation registers<a name="line.119"></a>
+<span class="sourceLineNo">120</span>          if (regOp.getRegister().isValidation()) continue;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>          DepGraphEdge e = DepGraphEdge.findInputEdge(n, op);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>          if (e == null) {        // operand is leaf<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            child = Register;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>          } else {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            child = (BURS_TreeNode) e.fromNode().scratchObject;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>          }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        } else if (op instanceof IntConstantOperand) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>          child = new BURS_IntConstantTreeNode(((IntConstantOperand) op).value);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        } else if (op instanceof LongConstantOperand) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>          child = LongConstant;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        } else if (op instanceof AddressConstantOperand) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>          child = AddressConstant;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        } else if (op instanceof BranchOperand &amp;&amp; instr.isCall()) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>          child = BranchTarget;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        } else if (op instanceof InlinedOsrTypeInfoOperand &amp;&amp; instr.isYieldPoint()) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>          child = NullTreeNode;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        } else {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>          continue;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>        // Attach child as child of cur_parent in correct position<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        if (cur_parent.child1 == null) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>          cur_parent.child1 = child;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>        } else if (cur_parent.child2 == null) {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>          cur_parent.child2 = child;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        } else {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>          // Create auxiliary node so as to represent<a name="line.147"></a>
+<span class="sourceLineNo">148</span>          // a instruction with arity &gt; 2 in a binary tree.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>          BURS_TreeNode child1 = cur_parent.child2;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>          BURS_TreeNode aux = new BURS_TreeNode(OTHER_OPERAND_opcode);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>          cur_parent.child2 = aux;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>          cur_parent = aux;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          cur_parent.child1 = child1;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>          cur_parent.child2 = child;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      }         // for (uses = ...)<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>      // patch for calls &amp; return<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      switch (instr.getOpcode()) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        case CALL_opcode:<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        case SYSCALL_opcode:<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        case YIELDPOINT_OSR_opcode:<a name="line.162"></a>
+<span class="sourceLineNo">163</span>          if (cur_parent.child2 == null) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            cur_parent.child2 = NullTreeNode;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>          }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>          // fall through<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        case RETURN_opcode:<a name="line.167"></a>
+<span class="sourceLineNo">168</span>          if (cur_parent.child1 == null) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>            cur_parent.child1 = NullTreeNode;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>          }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>      if (mustBeTreeRoot(n)) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        makeTreeRoot((BURS_TreeNode) n.scratchObject);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>      }<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  }<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>  /**<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   * Stage 1b: Do bookkeeping to make it easier to identify<a name="line.180"></a>
+<span class="sourceLineNo">181</span>   * harmless problem edges.<a name="line.181"></a>
+<span class="sourceLineNo">182</span>   */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  private void problemEdgePrep() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    for (int i = 0; i &lt; numTreeRoots; i++) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      BURS_TreeNode n = treeRoots[i];<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      problemEdgePrep(n, n.dg_node);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>  private void problemEdgePrep(BURS_TreeNode n, SpaceEffGraphNode root) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    BURS_TreeNode child1 = n.child1;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    BURS_TreeNode child2 = n.child2;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    if (child1 != null &amp;&amp; !child1.isTreeRoot()) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      problemEdgePrep(child1, root);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    if (child2 != null &amp;&amp; !child2.isTreeRoot()) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      problemEdgePrep(child2, root);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    if (n.dg_node != null) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>      n.dg_node.nextSorted = root;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>      n.dg_node.scratch = 0;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>  /**<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * Stage 1c: Mark src node of some problem edges as tree roots to avoid<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * cyclic dependencies.<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   */<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  private void handleProblemEdges() {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    // Stage 1: Remove problem edges whose destination<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    //          is the root of their own tree; these edges<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    //          are trivially redundant with reg-true edges.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    int remaining = 0;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    for (int i = 0; i &lt; numProblemEdges; i++) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      SpaceEffGraphEdge e = problemEdges[i];<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      SpaceEffGraphNode src = e.fromNode();<a name="line.216"></a>
+<span class="sourceLineNo">217</span>      SpaceEffGraphNode dst = e.toNode();<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      SpaceEffGraphNode srcRoot = src.nextSorted;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>      if (srcRoot != dst) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        // might still be trouble<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        problemEdges[remaining++] = e;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      }<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    numProblemEdges = remaining;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    if (numProblemEdges == 0) return;<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>    // Still some edges that might introduce cycles.<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    int searchnum = 0;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    for (int i = 0; i &lt; numProblemEdges; i++) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>      SpaceEffGraphEdge e = problemEdges[i];<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      SpaceEffGraphNode src = e.fromNode();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      SpaceEffGraphNode dst = e.toNode();<a name="line.232"></a>
+<span class="sourceLineNo">233</span>      BURS_TreeNode n = (BURS_TreeNode) src.scratchObject;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>      if (n.isTreeRoot()) continue; // some other problem edge already forced it<a name="line.234"></a>
+<span class="sourceLineNo">235</span>      SpaceEffGraphNode srcRoot = src.nextSorted;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      SpaceEffGraphNode dstRoot = dst.nextSorted;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>      if (srcRoot == dstRoot &amp;&amp; srcRoot != dst) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        // potential for intra-tree cycle<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        if (!trueEdgeRedundant(src, dst, srcRoot)) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>          if (DEBUG) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>            VM.sysWrite("Potential intra-tree cycle with edge " + e + " forcing " + n + " to be a tree root\n");<a name="line.241"></a>
+<span class="sourceLineNo">242</span>          }<a name="line.242"></a>
+<span class="sourceLineNo">243</span>          makeTreeRoot(n);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>          problemEdgePrep(n, n.dg_node);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      } else {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        // potential for inter-tree cycle<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        if (reachableRoot(dstRoot, srcRoot, ++searchnum)) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>          if (DEBUG) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>            VM.sysWrite("Potential inter-tree cycle with edge " + e + " forcing " + n + " to be a tree root\n");<a name="line.250"></a>
+<span class="sourceLineNo">251</span>          }<a name="line.251"></a>
+<span class="sourceLineNo">252</span>          makeTreeRoot(n);<a name="line.252"></a>
+<span class="sourceLineNo">253</span>          problemEdgePrep(n, n.dg_node);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        }<a name="line.254"></a>
+<span class="sourceLineNo">255</span>      }<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    }<a name="line.256"></a>
+<span class="sourceLineNo">257</span>  }<a name="line.257"></a>
+<span class="sourceLineNo">258</span><a name="line.258"></a>
+<span class="sourceLineNo">259</span>  // routine to identify harmless intra-tree edges.<a name="line.259"></a>
+<span class="sourceLineNo">260</span>  // if the edge is redundant wrt regTrue edges, then it<a name="line.260"></a>
+<span class="sourceLineNo">261</span>  // can be ignored.<a name="line.261"></a>
+<span class="sourceLineNo">262</span>  private boolean trueEdgeRedundant(SpaceEffGraphNode current, SpaceEffGraphNode goal,<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                                    SpaceEffGraphNode root) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    if (current == goal) return true;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    if (current.nextSorted != root) return false; // don't cross tree boundaries<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    for (SpaceEffGraphEdge out = current.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>      if (DepGraphEdge.isRegTrue(out) &amp;&amp; trueEdgeRedundant(out.toNode(), goal, root)) {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>        return true;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>      }<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    return false;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>  // routine to identify harmless inter-tree edges.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  // Is goal reachable via any edge in the current tree?<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  private boolean reachableRoot(SpaceEffGraphNode current, SpaceEffGraphNode goal, int searchnum) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    if (current == goal) return true;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    if (current.scratch == searchnum) return false;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    current.scratch = searchnum;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    BURS_TreeNode root = (BURS_TreeNode) current.scratchObject;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    return reachableChild(root, goal, searchnum);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>  private boolean reachableChild(BURS_TreeNode n, SpaceEffGraphNode goal, int searchnum) {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    SpaceEffGraphNode dgn = n.dg_node;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    if (dgn != null) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>      for (SpaceEffGraphEdge out = dgn.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        if (reachableRoot(out.toNode().nextSorted, goal, searchnum)) return true;<a name="line.288"></a>
+<span class="sourceLineNo">289</span>      }<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    if (n.child1 != null &amp;&amp; !n.child1.isTreeRoot() &amp;&amp; reachableChild(n.child1, goal, searchnum)) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>      return true;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    if (n.child2 != null &amp;&amp; !n.child2.isTreeRoot() &amp;&amp; reachableChild(n.child2, goal, searchnum)) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      return true;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    return false;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  }<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>  /**<a name="line.300"></a>
+<span class="sourceLineNo">301</span>   * Stage 2: Construct topological ordering of tree roots based on the<a name="line.301"></a>
+<span class="sourceLineNo">302</span>   * dependencies between nodes in the tree.<a name="line.302"></a>
+<span class="sourceLineNo">303</span>   *<a name="line.303"></a>
+<span class="sourceLineNo">304</span>   * @param dg  The dependence graph.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   */<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  private void orderTrees(DepGraph dg) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    // Initialize tree root field for all nodes<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    for (int i = 0; i &lt; numTreeRoots; i++) {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      BURS_TreeNode n = treeRoots[i];<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      n.dg_node.scratch = 0;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>      initTreeRootNode(n, n.dg_node);<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>    // Initialize predCount[*]<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    for (SpaceEffGraphNode node = dg.firstNode(); node != null; node = node.getNext()) {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      SpaceEffGraphNode n_treeRoot = node.nextSorted;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      for (SpaceEffGraphEdge in = node.firstInEdge(); in != null; in = in.getNextIn()) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>        SpaceEffGraphNode source_treeRoot = in.fromNode().nextSorted;<a name="line.318"></a>
+<span class="sourceLineNo">319</span>        if (source_treeRoot != n_treeRoot) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>          n_treeRoot.scratch++;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>        }<a name="line.321"></a>
+<span class="sourceLineNo">322</span>      }<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    if (DEBUG) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>      for (int i = 0; i &lt; numTreeRoots; i++) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>        BURS_TreeNode n = treeRoots[i];<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        VM.sysWrite(n.dg_node.scratch + ":" + n + "\n");<a name="line.327"></a>
+<span class="sourceLineNo">328</span>      }<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    }<a name="line.329"></a>
+<span class="sourceLineNo">330</span>  }<a name="line.330"></a>
+<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">332</span>  /**<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   * Stage 3: Label the trees with their min cost cover.<a name="line.333"></a>
+<span class="sourceLineNo">334</span>   * @param burs the BURS_STATE object.<a name="line.334"></a>
+<span class="sourceLineNo">335</span>   */<a name="line.335"></a>
+<span class="sourceLineNo">336</span>  private void labelTrees(BURS_STATE burs) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    for (int i = 0; i &lt; numTreeRoots; i++) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      BURS_TreeNode n = treeRoots[i];<a name="line.338"></a>
+<span class="sourceLineNo">339</span>      burs.label(n);<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      BURS_STATE.mark(n, /* goalnt */(byte) 1);<a name="line.340"></a>
+<span class="sourceLineNo">341</span>    }<a name="line.341"></a>
+<span class="sourceLineNo">342</span>  }<a name="line.342"></a>
+<span class="sourceLineNo">343</span><a name="line.343"></a>
+<span class="sourceLineNo">344</span>  /**<a name="line.344"></a>
+<span class="sourceLineNo">345</span>   * Stage 4: Visit the tree roots in topological order and<a name="line.345"></a>
+<span class="sourceLineNo">346</span>   * emit MIR instructions by calling BURS_STATE.code on each<a name="line.346"></a>
+<span class="sourceLineNo">347</span>   * supernode in the tree.<a name="line.347"></a>
+<span class="sourceLineNo">348</span>   *<a name="line.348"></a>
+<span class="sourceLineNo">349</span>   * @param burs the BURS_STATE object.<a name="line.349"></a>
+<span class="sourceLineNo">350</span>   */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>  private void generateTrees(BURS_STATE burs) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    // Append tree roots with predCount = 0 to readySet<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    for (int i = 0; i &lt; numTreeRoots; i++) {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      BURS_TreeNode n = treeRoots[i];<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      if (n.dg_node.scratch == 0) {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        readySetInsert(n);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>      }<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>    // Emit code for each tree root in readySet<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    while (readySetNotEmpty()) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>      BURS_TreeNode k = readySetRemove();<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      // Invoke burs.code on the supernodes of k in a post order walk of the<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      // tree (thus code for children is emited before code for the parent).<a name="line.364"></a>
+<span class="sourceLineNo">365</span>      if (DEBUG) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        VM.sysWrite("PROCESSING TREE ROOTED AT " + k.dg_node + "\n");<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        BURS_STATE.dumpTree(k);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>      }<a name="line.368"></a>
+<span class="sourceLineNo">369</span>      numTreeRoots--;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      generateTree(k, burs);<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    }<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    if (numTreeRoots != 0) {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>      throw new OptimizingCompilerException("BURS", "Not all tree roots were processed");<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    }<a name="line.374"></a>
+<span class="sourceLineNo">375</span>  }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>  // Generate code for a single tree root.<a name="line.377"></a>
+<span class="sourceLineNo">378</span>  // Also process inter-tree dependencies from this tree to other trees.<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  private void generateTree(BURS_TreeNode k, BURS_STATE burs) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    BURS_TreeNode child1 = k.child1;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>    BURS_TreeNode child2 = k.child2;<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    if (child1 != null) {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>      if (child2 != null) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        // k has two children; use register labeling to<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        // determine order that minimizes register pressure<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        if (k.isSuperNodeRoot()) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>          byte act = BURS_STATE.action[k.rule(k.getNonTerminal())];<a name="line.387"></a>
+<span class="sourceLineNo">388</span>          if ((act &amp; BURS_STATE.LEFT_CHILD_FIRST) != 0) {<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            // rule selected forces order of evaluation<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            generateTree(child1, burs);<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            generateTree(child2, burs);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>          } else if ((act &amp; BURS_STATE.RIGHT_CHILD_FIRST) != 0) {<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            // rule selected forces order of evaluation<a name="line.393"></a>
+<span class="sourceLineNo">394</span>            generateTree(child2, burs);<a name="line.394"></a>
+<span class="sourceLineNo">395</span>            generateTree(child1, burs);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>          } else if (child2.numRegisters() &gt; child1.numRegisters()) {<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            generateTree(child2, burs);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>            generateTree(child1, burs);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>          } else {<a name="line.399"></a>
+<span class="sourceLineNo">400</span>            generateTree(child1, burs);<a name="line.400"></a>
+<span class="sourceLineNo">401</span>            generateTree(child2, burs);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>          }<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        } else {<a name="line.403"></a>
+<span class="sourceLineNo">404</span>          if (child2.numRegisters() &gt; child1.numRegisters()) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>            generateTree(child2, burs);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>            generateTree(child1, burs);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>          } else {<a name="line.407"></a>
+<span class="sourceLineNo">408</span>            generateTree(child1, burs);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>            generateTree(child2, burs);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>          }<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>      } else {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        generateTree(child1, burs);<a name="line.413"></a>
+<span class="sourceLineNo">414</span>      }<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    } else if (child2 != null) {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>      generateTree(child2, burs);<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>    if (k.isSuperNodeRoot()) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>      int nonterminal = k.getNonTerminal();<a name="line.420"></a>
+<span class="sourceLineNo">421</span>      int rule = k.rule(nonterminal);<a name="line.421"></a>
+<span class="sourceLineNo">422</span>      burs.code(k, nonterminal, rule);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>      if (DEBUG) VM.sysWrite(k + " " + BURS_Debug.string[rule] + "\n");<a name="line.423"></a>
+<span class="sourceLineNo">424</span>    }<a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">426</span>    DepGraphNode dgnode = k.dg_node;<a name="line.426"></a>
+<span class="sourceLineNo">427</span>    if (dgnode != null) {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      SpaceEffGraphNode source = dgnode.nextSorted;<a name="line.428"></a>
+<span class="sourceLineNo">429</span>      for (SpaceEffGraphEdge out = dgnode.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        SpaceEffGraphNode dest = out.toNode().nextSorted;<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        if (source != dest) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>          int count = --dest.scratch;<a name="line.432"></a>
+<span class="sourceLineNo">433</span>          if (DEBUG) VM.sysWrite(count + ": edge " + source + " to " + dest + "\n");<a name="line.433"></a>
+<span class="sourceLineNo">434</span>          if (count == 0) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>            readySetInsert((BURS_TreeNode) dest.scratchObject);<a name="line.435"></a>
+<span class="sourceLineNo">436</span>          }<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        }<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      }<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    }<a name="line.439"></a>
+<span class="sourceLineNo">440</span>  }<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>  /**<a name="line.442"></a>
+<span class="sourceLineNo">443</span>   * Return {@code true} if node n must be a root of a BURS tree<a name="line.443"></a>
+<span class="sourceLineNo">444</span>   * based only on its register true dependencies.<a name="line.444"></a>
+<span class="sourceLineNo">445</span>   * If the node might later have to be marked as a tree<a name="line.445"></a>
+<span class="sourceLineNo">446</span>   * root, then include in a set of problem nodes.<a name="line.446"></a>
+<span class="sourceLineNo">447</span>   * @param n the dep graph node in question.<a name="line.447"></a>
+<span class="sourceLineNo">448</span>   */<a name="line.448"></a>
+<span class="sourceLineNo">449</span>  private boolean mustBeTreeRoot(DepGraphNode n) {<a name="line.449"></a>
+<span class="sourceLineNo">450</span>    // A "fan-out" node must be a root of a BURS tree.<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    // (A fan-out node is a node with &gt; 1 outgoing register-true dependences)<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    SpaceEffGraphEdge trueDepEdge = null;<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    for (SpaceEffGraphEdge out = n.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>      if (DepGraphEdge.isRegTrue(out)) {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>        if (trueDepEdge != null) return true;<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        trueDepEdge = out;<a name="line.456"></a>
+<span class="sourceLineNo">457</span>      }<a name="line.457"></a>
+<span class="sourceLineNo">458</span>    }<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>    if (trueDepEdge == null) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>      return true; // 0 outgoing register-true dependencies<a name="line.461"></a>
+<span class="sourceLineNo">462</span>    } else {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>      // Exactly 1 true edge, since we would have bailed out of above<a name="line.463"></a>
+<span class="sourceLineNo">464</span>      // loop if we'd found a second one.<a name="line.464"></a>
+<span class="sourceLineNo">465</span>      // If the node produces a register value that is live on exit<a name="line.465"></a>
+<span class="sourceLineNo">466</span>      // from the basic block then it must be the root of a BURS tree.<a name="line.466"></a>
+<span class="sourceLineNo">467</span>      Instruction instr = n.instruction();<a name="line.467"></a>
+<span class="sourceLineNo">468</span>      if (instr.operator() == IR_PROLOGUE) return true;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>      RegisterOperand rop = ResultCarrier.getResult(instr);<a name="line.469"></a>
+<span class="sourceLineNo">470</span>      if (rop.getRegister().spansBasicBlock()) return true;<a name="line.470"></a>
+<span class="sourceLineNo">471</span>      SpaceEffGraphNode parent = trueDepEdge.toNode();<a name="line.471"></a>
+<span class="sourceLineNo">472</span>      // If our parent has a superset of our<a name="line.472"></a>
+<span class="sourceLineNo">473</span>      // other out edges (ignoring trueDepEdge)<a name="line.473"></a>
+<span class="sourceLineNo">474</span>      // then we don't have to worry about creating cycles<a name="line.474"></a>
+<span class="sourceLineNo">475</span>      // by not forcing n to be a tree root.<a name="line.475"></a>
+<span class="sourceLineNo">476</span>      for (SpaceEffGraphEdge out = n.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>        if (out != trueDepEdge) {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>          boolean match = false;<a name="line.478"></a>
+<span class="sourceLineNo">479</span>          for (SpaceEffGraphEdge out2 = parent.firstOutEdge(); out2 != null; out2 = out2.getNextOut()) {<a name="line.479"></a>
+<span class="sourceLineNo">480</span>            if (out2.toNode() == out.toNode()) {<a name="line.480"></a>
+<span class="sourceLineNo">481</span>              match = true;<a name="line.481"></a>
+<span class="sourceLineNo">482</span>              break;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>            }<a name="line.483"></a>
+<span class="sourceLineNo">484</span>          }<a name="line.484"></a>
+<span class="sourceLineNo">485</span>          if (!match) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>            // could be trouble. Remember for later processing.<a name="line.486"></a>
+<span class="sourceLineNo">487</span>            rememberAsProblemEdge(out);<a name="line.487"></a>
+<span class="sourceLineNo">488</span>          }<a name="line.488"></a>
+<span class="sourceLineNo">489</span>        }<a name="line.489"></a>
+<span class="sourceLineNo">490</span>      }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>      return false;<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
+<span class="sourceLineNo">493</span>  }<a name="line.493"></a>
+<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">495</span>  // NOTE: assumes n has exactly 1 reg true parent (ie it is in<a name="line.495"></a>
+<span class="sourceLineNo">496</span>  //       an expression tree and is not the tree root).<a name="line.496"></a>
+<span class="sourceLineNo">497</span>  @SuppressWarnings("unused")<a name="line.497"></a>
+<span class="sourceLineNo">498</span>  private SpaceEffGraphNode regTrueParent(SpaceEffGraphNode n) {<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    for (SpaceEffGraphEdge out = n.firstOutEdge(); out != null; out = out.getNextOut()) {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>      if (DepGraphEdge.isRegTrue(out)) {<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        return out.toNode();<a name="line.501"></a>
+<span class="sourceLineNo">502</span>      }<a name="line.502"></a>
+<span class="sourceLineNo">503</span>    }<a name="line.503"></a>
+<span class="sourceLineNo">504</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);<a name="line.504"></a>
+<span class="sourceLineNo">505</span>    return null;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>  }<a name="line.506"></a>
+<span class="sourceLineNo">507</span><a name="line.507"></a>
+<span class="sourceLineNo">508</span>  /**<a name="line.508"></a>
+<span class="sourceLineNo">509</span>   * Initialize nextSorted for nodes in tree rooted at t i.e.<a name="line.509"></a>
+<span class="sourceLineNo">510</span>   * for all register true descendants of t up to but not including<a name="line.510"></a>
+<span class="sourceLineNo">511</span>   * any new tree roots.<a name="line.511"></a>
+<span class="sourceLineNo">512</span>   */<a name="line.512"></a>
+<span class="sourceLineNo">513</span>  private void initTreeRootNode(BURS_TreeNode t, SpaceEffGraphNode treeRoot) {<a name="line.513"></a>
+<span class="sourceLineNo">514</span>    // Recurse<a name="line.514"></a>
+<span class="sourceLineNo">515</span>    if (t.child1 != null) {<a name="line.515"></a>
+<span class="sourceLineNo">516</span>      if (t.child1.isTreeRoot()) {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        t.child1 = Register;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>      } else {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        initTreeRootNode(t.child1, treeRoot);<a name="line.519"></a>
+<span class="sourceLineNo">520</span>      }<a name="line.520"></a>
+<span class="sourceLineNo">521</span>    }<a name="line.521"></a>
+<span class="sourceLineNo">522</span>    if (t.child2 != null) {<a name="line.522"></a>
+<span class="sourceLineNo">523</span>      if (t.child2.isTreeRoot()) {<a name="line.523"></a>
+<span class="sourceLineNo">524</span>        t.child2 = Register;<a name="line.524"></a>
+<span class="sourceLineNo">525</span>      } else {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>        initTreeRootNode(t.child2, treeRoot);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>      }<a name="line.527"></a>
+<span class="sourceLineNo">528</span>    }<a name="line.528"></a>
+<span class="sourceLineNo">529</span>    if (t.dg_node != null) {<a name="line.529"></a>
+<span class="sourceLineNo">530</span>      t.dg_node.nextSorted = treeRoot;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>      if (DEBUG) VM.sysWrite(t.dg_node + " --&gt; " + treeRoot + "\n");<a name="line.531"></a>
+<span class="sourceLineNo">532</span>    }<a name="line.532"></a>
+<span class="sourceLineNo">533</span>    if (t.child1 != null || t.child2 != null) {<a name="line.533"></a>
+<span class="sourceLineNo">534</span>      // label t as in section 9.10 of the dragon book<a name="line.534"></a>
+<span class="sourceLineNo">535</span>      int lchild = (t.child1 != null) ? t.child1.numRegisters() : 0;<a name="line.535"></a>
+<span class="sourceLineNo">536</span>      int rchild = (t.child2 != null) ? t.child2.numRegisters() : 0;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>      if (lchild == rchild) {<a name="line.537"></a>
+<span class="sourceLineNo">538</span>        t.setNumRegisters(lchild + 1);<a name="line.538"></a>
+<span class="sourceLineNo">539</span>      } else {<a name="line.539"></a>
+<span class="sourceLineNo">540</span>        t.setNumRegisters(Math.max(lchild, rchild));<a name="line.540"></a>
+<span class="sourceLineNo">541</span>      }<a name="line.541"></a>
+<span class="sourceLineNo">542</span>      if (DEBUG) VM.sysWrite("\tnum registers = " + t.numRegisters() + "\n");<a name="line.542"></a>
+<span class="sourceLineNo">543</span>    }<a name="line.543"></a>
+<span class="sourceLineNo">544</span>  }<a name="line.544"></a>
+<span class="sourceLineNo">545</span><a name="line.545"></a>
+<span class="sourceLineNo">546</span>  /**<a name="line.546"></a>
+<span class="sourceLineNo">547</span>   * Set of all tree roots.<a name="line.547"></a>
+<span class="sourceLineNo">548</span>   */<a name="line.548"></a>
+<span class="sourceLineNo">549</span>  private BURS_TreeNode[] treeRoots = new BURS_TreeNode[32];<a name="line.549"></a>
+<span class="sourceLineNo">550</span><a name="line.550"></a>
+<span class="sourceLineNo">551</span>  private void makeTreeRoot(BURS_TreeNode n) {<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    if (numTreeRoots == treeRoots.length) {<a name="line.552"></a>
+<span class="sourceLineNo">553</span>      BURS_TreeNode[] tmp = new BURS_TreeNode[treeRoots.length * 2];<a name="line.553"></a>
+<span class="sourceLineNo">554</span>      for (int i = 0; i &lt; treeRoots.length; i++) {<a name="line.554"></a>
+<span class="sourceLineNo">555</span>        tmp[i] = treeRoots[i];<a name="line.555"></a>
+<span class="sourceLineNo">556</span>      }<a name="line.556"></a>
+<span class="sourceLineNo">557</span>      treeRoots = tmp;<a name="line.557"></a>
+<span class="sourceLineNo">558</span>    }<a name="line.558"></a>
+<span class="sourceLineNo">559</span>    n.setTreeRoot();<a name="line.559"></a>
+<span class="sourceLineNo">560</span>    treeRoots[numTreeRoots++] = n;<a name="line.560"></a>
+<span class="sourceLineNo">561</span>  }<a name="line.561"></a>
+<span class="sourceLineNo">562</span><a name="line.562"></a>
+<span class="sourceLineNo">563</span>  /**<a name="line.563"></a>
+<span class="sourceLineNo">564</span>   * A priority queue of ready tree nodes.<a name="line.564"></a>
+<span class="sourceLineNo">565</span>   * Used to keep track of the tree roots that are ready to be<a name="line.565"></a>
+<span class="sourceLineNo">566</span>   * emitted during code generation (since all of their<a name="line.566"></a>
+<span class="sourceLineNo">567</span>   * predecessors have been emitted already).<a name="line.567"></a>
+<span class="sourceLineNo">568</span>   * readySetRemove returns the node that uses the maximum<a name="line.568"></a>
+<span class="sourceLineNo">569</span>   * number of registers.  This is a heuristic that tends to<a name="line.569"></a>
+<span class="sourceLineNo">570</span>   * reduce register pressure and enable coalescing by the<a name="line.570"></a>
+<span class="sourceLineNo">571</span>   * register allocator. (Goal is to end live ranges 'early').<a name="line.571"></a>
+<span class="sourceLineNo">572</span>   */<a name="line.572"></a>
+<span class="sourceLineNo">573</span>  private BURS_TreeNode[] heap = new BURS_TreeNode[16];<a name="line.573"></a>
+<span class="sourceLineNo">574</span>  private int numElements = 0;<a name="line.574"></a>
+<span class="sourceLineNo">575</span><a name="line.575"></a>
+<span class="sourceLineNo">576</span>  /**<a name="line.576"></a>
+<span class="sourceLineNo">577</span>   * Add a node to the ready set.<a name="line.577"></a>
+<span class="sourceLineNo">578</span>   */<a name="line.578"></a>
+<span class="sourceLineNo">579</span>  private void readySetInsert(BURS_TreeNode node) {<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    Instruction s = node.getInstruction();<a name="line.580"></a>
+<span class="sourceLineNo">581</span>    if (s.operator == GUARD_COMBINE ||<a name="line.581"></a>
+<span class="sourceLineNo">582</span>        s.operator == GUARD_COND_MOVE ||<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        s.operator == GUARD_MOVE ||<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        !ResultCarrier.conforms(s)) {<a name="line.584"></a>
+<span class="sourceLineNo">585</span>      // Adjust numRegisters to bias away from picking trees that<a name="line.585"></a>
+<span class="sourceLineNo">586</span>      // are rooted in result carriers, since they start a new live<a name="line.586"></a>
+<span class="sourceLineNo">587</span>      // range. We don't count guard operations as result carriers, since<a name="line.587"></a>
+<span class="sourceLineNo">588</span>      // guard operations get wiped out before register allocation anyways.<a name="line.588"></a>
+<span class="sourceLineNo">589</span>      node.setNumRegisters(node.numRegisters() + 2);<a name="line.589"></a>
+<span class="sourceLineNo">590</span>    }<a name="line.590"></a>
+<span class="sourceLineNo">591</span><a name="line.591"></a>
+<span class="sourceLineNo">592</span>    numElements++;<a name="line.592"></a>
+<span class="sourceLineNo">593</span>    if (numElements == heap.length) {<a name="line.593"></a>
+<span class="sourceLineNo">594</span>      BURS_TreeNode[] tmp = new BURS_TreeNode[heap.length * 2];<a name="line.594"></a>
+<span class="sourceLineNo">595</span>      for (int i = 0; i &lt; heap.length; i++) {<a name="line.595"></a>
+<span class="sourceLineNo">596</span>        tmp[i] = heap[i];<a name="line.596"></a>
+<span class="sourceLineNo">597</span>      }<a name="line.597"></a>
+<span class="sourceLineNo">598</span>      heap = tmp;<a name="line.598"></a>
+<span class="sourceLineNo">599</span>    }<a name="line.599"></a>
+<span class="sourceLineNo">600</span><a name="line.600"></a>
+<span class="sourceLineNo">601</span>    // restore heap property<a name="line.601"></a>
+<span class="sourceLineNo">602</span>    int current = numElements;<a name="line.602"></a>
+<span class="sourceLineNo">603</span>    heap[current] = node;<a name="line.603"></a>
+<span class="sourceLineNo">604</span>    for (int parent = current / 2; current &gt; 1 &amp;&amp; heap[current].numRegisters() &gt; heap[parent].numRegisters(); current =<a name="line.604"></a>
+<span class="sourceLineNo">605</span>        parent, parent = current / 2) {<a name="line.605"></a>
+<span class="sourceLineNo">606</span>      swap(current, parent);<a name="line.606"></a>
+<span class="sourceLineNo">607</span>    }<a name="line.607"></a>
+<span class="sourceLineNo">608</span>  }<a name="line.608"></a>
+<span class="sourceLineNo">609</span><a name="line.609"></a>
+<span class="sourceLineNo">610</span>  /**<a name="line.610"></a>
+<span class="sourceLineNo">611</span>   * Are there nodes to process on the stack?<a name="line.611"></a>
+<span class="sourceLineNo">612</span>   */<a name="line.612"></a>
+<span class="sourceLineNo">613</span>  private boolean readySetNotEmpty() {<a name="line.613"></a>
+<span class="sourceLineNo">614</span>    return numElements &gt; 0;<a name="line.614"></a>
+<span class="sourceLineNo">615</span>  }<a name="line.615"></a>
+<span class="sourceLineNo">616</span><a name="line.616"></a>
+<span class="sourceLineNo">617</span>  /**<a name="line.617"></a>
+<span class="sourceLineNo">618</span>   * Remove a node from the ready set<a name="line.618"></a>
+<span class="sourceLineNo">619</span>   */<a name="line.619"></a>
+<span class="sourceLineNo">620</span>  private BURS_TreeNode readySetRemove() {<a name="line.620"></a>
+<span class="sourceLineNo">621</span>    BURS_TreeNode ans = heap[1];<a name="line.621"></a>
+<span class="sourceLineNo">622</span>    heap[1] = heap[numElements--];<a name="line.622"></a>
+<span class="sourceLineNo">623</span>    heapify(1);<a name="line.623"></a>
+<span class="sourceLineNo">624</span>    return ans;<a name="line.624"></a>
+<span class="sourceLineNo">625</span>  }<a name="line.625"></a>
+<span class="sourceLineNo">626</span><a name="line.626"></a>
+<span class="sourceLineNo">627</span>  private void heapify(int p) {<a name="line.627"></a>
+<span class="sourceLineNo">628</span>    int l = p * 2;<a name="line.628"></a>
+<span class="sourceLineNo">629</span>    int r = l + 1;<a name="line.629"></a>
+<span class="sourceLineNo">630</span>    int max = p;<a name="line.630"></a>
+<span class="sourceLineNo">631</span>    if (l &lt;= numElements &amp;&amp; heap[l].numRegisters() &gt; heap[max].numRegisters()) {<a name="line.631"></a>
+<span class="sourceLineNo">632</span>      max = l;<a name="line.632"></a>
+<span class="sourceLineNo">633</span>    }<a name="line.633"></a>
+<span class="sourceLineNo">634</span>    if (r &lt;= numElements &amp;&amp; heap[r].numRegisters() &gt; heap[max].numRegisters()) {<a name="line.634"></a>
+<span class="sourceLineNo">635</span>      max = r;<a name="line.635"></a>
+<span class="sourceLineNo">636</span>    }<a name="line.636"></a>
+<span class="sourceLineNo">637</span>    if (max != p) {<a name="line.637"></a>
+<span class="sourceLineNo">638</span>      swap(p, max);<a name="line.638"></a>
+<span class="sourceLineNo">639</span>      heapify(max);<a name="line.639"></a>
+<span class="sourceLineNo">640</span>    }<a name="line.640"></a>
+<span class="sourceLineNo">641</span>  }<a name="line.641"></a>
+<span class="sourceLineNo">642</span><a name="line.642"></a>
+<span class="sourceLineNo">643</span>  private void swap(int x, int y) {<a name="line.643"></a>
+<span class="sourceLineNo">644</span>    BURS_TreeNode t = heap[x];<a name="line.644"></a>
+<span class="sourceLineNo">645</span>    heap[x] = heap[y];<a name="line.645"></a>
+<span class="sourceLineNo">646</span>    heap[y] = t;<a name="line.646"></a>
+<span class="sourceLineNo">647</span>  }<a name="line.647"></a>
+<span class="sourceLineNo">648</span><a name="line.648"></a>
+<span class="sourceLineNo">649</span>  /*<a name="line.649"></a>
+<span class="sourceLineNo">650</span>  * track problem nodes (nodes with outgoing non-reg-true edges)<a name="line.650"></a>
+<span class="sourceLineNo">651</span>  */<a name="line.651"></a>
+<span class="sourceLineNo">652</span>  private SpaceEffGraphEdge[] problemEdges;<a name="line.652"></a>
+<span class="sourceLineNo">653</span>  private int numProblemEdges = 0;<a name="line.653"></a>
+<span class="sourceLineNo">654</span><a name="line.654"></a>
+<span class="sourceLineNo">655</span>  void rememberAsProblemEdge(SpaceEffGraphEdge e) {<a name="line.655"></a>
+<span class="sourceLineNo">656</span>    if (problemEdges == null) {<a name="line.656"></a>
+<span class="sourceLineNo">657</span>      problemEdges = new SpaceEffGraphEdge[8];<a name="line.657"></a>
+<span class="sourceLineNo">658</span>    }<a name="line.658"></a>
+<span class="sourceLineNo">659</span>    if (numProblemEdges == problemEdges.length) {<a name="line.659"></a>
+<span class="sourceLineNo">660</span>      SpaceEffGraphEdge[] tmp = new SpaceEffGraphEdge[problemEdges.length * 2];<a name="line.660"></a>
+<span class="sourceLineNo">661</span>      for (int i = 0; i &lt; problemEdges.length; i++) {<a name="line.661"></a>
+<span class="sourceLineNo">662</span>        tmp[i] = problemEdges[i];<a name="line.662"></a>
+<span class="sourceLineNo">663</span>      }<a name="line.663"></a>
+<span class="sourceLineNo">664</span>      problemEdges = tmp;<a name="line.664"></a>
+<span class="sourceLineNo">665</span>    }<a name="line.665"></a>
+<span class="sourceLineNo">666</span>    problemEdges[numProblemEdges++] = e;<a name="line.666"></a>
+<span class="sourceLineNo">667</span>  }<a name="line.667"></a>
+<span class="sourceLineNo">668</span><a name="line.668"></a>
+<span class="sourceLineNo">669</span>  private boolean haveProblemEdges() {<a name="line.669"></a>
+<span class="sourceLineNo">670</span>    return numProblemEdges &gt; 0;<a name="line.670"></a>
+<span class="sourceLineNo">671</span>  }<a name="line.671"></a>
+<span class="sourceLineNo">672</span>}<a name="line.672"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

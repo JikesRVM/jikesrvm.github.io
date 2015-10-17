@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.util;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Enumeration;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> *  An efficient topsort dataflow iterator to be used with<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * SortedGraphNode.  The graph represents entities (values,<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * statements, block, etc) to analyze and the graph makes explicit the<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * data-flow dependencies between them.  Fixed-point iteration is<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * expressed using a special iterator that takes a parameter denoting<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * whether analysis of the current element changed the data-flow<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * result.  If not, the iterator continues thru other unanalyzed<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * elements.  If there is a change, then the data-flow successors of<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * the current node become the new head of the order of remaining<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * nodes.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *  A typical use is as follows:<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * &lt;pre&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *   BasicBlock start = ir.cfg.entry();<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *   SortedGraphIterator bbIter = new SortedGraphIterator(start, true);<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *   // true means forward analysis; false means backward analysis<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *   for (BasicBlock currBlock = start; currBlock!= null;) {<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *       // do your analysis of the currBlock here<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *       boolean changed = ... // true if the solution of currBlock has been changed since<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *                             // the last visit of currBlock.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *                             // false if not.<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *       currBlock = (BasicBlock) bbIter.markAndGetNextTopSort(changed);<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  }<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *&lt;/pre&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>public class SortedGraphIterator {<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * The earliest place where we needed to move currentNode back in the list<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   *  because its successor needed to be processed.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  protected SortedGraphNode barrier;<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>  /**<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   *  A unique marker to use to mark nodes<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  protected int changeMark;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * The current node we are processing<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  protected SortedGraphNode currentNode;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * The direction we are moving on the graph<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  protected boolean forward;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * Constructor<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   * @param current the node to start the iteration at<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * @param forward the direction we are processing the graph<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  public SortedGraphIterator(SortedGraphNode current, boolean forward) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    currentNode = current;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    barrier = current.getSortedNext(forward);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    this.forward = forward;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    changeMark = SortedGraphNode.getNewSortMarker(current);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    currentNode.setSortMarker(Integer.MIN_VALUE);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   * General fixed-pointer iterator; call this repeatedly until there<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   * is no more work to do. There are specialized (more efficient)<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * mechanisms provided by this class.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * @param changed Whether analysis of the current element changed<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * any data-flow result.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   *<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   * @return the next node to analyze<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * @see #isSingleSuccessor<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * @see #isSinglePredecessor<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  public SortedGraphNode markAndGetNextTopSort(boolean changed) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    if (changed) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>      int currOrder = currentNode.getSortNumber(forward);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      int newOrder = currOrder + 1; // currentNode can be a target to be re-executed<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      int barrierOrder;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>      if (barrier == null) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        barrierOrder = Integer.MAX_VALUE;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      } else {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        barrierOrder = barrier.getSortNumber(forward);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      SortedGraphNode newNode = null;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      Enumeration&lt;? extends SortedGraphNode&gt; e;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      if (forward) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        e = currentNode.getOutNodes();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      } else {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        e = currentNode.getInNodes();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>      while (e.hasMoreElements()) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        // Select the node with the smallest sort number among the "successor" nodes<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        SortedGraphNode outNode = e.nextElement();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        if (outNode.getSortNumber(forward) &lt; barrierOrder) { // anything larger than barrier will be visited later<a name="line.117"></a>
+<span class="sourceLineNo">118</span>          outNode.setSortMarker(changeMark);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>          if (outNode.getSortNumber(forward) &lt; newOrder) { // have to go backward<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            newOrder = outNode.getSortNumber(forward);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            newNode = outNode;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>          }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      if (newOrder &lt;= currOrder) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        currentNode = newNode;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        // retreat<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        advanceBarrier();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        return newNode;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    // Either changed = false or no retreat<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    // Return the first one with changeMark before barrier or<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    // barrier itself.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    currentNode = currentNode.getSortedNext(forward);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    for (; currentNode != barrier; currentNode = currentNode.getSortedNext(forward)) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      if (currentNode.getSortMarker() == changeMark) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        advanceBarrier();<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        return currentNode;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>    // Nothing before the barrier<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    advanceBarrier();<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    return currentNode;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>  /**<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   * This method checks to see if the second parameter has a single<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * predecessor, which is the first parameter.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * If this condition is true, data flow analyses can reuse their<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * results from the previous iteration rather than perform a meet operation<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   * (See LiveAnalysis.java for an example.)<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   *<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   * @param currentNode the possibly unique predecessor<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   * @param nextNode the node of interest<a name="line.157"></a>
+<span class="sourceLineNo">158</span>   * @return if first parameter is the only predecessor of the 2nd parameter<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  public boolean isSingleSuccessor(SortedGraphNode currentNode, SortedGraphNode nextNode) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    // check that next node has only 1 predecessor<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    if (!nextNode.hasOneIn()) return false;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    // now check that the predecessor is current node<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    Enumeration&lt;? extends SortedGraphNode&gt; inEnum = nextNode.getInNodes();<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    return inEnum.nextElement() == currentNode;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  }<a name="line.166"></a>
+<span class="sourceLineNo">167</span><a name="line.167"></a>
+<span class="sourceLineNo">168</span>  /**<a name="line.168"></a>
+<span class="sourceLineNo">169</span>   * This method checks to see if the second parameter has a single<a name="line.169"></a>
+<span class="sourceLineNo">170</span>   * successor, which is the first parameter.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   * If this condition is true, data flow analyses can reuse their<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   * results from the previous iteration rather than perform a meet operation<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * (See LiveAnalysis.java for an example.)<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * @param currentNode the possibly unique predecessor<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * @param nextNode the node of interest<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * @return if first parameter is the only successor of the 2nd parameter<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  public boolean isSinglePredecessor(SortedGraphNode currentNode, SortedGraphNode nextNode) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    // check that next node has only 1 successor<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    if (!nextNode.hasOneOut()) return false;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    // now check that the successor is current node<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    Enumeration&lt;? extends SortedGraphNode&gt; outEnum = nextNode.getOutNodes();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    return outEnum.nextElement() == currentNode;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>  /**<a name="line.187"></a>
+<span class="sourceLineNo">188</span>   *  This method keeps track of nodes in the graph that are known to<a name="line.188"></a>
+<span class="sourceLineNo">189</span>   * not have been visited yet even once. Advance the barrier, if needed<a name="line.189"></a>
+<span class="sourceLineNo">190</span>   */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>  private void advanceBarrier() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    if (currentNode != null) {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      currentNode.setSortMarker(Integer.MIN_VALUE);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    }<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    if ((currentNode == barrier) &amp;&amp; (barrier != null)) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      barrier = barrier.getSortedNext(forward);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span>  }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>}<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

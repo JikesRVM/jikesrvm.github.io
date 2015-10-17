@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.utility.gcspy;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.vm.VM;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.vmmagic.pragma.*;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Cut-down implementation of java.awt.Color sufficient to provide<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * the server side (Stream) with colours<a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>@Uninterruptible public class Color {<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>  /*Some gcspy standard colours (taken from gcspy_color_db.c). */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  public static final Color Black     = new Color(0, 0, 0);<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  public static final Color Blue      = new Color(0, 0, 255);<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  public static final Color Cyan      = new Color(0, 255, 255);<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  public static final Color DarkGray  = new Color(64, 64, 64);<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public static final Color Gray      = new Color(128, 128, 128);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  public static final Color Green     = new Color(0, 255, 0);<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  public static final Color LightGray = new Color(192, 192, 192);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  public static final Color Magenta   = new Color(255, 0, 255);<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static final Color MidGray   = new Color(160, 160, 160);<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static final Color NavyBlue  = new Color(0, 0, 150);<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static final Color OffWhite  = new Color(230, 230, 230);<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static final Color Orange    = new Color(255, 200, 0);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static final Color Pink      = new Color(255, 175, 175);<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public static final Color Red       = new Color(255, 0, 0);<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final Color White     = new Color(255, 255, 255);<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static final Color Yellow    = new Color(255, 255, 0);<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  private short r; // red component<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  private short g; // green component<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  private short b; // blue component<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * Constructor for a simple RGB colour model.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * @param r red component<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * @param g green component<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * @param b blue component<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public Color(short r, short g, short b) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    if (VM.VERIFY_ASSERTIONS)<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      VM.assertions._assert((0 &lt;= r) &amp;&amp; (r &lt;= 255) &amp;&amp;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                           (0 &lt;= g) &amp;&amp; (g &lt;= 255) &amp;&amp;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                           (0 &lt;= b) &amp;&amp; (b &lt;= 255));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    this.r = r;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    this.g = g;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    this.b = b;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>  /**<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   * Constructor for a simple RGB colour model.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * @param r red component<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * @param g green component<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   * @param b blue component<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  private Color(int r, int g, int b) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    this((short) r, (short) g, (short) b);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  /**<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * Red component<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   *<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * @return the red component<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  public short getRed() { return r; }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   * Green component<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   *<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * @return the green component<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  public short getGreen() { return g; }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>  /**<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   * Blue component<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   *<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * @return the blue component<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  public short getBlue() { return b; }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>}<a name="line.96"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

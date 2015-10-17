@@ -1,0 +1,1245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.runtime;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.ArchitectureSpecific.CodeArray;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.ArchitectureSpecific.Registers;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.classloader.RVMType;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.objectmodel.TIB;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.scheduler.RVMThread;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.Intrinsic;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.vmmagic.pragma.Entrypoint;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.Address;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.vmmagic.unboxed.Extent;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.vmmagic.unboxed.Offset;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.vmmagic.unboxed.Word;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.vmmagic.unboxed.WordArray;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Magic methods for accessing raw machine memory, registers, and<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * operating system calls.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;p&gt; These are "inline assembler functions" that cannot be implemented in<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * Java code. Their names are recognized by RVM's compilers<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * and cause inline machine code to be generated instead of<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * actual method calls.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>@SuppressWarnings({"UnusedDeclaration"})<a name="line.39"></a>
+<span class="sourceLineNo">040</span>@Intrinsic<a name="line.40"></a>
+<span class="sourceLineNo">041</span>public final class Magic {<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  //---------------------------------------//<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  // Register and Psuedo-Register Access.  //<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  //---------------------------------------//<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>  /** Get contents of "stack frame pointer" register. */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static Address getFramePointer() {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    return null;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  /** Get contents of "JTOC" register. */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static Address getTocPointer() {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    return BootRecord.the_boot_record.tocRegister;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /** Get contents of "JTOC" register */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static Address getJTOC() {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    return null;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>  /** Get contents of "thread" register. */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  public static RVMThread getThreadRegister() {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    return null;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  /** Set contents of "thread" register. */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  public static void setThreadRegister(RVMThread p) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /** Get contents of ESI, as a RVMThread. NOTE: IA-specific */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static RVMThread getESIAsThread() {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    return null;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  /** Set contents of ESI to hold a reference to a thread object. NOTE: IA-specific */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  public static void setESIAsThread(RVMThread p) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>  /**<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   * Read contents of hardware time base registers.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   * &lt;p&gt;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   * Note:     we think that 1 "tick" == 4 "machine cycles", but this seems to be<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   *           undocumented and may vary across processor implementations.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * @return number of ticks (epoch undefined)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  public static long getTimeBase() {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    return -1;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  //---------------------------------------//<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  //       Stackframe Manipulation         //<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  //---------------------------------------//<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>  /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   * Get fp for parent frame<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * @param fp frame pointer for child frame<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public static Address getCallerFramePointer(Address fp) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    return null;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>  /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   * Set fp for parent frame<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   * @param fp frame pointer for child frame<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * @param newCallerFP new value for caller frame pointer<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  public static void setCallerFramePointer(Address fp, Address newCallerFP) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>  /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * Get Compiled Method ID for a frame<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * @param fp its frame pointer).<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  public static int getCompiledMethodID(Address fp) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    return -1;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>  /**<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * Set the Compiled Method ID for a frame.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * @param fp its frame pointer<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * @param newCMID a new cmid for the frame<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  public static void setCompiledMethodID(Address fp, int newCMID) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>  /**<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * Get next instruction address for a frame<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * @param fp its frame pointer.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  public static Address getNextInstructionAddress(Address fp) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    return null;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * Get location containing return address for a frame<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * @param fp its frame pointer<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  public static Address getReturnAddressLocation(Address fp) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    return null;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>  /**<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   * Get return address for a frame in a case where the frame is<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   * known not to be a trampoline frame.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>   *<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   * @param fp its frame pointer<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  @Uninterruptible<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public static Address getReturnAddressUnchecked(Address fp) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    Address ip = getReturnAddressLocation(fp).loadAddress();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    if (VM.VerifyAssertions) VM._assert(!RVMThread.isTrampolineIP(ip));<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    return ip;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>  /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * Get return address for a frame in the current thread<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * @param fp its frame pointer<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  @Uninterruptible<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  public static Address getReturnAddress(Address fp) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    return getReturnAddress(fp, RVMThread.getCurrentThread());<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>  /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>   * Get return address for a frame in a specific thread<a name="line.183"></a>
+<span class="sourceLineNo">184</span>   *<a name="line.184"></a>
+<span class="sourceLineNo">185</span>   * @param fp its frame pointer<a name="line.185"></a>
+<span class="sourceLineNo">186</span>   * @param thread the thread whose stack is being examined<a name="line.186"></a>
+<span class="sourceLineNo">187</span>   */<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  @Uninterruptible<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  public static Address getReturnAddress(Address fp, RVMThread thread) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    Address ip = getReturnAddressLocation(fp).loadAddress();<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    if (RVMThread.isTrampolineIP(ip))<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      return thread.getTrampolineHijackedReturnAddress();<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    else<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      return ip;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>  }<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>  /**<a name="line.197"></a>
+<span class="sourceLineNo">198</span>   * Get return address for a frame<a name="line.198"></a>
+<span class="sourceLineNo">199</span>   * @param fp its frame pointer<a name="line.199"></a>
+<span class="sourceLineNo">200</span>   */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  @Uninterruptible<a name="line.201"></a>
+<span class="sourceLineNo">202</span>  public static void setReturnAddress(Address fp, Address v) {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    getReturnAddressLocation(fp).store(v);<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>  //---------------------------------------//<a name="line.206"></a>
+<span class="sourceLineNo">207</span>  //           Memory Access.              //<a name="line.207"></a>
+<span class="sourceLineNo">208</span>  //---------------------------------------//<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>  /**<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   * Get unsigned byte at arbitrary (byte) offset from object. The<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   * most significant 24bits of the result will be 0.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  public static byte getUnsignedByteAtOffset(Object object, Offset offset) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    return -1;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>  }<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>  /**<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * Get byte at arbitrary (byte) offset from object. The most<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   * significant 24bits of the result will be the same as the most<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   * significant bit in the byte.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public static byte getByteAtOffset(Object object, Offset offset) {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    return -1;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>  }<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>  /**<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   * Get char at arbitrary (byte) offset from object. The most<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   * significant 16bits will be 0.<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   */<a name="line.232"></a>
+<span class="sourceLineNo">233</span>  public static char getCharAtOffset(Object object, Offset offset) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    return (char) -1;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>  }<a name="line.236"></a>
+<span class="sourceLineNo">237</span><a name="line.237"></a>
+<span class="sourceLineNo">238</span>  /**<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   * Get short at arbitrary (byte) offset from object. The most<a name="line.239"></a>
+<span class="sourceLineNo">240</span>   * significant 16bits will be the same as the most significant bit<a name="line.240"></a>
+<span class="sourceLineNo">241</span>   * in the short.<a name="line.241"></a>
+<span class="sourceLineNo">242</span>   */<a name="line.242"></a>
+<span class="sourceLineNo">243</span>  public static short getShortAtOffset(Object object, Offset offset) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    return (short) -1;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>  /**<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   * Get int at arbitrary (byte) offset from object.<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * Use getIntAtOffset(obj, ofs) instead of getMemoryInt(objectAsAddress(obj)+ofs)<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  public static int getIntAtOffset(Object object, Offset offset) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    return -1;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>  /**<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * Get long at arbitrary (byte) offset from object.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * Use getlongAtOffset(obj, ofs) instead of two getIntAtOffset<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   */<a name="line.260"></a>
+<span class="sourceLineNo">261</span>  public static long getLongAtOffset(Object object, Offset offset) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    return -1;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>  /**<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * Get float at arbitrary (byte) offset from object.<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   */<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  public static float getFloatAtOffset(Object object, Offset offset) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    return -1;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>  /**<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   * Get double at arbitrary (byte) offset from object.<a name="line.275"></a>
+<span class="sourceLineNo">276</span>   * Use getDoubleAtOffset(obj, ofs) instead of two getIntAtOffset<a name="line.276"></a>
+<span class="sourceLineNo">277</span>   */<a name="line.277"></a>
+<span class="sourceLineNo">278</span>  public static double getDoubleAtOffset(Object object, Offset offset) {<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    return -1;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>  }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>  /**<a name="line.283"></a>
+<span class="sourceLineNo">284</span>   * Get Object at arbitrary (byte) offset from object.<a name="line.284"></a>
+<span class="sourceLineNo">285</span>   * Use getObjectAtOffset(obj, ofs) instead of<a name="line.285"></a>
+<span class="sourceLineNo">286</span>   * addressAsObject(getMemoryAddress(objectAsAddress(obj)+ofs))<a name="line.286"></a>
+<span class="sourceLineNo">287</span>   */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>  public static Object getObjectAtOffset(Object object, Offset offset) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    return null;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>  }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>  /**<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * Get Object at arbitrary (byte) offset from object.<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   * Use getObjectAtOffset(obj, ofs) instead of<a name="line.295"></a>
+<span class="sourceLineNo">296</span>   * addressAsObject(getMemoryAddress(objectAsAddress(obj)+ofs))<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   */<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  public static Object getObjectAtOffset(Object object, Offset offset, int locationMetadata) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    return null;<a name="line.300"></a>
+<span class="sourceLineNo">301</span>  }<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>  /**<a name="line.303"></a>
+<span class="sourceLineNo">304</span>   * Get Word at arbitrary (byte) offset from object.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   * Use getWordAtOffset(obj, ofs) instead of getMemoryWord(objectAsAddress(obj)+ofs)<a name="line.305"></a>
+<span class="sourceLineNo">306</span>   */<a name="line.306"></a>
+<span class="sourceLineNo">307</span>  public static Word getWordAtOffset(Object object, Offset offset) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    return Word.max();<a name="line.309"></a>
+<span class="sourceLineNo">310</span>  }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>  /**<a name="line.312"></a>
+<span class="sourceLineNo">313</span>   * Get Word at arbitrary (byte) offset from object.<a name="line.313"></a>
+<span class="sourceLineNo">314</span>   */<a name="line.314"></a>
+<span class="sourceLineNo">315</span>  public static Word getWordAtOffset(Object object, Offset offset, int locationMetadata) {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    return null;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>  }<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>  /**<a name="line.320"></a>
+<span class="sourceLineNo">321</span>   * Get Address at arbitrary (byte) offset from object.<a name="line.321"></a>
+<span class="sourceLineNo">322</span>   * Use getAddressAtOffset(obj, ofs) instead of getMemoryWord(objectAsAddress(obj)+ofs)<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   */<a name="line.323"></a>
+<span class="sourceLineNo">324</span>  public static Address getAddressAtOffset(Object object, Offset offset) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    return null;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>  }<a name="line.327"></a>
+<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">329</span>  /**<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * Get Address at arbitrary (byte) offset from object.<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   */<a name="line.331"></a>
+<span class="sourceLineNo">332</span>  public static Address getAddressAtOffset(Object object, Offset offset, int locationMetadata) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    return null;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>  }<a name="line.335"></a>
+<span class="sourceLineNo">336</span><a name="line.336"></a>
+<span class="sourceLineNo">337</span>  /**<a name="line.337"></a>
+<span class="sourceLineNo">338</span>   * Get Extent at arbitrary (byte) offset from object.<a name="line.338"></a>
+<span class="sourceLineNo">339</span>   * Use getExtentAtOffset(obj, ofs) instead of getMemoryWord(objectAsAddress(obj)+ofs)<a name="line.339"></a>
+<span class="sourceLineNo">340</span>   */<a name="line.340"></a>
+<span class="sourceLineNo">341</span>  public static Extent getExtentAtOffset(Object object, Offset offset) {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    return null;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>  }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>  /**<a name="line.346"></a>
+<span class="sourceLineNo">347</span>   * Get Extent at arbitrary (byte) offset from object.<a name="line.347"></a>
+<span class="sourceLineNo">348</span>   */<a name="line.348"></a>
+<span class="sourceLineNo">349</span>  public static Extent getExtentAtOffset(Object object, Offset offset, int locationMetadata) {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    return null;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>  }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>  /**<a name="line.354"></a>
+<span class="sourceLineNo">355</span>   * Get Offset at arbitrary (byte) offset from object.<a name="line.355"></a>
+<span class="sourceLineNo">356</span>   * Use getOffsetAtOffset(obj, ofs) instead of getMemoryWord(objectAsAddress(obj)+ofs)<a name="line.356"></a>
+<span class="sourceLineNo">357</span>   */<a name="line.357"></a>
+<span class="sourceLineNo">358</span>  public static Offset getOffsetAtOffset(Object object, Offset offset) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.359"></a>
+<span class="sourceLineNo">360</span>    return null;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>  }<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>  /**<a name="line.363"></a>
+<span class="sourceLineNo">364</span>   * Get Offset at arbitrary (byte) offset from object.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>   */<a name="line.365"></a>
+<span class="sourceLineNo">366</span>  public static Offset getOffsetAtOffset(Object object, Offset offset, int locationMetadata) {<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    return null;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>  }<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>  /**<a name="line.371"></a>
+<span class="sourceLineNo">372</span>   * Get TIB at arbitrary (byte) offset from object.<a name="line.372"></a>
+<span class="sourceLineNo">373</span>   * Use getTIBAtOffset(obj, ofs) instead of<a name="line.373"></a>
+<span class="sourceLineNo">374</span>   * (TIB])addressAsObject(getMemoryAddr(objectAsAddress(obj)+ofs))<a name="line.374"></a>
+<span class="sourceLineNo">375</span>   */<a name="line.375"></a>
+<span class="sourceLineNo">376</span>  public static TIB getTIBAtOffset(Object object, Offset offset) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    return null;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>  /**<a name="line.381"></a>
+<span class="sourceLineNo">382</span>   * Set boolean at arbitrary (byte) offset from object.<a name="line.382"></a>
+<span class="sourceLineNo">383</span>   */<a name="line.383"></a>
+<span class="sourceLineNo">384</span>  public static void setBooleanAtOffset(Object object, Offset offset, boolean newvalue) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>    if (VM.VerifyAssertions)<a name="line.385"></a>
+<span class="sourceLineNo">386</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.386"></a>
+<span class="sourceLineNo">387</span>  }<a name="line.387"></a>
+<span class="sourceLineNo">388</span><a name="line.388"></a>
+<span class="sourceLineNo">389</span>  /**<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * Set boolean at arbitrary (byte) offset from object.<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   */<a name="line.391"></a>
+<span class="sourceLineNo">392</span>  public static void setBooleanAtOffset(Object object, Offset offset, boolean newvalue, int locationMetadata) {<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    if (VM.VerifyAssertions)<a name="line.393"></a>
+<span class="sourceLineNo">394</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.394"></a>
+<span class="sourceLineNo">395</span>  }<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>  /**<a name="line.397"></a>
+<span class="sourceLineNo">398</span>   * Set byte at arbitrary (byte) offset from object.<a name="line.398"></a>
+<span class="sourceLineNo">399</span>   */<a name="line.399"></a>
+<span class="sourceLineNo">400</span>  public static void setByteAtOffset(Object object, Offset offset, byte newvalue) {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.401"></a>
+<span class="sourceLineNo">402</span>  }<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>  /**<a name="line.404"></a>
+<span class="sourceLineNo">405</span>   * Set byte at arbitrary (byte) offset from object.<a name="line.405"></a>
+<span class="sourceLineNo">406</span>   */<a name="line.406"></a>
+<span class="sourceLineNo">407</span>  public static void setByteAtOffset(Object object, Offset offset, byte newvalue, int locationMetadata) {<a name="line.407"></a>
+<span class="sourceLineNo">408</span>    if (VM.VerifyAssertions)<a name="line.408"></a>
+<span class="sourceLineNo">409</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.409"></a>
+<span class="sourceLineNo">410</span>  }<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>  /**<a name="line.412"></a>
+<span class="sourceLineNo">413</span>   * Set char at arbitrary (byte) offset from object.<a name="line.413"></a>
+<span class="sourceLineNo">414</span>   */<a name="line.414"></a>
+<span class="sourceLineNo">415</span>  public static void setCharAtOffset(Object object, Offset offset, char newvalue) {<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.416"></a>
+<span class="sourceLineNo">417</span>  }<a name="line.417"></a>
+<span class="sourceLineNo">418</span><a name="line.418"></a>
+<span class="sourceLineNo">419</span>  /**<a name="line.419"></a>
+<span class="sourceLineNo">420</span>   * Set char at arbitrary (byte) offset from object.<a name="line.420"></a>
+<span class="sourceLineNo">421</span>   */<a name="line.421"></a>
+<span class="sourceLineNo">422</span>  public static void setCharAtOffset(Object object, Offset offset, char newvalue, int locationMetadata) {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    if (VM.VerifyAssertions)<a name="line.423"></a>
+<span class="sourceLineNo">424</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.424"></a>
+<span class="sourceLineNo">425</span>  }<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
+<span class="sourceLineNo">427</span>  /**<a name="line.427"></a>
+<span class="sourceLineNo">428</span>   * Set short at arbitrary (byte) offset from object.<a name="line.428"></a>
+<span class="sourceLineNo">429</span>   */<a name="line.429"></a>
+<span class="sourceLineNo">430</span>  public static void setShortAtOffset(Object object, Offset offset, short newvalue) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.431"></a>
+<span class="sourceLineNo">432</span>  }<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>  /**<a name="line.434"></a>
+<span class="sourceLineNo">435</span>   * Set short at arbitrary (byte) offset from object.<a name="line.435"></a>
+<span class="sourceLineNo">436</span>   */<a name="line.436"></a>
+<span class="sourceLineNo">437</span>  public static void setShortAtOffset(Object object, Offset offset, short newvalue, int locationMetadata) {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>    if (VM.VerifyAssertions)<a name="line.438"></a>
+<span class="sourceLineNo">439</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.439"></a>
+<span class="sourceLineNo">440</span>  }<a name="line.440"></a>
+<span class="sourceLineNo">441</span><a name="line.441"></a>
+<span class="sourceLineNo">442</span>  /**<a name="line.442"></a>
+<span class="sourceLineNo">443</span>   * Set int at arbitrary (byte) offset from object.<a name="line.443"></a>
+<span class="sourceLineNo">444</span>   * Use setIntAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.444"></a>
+<span class="sourceLineNo">445</span>   */<a name="line.445"></a>
+<span class="sourceLineNo">446</span>  public static void setIntAtOffset(Object object, Offset offset, int newvalue) {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.447"></a>
+<span class="sourceLineNo">448</span>  }<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>  /**<a name="line.450"></a>
+<span class="sourceLineNo">451</span>   * Set int at arbitrary (byte) offset from object.<a name="line.451"></a>
+<span class="sourceLineNo">452</span>   */<a name="line.452"></a>
+<span class="sourceLineNo">453</span>  public static void setIntAtOffset(Object object, Offset offset, int newvalue, int locationMetadata) {<a name="line.453"></a>
+<span class="sourceLineNo">454</span>    if (VM.VerifyAssertions)<a name="line.454"></a>
+<span class="sourceLineNo">455</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.455"></a>
+<span class="sourceLineNo">456</span>  }<a name="line.456"></a>
+<span class="sourceLineNo">457</span><a name="line.457"></a>
+<span class="sourceLineNo">458</span>  /**<a name="line.458"></a>
+<span class="sourceLineNo">459</span>   * Set long at arbitrary (byte) offset from object.<a name="line.459"></a>
+<span class="sourceLineNo">460</span>   * Use setlongAtOffset(obj, ofs) instead of two setIntAtOffset<a name="line.460"></a>
+<span class="sourceLineNo">461</span>   */<a name="line.461"></a>
+<span class="sourceLineNo">462</span>  public static void setLongAtOffset(Object object, Offset offset, long newvalue) {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.463"></a>
+<span class="sourceLineNo">464</span>  }<a name="line.464"></a>
+<span class="sourceLineNo">465</span><a name="line.465"></a>
+<span class="sourceLineNo">466</span>  /**<a name="line.466"></a>
+<span class="sourceLineNo">467</span>   * Set long at arbitrary (byte) offset from object. Use setlongAtOffset(obj,<a name="line.467"></a>
+<span class="sourceLineNo">468</span>   * ofs) instead of two setIntAtOffset<a name="line.468"></a>
+<span class="sourceLineNo">469</span>   */<a name="line.469"></a>
+<span class="sourceLineNo">470</span>  public static void setLongAtOffset(Object object, Offset offset, long newvalue, int locationMetadata) {<a name="line.470"></a>
+<span class="sourceLineNo">471</span>    if (VM.VerifyAssertions)<a name="line.471"></a>
+<span class="sourceLineNo">472</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.472"></a>
+<span class="sourceLineNo">473</span>  }<a name="line.473"></a>
+<span class="sourceLineNo">474</span><a name="line.474"></a>
+<span class="sourceLineNo">475</span>  /**<a name="line.475"></a>
+<span class="sourceLineNo">476</span>   * Set float at arbitrary (byte) offset from object.<a name="line.476"></a>
+<span class="sourceLineNo">477</span>   */<a name="line.477"></a>
+<span class="sourceLineNo">478</span>  public static void setFloatAtOffset(Object object, Offset offset, float newvalue) {<a name="line.478"></a>
+<span class="sourceLineNo">479</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.479"></a>
+<span class="sourceLineNo">480</span>  }<a name="line.480"></a>
+<span class="sourceLineNo">481</span><a name="line.481"></a>
+<span class="sourceLineNo">482</span>  /**<a name="line.482"></a>
+<span class="sourceLineNo">483</span>   * Set float at arbitrary (byte) offset from object.<a name="line.483"></a>
+<span class="sourceLineNo">484</span>   */<a name="line.484"></a>
+<span class="sourceLineNo">485</span>  public static void setFloatAtOffset(Object object, Offset offset, float newvalue, int locationMetadata) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>    if (VM.VerifyAssertions)<a name="line.486"></a>
+<span class="sourceLineNo">487</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.487"></a>
+<span class="sourceLineNo">488</span>  }<a name="line.488"></a>
+<span class="sourceLineNo">489</span><a name="line.489"></a>
+<span class="sourceLineNo">490</span>  /**<a name="line.490"></a>
+<span class="sourceLineNo">491</span>   * Set double at arbitrary (byte) offset from object.<a name="line.491"></a>
+<span class="sourceLineNo">492</span>   * Use setDoubleAtOffset(obj, ofs) instead of two setIntAtOffset<a name="line.492"></a>
+<span class="sourceLineNo">493</span>   */<a name="line.493"></a>
+<span class="sourceLineNo">494</span>  public static void setDoubleAtOffset(Object object, Offset offset, double newvalue) {<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.495"></a>
+<span class="sourceLineNo">496</span>  }<a name="line.496"></a>
+<span class="sourceLineNo">497</span><a name="line.497"></a>
+<span class="sourceLineNo">498</span>  /**<a name="line.498"></a>
+<span class="sourceLineNo">499</span>   * Set double at arbitrary (byte) offset from object. Use<a name="line.499"></a>
+<span class="sourceLineNo">500</span>   * setDoubleAtOffset(obj, ofs) instead of two setIntAtOffset<a name="line.500"></a>
+<span class="sourceLineNo">501</span>   */<a name="line.501"></a>
+<span class="sourceLineNo">502</span>  public static void setDoubleAtOffset(Object object, Offset offset, double newvalue, int locationMetadata) {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>    if (VM.VerifyAssertions)<a name="line.503"></a>
+<span class="sourceLineNo">504</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.504"></a>
+<span class="sourceLineNo">505</span>  }<a name="line.505"></a>
+<span class="sourceLineNo">506</span><a name="line.506"></a>
+<span class="sourceLineNo">507</span>  /**<a name="line.507"></a>
+<span class="sourceLineNo">508</span>   * Set Word at arbitrary (byte) offset from object.<a name="line.508"></a>
+<span class="sourceLineNo">509</span>   * Use setWordAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.509"></a>
+<span class="sourceLineNo">510</span>   */<a name="line.510"></a>
+<span class="sourceLineNo">511</span>  public static void setWordAtOffset(Object object, Offset offset, Word newvalue) {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.512"></a>
+<span class="sourceLineNo">513</span>  }<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>  /**<a name="line.515"></a>
+<span class="sourceLineNo">516</span>   * Set Word at arbitrary (byte) offset from object.<a name="line.516"></a>
+<span class="sourceLineNo">517</span>   * Use setWordAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.517"></a>
+<span class="sourceLineNo">518</span>   */<a name="line.518"></a>
+<span class="sourceLineNo">519</span>  public static void setWordAtOffset(Object object, Offset offset, Word newvalue, int locationMetadata) {<a name="line.519"></a>
+<span class="sourceLineNo">520</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.520"></a>
+<span class="sourceLineNo">521</span>  }<a name="line.521"></a>
+<span class="sourceLineNo">522</span><a name="line.522"></a>
+<span class="sourceLineNo">523</span>  /**<a name="line.523"></a>
+<span class="sourceLineNo">524</span>   * Set Address at arbitrary (byte) offset from object.<a name="line.524"></a>
+<span class="sourceLineNo">525</span>   * Use setAddressAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.525"></a>
+<span class="sourceLineNo">526</span>   */<a name="line.526"></a>
+<span class="sourceLineNo">527</span>  public static void setAddressAtOffset(Object object, Offset offset, Address newvalue) {<a name="line.527"></a>
+<span class="sourceLineNo">528</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.528"></a>
+<span class="sourceLineNo">529</span>  }<a name="line.529"></a>
+<span class="sourceLineNo">530</span><a name="line.530"></a>
+<span class="sourceLineNo">531</span>  /**<a name="line.531"></a>
+<span class="sourceLineNo">532</span>   * Set Address at arbitrary (byte) offset from object.<a name="line.532"></a>
+<span class="sourceLineNo">533</span>   * Use setAddressAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.533"></a>
+<span class="sourceLineNo">534</span>   */<a name="line.534"></a>
+<span class="sourceLineNo">535</span>  public static void setAddressAtOffset(Object object, Offset offset, Address newvalue, int locationMetadata) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.536"></a>
+<span class="sourceLineNo">537</span>  }<a name="line.537"></a>
+<span class="sourceLineNo">538</span><a name="line.538"></a>
+<span class="sourceLineNo">539</span>  /**<a name="line.539"></a>
+<span class="sourceLineNo">540</span>   * Set Extent at arbitrary (byte) offset from object.<a name="line.540"></a>
+<span class="sourceLineNo">541</span>   * Use setExtentAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.541"></a>
+<span class="sourceLineNo">542</span>   */<a name="line.542"></a>
+<span class="sourceLineNo">543</span>  public static void setExtentAtOffset(Object object, Offset offset, Extent newvalue) {<a name="line.543"></a>
+<span class="sourceLineNo">544</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.544"></a>
+<span class="sourceLineNo">545</span>  }<a name="line.545"></a>
+<span class="sourceLineNo">546</span><a name="line.546"></a>
+<span class="sourceLineNo">547</span>  /**<a name="line.547"></a>
+<span class="sourceLineNo">548</span>   * Set Extent at arbitrary (byte) offset from object.<a name="line.548"></a>
+<span class="sourceLineNo">549</span>   * Use setExtenttOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.549"></a>
+<span class="sourceLineNo">550</span>   */<a name="line.550"></a>
+<span class="sourceLineNo">551</span>  public static void setExtentAtOffset(Object object, Offset offset, Extent newvalue, int locationMetadata) {<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.552"></a>
+<span class="sourceLineNo">553</span>  }<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>  /**<a name="line.555"></a>
+<span class="sourceLineNo">556</span>   * Set Offset at arbitrary (byte) offset from object.<a name="line.556"></a>
+<span class="sourceLineNo">557</span>   * Use setOffsetAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.557"></a>
+<span class="sourceLineNo">558</span>   */<a name="line.558"></a>
+<span class="sourceLineNo">559</span>  public static void setOffsetAtOffset(Object object, Offset offset, Offset newvalue) {<a name="line.559"></a>
+<span class="sourceLineNo">560</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.560"></a>
+<span class="sourceLineNo">561</span>  }<a name="line.561"></a>
+<span class="sourceLineNo">562</span><a name="line.562"></a>
+<span class="sourceLineNo">563</span>  /**<a name="line.563"></a>
+<span class="sourceLineNo">564</span>   * Set Offset at arbitrary (byte) offset from object.<a name="line.564"></a>
+<span class="sourceLineNo">565</span>   * Use setOffsetAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, new)<a name="line.565"></a>
+<span class="sourceLineNo">566</span>   */<a name="line.566"></a>
+<span class="sourceLineNo">567</span>  public static void setOffsetAtOffset(Object object, Offset offset, Offset newvalue, int locationMetadata) {<a name="line.567"></a>
+<span class="sourceLineNo">568</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.568"></a>
+<span class="sourceLineNo">569</span>  }<a name="line.569"></a>
+<span class="sourceLineNo">570</span><a name="line.570"></a>
+<span class="sourceLineNo">571</span>  /**<a name="line.571"></a>
+<span class="sourceLineNo">572</span>   * Set Object at arbitrary (byte) offset from object.<a name="line.572"></a>
+<span class="sourceLineNo">573</span>   * Use setObjectAtOffset(obj, ofs, new) instead of setMemoryWord(objectAsAddress(obj)+ofs, objectAsAddress(new))<a name="line.573"></a>
+<span class="sourceLineNo">574</span>   */<a name="line.574"></a>
+<span class="sourceLineNo">575</span>  public static void setObjectAtOffset(Object object, Offset offset, Object newvalue) {<a name="line.575"></a>
+<span class="sourceLineNo">576</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.576"></a>
+<span class="sourceLineNo">577</span>  }<a name="line.577"></a>
+<span class="sourceLineNo">578</span><a name="line.578"></a>
+<span class="sourceLineNo">579</span>  /**<a name="line.579"></a>
+<span class="sourceLineNo">580</span>   * Set Object at arbitrary (byte) offset from object.<a name="line.580"></a>
+<span class="sourceLineNo">581</span>   */<a name="line.581"></a>
+<span class="sourceLineNo">582</span>  public static void setObjectAtOffset(Object object, Offset offset, Object newvalue, int locationMetadata) {<a name="line.582"></a>
+<span class="sourceLineNo">583</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.583"></a>
+<span class="sourceLineNo">584</span>  }<a name="line.584"></a>
+<span class="sourceLineNo">585</span><a name="line.585"></a>
+<span class="sourceLineNo">586</span><a name="line.586"></a>
+<span class="sourceLineNo">587</span>  //---------------------------------------//<a name="line.587"></a>
+<span class="sourceLineNo">588</span>  //    Atomic Memory Access Primitives.   //<a name="line.588"></a>
+<span class="sourceLineNo">589</span>  //---------------------------------------//<a name="line.589"></a>
+<span class="sourceLineNo">590</span><a name="line.590"></a>
+<span class="sourceLineNo">591</span>  /**<a name="line.591"></a>
+<span class="sourceLineNo">592</span>   * Get contents of (object + offset) and begin conditional critical section.<a name="line.592"></a>
+<span class="sourceLineNo">593</span>   */<a name="line.593"></a>
+<span class="sourceLineNo">594</span>  public static int prepareInt(Object object, Offset offset) {<a name="line.594"></a>
+<span class="sourceLineNo">595</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.595"></a>
+<span class="sourceLineNo">596</span>    return -1;<a name="line.596"></a>
+<span class="sourceLineNo">597</span>  }<a name="line.597"></a>
+<span class="sourceLineNo">598</span><a name="line.598"></a>
+<span class="sourceLineNo">599</span>  /**<a name="line.599"></a>
+<span class="sourceLineNo">600</span>   * Get contents of (object + offset) and begin conditional critical section.<a name="line.600"></a>
+<span class="sourceLineNo">601</span>   */<a name="line.601"></a>
+<span class="sourceLineNo">602</span>  public static Object prepareObject(Object object, Offset offset) {<a name="line.602"></a>
+<span class="sourceLineNo">603</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.603"></a>
+<span class="sourceLineNo">604</span>    return null;<a name="line.604"></a>
+<span class="sourceLineNo">605</span>  }<a name="line.605"></a>
+<span class="sourceLineNo">606</span><a name="line.606"></a>
+<span class="sourceLineNo">607</span>  /**<a name="line.607"></a>
+<span class="sourceLineNo">608</span>   * Get contents of (object + offset) and begin conditional critical section.<a name="line.608"></a>
+<span class="sourceLineNo">609</span>   */<a name="line.609"></a>
+<span class="sourceLineNo">610</span>  public static Address prepareAddress(Object object, Offset offset) {<a name="line.610"></a>
+<span class="sourceLineNo">611</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.611"></a>
+<span class="sourceLineNo">612</span>    return Address.max();<a name="line.612"></a>
+<span class="sourceLineNo">613</span>  }<a name="line.613"></a>
+<span class="sourceLineNo">614</span><a name="line.614"></a>
+<span class="sourceLineNo">615</span>  /**<a name="line.615"></a>
+<span class="sourceLineNo">616</span>   * Get contents of (object + offset) and begin conditional critical section.<a name="line.616"></a>
+<span class="sourceLineNo">617</span>   */<a name="line.617"></a>
+<span class="sourceLineNo">618</span>  public static Word prepareWord(Object object, Offset offset) {<a name="line.618"></a>
+<span class="sourceLineNo">619</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.619"></a>
+<span class="sourceLineNo">620</span>    return Word.max();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>  }<a name="line.621"></a>
+<span class="sourceLineNo">622</span><a name="line.622"></a>
+<span class="sourceLineNo">623</span>  /**<a name="line.623"></a>
+<span class="sourceLineNo">624</span>   * Get contents of (object + offset) and begin conditional critical section.<a name="line.624"></a>
+<span class="sourceLineNo">625</span>   */<a name="line.625"></a>
+<span class="sourceLineNo">626</span>  @Uninterruptible<a name="line.626"></a>
+<span class="sourceLineNo">627</span>  public static long prepareLong(Object object, Offset offset) {<a name="line.627"></a>
+<span class="sourceLineNo">628</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.628"></a>
+<span class="sourceLineNo">629</span>    return -1;<a name="line.629"></a>
+<span class="sourceLineNo">630</span>  }<a name="line.630"></a>
+<span class="sourceLineNo">631</span><a name="line.631"></a>
+<span class="sourceLineNo">632</span>  /**<a name="line.632"></a>
+<span class="sourceLineNo">633</span>   * Sets the memory at (object + offset) to newValue if its contents are oldValue.<a name="line.633"></a>
+<span class="sourceLineNo">634</span>   * Must be paired with a preceding prepare (which returned the oldValue)<a name="line.634"></a>
+<span class="sourceLineNo">635</span>   * Returns true if successful.<a name="line.635"></a>
+<span class="sourceLineNo">636</span>   * Ends conditional critical section.<a name="line.636"></a>
+<span class="sourceLineNo">637</span>   */<a name="line.637"></a>
+<span class="sourceLineNo">638</span>  public static boolean attemptInt(Object object, Offset offset, int oldValue, int newValue) {<a name="line.638"></a>
+<span class="sourceLineNo">639</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.639"></a>
+<span class="sourceLineNo">640</span>    return false;<a name="line.640"></a>
+<span class="sourceLineNo">641</span>  }<a name="line.641"></a>
+<span class="sourceLineNo">642</span><a name="line.642"></a>
+<span class="sourceLineNo">643</span>  /**<a name="line.643"></a>
+<span class="sourceLineNo">644</span>   * Sets the memory at (object + offset) to newValue if its contents are oldValue.<a name="line.644"></a>
+<span class="sourceLineNo">645</span>   * Must be paired with a preceding prepare (which returned the oldValue)<a name="line.645"></a>
+<span class="sourceLineNo">646</span>   * Returns true if successful.<a name="line.646"></a>
+<span class="sourceLineNo">647</span>   * Ends conditional critical section.<a name="line.647"></a>
+<span class="sourceLineNo">648</span>   */<a name="line.648"></a>
+<span class="sourceLineNo">649</span>  public static boolean attemptObject(Object object, Offset offset, Object oldValue, Object newValue) {<a name="line.649"></a>
+<span class="sourceLineNo">650</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.650"></a>
+<span class="sourceLineNo">651</span>    return false;<a name="line.651"></a>
+<span class="sourceLineNo">652</span>  }<a name="line.652"></a>
+<span class="sourceLineNo">653</span><a name="line.653"></a>
+<span class="sourceLineNo">654</span>  /**<a name="line.654"></a>
+<span class="sourceLineNo">655</span>   * Sets the memory at (object + offset) to newValue if its contents are oldValue.<a name="line.655"></a>
+<span class="sourceLineNo">656</span>   * Must be paired with a preceding prepare (which returned the oldValue)<a name="line.656"></a>
+<span class="sourceLineNo">657</span>   * Returns true if successful.<a name="line.657"></a>
+<span class="sourceLineNo">658</span>   * Ends conditional critical section.<a name="line.658"></a>
+<span class="sourceLineNo">659</span>   */<a name="line.659"></a>
+<span class="sourceLineNo">660</span>  public static boolean attemptAddress(Object object, Offset offset, Address oldValue, Address newValue) {<a name="line.660"></a>
+<span class="sourceLineNo">661</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.661"></a>
+<span class="sourceLineNo">662</span>    return false;<a name="line.662"></a>
+<span class="sourceLineNo">663</span>  }<a name="line.663"></a>
+<span class="sourceLineNo">664</span><a name="line.664"></a>
+<span class="sourceLineNo">665</span>  /**<a name="line.665"></a>
+<span class="sourceLineNo">666</span>   * Sets the memory at (object + offset) to newValue if its contents are oldValue.<a name="line.666"></a>
+<span class="sourceLineNo">667</span>   * Must be paired with a preceding prepare (which returned the oldValue)<a name="line.667"></a>
+<span class="sourceLineNo">668</span>   * Returns true if successful.<a name="line.668"></a>
+<span class="sourceLineNo">669</span>   * Ends conditional critical section.<a name="line.669"></a>
+<span class="sourceLineNo">670</span>   */<a name="line.670"></a>
+<span class="sourceLineNo">671</span>  public static boolean attemptWord(Object object, Offset offset, Word oldValue, Word newValue) {<a name="line.671"></a>
+<span class="sourceLineNo">672</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.672"></a>
+<span class="sourceLineNo">673</span>    return false;<a name="line.673"></a>
+<span class="sourceLineNo">674</span>  }<a name="line.674"></a>
+<span class="sourceLineNo">675</span><a name="line.675"></a>
+<span class="sourceLineNo">676</span>  /**<a name="line.676"></a>
+<span class="sourceLineNo">677</span>   * Sets the memory at (object + offset) to newValue if its contents are oldValue.<a name="line.677"></a>
+<span class="sourceLineNo">678</span>   * Must be paired with a preceding prepare (which returned the oldValue)<a name="line.678"></a>
+<span class="sourceLineNo">679</span>   * Returns true if successful.<a name="line.679"></a>
+<span class="sourceLineNo">680</span>   * Ends conditional critical section.<a name="line.680"></a>
+<span class="sourceLineNo">681</span>   */<a name="line.681"></a>
+<span class="sourceLineNo">682</span>  public static boolean attemptLong(Object object, Offset offset, long oldValue,<a name="line.682"></a>
+<span class="sourceLineNo">683</span>      long newValue) {<a name="line.683"></a>
+<span class="sourceLineNo">684</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.684"></a>
+<span class="sourceLineNo">685</span>    return false;<a name="line.685"></a>
+<span class="sourceLineNo">686</span>  }<a name="line.686"></a>
+<span class="sourceLineNo">687</span><a name="line.687"></a>
+<span class="sourceLineNo">688</span>  //---------------------------------------//<a name="line.688"></a>
+<span class="sourceLineNo">689</span>  //             Type Conversion.          //<a name="line.689"></a>
+<span class="sourceLineNo">690</span>  //---------------------------------------//<a name="line.690"></a>
+<span class="sourceLineNo">691</span><a name="line.691"></a>
+<span class="sourceLineNo">692</span>  @Entrypoint<a name="line.692"></a>
+<span class="sourceLineNo">693</span>  private static ObjectAddressRemapper objectAddressRemapper;<a name="line.693"></a>
+<span class="sourceLineNo">694</span><a name="line.694"></a>
+<span class="sourceLineNo">695</span>  /**<a name="line.695"></a>
+<span class="sourceLineNo">696</span>   * Specify how to handle "objectAsAddress" and "addressAsObject" casts.<a name="line.696"></a>
+<span class="sourceLineNo">697</span>   * Used by debugger and boot image writer.<a name="line.697"></a>
+<span class="sourceLineNo">698</span>   */<a name="line.698"></a>
+<span class="sourceLineNo">699</span>  public static void setObjectAddressRemapper(ObjectAddressRemapper x) {<a name="line.699"></a>
+<span class="sourceLineNo">700</span>    objectAddressRemapper = x;<a name="line.700"></a>
+<span class="sourceLineNo">701</span>  }<a name="line.701"></a>
+<span class="sourceLineNo">702</span><a name="line.702"></a>
+<span class="sourceLineNo">703</span>  /**<a name="line.703"></a>
+<span class="sourceLineNo">704</span>   * Cast bits.<a name="line.704"></a>
+<span class="sourceLineNo">705</span>   * Note: the returned integer is only valid until next garbage collection<a name="line.705"></a>
+<span class="sourceLineNo">706</span>   *   cycle (thereafter the referenced object might have moved and<a name="line.706"></a>
+<span class="sourceLineNo">707</span>   *   its address changed)<a name="line.707"></a>
+<span class="sourceLineNo">708</span>   * @param object object reference<a name="line.708"></a>
+<span class="sourceLineNo">709</span>   * @return object reference as bits<a name="line.709"></a>
+<span class="sourceLineNo">710</span>   */<a name="line.710"></a>
+<span class="sourceLineNo">711</span>  public static &lt;T&gt; Address objectAsAddress(T object) {<a name="line.711"></a>
+<span class="sourceLineNo">712</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.712"></a>
+<span class="sourceLineNo">713</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.713"></a>
+<span class="sourceLineNo">714</span>    }<a name="line.714"></a>
+<span class="sourceLineNo">715</span><a name="line.715"></a>
+<span class="sourceLineNo">716</span>    if (objectAddressRemapper == null) {<a name="line.716"></a>
+<span class="sourceLineNo">717</span>      return Address.zero();                 // tool isn't interested in remapping<a name="line.717"></a>
+<span class="sourceLineNo">718</span>    }<a name="line.718"></a>
+<span class="sourceLineNo">719</span><a name="line.719"></a>
+<span class="sourceLineNo">720</span>    return objectAddressRemapper.objectAsAddress(object);<a name="line.720"></a>
+<span class="sourceLineNo">721</span>  }<a name="line.721"></a>
+<span class="sourceLineNo">722</span><a name="line.722"></a>
+<span class="sourceLineNo">723</span>  /**<a name="line.723"></a>
+<span class="sourceLineNo">724</span>   * Certain objects aren't replicated in the boot image to save space.<a name="line.724"></a>
+<span class="sourceLineNo">725</span>   * @param object to intern<a name="line.725"></a>
+<span class="sourceLineNo">726</span>   * @return interned object<a name="line.726"></a>
+<span class="sourceLineNo">727</span>   */<a name="line.727"></a>
+<span class="sourceLineNo">728</span>  public static &lt;T&gt; T bootImageIntern(T object) {<a name="line.728"></a>
+<span class="sourceLineNo">729</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.729"></a>
+<span class="sourceLineNo">730</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.730"></a>
+<span class="sourceLineNo">731</span>    }<a name="line.731"></a>
+<span class="sourceLineNo">732</span><a name="line.732"></a>
+<span class="sourceLineNo">733</span>    if (objectAddressRemapper == null) {<a name="line.733"></a>
+<span class="sourceLineNo">734</span>      return object;                 // tool isn't interested in remapping<a name="line.734"></a>
+<span class="sourceLineNo">735</span>    }<a name="line.735"></a>
+<span class="sourceLineNo">736</span><a name="line.736"></a>
+<span class="sourceLineNo">737</span>    return objectAddressRemapper.intern(object);<a name="line.737"></a>
+<span class="sourceLineNo">738</span>  }<a name="line.738"></a>
+<span class="sourceLineNo">739</span><a name="line.739"></a>
+<span class="sourceLineNo">740</span>  /**<a name="line.740"></a>
+<span class="sourceLineNo">741</span>   * Certain objects aren't replicated in the boot image to save space.<a name="line.741"></a>
+<span class="sourceLineNo">742</span>   * @param object to intern<a name="line.742"></a>
+<span class="sourceLineNo">743</span>   * @return interned object<a name="line.743"></a>
+<span class="sourceLineNo">744</span>   */<a name="line.744"></a>
+<span class="sourceLineNo">745</span>  public static int bootImageIdentityHashCode(Object object) {<a name="line.745"></a>
+<span class="sourceLineNo">746</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.746"></a>
+<span class="sourceLineNo">747</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.747"></a>
+<span class="sourceLineNo">748</span>    }<a name="line.748"></a>
+<span class="sourceLineNo">749</span><a name="line.749"></a>
+<span class="sourceLineNo">750</span>    if (objectAddressRemapper == null) {<a name="line.750"></a>
+<span class="sourceLineNo">751</span>      // shouldn't create identity hash codes when we cannot record the effect, ignore if we're running a tool<a name="line.751"></a>
+<span class="sourceLineNo">752</span>      if (VM.VerifyAssertions) VM._assert(VM.runningTool || VM.writingImage);<a name="line.752"></a>
+<span class="sourceLineNo">753</span>      return System.identityHashCode(object);<a name="line.753"></a>
+<span class="sourceLineNo">754</span>    }<a name="line.754"></a>
+<span class="sourceLineNo">755</span><a name="line.755"></a>
+<span class="sourceLineNo">756</span>    return objectAddressRemapper.identityHashCode(object);<a name="line.756"></a>
+<span class="sourceLineNo">757</span>  }<a name="line.757"></a>
+<span class="sourceLineNo">758</span><a name="line.758"></a>
+<span class="sourceLineNo">759</span>  /**<a name="line.759"></a>
+<span class="sourceLineNo">760</span>   * Cast bits.<a name="line.760"></a>
+<span class="sourceLineNo">761</span>   * @param address object reference as bits<a name="line.761"></a>
+<span class="sourceLineNo">762</span>   * @return object reference<a name="line.762"></a>
+<span class="sourceLineNo">763</span>   */<a name="line.763"></a>
+<span class="sourceLineNo">764</span>  public static Object addressAsObject(Address address) {<a name="line.764"></a>
+<span class="sourceLineNo">765</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.765"></a>
+<span class="sourceLineNo">766</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.766"></a>
+<span class="sourceLineNo">767</span>    }<a name="line.767"></a>
+<span class="sourceLineNo">768</span><a name="line.768"></a>
+<span class="sourceLineNo">769</span>    if (objectAddressRemapper == null) {<a name="line.769"></a>
+<span class="sourceLineNo">770</span>      return null;               // tool isn't interested in remapping<a name="line.770"></a>
+<span class="sourceLineNo">771</span>    }<a name="line.771"></a>
+<span class="sourceLineNo">772</span><a name="line.772"></a>
+<span class="sourceLineNo">773</span>    return objectAddressRemapper.addressAsObject(address);<a name="line.773"></a>
+<span class="sourceLineNo">774</span>  }<a name="line.774"></a>
+<span class="sourceLineNo">775</span><a name="line.775"></a>
+<span class="sourceLineNo">776</span>  /**<a name="line.776"></a>
+<span class="sourceLineNo">777</span>   * Cast bits of code array into an object<a name="line.777"></a>
+<span class="sourceLineNo">778</span>   * Note: for use by Statics when assigning slots to static method pointers<a name="line.778"></a>
+<span class="sourceLineNo">779</span>   * @param code the code array to convert<a name="line.779"></a>
+<span class="sourceLineNo">780</span>   * @return object reference<a name="line.780"></a>
+<span class="sourceLineNo">781</span>   */<a name="line.781"></a>
+<span class="sourceLineNo">782</span>  public static Object codeArrayAsObject(CodeArray code) {<a name="line.782"></a>
+<span class="sourceLineNo">783</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.783"></a>
+<span class="sourceLineNo">784</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.784"></a>
+<span class="sourceLineNo">785</span>    }<a name="line.785"></a>
+<span class="sourceLineNo">786</span><a name="line.786"></a>
+<span class="sourceLineNo">787</span>    return code;<a name="line.787"></a>
+<span class="sourceLineNo">788</span>  }<a name="line.788"></a>
+<span class="sourceLineNo">789</span><a name="line.789"></a>
+<span class="sourceLineNo">790</span>  /**<a name="line.790"></a>
+<span class="sourceLineNo">791</span>   * Cast bits of tib into an object<a name="line.791"></a>
+<span class="sourceLineNo">792</span>   * Note: for use by Statics when assigning slots<a name="line.792"></a>
+<span class="sourceLineNo">793</span>   * @param tib the tib to convert<a name="line.793"></a>
+<span class="sourceLineNo">794</span>   * @return object reference<a name="line.794"></a>
+<span class="sourceLineNo">795</span>   */<a name="line.795"></a>
+<span class="sourceLineNo">796</span>  public static Object tibAsObject(TIB tib) {<a name="line.796"></a>
+<span class="sourceLineNo">797</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.797"></a>
+<span class="sourceLineNo">798</span>      VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.798"></a>
+<span class="sourceLineNo">799</span>    }<a name="line.799"></a>
+<span class="sourceLineNo">800</span><a name="line.800"></a>
+<span class="sourceLineNo">801</span>    return tib;<a name="line.801"></a>
+<span class="sourceLineNo">802</span>  }<a name="line.802"></a>
+<span class="sourceLineNo">803</span><a name="line.803"></a>
+<span class="sourceLineNo">804</span>  /**<a name="line.804"></a>
+<span class="sourceLineNo">805</span>   * Cast bits.<a name="line.805"></a>
+<span class="sourceLineNo">806</span>   * @param address object array reference as bits<a name="line.806"></a>
+<span class="sourceLineNo">807</span>   * @return object array reference<a name="line.807"></a>
+<span class="sourceLineNo">808</span>   */<a name="line.808"></a>
+<span class="sourceLineNo">809</span>  public static TIB addressAsTIB(Address address) {<a name="line.809"></a>
+<span class="sourceLineNo">810</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.810"></a>
+<span class="sourceLineNo">811</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.811"></a>
+<span class="sourceLineNo">812</span>    }<a name="line.812"></a>
+<span class="sourceLineNo">813</span>    return null;<a name="line.813"></a>
+<span class="sourceLineNo">814</span>  }<a name="line.814"></a>
+<span class="sourceLineNo">815</span><a name="line.815"></a>
+<span class="sourceLineNo">816</span>  /**<a name="line.816"></a>
+<span class="sourceLineNo">817</span>   * Cast object.<a name="line.817"></a>
+<span class="sourceLineNo">818</span>   * @param object object reference<a name="line.818"></a>
+<span class="sourceLineNo">819</span>   * @return object reference as type (no checking on cast)<a name="line.819"></a>
+<span class="sourceLineNo">820</span>   */<a name="line.820"></a>
+<span class="sourceLineNo">821</span>  public static RVMType objectAsType(Object object) {<a name="line.821"></a>
+<span class="sourceLineNo">822</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.822"></a>
+<span class="sourceLineNo">823</span><a name="line.823"></a>
+<span class="sourceLineNo">824</span>    return (RVMType)object;<a name="line.824"></a>
+<span class="sourceLineNo">825</span>  }<a name="line.825"></a>
+<span class="sourceLineNo">826</span><a name="line.826"></a>
+<span class="sourceLineNo">827</span>  /**<a name="line.827"></a>
+<span class="sourceLineNo">828</span>   * Cast object.<a name="line.828"></a>
+<span class="sourceLineNo">829</span>   * Note:     for use by GC to avoid checkcast during GC<a name="line.829"></a>
+<span class="sourceLineNo">830</span>   * @param object object reference<a name="line.830"></a>
+<span class="sourceLineNo">831</span>   * @return object reference as thread (no checking on cast)<a name="line.831"></a>
+<span class="sourceLineNo">832</span>   */<a name="line.832"></a>
+<span class="sourceLineNo">833</span>  public static RVMThread objectAsThread(Object object) {<a name="line.833"></a>
+<span class="sourceLineNo">834</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.834"></a>
+<span class="sourceLineNo">835</span>    return null;<a name="line.835"></a>
+<span class="sourceLineNo">836</span>  }<a name="line.836"></a>
+<span class="sourceLineNo">837</span>  /**<a name="line.837"></a>
+<span class="sourceLineNo">838</span>   * Cast bits.<a name="line.838"></a>
+<span class="sourceLineNo">839</span>   * @param number A floating point number<a name="line.839"></a>
+<span class="sourceLineNo">840</span>   * @return   &lt;code&gt;number&lt;/code&gt; as bits<a name="line.840"></a>
+<span class="sourceLineNo">841</span>   */<a name="line.841"></a>
+<span class="sourceLineNo">842</span>  public static int floatAsIntBits(float number) {<a name="line.842"></a>
+<span class="sourceLineNo">843</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.843"></a>
+<span class="sourceLineNo">844</span>    return -1;<a name="line.844"></a>
+<span class="sourceLineNo">845</span>  }<a name="line.845"></a>
+<span class="sourceLineNo">846</span><a name="line.846"></a>
+<span class="sourceLineNo">847</span>  /**<a name="line.847"></a>
+<span class="sourceLineNo">848</span>   * Cast bits.<a name="line.848"></a>
+<span class="sourceLineNo">849</span>   * @param number as bits<a name="line.849"></a>
+<span class="sourceLineNo">850</span>   * @return &lt;code&gt;number&lt;/code&gt; as a &lt;code&gt;float&lt;/code&gt;<a name="line.850"></a>
+<span class="sourceLineNo">851</span>   */<a name="line.851"></a>
+<span class="sourceLineNo">852</span>  public static float intBitsAsFloat(int number) {<a name="line.852"></a>
+<span class="sourceLineNo">853</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.853"></a>
+<span class="sourceLineNo">854</span>    return -1;<a name="line.854"></a>
+<span class="sourceLineNo">855</span>  }<a name="line.855"></a>
+<span class="sourceLineNo">856</span><a name="line.856"></a>
+<span class="sourceLineNo">857</span>  /**<a name="line.857"></a>
+<span class="sourceLineNo">858</span>   * Cast bits.<a name="line.858"></a>
+<span class="sourceLineNo">859</span>   * @param number as double<a name="line.859"></a>
+<span class="sourceLineNo">860</span>   * @return number as bits<a name="line.860"></a>
+<span class="sourceLineNo">861</span>   */<a name="line.861"></a>
+<span class="sourceLineNo">862</span>  public static long doubleAsLongBits(double number) {<a name="line.862"></a>
+<span class="sourceLineNo">863</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.863"></a>
+<span class="sourceLineNo">864</span>    return -1;<a name="line.864"></a>
+<span class="sourceLineNo">865</span>  }<a name="line.865"></a>
+<span class="sourceLineNo">866</span><a name="line.866"></a>
+<span class="sourceLineNo">867</span>  /**<a name="line.867"></a>
+<span class="sourceLineNo">868</span>   * Cast bits.<a name="line.868"></a>
+<span class="sourceLineNo">869</span>   * @param number as bits<a name="line.869"></a>
+<span class="sourceLineNo">870</span>   * @return number as double<a name="line.870"></a>
+<span class="sourceLineNo">871</span>   */<a name="line.871"></a>
+<span class="sourceLineNo">872</span>  public static double longBitsAsDouble(long number) {<a name="line.872"></a>
+<span class="sourceLineNo">873</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.873"></a>
+<span class="sourceLineNo">874</span>    return -1;<a name="line.874"></a>
+<span class="sourceLineNo">875</span>  }<a name="line.875"></a>
+<span class="sourceLineNo">876</span><a name="line.876"></a>
+<span class="sourceLineNo">877</span>  /**<a name="line.877"></a>
+<span class="sourceLineNo">878</span>   * Recast.<a name="line.878"></a>
+<span class="sourceLineNo">879</span>   * Note:     for use by GC to avoid checkcast during GC<a name="line.879"></a>
+<span class="sourceLineNo">880</span>   * @param byte_array an address<a name="line.880"></a>
+<span class="sourceLineNo">881</span>   * Returned: byte array (byte[])  object reference<a name="line.881"></a>
+<span class="sourceLineNo">882</span>   */<a name="line.882"></a>
+<span class="sourceLineNo">883</span>  public static byte[] addressAsByteArray(Address byte_array) {<a name="line.883"></a>
+<span class="sourceLineNo">884</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.884"></a>
+<span class="sourceLineNo">885</span>    return null;<a name="line.885"></a>
+<span class="sourceLineNo">886</span>  }<a name="line.886"></a>
+<span class="sourceLineNo">887</span><a name="line.887"></a>
+<span class="sourceLineNo">888</span>  /**<a name="line.888"></a>
+<span class="sourceLineNo">889</span>   * Cast object.<a name="line.889"></a>
+<span class="sourceLineNo">890</span>   * Note:     for use in dynamic type checking (avoid dynamic type checking in impl. of dynamic type checking)<a name="line.890"></a>
+<span class="sourceLineNo">891</span>   * @param object<a name="line.891"></a>
+<span class="sourceLineNo">892</span>   * @return short array (short[])  object reference<a name="line.892"></a>
+<span class="sourceLineNo">893</span>   */<a name="line.893"></a>
+<span class="sourceLineNo">894</span>  public static short[] objectAsShortArray(Object object) {<a name="line.894"></a>
+<span class="sourceLineNo">895</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.895"></a>
+<span class="sourceLineNo">896</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.896"></a>
+<span class="sourceLineNo">897</span>    }<a name="line.897"></a>
+<span class="sourceLineNo">898</span>    return (short[]) object;<a name="line.898"></a>
+<span class="sourceLineNo">899</span>  }<a name="line.899"></a>
+<span class="sourceLineNo">900</span><a name="line.900"></a>
+<span class="sourceLineNo">901</span>  /**<a name="line.901"></a>
+<span class="sourceLineNo">902</span>   * Cast object.<a name="line.902"></a>
+<span class="sourceLineNo">903</span>   * Note:     for use in dynamic type checking (avoid dynamic type checking in impl. of dynamic type checking)<a name="line.903"></a>
+<span class="sourceLineNo">904</span>   * @param object<a name="line.904"></a>
+<span class="sourceLineNo">905</span>   * @return int array (int[])  object reference<a name="line.905"></a>
+<span class="sourceLineNo">906</span>   */<a name="line.906"></a>
+<span class="sourceLineNo">907</span>  public static int[] objectAsIntArray(Object object) {<a name="line.907"></a>
+<span class="sourceLineNo">908</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.908"></a>
+<span class="sourceLineNo">909</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.909"></a>
+<span class="sourceLineNo">910</span>    }<a name="line.910"></a>
+<span class="sourceLineNo">911</span>    return (int[]) object;<a name="line.911"></a>
+<span class="sourceLineNo">912</span>  }<a name="line.912"></a>
+<span class="sourceLineNo">913</span><a name="line.913"></a>
+<span class="sourceLineNo">914</span>  //---------------------------------------//<a name="line.914"></a>
+<span class="sourceLineNo">915</span>  //          Object Header Access.        //<a name="line.915"></a>
+<span class="sourceLineNo">916</span>  //---------------------------------------//<a name="line.916"></a>
+<span class="sourceLineNo">917</span><a name="line.917"></a>
+<span class="sourceLineNo">918</span>  /**<a name="line.918"></a>
+<span class="sourceLineNo">919</span>   * Get an object's type.<a name="line.919"></a>
+<span class="sourceLineNo">920</span>   * @param object object reference<a name="line.920"></a>
+<span class="sourceLineNo">921</span>   * @return object type<a name="line.921"></a>
+<span class="sourceLineNo">922</span>   */<a name="line.922"></a>
+<span class="sourceLineNo">923</span>  public static RVMType getObjectType(Object object) {<a name="line.923"></a>
+<span class="sourceLineNo">924</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.924"></a>
+<span class="sourceLineNo">925</span>    return null;<a name="line.925"></a>
+<span class="sourceLineNo">926</span>  }<a name="line.926"></a>
+<span class="sourceLineNo">927</span><a name="line.927"></a>
+<span class="sourceLineNo">928</span>  /**<a name="line.928"></a>
+<span class="sourceLineNo">929</span>   * Get an array's length.<a name="line.929"></a>
+<span class="sourceLineNo">930</span>   * @param object object reference<a name="line.930"></a>
+<span class="sourceLineNo">931</span>   * @return array length (number of elements)<a name="line.931"></a>
+<span class="sourceLineNo">932</span>   */<a name="line.932"></a>
+<span class="sourceLineNo">933</span>  public static int getArrayLength(Object object) {<a name="line.933"></a>
+<span class="sourceLineNo">934</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED); // call site should have been hijacked by magic in compiler<a name="line.934"></a>
+<span class="sourceLineNo">935</span>    return -1;<a name="line.935"></a>
+<span class="sourceLineNo">936</span>  }<a name="line.936"></a>
+<span class="sourceLineNo">937</span><a name="line.937"></a>
+<span class="sourceLineNo">938</span>  //---------------------------------------//<a name="line.938"></a>
+<span class="sourceLineNo">939</span>  // Method Invocation And Stack Trickery. //<a name="line.939"></a>
+<span class="sourceLineNo">940</span>  //---------------------------------------//<a name="line.940"></a>
+<span class="sourceLineNo">941</span><a name="line.941"></a>
+<span class="sourceLineNo">942</span>  /**<a name="line.942"></a>
+<span class="sourceLineNo">943</span>   * Saves current thread state.  Stores the values in the hardware registers<a name="line.943"></a>
+<span class="sourceLineNo">944</span>   * into a Registers object.<a name="line.944"></a>
+<span class="sourceLineNo">945</span>   * &lt;p&gt;<a name="line.945"></a>
+<span class="sourceLineNo">946</span>   * We used to use this to implement thread switching, but we have a<a name="line.946"></a>
+<span class="sourceLineNo">947</span>   * threadSwitch magic now that does both of these in a single step as that<a name="line.947"></a>
+<span class="sourceLineNo">948</span>   * is less error-prone.  saveThreadState is now only used in the<a name="line.948"></a>
+<span class="sourceLineNo">949</span>   * implementation of athrow (RuntimeEntrypoints.athrow).<a name="line.949"></a>
+<span class="sourceLineNo">950</span>   * &lt;p&gt;<a name="line.950"></a>
+<span class="sourceLineNo">951</span>   * The following registers are saved:<a name="line.951"></a>
+<span class="sourceLineNo">952</span>   * &lt;ul&gt;<a name="line.952"></a>
+<span class="sourceLineNo">953</span>   *  &lt;li&gt;nonvolatile fpr registers<a name="line.953"></a>
+<span class="sourceLineNo">954</span>   *  &lt;li&gt;nonvolatile gpr registers<a name="line.954"></a>
+<span class="sourceLineNo">955</span>   *  &lt;li&gt;FRAME_POINTER register<a name="line.955"></a>
+<span class="sourceLineNo">956</span>   *  &lt;li&gt;THREAD_ID     "register"<a name="line.956"></a>
+<span class="sourceLineNo">957</span>   * &lt;/ul&gt;<a name="line.957"></a>
+<span class="sourceLineNo">958</span>   * @param registers place to save register values<a name="line.958"></a>
+<span class="sourceLineNo">959</span>   */<a name="line.959"></a>
+<span class="sourceLineNo">960</span>  // PNT: make a version of this that implicitly uses contextRegisters.<a name="line.960"></a>
+<span class="sourceLineNo">961</span>  public static void saveThreadState(Registers registers) {<a name="line.961"></a>
+<span class="sourceLineNo">962</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.962"></a>
+<span class="sourceLineNo">963</span>  }<a name="line.963"></a>
+<span class="sourceLineNo">964</span>  /**<a name="line.964"></a>
+<span class="sourceLineNo">965</span>   * Switch threads.<a name="line.965"></a>
+<span class="sourceLineNo">966</span>   * The following registers are saved/restored<a name="line.966"></a>
+<span class="sourceLineNo">967</span>   * &lt;ul&gt;<a name="line.967"></a>
+<span class="sourceLineNo">968</span>   *  &lt;li&gt;nonvolatile fpr registers<a name="line.968"></a>
+<span class="sourceLineNo">969</span>   *  &lt;li&gt;nonvolatile gpr registers<a name="line.969"></a>
+<span class="sourceLineNo">970</span>   *  &lt;li&gt;FRAME_POINTER register<a name="line.970"></a>
+<span class="sourceLineNo">971</span>   *  &lt;li&gt;THREAD_ID     "register"<a name="line.971"></a>
+<span class="sourceLineNo">972</span>   * &lt;/ul&gt;   *<a name="line.972"></a>
+<span class="sourceLineNo">973</span>   * @param currentThread thread that is currently running<a name="line.973"></a>
+<span class="sourceLineNo">974</span>   * @param restoreRegs   registers from which we should restore<a name="line.974"></a>
+<span class="sourceLineNo">975</span>   *                      the saved hardware state of another thread.<a name="line.975"></a>
+<span class="sourceLineNo">976</span>   */<a name="line.976"></a>
+<span class="sourceLineNo">977</span>  public static void threadSwitch(RVMThread currentThread, Registers restoreRegs) {<a name="line.977"></a>
+<span class="sourceLineNo">978</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.978"></a>
+<span class="sourceLineNo">979</span>  }<a name="line.979"></a>
+<span class="sourceLineNo">980</span><a name="line.980"></a>
+<span class="sourceLineNo">981</span>  /**<a name="line.981"></a>
+<span class="sourceLineNo">982</span>   * Resume execution with specified thread exception state.<a name="line.982"></a>
+<span class="sourceLineNo">983</span>   * &lt;p&gt;<a name="line.983"></a>
+<span class="sourceLineNo">984</span>   * Restores virtually all registers (details vary by architecture).<a name="line.984"></a>
+<span class="sourceLineNo">985</span>   * But, the following are _NOT_ restored<a name="line.985"></a>
+<span class="sourceLineNo">986</span>   * &lt;ul&gt;<a name="line.986"></a>
+<span class="sourceLineNo">987</span>   *  &lt;li&gt;JTOC_POINTER<a name="line.987"></a>
+<span class="sourceLineNo">988</span>   *  &lt;li&gt;THREAD_REGISTER<a name="line.988"></a>
+<span class="sourceLineNo">989</span>   * &lt;/ul&gt;<a name="line.989"></a>
+<span class="sourceLineNo">990</span>   * does not return (execution resumes at new IP)<a name="line.990"></a>
+<span class="sourceLineNo">991</span>   * @param registers register values to be used<a name="line.991"></a>
+<span class="sourceLineNo">992</span>   */<a name="line.992"></a>
+<span class="sourceLineNo">993</span>  public static void restoreHardwareExceptionState(Registers registers) {<a name="line.993"></a>
+<span class="sourceLineNo">994</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.994"></a>
+<span class="sourceLineNo">995</span>  }<a name="line.995"></a>
+<span class="sourceLineNo">996</span><a name="line.996"></a>
+<span class="sourceLineNo">997</span>  /**<a name="line.997"></a>
+<span class="sourceLineNo">998</span>   * Return to caller of current method, resuming execution on a new stack<a name="line.998"></a>
+<span class="sourceLineNo">999</span>   * that's a copy of the original.<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>   * @param fp value to place into FRAME_POINTER register<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>   */<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>  public static void returnToNewStack(Address fp) {<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>  }<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span><a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>  /**<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>   * Transfer execution to target of a dynamic bridge method.<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>   * &lt;p&gt;<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>   * The following registers are restored:  non-volatiles, volatiles<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>   * &lt;p&gt;<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>   * Note: this method must only be called from a DynamicBridge method because it<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>   * never returns (target method returns to caller of dynamic bridge method)<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>   * @param instructions target method<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>   */<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>  public static void dynamicBridgeTo(CodeArray instructions) {<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>  }<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span><a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>  /** Call &amp;lt;clinit&amp;gt; method with no argument list. */<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>  public static void invokeClassInitializer(CodeArray clinit) throws Exception {<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>    // Since the real method passes exceptions up. Constructor might throw an arbitrary exception.<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>    throw new Exception("UNREACHED");<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>  }<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span><a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>  /** Call arbitrary method with argument list. */<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>  public static void invokeMethodReturningVoid(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>  }<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span><a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>  /** Call arbitrary method with argument list. */<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>  public static int invokeMethodReturningInt(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>    return -1;<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>  }<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span><a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>  /** Call arbitrary method with argument list. */<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>  public static long invokeMethodReturningLong(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>    return -1;<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>  }<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span><a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>  /** Call arbitrary method with argument list. */<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>  public static float invokeMethodReturningFloat(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>    return -1;<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>  }<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span><a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>  /** Call arbitrary method with argument list. */<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>  public static double invokeMethodReturningDouble(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>    return -1;<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>  }<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span><a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>  /** Call arbitrary method with argument list. */<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>  public static Object invokeMethodReturningObject(CodeArray code, WordArray gprs, double[] fprs, byte[] fprmeta, WordArray spills) {<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>    if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>    return null;<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>  }<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span><a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>  //---------------------------------------//<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>  //            Memory Fences.             //<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>  //---------------------------------------//<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span><a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>  /**<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>   * Disallow any reads to float above this point.<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>   */<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>  public static void readCeiling() {<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>    }<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>  }<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span><a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>  /**<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>   * Disallow any writes to sink below this point.<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>   */<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>  public static void writeFloor() {<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>    }<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>  }<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span><a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>  //---------------------------------------//<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>  //            Cache Management.          //<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>  //---------------------------------------//<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span><a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>  /**** NOTE: all per-address operations now live in vmmagic.Address *****/<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span><a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>  /**<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>   * A strong memory fence, used to enforce StoreLoad in the JMM.<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>   */<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>  public static void fence() {<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>    }<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>  }<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span><a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>  /**<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>   * Wait for preceeding cache flush/invalidate instructions to<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>   * complete on all processors.<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>   */<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>  public static void sync() {<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1103"></a>
+<span class="sourceLineNo">1104</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>    }<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>  }<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span><a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>  /**<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>   * Wait for all preceeding instructions to complete and discard any<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span>   * prefetched instructions on this processor.<a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>   */<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span>  public static void isync() {<a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>    }<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span>  }<a name="line.1116"></a>
+<span class="sourceLineNo">1117</span><a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>  /****************************************************************<a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>   *<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>   *    Misc<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span>   *<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>   */<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span><a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>  /**<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>   * On IA32, emit a PAUSE instruction, to optimize spin-wait loops.<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>   */<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>  public static void pause() {<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>    }<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span>  }<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span><a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>  /**<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span>   * A hardware SQRT instruction<a name="line.1134"></a>
+<span class="sourceLineNo">1135</span>   */<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>  public static float sqrt(float value) {<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>    }<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>    return -1.0f; // which should upset them even if assertions aren't enabled ...<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span>  }<a name="line.1141"></a>
+<span class="sourceLineNo">1142</span><a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>  /**<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>   * A hardware SQRT instruction<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>   */<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>  public static double sqrt(double value) {<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span>    }<a name="line.1149"></a>
+<span class="sourceLineNo">1150</span>    return -1.0d; // which should upset them even if assertions aren't enabled ...<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>  }<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span><a name="line.1152"></a>
+<span class="sourceLineNo">1153</span>  /**<a name="line.1153"></a>
+<span class="sourceLineNo">1154</span>   * How deeply inlined is this method (0 means no inlining).<a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>   */<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span>  public static int getInlineDepth() {<a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span>    }<a name="line.1159"></a>
+<span class="sourceLineNo">1160</span>    return 0;<a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>  }<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span><a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>  /**<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span>   * Is the specified parameter constant (due to either inlining or specialization).<a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>   * Count starts at zero and includes the 'this' parameter for instance methods.<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>   */<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>  public static boolean isConstantParameter(int index) {<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span>    if (VM.runningVM &amp;&amp; VM.VerifyAssertions) {<a name="line.1168"></a>
+<span class="sourceLineNo">1169</span>      VM._assert(VM.NOT_REACHED);  // call site should have been hijacked by magic in compiler<a name="line.1169"></a>
+<span class="sourceLineNo">1170</span>    }<a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>    return false;<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>  }<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span>}<a name="line.1173"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,1169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>OptCompiledMethod (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="OptCompiledMethod (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/OptCompiledMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li>Prev Class</li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptEncodedCallSiteTree.html" title="class in org.jikesrvm.compilers.opt.runtimesupport"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html" target="_top">Frames</a></li>
+<li><a href="OptCompiledMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.compilers.opt.runtimesupport</div>
+<h2 title="Class OptCompiledMethod" class="title">Class OptCompiledMethod</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">org.jikesrvm.compilers.common.CompiledMethod</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.53">OptCompiledMethod</a>
+extends <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></pre>
+<div class="block">An implementation of CompiledMethod for the OPT compiler.
+
+ <p> NOTE: OptCompiledMethod live as long as their corresponding
+ compiled machine code.  Therefore, they should only contain
+ state that is really required to be persistent.  Anything
+ transitory should be stored on the IR object.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptMachineCodeMap.html" title="class in org.jikesrvm.compilers.opt.runtimesupport">OptMachineCodeMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#_mcMap">_mcMap</a></strong></code>
+<div class="block">The primary machine code maps</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#_osrMap">_osrMap</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../../org/jikesrvm/scheduler/RVMThread.SoftHandshakeVisitor.html" title="class in org.jikesrvm.scheduler">RVMThread.SoftHandshakeVisitor</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#codePatchSyncRequestVisitor">codePatchSyncRequestVisitor</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#eTable">eTable</a></strong></code>
+<div class="block">The encoded exception tables (null if there are none)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../../org/jikesrvm/ArchitectureSpecificOpt.OptExceptionDeliverer.html" title="class in org.jikesrvm">ArchitectureSpecificOpt.OptExceptionDeliverer</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#exceptionDeliverer">exceptionDeliverer</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private char</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#exceptionObjectOffset">exceptionObjectOffset</a></strong></code>
+<div class="block">unsigned offset (off the framepointer) of caught exception
+ object in bytes</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private byte</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#firstNonvolatileFPR">firstNonvolatileFPR</a></strong></code>
+<div class="block">first saved nonvolatile floating point register (-1 if no
+ nonvolatile FPRs)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private byte</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#firstNonvolatileGPR">firstNonvolatileGPR</a></strong></code>
+<div class="block">first saved nonvolatile integer register (-1 if no nonvolatile
+ GPRs)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#instrumented">instrumented</a></strong></code>
+<div class="block">is the current method executing with instrumentation</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private char</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#nonvolatileOffset">nonvolatileOffset</a></strong></code>
+<div class="block">unsigned offset (off the framepointer) of nonvolatile save area
+ in bytes</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private byte</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#optLevel">optLevel</a></strong></code>
+<div class="block">opt level at which the method was compiled</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#patchMap">patchMap</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private char</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#stackFrameFixedSize">stackFrameFixedSize</a></strong></code>
+<div class="block">size of the fixed portion of the stackframe</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#volatilesSaved">volatilesSaved</a></strong></code>
+<div class="block">were the volatile registers saved?</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.compilers.common.CompiledMethod">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.compilers.common.<a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></h3>
+<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#BASELINE">BASELINE</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#cmid">cmid</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#compilationTime">compilationTime</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#instructions">instructions</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#JNI">JNI</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#method">method</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#NUM_COMPILER_TYPES">NUM_COMPILER_TYPES</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#OPT">OPT</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#osrJTOCoffset">osrJTOCoffset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#TRAP">TRAP</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#OptCompiledMethod(int,%20org.jikesrvm.classloader.RVMMethod)">OptCompiledMethod</a></strong>(int&nbsp;id,
+                                  <a href="../../../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#applyCodePatches(org.jikesrvm.compilers.common.CompiledMethod)">applyCodePatches</a></strong>(<a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>&nbsp;cm)</code>
+<div class="block">Apply the code patches to the INSTRUCTION array of cm</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#createCodePatchMaps(org.jikesrvm.compilers.opt.ir.IR)">createCodePatchMaps</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</code>
+<div class="block">Create the code patching maps from the IR for the method</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#createFinalExceptionTable(org.jikesrvm.compilers.opt.ir.IR)">createFinalExceptionTable</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</code>
+<div class="block">Create the final exception table from the IR for the method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#createFinalMCMap(org.jikesrvm.compilers.opt.ir.IR,%20int)">createFinalMCMap</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+                                int&nbsp;machineCodeLength)</code>
+<div class="block">Create the final machine code map for the compiled method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#createFinalOSRMap(org.jikesrvm.compilers.opt.ir.IR)">createFinalOSRMap</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#findCatchBlockForInstruction(org.vmmagic.unboxed.Offset,%20org.jikesrvm.classloader.RVMType)">findCatchBlockForInstruction</a></strong>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset,
+                                                        <a href="../../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;exceptionType)</code>
+<div class="block">Find "catch" block for a machine instruction of this method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#findLineNumberForInstruction(org.vmmagic.unboxed.Offset)">findLineNumberForInstruction</a></strong>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</code>
+<div class="block">Find source line number corresponding to one of this method's
+ machine instructions.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getCompilerName()">getCompilerName</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getCompilerType()">getCompilerType</a></strong>()</code>
+<div class="block">Identify the compiler that produced this compiled method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getDynamicLink(org.jikesrvm.runtime.DynamicLink,%20org.vmmagic.unboxed.Offset)">getDynamicLink</a></strong>(<a href="../../../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime">DynamicLink</a>&nbsp;dynamicLink,
+                            <a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</code>
+<div class="block">Fetch symbolic reference to a method that's called
+ by one of this method's instructions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/runtime/ExceptionDeliverer.html" title="class in org.jikesrvm.runtime">ExceptionDeliverer</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getExceptionDeliverer()">getExceptionDeliverer</a></strong>()</code>
+<div class="block">Get handler to deal with stack unwinding and exception delivery for this
+ compiled method's stackframes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getFirstNonVolatileFPR()">getFirstNonVolatileFPR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getFirstNonVolatileGPR()">getFirstNonVolatileGPR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getFrameFixedSize()">getFrameFixedSize</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptMachineCodeMap.html" title="class in org.jikesrvm.compilers.opt.runtimesupport">OptMachineCodeMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getMCMap()">getMCMap</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getNumberOfNonvolatileFPRs()">getNumberOfNonvolatileFPRs</a></strong>()</code>
+<div class="block">Return the number of non-volatile FPRs used by this method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getNumberOfNonvolatileGPRs()">getNumberOfNonvolatileGPRs</a></strong>()</code>
+<div class="block">Return the number of non-volatile GPRs used by this method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getOptLevel()">getOptLevel</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getOSRMap()">getOSRMap</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getUnsignedExceptionOffset()">getUnsignedExceptionOffset</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#getUnsignedNonVolatileOffset()">getUnsignedNonVolatileOffset</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#isInstrumentedMethod()">isInstrumentedMethod</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#isSaveVolatile()">isSaveVolatile</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#isWithinUninterruptibleCode(org.vmmagic.unboxed.Offset)">isWithinUninterruptibleCode</a></strong>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</code>
+<div class="block">Return whether or not the given address (which is purported to be inside
+ of the compiled method's code array) corresponds to an uninterruptible context.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#printExceptionTable()">printExceptionTable</a></strong>()</code>
+<div class="block">Print the eTable</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#printStackTrace(org.vmmagic.unboxed.Offset,%20org.jikesrvm.PrintLN)">printStackTrace</a></strong>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset,
+                              <a href="../../../../../org/jikesrvm/PrintLN.html" title="class in org.jikesrvm">PrintLN</a>&nbsp;out)</code>
+<div class="block">Print this compiled method's portion of a stack trace</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#set(org.jikesrvm.runtime.StackBrowser,%20org.vmmagic.unboxed.Offset)">set</a></strong>(<a href="../../../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime">StackBrowser</a>&nbsp;browser,
+      <a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instr)</code>
+<div class="block">Set the stack browser to the innermost logical stack frame of this method</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setFirstNonVolatileFPR(int)">setFirstNonVolatileFPR</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setFirstNonVolatileGPR(int)">setFirstNonVolatileGPR</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setFrameFixedSize(int)">setFrameFixedSize</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setInstrumentedMethod(boolean)">setInstrumentedMethod</a></strong>(boolean&nbsp;_instrumented)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setNumberOfNonvolatileFPRs(short)">setNumberOfNonvolatileFPRs</a></strong>(short&nbsp;n)</code>
+<div class="block">Set the number of non-volatile FPRs used by this method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setNumberOfNonvolatileGPRs(short)">setNumberOfNonvolatileGPRs</a></strong>(short&nbsp;n)</code>
+<div class="block">Set the number of non-volatile GPRs used by this method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setOptLevel(int)">setOptLevel</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setSaveVolatile(boolean)">setSaveVolatile</a></strong>(boolean&nbsp;sv)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setUnsignedExceptionOffset(int)">setUnsignedExceptionOffset</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#setUnsignedNonVolatileOffset(int)">setUnsignedNonVolatileOffset</a></strong>(int&nbsp;x)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#size()">size</a></strong>()</code>
+<div class="block">Return the number of bytes used to encode the compiler-specific mapping
+ information for this compiled method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#up(org.jikesrvm.runtime.StackBrowser)">up</a></strong>(<a href="../../../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime">StackBrowser</a>&nbsp;browser)</code>
+<div class="block">Advance the StackBrowser up one internal stack frame, if possible</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.compilers.common.CompiledMethod">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.compilers.common.<a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></h3>
+<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#clearActiveOnStack()">clearActiveOnStack</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#codeArrayForOffset(org.vmmagic.unboxed.Offset)">codeArrayForOffset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#compileComplete(org.jikesrvm.ArchitectureSpecific.CodeArray)">compileComplete</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#compilerTypeToString(int)">compilerTypeToString</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#containsReturnAddress(org.vmmagic.unboxed.Address)">containsReturnAddress</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getCompilationTime()">getCompilationTime</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getEntryCodeArray()">getEntryCodeArray</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getId()">getId</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getInstructionAddress(org.vmmagic.unboxed.Offset)">getInstructionAddress</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getInstructionOffset(org.vmmagic.unboxed.Address)">getInstructionOffset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getInstructionOffset(org.vmmagic.unboxed.Address,%20boolean)">getInstructionOffset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getMethod()">getMethod</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getOsrJTOCoffset()">getOsrJTOCoffset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getSamplesReset()">getSamplesReset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#hasBridgeFromNativeAnnotation()">hasBridgeFromNativeAnnotation</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isActiveOnStack()">isActiveOnStack</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isCompiled()">isCompiled</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isInvalid()">isInvalid</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isObsolete()">isObsolete</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isOutdated()">isOutdated</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isSpecialForOSR()">isSpecialForOSR</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#numberOfInstructions()">numberOfInstructions</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setActiveOnStack()">setActiveOnStack</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setCompilationTime(double)">setCompilationTime</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setInvalid()">setInvalid</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setObsolete()">setObsolete</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setOutdated()">setOutdated</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setSamplesReset()">setSamplesReset</a>, <a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#setSpecialForOSR()">setSpecialForOSR</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="exceptionDeliverer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exceptionDeliverer</h4>
+<pre>private static final&nbsp;<a href="../../../../../org/jikesrvm/ArchitectureSpecificOpt.OptExceptionDeliverer.html" title="class in org.jikesrvm">ArchitectureSpecificOpt.OptExceptionDeliverer</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.234">exceptionDeliverer</a></pre>
+</li>
+</ul>
+<a name="_osrMap">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_osrMap</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.237">_osrMap</a></pre>
+</li>
+</ul>
+<a name="_mcMap">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_mcMap</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptMachineCodeMap.html" title="class in org.jikesrvm.compilers.opt.runtimesupport">OptMachineCodeMap</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.253">_mcMap</a></pre>
+<div class="block">The primary machine code maps</div>
+</li>
+</ul>
+<a name="eTable">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>eTable</h4>
+<pre>private&nbsp;int[] <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.255">eTable</a></pre>
+<div class="block">The encoded exception tables (null if there are none)</div>
+</li>
+</ul>
+<a name="patchMap">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>patchMap</h4>
+<pre>private&nbsp;int[] <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.256">patchMap</a></pre>
+</li>
+</ul>
+<a name="nonvolatileOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>nonvolatileOffset</h4>
+<pre>private&nbsp;char <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.262">nonvolatileOffset</a></pre>
+<div class="block">unsigned offset (off the framepointer) of nonvolatile save area
+ in bytes</div>
+</li>
+</ul>
+<a name="exceptionObjectOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exceptionObjectOffset</h4>
+<pre>private&nbsp;char <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.267">exceptionObjectOffset</a></pre>
+<div class="block">unsigned offset (off the framepointer) of caught exception
+ object in bytes</div>
+</li>
+</ul>
+<a name="stackFrameFixedSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stackFrameFixedSize</h4>
+<pre>private&nbsp;char <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.271">stackFrameFixedSize</a></pre>
+<div class="block">size of the fixed portion of the stackframe</div>
+</li>
+</ul>
+<a name="firstNonvolatileGPR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>firstNonvolatileGPR</h4>
+<pre>private&nbsp;byte <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.276">firstNonvolatileGPR</a></pre>
+<div class="block">first saved nonvolatile integer register (-1 if no nonvolatile
+ GPRs)</div>
+</li>
+</ul>
+<a name="firstNonvolatileFPR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>firstNonvolatileFPR</h4>
+<pre>private&nbsp;byte <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.281">firstNonvolatileFPR</a></pre>
+<div class="block">first saved nonvolatile floating point register (-1 if no
+ nonvolatile FPRs)</div>
+</li>
+</ul>
+<a name="optLevel">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>optLevel</h4>
+<pre>private&nbsp;byte <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.283">optLevel</a></pre>
+<div class="block">opt level at which the method was compiled</div>
+</li>
+</ul>
+<a name="volatilesSaved">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>volatilesSaved</h4>
+<pre>private&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.285">volatilesSaved</a></pre>
+<div class="block">were the volatile registers saved?</div>
+</li>
+</ul>
+<a name="instrumented">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>instrumented</h4>
+<pre>private&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.287">instrumented</a></pre>
+<div class="block">is the current method executing with instrumentation</div>
+</li>
+</ul>
+<a name="codePatchSyncRequestVisitor">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>codePatchSyncRequestVisitor</h4>
+<pre>private static&nbsp;<a href="../../../../../org/jikesrvm/scheduler/RVMThread.SoftHandshakeVisitor.html" title="class in org.jikesrvm.scheduler">RVMThread.SoftHandshakeVisitor</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.539">codePatchSyncRequestVisitor</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="OptCompiledMethod(int, org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>OptCompiledMethod</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.55">OptCompiledMethod</a>(int&nbsp;id,
+                 <a href="../../../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getCompilerType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCompilerType</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.63">getCompilerType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getCompilerType()">CompiledMethod</a></code></strong></div>
+<div class="block">Identify the compiler that produced this compiled method.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getCompilerType()">getCompilerType</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#OPT"><code>CompiledMethod.OPT</code></a></dd></dl>
+</li>
+</ul>
+<a name="getCompilerName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCompilerName</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.68">getCompilerName</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getCompilerName()">getCompilerName</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>Name of the compiler that produced this compiled method.</dd></dl>
+</li>
+</ul>
+<a name="getExceptionDeliverer()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getExceptionDeliverer</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/runtime/ExceptionDeliverer.html" title="class in org.jikesrvm.runtime">ExceptionDeliverer</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.73">getExceptionDeliverer</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getExceptionDeliverer()">CompiledMethod</a></code></strong></div>
+<div class="block">Get handler to deal with stack unwinding and exception delivery for this
+ compiled method's stackframes.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getExceptionDeliverer()">getExceptionDeliverer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="findCatchBlockForInstruction(org.vmmagic.unboxed.Offset, org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findCatchBlockForInstruction</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.82">findCatchBlockForInstruction</a>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset,
+                               <a href="../../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;exceptionType)</pre>
+<div class="block">Find "catch" block for a machine instruction of this method.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#findCatchBlockForInstruction(org.vmmagic.unboxed.Offset,%20org.jikesrvm.classloader.RVMType)">findCatchBlockForInstruction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>instructionOffset</code> - offset of machine instruction from start of this method, in bytes</dd><dd><code>exceptionType</code> - type of exception being thrown - something like "NullPointerException"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>offset of machine instruction for catch block
+ (-1 --> no catch block)</dd></dl>
+</li>
+</ul>
+<a name="getDynamicLink(org.jikesrvm.runtime.DynamicLink, org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDynamicLink</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.98">getDynamicLink</a>(<a href="../../../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime">DynamicLink</a>&nbsp;dynamicLink,
+                  <a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</pre>
+<div class="block">Fetch symbolic reference to a method that's called
+ by one of this method's instructions.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#getDynamicLink(org.jikesrvm.runtime.DynamicLink,%20org.vmmagic.unboxed.Offset)">getDynamicLink</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>dynamicLink</code> - place to put return information</dd><dd><code>instructionOffset</code> - offset of machine instruction that issued
+                          the call</dd></dl>
+</li>
+</ul>
+<a name="isWithinUninterruptibleCode(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isWithinUninterruptibleCode</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.109">isWithinUninterruptibleCode</a>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isWithinUninterruptibleCode(org.vmmagic.unboxed.Offset)">CompiledMethod</a></code></strong></div>
+<div class="block">Return whether or not the given address (which is purported to be inside
+ of the compiled method's code array) corresponds to an uninterruptible context.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#isWithinUninterruptibleCode(org.vmmagic.unboxed.Offset)">isWithinUninterruptibleCode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>instructionOffset</code> - of addr from start of instructions in bytes</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the IP is within an Uninterruptible method, <code>false</code> otherwise.</dd></dl>
+</li>
+</ul>
+<a name="findLineNumberForInstruction(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findLineNumberForInstruction</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.119">findLineNumberForInstruction</a>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset)</pre>
+<div class="block">Find source line number corresponding to one of this method's
+ machine instructions.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#findLineNumberForInstruction(org.vmmagic.unboxed.Offset)">findLineNumberForInstruction</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>instructionOffset</code> - of machine instruction from start of this method, in bytes</dd>
+<dt><span class="strong">Returns:</span></dt><dd>source line number
+ (0 == no line info available, 1 == first line of source file)</dd></dl>
+</li>
+</ul>
+<a name="set(org.jikesrvm.runtime.StackBrowser, org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>set</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.129">set</a>(<a href="../../../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime">StackBrowser</a>&nbsp;browser,
+       <a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instr)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#set(org.jikesrvm.runtime.StackBrowser,%20org.vmmagic.unboxed.Offset)">CompiledMethod</a></code></strong></div>
+<div class="block">Set the stack browser to the innermost logical stack frame of this method</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#set(org.jikesrvm.runtime.StackBrowser,%20org.vmmagic.unboxed.Offset)">set</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="up(org.jikesrvm.runtime.StackBrowser)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>up</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.154">up</a>(<a href="../../../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime">StackBrowser</a>&nbsp;browser)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#up(org.jikesrvm.runtime.StackBrowser)">CompiledMethod</a></code></strong></div>
+<div class="block">Advance the StackBrowser up one internal stack frame, if possible</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#up(org.jikesrvm.runtime.StackBrowser)">up</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="printStackTrace(org.vmmagic.unboxed.Offset, org.jikesrvm.PrintLN)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printStackTrace</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.182">printStackTrace</a>(<a href="../../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;instructionOffset,
+                   <a href="../../../../../org/jikesrvm/PrintLN.html" title="class in org.jikesrvm">PrintLN</a>&nbsp;out)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#printStackTrace(org.vmmagic.unboxed.Offset,%20org.jikesrvm.PrintLN)">CompiledMethod</a></code></strong></div>
+<div class="block">Print this compiled method's portion of a stack trace</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#printStackTrace(org.vmmagic.unboxed.Offset,%20org.jikesrvm.PrintLN)">printStackTrace</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>instructionOffset</code> - offset of machine instruction from start of method</dd><dd><code>out</code> - the PrintLN to print the stack trace to.</dd></dl>
+</li>
+</ul>
+<a name="size()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>size</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.223">size</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#size()">CompiledMethod</a></code></strong></div>
+<div class="block">Return the number of bytes used to encode the compiler-specific mapping
+ information for this compiled method.
+ Used to gather statistics on the space costs of mapping schemes.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html#size()">size</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="createFinalOSRMap(org.jikesrvm.compilers.opt.ir.IR)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createFinalOSRMap</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.240">createFinalOSRMap</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</pre>
+</li>
+</ul>
+<a name="getOSRMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOSRMap</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.244">getOSRMap</a>()</pre>
+</li>
+</ul>
+<a name="getUnsignedNonVolatileOffset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUnsignedNonVolatileOffset</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.289">getUnsignedNonVolatileOffset</a>()</pre>
+</li>
+</ul>
+<a name="getUnsignedExceptionOffset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUnsignedExceptionOffset</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.293">getUnsignedExceptionOffset</a>()</pre>
+</li>
+</ul>
+<a name="getFirstNonVolatileGPR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstNonVolatileGPR</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.297">getFirstNonVolatileGPR</a>()</pre>
+</li>
+</ul>
+<a name="getFirstNonVolatileFPR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstNonVolatileFPR</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.301">getFirstNonVolatileFPR</a>()</pre>
+</li>
+</ul>
+<a name="getOptLevel()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOptLevel</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.305">getOptLevel</a>()</pre>
+</li>
+</ul>
+<a name="isSaveVolatile()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSaveVolatile</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.309">isSaveVolatile</a>()</pre>
+</li>
+</ul>
+<a name="isInstrumentedMethod()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInstrumentedMethod</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.313">isInstrumentedMethod</a>()</pre>
+</li>
+</ul>
+<a name="getFrameFixedSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFrameFixedSize</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.317">getFrameFixedSize</a>()</pre>
+</li>
+</ul>
+<a name="setUnsignedNonVolatileOffset(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUnsignedNonVolatileOffset</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.321">setUnsignedNonVolatileOffset</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="setUnsignedExceptionOffset(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUnsignedExceptionOffset</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.326">setUnsignedExceptionOffset</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="setFirstNonVolatileGPR(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFirstNonVolatileGPR</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.331">setFirstNonVolatileGPR</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="setFirstNonVolatileFPR(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFirstNonVolatileFPR</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.336">setFirstNonVolatileFPR</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="setOptLevel(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOptLevel</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.341">setOptLevel</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="setSaveVolatile(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSaveVolatile</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.346">setSaveVolatile</a>(boolean&nbsp;sv)</pre>
+</li>
+</ul>
+<a name="setInstrumentedMethod(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInstrumentedMethod</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.350">setInstrumentedMethod</a>(boolean&nbsp;_instrumented)</pre>
+</li>
+</ul>
+<a name="setFrameFixedSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFrameFixedSize</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.354">setFrameFixedSize</a>(int&nbsp;x)</pre>
+</li>
+</ul>
+<a name="getNumberOfNonvolatileGPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfNonvolatileGPRs</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.362">getNumberOfNonvolatileGPRs</a>()</pre>
+<div class="block">Return the number of non-volatile GPRs used by this method.</div>
+</li>
+</ul>
+<a name="getNumberOfNonvolatileFPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfNonvolatileFPRs</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.376">getNumberOfNonvolatileFPRs</a>()</pre>
+<div class="block">Return the number of non-volatile FPRs used by this method.</div>
+</li>
+</ul>
+<a name="setNumberOfNonvolatileGPRs(short)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNumberOfNonvolatileGPRs</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.390">setNumberOfNonvolatileGPRs</a>(short&nbsp;n)</pre>
+<div class="block">Set the number of non-volatile GPRs used by this method.</div>
+</li>
+</ul>
+<a name="setNumberOfNonvolatileFPRs(short)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNumberOfNonvolatileFPRs</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.403">setNumberOfNonvolatileFPRs</a>(short&nbsp;n)</pre>
+<div class="block">Set the number of non-volatile FPRs used by this method.</div>
+</li>
+</ul>
+<a name="printExceptionTable()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printExceptionTable</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.417">printExceptionTable</a>()</pre>
+<div class="block">Print the eTable</div>
+</li>
+</ul>
+<a name="getMCMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMCMap</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptMachineCodeMap.html" title="class in org.jikesrvm.compilers.opt.runtimesupport">OptMachineCodeMap</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.424">getMCMap</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the machine code map for the compiled method.</dd></dl>
+</li>
+</ul>
+<a name="createFinalMCMap(org.jikesrvm.compilers.opt.ir.IR, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createFinalMCMap</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.435">createFinalMCMap</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+                    int&nbsp;machineCodeLength)</pre>
+<div class="block">Create the final machine code map for the compiled method.
+ Remember the offset for the end of prologue too for debugger.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ir</code> - the ir</dd><dd><code>machineCodeLength</code> - the number of machine code instructions.</dd></dl>
+</li>
+</ul>
+<a name="createFinalExceptionTable(org.jikesrvm.compilers.opt.ir.IR)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createFinalExceptionTable</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.444">createFinalExceptionTable</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</pre>
+<div class="block">Create the final exception table from the IR for the method.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ir</code> - the ir</dd></dl>
+</li>
+</ul>
+<a name="createCodePatchMaps(org.jikesrvm.compilers.opt.ir.IR)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createCodePatchMaps</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.455">createCodePatchMaps</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</pre>
+<div class="block">Create the code patching maps from the IR for the method</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ir</code> - the ir</dd></dl>
+</li>
+</ul>
+<a name="applyCodePatches(org.jikesrvm.compilers.common.CompiledMethod)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>applyCodePatches</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html#line.497">applyCodePatches</a>(<a href="../../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>&nbsp;cm)</pre>
+<div class="block">Apply the code patches to the INSTRUCTION array of cm</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/OptCompiledMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li>Prev Class</li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/runtimesupport/OptEncodedCallSiteTree.html" title="class in org.jikesrvm.compilers.opt.runtimesupport"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/runtimesupport/OptCompiledMethod.html" target="_top">Frames</a></li>
+<li><a href="OptCompiledMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

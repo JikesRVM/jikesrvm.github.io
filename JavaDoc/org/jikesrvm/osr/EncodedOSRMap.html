@@ -1,0 +1,825 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>EncodedOSRMap (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="EncodedOSRMap (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/EncodedOSRMap.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/osr/BytecodeTraverser.html" title="class in org.jikesrvm.osr"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/osr/ExecutionState.html" title="class in org.jikesrvm.osr"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/osr/EncodedOSRMap.html" target="_top">Frames</a></li>
+<li><a href="EncodedOSRMap.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.osr</div>
+<h2 title="Class EncodedOSRMap" class="title">Class EncodedOSRMap</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.osr.EncodedOSRMap</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../org/jikesrvm/ArchitectureSpecificOpt.OptGCMapIteratorConstants.html" title="interface in org.jikesrvm">ArchitectureSpecificOpt.OptGCMapIteratorConstants</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html" title="interface in org.jikesrvm.compilers.opt.regalloc.ia32">PhysicalRegisterConstants</a>, <a href="../../../org/jikesrvm/compilers/opt/runtimesupport/ia32/OptGCMapIteratorConstants.html" title="interface in org.jikesrvm.compilers.opt.runtimesupport.ia32">OptGCMapIteratorConstants</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html" title="interface in org.jikesrvm.osr">OSRConstants</a>, <a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.33">EncodedOSRMap</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../org/jikesrvm/ArchitectureSpecificOpt.OptGCMapIteratorConstants.html" title="interface in org.jikesrvm">ArchitectureSpecificOpt.OptGCMapIteratorConstants</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html" title="interface in org.jikesrvm.osr">OSRConstants</a></pre>
+<div class="block">EncodedOSRMap provides the similar function as GC map
+ in OptMachineCodeMap.
+ <p>
+ In OptCompiledMethod, an instance of this class will represent
+ all OSR map info for that method.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested_classes_inherited_from_class_org.jikesrvm.ia32.RegisterConstants">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;org.jikesrvm.ia32.<a href="../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a></h3>
+<code><a href="../../../org/jikesrvm/ia32/RegisterConstants.FloatingPointMachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.FloatingPointMachineRegister</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.FPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.FPR</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.GPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.GPR</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.MachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.MachineRegister</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.MM.html" title="enum in org.jikesrvm.ia32">RegisterConstants.MM</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.XMM.html" title="enum in org.jikesrvm.ia32">RegisterConstants.XMM</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#emptyMap">emptyMap</a></strong></code>
+<div class="block">map used when there are no OSR instructions</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#lastEntry">lastEntry</a></strong></code>
+<div class="block">the last entry index.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private long[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#mapEntries">mapEntries</a></strong></code>
+<div class="block">osr info entries</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#osrMaps">osrMaps</a></strong></code>
+<div class="block">the OSR map</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.compilers.opt.runtimesupport.ia32.OptGCMapIteratorConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.compilers.opt.runtimesupport.ia32.<a href="../../../org/jikesrvm/compilers/opt/runtimesupport/ia32/OptGCMapIteratorConstants.html" title="interface in org.jikesrvm.compilers.opt.runtimesupport.ia32">OptGCMapIteratorConstants</a></h3>
+<code><a href="../../../org/jikesrvm/compilers/opt/runtimesupport/ia32/OptGCMapIteratorConstants.html#FIRST_GCMAP_REG">FIRST_GCMAP_REG</a>, <a href="../../../org/jikesrvm/compilers/opt/runtimesupport/ia32/OptGCMapIteratorConstants.html#LAST_GCMAP_REG">LAST_GCMAP_REG</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.ia32.PhysicalRegisterConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.compilers.opt.regalloc.ia32.<a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html" title="interface in org.jikesrvm.compilers.opt.regalloc.ia32">PhysicalRegisterConstants</a></h3>
+<code><a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#AF">AF</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C0">C0</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C1">C1</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C2">C2</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C3">C3</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#CF">CF</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#CONDITION_VALUE">CONDITION_VALUE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#DOUBLE_REG">DOUBLE_REG</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#DOUBLE_VALUE">DOUBLE_VALUE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_DOUBLE">FIRST_DOUBLE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_INT">FIRST_INT</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_SPECIAL">FIRST_SPECIAL</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FLOAT_VALUE">FLOAT_VALUE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#INT_REG">INT_REG</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#INT_VALUE">INT_VALUE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#NUM_SPECIALS">NUM_SPECIALS</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#NUMBER_TYPE">NUMBER_TYPE</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#OF">OF</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#PF">PF</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#SF">SF</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#SPECIAL_REG">SPECIAL_REG</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ST0">ST0</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ST1">ST1</a>, <a href="../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ZF">ZF</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.ia32.RegisterConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.ia32.<a href="../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a></h3>
+<code><a href="../../../org/jikesrvm/ia32/RegisterConstants.html#ALL_FPRS">ALL_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#ALL_GPRS">ALL_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#EAX">EAX</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#EBP">EBP</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#EBX">EBX</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#ECX">ECX</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#EDI">EDI</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#EDX">EDX</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#ESI">ESI</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#ESP">ESP</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP0">FP0</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP1">FP1</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP2">FP2</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP3">FP3</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP4">FP4</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP5">FP5</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP6">FP6</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#FP7">FP7</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#INSTRUCTION_WIDTH">INSTRUCTION_WIDTH</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#LG_INSTRUCTION_WIDTH">LG_INSTRUCTION_WIDTH</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM0">MM0</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM1">MM1</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM10">MM10</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM11">MM11</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM12">MM12</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM13">MM13</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM14">MM14</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM15">MM15</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM2">MM2</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM3">MM3</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM4">MM4</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM5">MM5</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM6">MM6</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM7">MM7</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM8">MM8</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#MM9">MM9</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_NONVOLATILE_FPRS">NATIVE_NONVOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_NONVOLATILE_GPRS">NATIVE_NONVOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_PARAMETER_FPRS">NATIVE_PARAMETER_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_PARAMETER_GPRS">NATIVE_PARAMETER_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_VOLATILE_FPRS">NATIVE_VOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_VOLATILE_GPRS">NATIVE_VOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NONVOLATILE_FPRS">NONVOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NONVOLATILE_GPRS">NONVOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_FPRS">NUM_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_GPRS">NUM_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_NONVOLATILE_FPRS">NUM_NONVOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_NONVOLATILE_GPRS">NUM_NONVOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_PARAMETER_FPRS">NUM_PARAMETER_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_PARAMETER_GPRS">NUM_PARAMETER_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_RETURN_FPRS">NUM_RETURN_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_RETURN_GPRS">NUM_RETURN_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_VOLATILE_FPRS">NUM_VOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_VOLATILE_GPRS">NUM_VOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#PARAMETER_FPRS">PARAMETER_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#PARAMETER_GPRS">PARAMETER_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R0">R0</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R1">R1</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R10">R10</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R11">R11</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R12">R12</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R13">R13</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R14">R14</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R15">R15</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R2">R2</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R3">R3</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R4">R4</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R5">R5</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R6">R6</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R7">R7</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R8">R8</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#R9">R9</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#RETURN_FPRS">RETURN_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#RETURN_GPRS">RETURN_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#STACK_POINTER">STACK_POINTER</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#THREAD_REGISTER">THREAD_REGISTER</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#VOLATILE_FPRS">VOLATILE_FPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#VOLATILE_GPRS">VOLATILE_GPRS</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM0">XMM0</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM1">XMM1</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM10">XMM10</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM11">XMM11</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM12">XMM12</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM13">XMM13</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM14">XMM14</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM15">XMM15</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM2">XMM2</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM3">XMM3</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM4">XMM4</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM5">XMM5</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM6">XMM6</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM7">XMM7</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM8">XMM8</a>, <a href="../../../org/jikesrvm/ia32/RegisterConstants.html#XMM9">XMM9</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.osr.OSRConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.osr.<a href="../../../org/jikesrvm/osr/OSRConstants.html" title="interface in org.jikesrvm.osr">OSRConstants</a></h3>
+<code><a href="../../../org/jikesrvm/osr/OSRConstants.html#ACONST">ACONST</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#BCI_MASK">BCI_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#BCI_SHIFT">BCI_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#CLEANREFS">CLEANREFS</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#DOUBLE">DOUBLE</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#FLOAT">FLOAT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#GETREFAT">GETREFAT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#HIGH_64BIT">HIGH_64BIT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#ICONST">ICONST</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#IEI_MASK">IEI_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#IEI_SHIFT">IEI_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#INT">INT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#INVALID_BCI">INVALID_BCI</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#INVALID_IEI">INVALID_IEI</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#KIND_MASK">KIND_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#KIND_SHIFT">KIND_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#LCONST">LCONST</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#LOCAL">LOCAL</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#LONG">LONG</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#NEXT_BIT">NEXT_BIT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#NO_OSR_ENTRY">NO_OSR_ENTRY</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#NUM_MASK">NUM_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#NUM_SHIFT">NUM_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#OFFSET_MASK">OFFSET_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#OFFSET_SHIFT">OFFSET_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#OSRI_MASK">OSRI_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#OSRI_SHIFT">OSRI_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PHYREG">PHYREG</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_CheckCast">PSEUDO_CheckCast</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_InvokeCompiledMethod">PSEUDO_InvokeCompiledMethod</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_InvokeStatic">PSEUDO_InvokeStatic</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadDoubleConst">PSEUDO_LoadDoubleConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadFloatConst">PSEUDO_LoadFloatConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadIntConst">PSEUDO_LoadIntConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadLongConst">PSEUDO_LoadLongConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadRetAddrConst">PSEUDO_LoadRetAddrConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_LoadWordConst">PSEUDO_LoadWordConst</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#PSEUDO_ParamInitEnd">PSEUDO_ParamInitEnd</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#REF">REF</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#RET_ADDR">RET_ADDR</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#ReturnAddressTypeCode">ReturnAddressTypeCode</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#SPILL">SPILL</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#STACK">STACK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#TCODE_MASK">TCODE_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#TCODE_SHIFT">TCODE_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#VTYPE_MASK">VTYPE_MASK</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#VTYPE_SHIFT">VTYPE_SHIFT</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#WORD">WORD</a>, <a href="../../../org/jikesrvm/osr/OSRConstants.html#WordTypeCode">WordTypeCode</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.ClassLoaderConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ABSTRACT">ACC_ABSTRACT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ANNOTATION">ACC_ANNOTATION</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ENUM">ACC_ENUM</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_FINAL">ACC_FINAL</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_INTERFACE">ACC_INTERFACE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_NATIVE">ACC_NATIVE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PRIVATE">ACC_PRIVATE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PROTECTED">ACC_PROTECTED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PUBLIC">ACC_PUBLIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STATIC">ACC_STATIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STRICT">ACC_STRICT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SUPER">ACC_SUPER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNCHRONIZED">ACC_SYNCHRONIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNTHETIC">ACC_SYNTHETIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_TRANSIENT">ACC_TRANSIENT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_VOLATILE">ACC_VOLATILE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_CLASSES">APPLICABLE_TO_CLASSES</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_FIELDS">APPLICABLE_TO_FIELDS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_METHODS">APPLICABLE_TO_METHODS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ArrayTypeCode">ArrayTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BooleanTypeCode">BooleanTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BRIDGE">BRIDGE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ByteTypeCode">ByteTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CharTypeCode">CharTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZED">CLASS_INITIALIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZER_FAILED">CLASS_INITIALIZER_FAILED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZING">CLASS_INITIALIZING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INSTANTIATED">CLASS_INSTANTIATED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_LOADED">CLASS_LOADED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_RESOLVED">CLASS_RESOLVED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_VACANT">CLASS_VACANT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ClassTypeCode">ClassTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_CLASS">CP_CLASS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_DOUBLE">CP_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_FLOAT">CP_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_INT">CP_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_LONG">CP_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_MEMBER">CP_MEMBER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_STRING">CP_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_UTF">CP_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#DoubleTypeCode">DoubleTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#FloatTypeCode">FloatTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#IntTypeCode">IntTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#LongTypeCode">LongTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ShortTypeCode">ShortTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_DOUBLE">TAG_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FIELDREF">TAG_FIELDREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FLOAT">TAG_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INT">TAG_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INTERFACE_METHODREF">TAG_INTERFACE_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_LONG">TAG_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_MEMBERNAME_AND_DESCRIPTOR">TAG_MEMBERNAME_AND_DESCRIPTOR</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_METHODREF">TAG_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_STRING">TAG_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_TYPEREF">TAG_TYPEREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UNUSED">TAG_UNUSED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UTF">TAG_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VARARGS">VARARGS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VoidTypeCode">VoidTypeCode</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private </code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#EncodedOSRMap()">EncodedOSRMap</a></strong>()</code>
+<div class="block">Constructor to build empty map</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private </code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#EncodedOSRMap(org.jikesrvm.osr.VariableMap)">EncodedOSRMap</a></strong>(<a href="../../../org/jikesrvm/osr/VariableMap.html" title="class in org.jikesrvm.osr">VariableMap</a>&nbsp;varMap)</code>
+<div class="block">Constructor that builds EncodedOSRMap from variable map</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#_generateMapForOneMethodVariable(java.util.ArrayList,%20int,%20org.jikesrvm.osr.MethodVariables,%20boolean)">_generateMapForOneMethodVariable</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                                                                int&nbsp;regMapIndex,
+                                                                <a href="../../../org/jikesrvm/osr/MethodVariables.html" title="class in org.jikesrvm.osr">MethodVariables</a>&nbsp;mVar,
+                                                                boolean&nbsp;lastMid)</code>
+<div class="block">Generate value in the Osr map</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#findOSREntry(org.vmmagic.unboxed.Offset)">findOSREntry</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>
+<div class="block">Do a binary search, find the entry for the machine code offset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#generateOsrMaps(java.util.ArrayList,%20java.util.LinkedList)">generateOsrMaps</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                              <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedList.html?is-external=true" title="class or interface in java.util">LinkedList</a>&lt;<a href="../../../org/jikesrvm/osr/MethodVariables.html" title="class in org.jikesrvm.osr">MethodVariables</a>&gt;&nbsp;mVarList)</code>
+<div class="block">Generate value in the Osr map,
+ return the index of the first integer in the map.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getBCIndex(int)">getBCIndex</a></strong>(int&nbsp;entry)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getBytecodeIndexForMCOffset(org.vmmagic.unboxed.Offset)">getBytecodeIndexForMCOffset</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>
+<div class="block">Get bytecode index for a given instruction offset in bytes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getIEIndex(int)">getIEIndex</a></strong>(int&nbsp;entry)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getInlineEncodingForMCOffset(org.vmmagic.unboxed.Offset)">getInlineEncodingForMCOffset</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getMCIndexes()">getMCIndexes</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getMCOffset(int)">getMCOffset</a></strong>(int&nbsp;entry)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getOSRMapIndex(int)">getOSRMapIndex</a></strong>(int&nbsp;entry)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/osr/OSRMapIterator.html" title="class in org.jikesrvm.osr">OSRMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getOsrMapIteratorForMCOffset(org.vmmagic.unboxed.Offset)">getOsrMapIteratorForMCOffset</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>
+<div class="block">given a MC offset, return an iterator over the
+ elements of this map.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getRegBitPosition(int)">getRegBitPosition</a></strong>(int&nbsp;regnum)</code>
+<div class="block">get register bit position</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#getRegisterMapForMCOffset(org.vmmagic.unboxed.Offset)">getRegisterMapForMCOffset</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>
+<div class="block">get register's reference map for the machine instruction offset</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#hasOSRMap(org.vmmagic.unboxed.Offset)">hasOSRMap</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</code>
+<div class="block">Does the OSR map exist for a machine instruction offset</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#makeMap(org.jikesrvm.osr.VariableMap)">makeMap</a></strong>(<a href="../../../org/jikesrvm/osr/VariableMap.html" title="class in org.jikesrvm.osr">VariableMap</a>&nbsp;varMap)</code>
+<div class="block">Encode the given variable map returning the canonical empty map if the map
+ is empty</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#printMap()">printMap</a></strong>()</code>
+<div class="block">print the encoded map for debugging.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#processTuple(java.util.ArrayList,%20org.jikesrvm.osr.LocalRegPair,%20boolean)">processTuple</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                        <a href="../../../org/jikesrvm/osr/LocalRegPair.html" title="class in org.jikesrvm.osr">LocalRegPair</a>&nbsp;tuple,
+                        boolean&nbsp;isLast)</code>
+<div class="block">Process on 32-bit tuple.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#registerIsSet(int,%20int)">registerIsSet</a></strong>(int&nbsp;map,
+                          int&nbsp;regnum)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#setBCIndex(int,%20int)">setBCIndex</a></strong>(int&nbsp;entry,
+                    int&nbsp;index)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#setIEIndex(int,%20int)">setIEIndex</a></strong>(int&nbsp;entry,
+                    int&nbsp;index)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#setMCOffset(int,%20int)">setMCOffset</a></strong>(int&nbsp;entry,
+                      int&nbsp;offset)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#setOSRMapIndex(int,%20int)">setOSRMapIndex</a></strong>(int&nbsp;entry,
+                            int&nbsp;index)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#setRegister(int,%20int)">setRegister</a></strong>(int&nbsp;map,
+                      int&nbsp;regnum)</code>
+<div class="block">mark a register as reference type</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/osr/EncodedOSRMap.html#translateMap(java.util.ArrayList,%20java.util.LinkedList)">translateMap</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                        <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedList.html?is-external=true" title="class or interface in java.util">LinkedList</a>&lt;<a href="../../../org/jikesrvm/osr/VariableMapElement.html" title="class in org.jikesrvm.osr">VariableMapElement</a>&gt;&nbsp;osrlist)</code>
+<div class="block">Translates a list of OSR_MapElement to encoding,
+ we can not trust the osrlist is in the increasing order of
+ machine code offset.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="mapEntries">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mapEntries</h4>
+<pre>private final&nbsp;long[] <a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.36">mapEntries</a></pre>
+<div class="block">osr info entries</div>
+</li>
+</ul>
+<a name="lastEntry">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lastEntry</h4>
+<pre>private final&nbsp;int <a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.39">lastEntry</a></pre>
+<div class="block">the last entry index.</div>
+</li>
+</ul>
+<a name="osrMaps">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>osrMaps</h4>
+<pre>private final&nbsp;int[] <a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.42">osrMaps</a></pre>
+<div class="block">the OSR map</div>
+</li>
+</ul>
+<a name="emptyMap">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>emptyMap</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a> <a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.45">emptyMap</a></pre>
+<div class="block">map used when there are no OSR instructions</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="EncodedOSRMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>EncodedOSRMap</h4>
+<pre>private&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.71">EncodedOSRMap</a>()</pre>
+<div class="block">Constructor to build empty map</div>
+</li>
+</ul>
+<a name="EncodedOSRMap(org.jikesrvm.osr.VariableMap)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>EncodedOSRMap</h4>
+<pre>private&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.78">EncodedOSRMap</a>(<a href="../../../org/jikesrvm/osr/VariableMap.html" title="class in org.jikesrvm.osr">VariableMap</a>&nbsp;varMap)</pre>
+<div class="block">Constructor that builds EncodedOSRMap from variable map</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="registerIsSet(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerIsSet</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.48">registerIsSet</a>(int&nbsp;map,
+                    int&nbsp;regnum)</pre>
+</li>
+</ul>
+<a name="setRegister(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRegister</h4>
+<pre>private static&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.56">setRegister</a>(int&nbsp;map,
+              int&nbsp;regnum)</pre>
+<div class="block">mark a register as reference type</div>
+</li>
+</ul>
+<a name="getRegBitPosition(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRegBitPosition</h4>
+<pre>private static&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.66">getRegBitPosition</a>(int&nbsp;regnum)</pre>
+<div class="block">get register bit position</div>
+</li>
+</ul>
+<a name="makeMap(org.jikesrvm.osr.VariableMap)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>makeMap</h4>
+<pre>public static&nbsp;<a href="../../../org/jikesrvm/osr/EncodedOSRMap.html" title="class in org.jikesrvm.osr">EncodedOSRMap</a>&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.101">makeMap</a>(<a href="../../../org/jikesrvm/osr/VariableMap.html" title="class in org.jikesrvm.osr">VariableMap</a>&nbsp;varMap)</pre>
+<div class="block">Encode the given variable map returning the canonical empty map if the map
+ is empty</div>
+</li>
+</ul>
+<a name="translateMap(java.util.ArrayList, java.util.LinkedList)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>translateMap</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.114">translateMap</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedList.html?is-external=true" title="class or interface in java.util">LinkedList</a>&lt;<a href="../../../org/jikesrvm/osr/VariableMapElement.html" title="class in org.jikesrvm.osr">VariableMapElement</a>&gt;&nbsp;osrlist)</pre>
+<div class="block">Translates a list of OSR_MapElement to encoding,
+ we can not trust the osrlist is in the increasing order of
+ machine code offset. Sort it first.</div>
+</li>
+</ul>
+<a name="generateOsrMaps(java.util.ArrayList, java.util.LinkedList)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>generateOsrMaps</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.189">generateOsrMaps</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                  <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedList.html?is-external=true" title="class or interface in java.util">LinkedList</a>&lt;<a href="../../../org/jikesrvm/osr/MethodVariables.html" title="class in org.jikesrvm.osr">MethodVariables</a>&gt;&nbsp;mVarList)</pre>
+<div class="block">Generate value in the Osr map,
+ return the index of the first integer in the map.
+ <p>
+ An OSR Map has following structure:
+ <pre>
+ | regmap || mid, mpc, (n1, n2) ... ||
+          || mid, mpc, (n1, n2) ... ||
+ </pre>
+ Regmap indicates the value of which register is a reference,
+ the execution state extractor can convert the value to an
+ object to avoid confusing GC.
+ The MSB of regmap indicates next mid is valid.
+ <p>
+ The MSB of mid indicates if the next mid item will be
+ available.
+ <p>
+ The MSB of mpc indicates if the next is a valid pair</div>
+</li>
+</ul>
+<a name="_generateMapForOneMethodVariable(java.util.ArrayList, int, org.jikesrvm.osr.MethodVariables, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_generateMapForOneMethodVariable</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.211">_generateMapForOneMethodVariable</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                                    int&nbsp;regMapIndex,
+                                    <a href="../../../org/jikesrvm/osr/MethodVariables.html" title="class in org.jikesrvm.osr">MethodVariables</a>&nbsp;mVar,
+                                    boolean&nbsp;lastMid)</pre>
+<div class="block">Generate value in the Osr map</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>tempOsrMaps</code> - the maps under construction</dd><dd><code>regMapIndex</code> - used to patch the register map</dd><dd><code>mVar</code> - the method variables</dd><dd><code>lastMid</code> - </dd></dl>
+</li>
+</ul>
+<a name="processTuple(java.util.ArrayList, org.jikesrvm.osr.LocalRegPair, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>processTuple</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.243">processTuple</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/ArrayList.html?is-external=true" title="class or interface in java.util">ArrayList</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;&nbsp;tempOsrMaps,
+                <a href="../../../org/jikesrvm/osr/LocalRegPair.html" title="class in org.jikesrvm.osr">LocalRegPair</a>&nbsp;tuple,
+                boolean&nbsp;isLast)</pre>
+<div class="block">Process on 32-bit tuple.
+ <p>
+ tuple, maps the local to register, spill
+ isLast, indicates to set NEXT_BIT</div>
+</li>
+</ul>
+<a name="hasOSRMap(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasOSRMap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.352">hasOSRMap</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+<div class="block">Does the OSR map exist for a machine instruction offset</div>
+</li>
+</ul>
+<a name="getBytecodeIndexForMCOffset(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBytecodeIndexForMCOffset</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.364">getBytecodeIndexForMCOffset</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+<div class="block">Get bytecode index for a given instruction offset in bytes.</div>
+</li>
+</ul>
+<a name="getInlineEncodingForMCOffset(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInlineEncodingForMCOffset</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.372">getInlineEncodingForMCOffset</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+</li>
+</ul>
+<a name="getRegisterMapForMCOffset(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRegisterMapForMCOffset</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.379">getRegisterMapForMCOffset</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+<div class="block">get register's reference map for the machine instruction offset</div>
+</li>
+</ul>
+<a name="getOsrMapIteratorForMCOffset(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOsrMapIteratorForMCOffset</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/osr/OSRMapIterator.html" title="class in org.jikesrvm.osr">OSRMapIterator</a>&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.391">getOsrMapIteratorForMCOffset</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+<div class="block">given a MC offset, return an iterator over the
+ elements of this map.
+ NOTE: the map index is gotten from 'findOSRMapIndex'.
+ This has to be changed....</div>
+</li>
+</ul>
+<a name="findOSREntry(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findOSREntry</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.404">findOSREntry</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;mcOffset)</pre>
+<div class="block">Do a binary search, find the entry for the machine code offset.
+ Return -1 if no entry was found.</div>
+</li>
+</ul>
+<a name="getMCOffset(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMCOffset</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.432">getMCOffset</a>(int&nbsp;entry)</pre>
+</li>
+</ul>
+<a name="getOSRMapIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOSRMapIndex</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.436">getOSRMapIndex</a>(int&nbsp;entry)</pre>
+</li>
+</ul>
+<a name="getBCIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBCIndex</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.440">getBCIndex</a>(int&nbsp;entry)</pre>
+</li>
+</ul>
+<a name="getIEIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getIEIndex</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.446">getIEIndex</a>(int&nbsp;entry)</pre>
+</li>
+</ul>
+<a name="setMCOffset(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMCOffset</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.450">setMCOffset</a>(int&nbsp;entry,
+               int&nbsp;offset)</pre>
+</li>
+</ul>
+<a name="setOSRMapIndex(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOSRMapIndex</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.454">setOSRMapIndex</a>(int&nbsp;entry,
+                  int&nbsp;index)</pre>
+</li>
+</ul>
+<a name="setBCIndex(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBCIndex</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.458">setBCIndex</a>(int&nbsp;entry,
+              int&nbsp;index)</pre>
+</li>
+</ul>
+<a name="setIEIndex(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIEIndex</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.462">setIEIndex</a>(int&nbsp;entry,
+              int&nbsp;index)</pre>
+</li>
+</ul>
+<a name="printMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printMap</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.469">printMap</a>()</pre>
+<div class="block">print the encoded map for debugging.</div>
+</li>
+</ul>
+<a name="getMCIndexes()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getMCIndexes</h4>
+<pre>public&nbsp;int[]&nbsp;<a href="../../../src-html/org/jikesrvm/osr/EncodedOSRMap.html#line.503">getMCIndexes</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/EncodedOSRMap.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/osr/BytecodeTraverser.html" title="class in org.jikesrvm.osr"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/osr/ExecutionState.html" title="class in org.jikesrvm.osr"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/osr/EncodedOSRMap.html" target="_top">Frames</a></li>
+<li><a href="EncodedOSRMap.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.plan.semispace.gctrace;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.plan.Trace;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.plan.semispace.*;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.policy.Space;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.utility.TraceGenerator;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.unboxed.*;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.*;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * This plan has been modified slightly to perform the processing necessary<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * for GC trace generation.  To maximize performance, it attempts to remain<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * as faithful as possible to semiSpace/Plan.java.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * &lt;pre&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * The generated trace format is as follows:<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *    B 345678 12<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *      (Object 345678 was created in the boot image with a size of 12 bytes)<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *    U 59843 234 47298<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *      (Update object 59843 at the slot at offset 234 to refer to 47298)<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *    S 1233 12345<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *      (Update static slot 1233 to refer to 12345)<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *    T 4567 78924<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *      (The TIB of 4567 is set to refer to 78924)<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *    D 342789<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *      (Object 342789 became unreachable)<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *    A 6860 24 346648 3<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *      (Object 6860 was allocated, requiring 24 bytes, with fp 346648 on<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *        thread 3; this allocation has perfect knowledge)<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *    a 6884 24 346640 5<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *      (Object 6864 was allocated, requiring 24 bytes, with fp 346640 on<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * thread 5; this allocation DOES NOT have perfect knowledge)<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *    I 6860 24 346648 3<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *      (Object 6860 was allocated into immortal space, requiring 24 bytes,<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *        with fp 346648 on thread 3; this allocation has perfect knowledge)<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *    i 6884 24 346640 5<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *      (Object 6864 was allocated into immortal space, requiring 24 bytes,<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *        with fp 346640 on thread 5; this allocation DOES NOT have perfect<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *        knowledge)<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *    48954-&gt;[345]LObject;:blah()V:23   Ljava/lang/Foo;<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *      (Citation for: a) where the was allocated, fp of 48954,<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *         at the method with ID 345 -- or void Object.blah() -- and bytecode<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *         with offset 23; b) the object allocated is of type java.lang.Foo)<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *    D 342789 361460<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *      (Object 342789 became unreachable after 361460 was allocated)<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;/pre&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * This class implements a simple semi-space collector. See the Jones<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * &amp; Lins GC book, section 2.2 for an overview of the basic<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * algorithm. This implementation also includes a large object space<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * (LOS), and an uncollected "immortal" space.&lt;p&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * All plans make a clear distinction between &lt;i&gt;global&lt;/i&gt; and<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * &lt;i&gt;thread-local&lt;/i&gt; activities.  Global activities must be<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * synchronized, whereas no synchronization is required for<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * thread-local activities.  Instances of Plan map 1:1 to "kernel<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * threads" (aka CPUs).  Thus instance<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * methods allow fast, unsychronized access to Plan utilities such as<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * allocation and collection.  Each instance rests on static resources<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * (such as memory and virtual memory resources) which are "global"<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * and therefore "static" members of Plan.  This mapping of threads to<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * instances is crucial to understanding the correctness and<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * performance properties of this plan.<a name="line.74"></a>
+<span class="sourceLineNo">075</span> */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>@Uninterruptible<a name="line.76"></a>
+<span class="sourceLineNo">077</span>public final class GCTraceTraceLocal extends SSTraceLocal {<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * Constructor<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * @param trace The global trace to use.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public GCTraceTraceLocal(Trace trace) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    super(trace, false);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>  /****************************************************************************<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   *<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   * Object processing and tracing<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   */<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * Trace a reference during GC.  This involves determining which<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * collection policy applies (such as those needed for trace generation)<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * and taking the appropriate actions.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param object The object reference to be traced.  In certain<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * cases, this should &lt;i&gt;NOT&lt;/i&gt; be an interior pointer.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * @return The possibly moved reference.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  @Override<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  @Inline<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public ObjectReference traceObject(ObjectReference object) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    if (object.isNull()) return object;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    if (GCTrace.traceInducedGC) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      /* We are performing a root scan following an allocation. */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      TraceGenerator.rootEnumerate(object);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      return object;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    } else if (GCTrace.deathScan) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      /* We are performing the last scan before program termination. */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      TraceGenerator.propagateDeathTime(object);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      return object;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    } else {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      /* *gasp* We are actually performing garbage collection */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      return super.traceObject(object);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>  @Override<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  @Inline<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public ObjectReference getForwardedReference(ObjectReference object) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    if (object.isNull()) return object;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    if (SS.hi &amp;&amp; Space.isInSpace(SS.SS0, object)) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      return SS.copySpace0.traceObject(this, object, GCTrace.ALLOC_SS);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    } else if (!SS.hi &amp;&amp; Space.isInSpace(SS.SS1, object)) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      return SS.copySpace1.traceObject(this, object, GCTrace.ALLOC_SS);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    return object;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>  @Override<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  public boolean isLive(ObjectReference object) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      if (object.isNull()) return false;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      else if (GCTrace.traceInducedGC) return true;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      else return super.isLive(object);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>  /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   * Return true if &lt;code&gt;obj&lt;/code&gt; is a reachable object.<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * @param object The object in question<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * @return True if &lt;code&gt;obj&lt;/code&gt; is a reachable object;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * unreachable objects may still be live, however<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  @Override<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  public boolean isReachable(ObjectReference object) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    if (GCTrace.finalDead) return false;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    else if (object.isNull()) return false;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    else {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      Space space = Space.getSpaceForObject(object);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>      return space.isReachable(object);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>  /**<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   * Is this object guaranteed not to move during the collection.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>   *<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   * @param object The object to check.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   * @return True if the object is guaranteed not to move.<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  @Override<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  public boolean willNotMoveInCurrentCollection(ObjectReference object) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    if (GCTrace.traceInducedGC) return true;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    else return super.willNotMoveInCurrentCollection(object);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  }<a name="line.166"></a>
+<span class="sourceLineNo">167</span>}<a name="line.167"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

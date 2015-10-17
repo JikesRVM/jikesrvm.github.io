@@ -1,0 +1,1700 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>SpecializedScanMethod (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="SpecializedScanMethod (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SpecializedScanMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mminterface/Selected.Plan.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.Names.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mminterface/SpecializedScanMethod.html" target="_top">Frames</a></li>
+<li><a href="SpecializedScanMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.mm.mminterface</div>
+<h2 title="Class SpecializedScanMethod" class="title">Class SpecializedScanMethod</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.SpecializedMethod</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.mm.mminterface.SpecializedScanMethod</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html" title="interface in org.jikesrvm.objectmodel">JavaHeaderConstants</a>, <a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.51">SpecializedScanMethod</a>
+extends <a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a>
+implements <a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html" title="interface in org.jikesrvm.objectmodel">JavaHeaderConstants</a></pre>
+<div class="block">A method that scan objects and is specialized to a specific MMTk
+ TransitiveClosure type.
+ <p>
+ In general as there may not be a 1-1 mapping between objects and the
+ specialized methods this class is responsible for performing the
+ mapping.
+ <p>
+ Specialized methods must have a static 'invoke' method that matches
+ the given signature and return type.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.Names.html" title="class in org.jikesrvm.mm.mminterface">SpecializedScanMethod.Names</a></strong></code>
+<div class="block">The atoms for the names of the specialized methods</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#ENABLED">ENABLED</a></strong></code>
+<div class="block">Use specialized scanning ?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#FALLBACK_PATTERN">FALLBACK_PATTERN</a></strong></code>
+<div class="block">Fallback to a slower path that is not specialized</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#MAX_SPECIALIZED_OFFSET">MAX_SPECIALIZED_OFFSET</a></strong></code>
+<div class="block">Maximum field offset we can deal with</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#NULL_PATTERN">NULL_PATTERN</a></strong></code>
+<div class="block">Objects with no references or primitive arrays</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#PATTERNS">PATTERNS</a></strong></code>
+<div class="block">The total number of patterns</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#REFARRAY_PATTERN">REFARRAY_PATTERN</a></strong></code>
+<div class="block">Reference arrays</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#returnType">returnType</a></strong></code>
+<div class="block">The return type of this method: void</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#signature">signature</a></strong></code>
+<div class="block">This method's signature: the object to be scanned and the trace to use</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#SPECIALIZED_PATTERNS">SPECIALIZED_PATTERNS</a></strong></code>
+<div class="block">Number of patterns we will specialize</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#specializedMethodDescriptor">specializedMethodDescriptor</a></strong></code>
+<div class="block">The generic descriptor for the specialized methods</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#specializedMethods">specializedMethods</a></strong></code>
+<div class="block">We keep the specialized methods for key object reference patterns here.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#specializedScanMethodType">specializedScanMethodType</a></strong></code>
+<div class="block">Our type reference</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#specializedSignature">specializedSignature</a></strong></code>
+<div class="block">The specialized signature of the method</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.SpecializedMethod">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a></h3>
+<code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html#id">id</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.JavaHeaderConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html" title="interface in org.jikesrvm.objectmodel">JavaHeaderConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ADDRESS_BASED_HASHING">ADDRESS_BASED_HASHING</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ALIGNMENT_MASK">ALIGNMENT_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ALIGNMENT_VALUE">ALIGNMENT_VALUE</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ALLOWS_LINEAR_SCAN">ALLOWS_LINEAR_SCAN</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ARRAY_BASE_OFFSET">ARRAY_BASE_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ARRAY_LENGTH_BYTES">ARRAY_LENGTH_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#ARRAY_LENGTH_OFFSET">ARRAY_LENGTH_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#DYNAMIC_HASH_OFFSET">DYNAMIC_HASH_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#FIELD_ZERO_OFFSET">FIELD_ZERO_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#FORWARDING_PTR_OVERLAYS_TIB">FORWARDING_PTR_OVERLAYS_TIB</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#GC_HEADER_BYTES">GC_HEADER_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#GC_HEADER_OFFSET">GC_HEADER_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASH_STATE_HASHED">HASH_STATE_HASHED</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASH_STATE_HASHED_AND_MOVED">HASH_STATE_HASHED_AND_MOVED</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASH_STATE_MASK">HASH_STATE_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASH_STATE_UNHASHED">HASH_STATE_UNHASHED</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASHCODE_BYTES">HASHCODE_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#HASHCODE_OFFSET">HASHCODE_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#JAVA_HEADER_BYTES">JAVA_HEADER_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#JAVA_HEADER_OFFSET">JAVA_HEADER_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#LOG_MIN_ALIGNMENT">LOG_MIN_ALIGNMENT</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#MISC_HEADER_BYTES">MISC_HEADER_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#MISC_HEADER_OFFSET">MISC_HEADER_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#NUM_AVAILABLE_BITS">NUM_AVAILABLE_BITS</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#OTHER_HEADER_BYTES">OTHER_HEADER_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#SEGREGATE_ARRAYS_FOR_LINEAR_SCAN">SEGREGATE_ARRAYS_FOR_LINEAR_SCAN</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#STATUS_BYTES">STATUS_BYTES</a>, <a href="../../../../org/jikesrvm/objectmodel/JavaHeaderConstants.html#TIB_BYTES">TIB_BYTES</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#SpecializedScanMethod(int,%20org.jikesrvm.classloader.TypeReference)">SpecializedScanMethod</a></strong>(int&nbsp;id,
+                                          <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;specializedTrace)</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#fallback(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">fallback</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">Fallback</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#getPattern(org.jikesrvm.classloader.RVMType)">getPattern</a></strong>(<a href="../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Get the pattern index for a given type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#getReturnType()">getReturnType</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#getSignature()">getSignature</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#invoke(int,%20java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">invoke</a></strong>(int&nbsp;id,
+            <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+            <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">This method performs the scanning of a given object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#noReferences(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">noReferences</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">No Reference fields / Primitive Arrays</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#pattern(int,%20java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">pattern</a></strong>(int&nbsp;pattern,
+              <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+              <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">All patterns bottom out here</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#referenceArray(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">referenceArray</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                            <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">Reference Arrays</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalar(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalar</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+            <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>
+<div class="block">All Scalars</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNNRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNNRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNNRRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNNRRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRNRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRNRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarNRRRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarNRRRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNNRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNNRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRNRRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRNRRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRNRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRNRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRNNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRNNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRNNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRNNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRNRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRNRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRNRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRNRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRRNN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRRNN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRRNR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRRNR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRRRN(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRRRN</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#scalarRRRRRR(java.lang.Object,%20org.mmtk.plan.TransitiveClosure)">scalarRRRRRR</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                        <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jikesrvm/ArchitectureSpecific.CodeArray.html" title="class in org.jikesrvm">ArchitectureSpecific.CodeArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#specializeMethod(org.jikesrvm.classloader.RVMType)">specializeMethod</a></strong>(<a href="../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">TODO: Lazily compile specialized methods?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#templateMethodName(int)">templateMethodName</a></strong>(int&nbsp;pattern)</code>
+<div class="block">Find the template method name for a given pattern.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.SpecializedMethod">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a></h3>
+<code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html#compileSpecializedMethod(org.jikesrvm.classloader.RVMMethod,%20org.jikesrvm.classloader.TypeReference[])">compileSpecializedMethod</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="ENABLED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENABLED</h4>
+<pre>public static final&nbsp;boolean <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.54">ENABLED</a></pre>
+<div class="block">Use specialized scanning ?</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.ENABLED">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="signature">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>signature</h4>
+<pre>private static final&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[] <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.57">signature</a></pre>
+<div class="block">This method's signature: the object to be scanned and the trace to use</div>
+</li>
+</ul>
+<a name="returnType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>returnType</h4>
+<pre>private static final&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.62">returnType</a></pre>
+<div class="block">The return type of this method: void</div>
+</li>
+</ul>
+<a name="specializedScanMethodType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>specializedScanMethodType</h4>
+<pre>private static final&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.65">specializedScanMethodType</a></pre>
+<div class="block">Our type reference</div>
+</li>
+</ul>
+<a name="NULL_PATTERN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NULL_PATTERN</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.68">NULL_PATTERN</a></pre>
+<div class="block">Objects with no references or primitive arrays</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.NULL_PATTERN">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="SPECIALIZED_PATTERNS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SPECIALIZED_PATTERNS</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.70">SPECIALIZED_PATTERNS</a></pre>
+<div class="block">Number of patterns we will specialize</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.SPECIALIZED_PATTERNS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="REFARRAY_PATTERN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>REFARRAY_PATTERN</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.72">REFARRAY_PATTERN</a></pre>
+<div class="block">Reference arrays</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.REFARRAY_PATTERN">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="FALLBACK_PATTERN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FALLBACK_PATTERN</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.74">FALLBACK_PATTERN</a></pre>
+<div class="block">Fallback to a slower path that is not specialized</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.FALLBACK_PATTERN">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="PATTERNS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATTERNS</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.76">PATTERNS</a></pre>
+<div class="block">The total number of patterns</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.PATTERNS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MAX_SPECIALIZED_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_SPECIALIZED_OFFSET</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.78">MAX_SPECIALIZED_OFFSET</a></pre>
+<div class="block">Maximum field offset we can deal with</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mminterface.SpecializedScanMethod.MAX_SPECIALIZED_OFFSET">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="specializedMethods">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>specializedMethods</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>[] <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.81">specializedMethods</a></pre>
+<div class="block">We keep the specialized methods for key object reference patterns here.</div>
+</li>
+</ul>
+<a name="specializedSignature">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>specializedSignature</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[] <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.84">specializedSignature</a></pre>
+<div class="block">The specialized signature of the method</div>
+</li>
+</ul>
+<a name="specializedMethodDescriptor">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>specializedMethodDescriptor</h4>
+<pre>private static final&nbsp;<a href="../../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.335">specializedMethodDescriptor</a></pre>
+<div class="block">The generic descriptor for the specialized methods</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="SpecializedScanMethod(int, org.jikesrvm.classloader.TypeReference)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SpecializedScanMethod</h4>
+<pre>public&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.86">SpecializedScanMethod</a>(int&nbsp;id,
+                     <a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;specializedTrace)</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getPattern(org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPattern</h4>
+<pre>private static&nbsp;int&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.104">getPattern</a>(<a href="../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</pre>
+<div class="block">Get the pattern index for a given type</div>
+</li>
+</ul>
+<a name="specializeMethod(org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>specializeMethod</h4>
+<pre>public&nbsp;<a href="../../../../org/jikesrvm/ArchitectureSpecific.CodeArray.html" title="class in org.jikesrvm">ArchitectureSpecific.CodeArray</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.148">specializeMethod</a>(<a href="../../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</pre>
+<div class="block">TODO: Lazily compile specialized methods?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html#specializeMethod(org.jikesrvm.classloader.RVMType)">specializeMethod</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the specialized method for the given type.</dd></dl>
+</li>
+</ul>
+<a name="getSignature()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSignature</h4>
+<pre>public&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.165">getSignature</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html#getSignature()">getSignature</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the method signature of the specialized method's invoke.</dd></dl>
+</li>
+</ul>
+<a name="getReturnType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReturnType</h4>
+<pre>public&nbsp;<a href="../../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.170">getReturnType</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html#getReturnType()">getReturnType</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/jikesrvm/classloader/SpecializedMethod.html" title="class in org.jikesrvm.classloader">SpecializedMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the return type of the specialized method's invoke</dd></dl>
+</li>
+</ul>
+<a name="invoke(int, java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>invoke</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.188">invoke</a>(int&nbsp;id,
+          <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+          <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">This method performs the scanning of a given object.
+ <p>
+ This is the method that (may) be hijacked by the compiler to call the specialized method.
+ <p>
+ It is safe for a compiler to ignore the potential gains and just use this method
+ directly.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - The specialized method id</dd><dd><code>object</code> - The object to scan</dd><dd><code>trace</code> - The trace to scan</dd></dl>
+</li>
+</ul>
+<a name="fallback(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fallback</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.194">fallback</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+            <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">Fallback</div>
+</li>
+</ul>
+<a name="scalar(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalar</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.212">scalar</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+          <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">All Scalars</div>
+</li>
+</ul>
+<a name="referenceArray(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>referenceArray</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.221">referenceArray</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                  <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">Reference Arrays</div>
+</li>
+</ul>
+<a name="noReferences(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>noReferences</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.230">noReferences</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">No Reference fields / Primitive Arrays</div>
+</li>
+</ul>
+<a name="pattern(int, java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pattern</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.234">pattern</a>(int&nbsp;pattern,
+           <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+           <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+<div class="block">All patterns bottom out here</div>
+</li>
+</ul>
+<a name="templateMethodName(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>templateMethodName</h4>
+<pre>private&nbsp;<a href="../../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.262">templateMethodName</a>(int&nbsp;pattern)</pre>
+<div class="block">Find the template method name for a given pattern.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>pattern</code> - The pattern to look for</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The method name that will be used.</dd></dl>
+</li>
+</ul>
+<a name="scalarRNNNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.410">scalarRNNNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.411">scalarNRNNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.412">scalarRRNNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.413">scalarNNRNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.414">scalarRNRNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.415">scalarNRRNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRNNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRNNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.416">scalarRRRNNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.417">scalarNNNRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.418">scalarRNNRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.419">scalarNRNRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.420">scalarRRNRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.421">scalarNNRRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.422">scalarRNRRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.423">scalarNRRRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRRNN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRRNN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.424">scalarRRRRNN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.425">scalarNNNNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.426">scalarRNNNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.427">scalarNRNNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.428">scalarRRNNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.429">scalarNNRNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.430">scalarRNRNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.431">scalarNRRNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRNRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRNRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.432">scalarRRRNRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.433">scalarNNNRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.434">scalarRNNRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.435">scalarNRNRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.436">scalarRRNRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.437">scalarNNRRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.438">scalarRNRRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.439">scalarNRRRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRRRN(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRRRN</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.440">scalarRRRRRN</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.441">scalarNNNNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.442">scalarRNNNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.443">scalarNRNNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.444">scalarRRNNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.445">scalarNNRNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.446">scalarRNRNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.447">scalarNRRNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRNNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRNNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.448">scalarRRRNNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.449">scalarNNNRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.450">scalarRNNRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.451">scalarNRNRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.452">scalarRRNRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.453">scalarNNRRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.454">scalarRNRRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.455">scalarNRRRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRRNR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRRNR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.456">scalarRRRRNR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.457">scalarNNNNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.458">scalarRNNNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.459">scalarNRNNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.460">scalarRRNNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.461">scalarNNRNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.462">scalarRNRNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.463">scalarNRRNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRNRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRRNRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.464">scalarRRRNRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNNRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNNRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.465">scalarNNNRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNNRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNNRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.466">scalarRNNRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRNRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRNRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.467">scalarNRNRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRNRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRRNRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.468">scalarRRNRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNNRRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNNRRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.469">scalarNNRRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRNRRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarRNRRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.470">scalarRNRRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarNRRRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scalarNRRRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.471">scalarNRRRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+<a name="scalarRRRRRR(java.lang.Object, org.mmtk.plan.TransitiveClosure)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>scalarRRRRRR</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/SpecializedScanMethod.html#line.472">scalarRRRRRR</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                <a href="../../../../org/mmtk/plan/TransitiveClosure.html" title="class in org.mmtk.plan">TransitiveClosure</a>&nbsp;trace)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SpecializedScanMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mminterface/Selected.Plan.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mminterface/SpecializedScanMethod.Names.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mminterface/SpecializedScanMethod.html" target="_top">Frames</a></li>
+<li><a href="SpecializedScanMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

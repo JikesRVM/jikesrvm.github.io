@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.policy.immix;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.utility.ForwardingWord;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.utility.HeaderByte;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.vm.VM;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.vmmagic.pragma.Inline;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.unboxed.ObjectReference;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>@Uninterruptible<a name="line.22"></a>
+<span class="sourceLineNo">023</span>public class ObjectHeader {<a name="line.23"></a>
+<span class="sourceLineNo">024</span>  /** number of header bits we may use */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  static final int AVAILABLE_LOCAL_BITS = 8 - HeaderByte.USED_GLOBAL_BITS;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>  /* header requirements */<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>  /**<a name="line.29"></a>
+<span class="sourceLineNo">030</span>   *<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  public static final int LOCAL_GC_BITS_REQUIRED = AVAILABLE_LOCAL_BITS;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  public static final int GLOBAL_GC_BITS_REQUIRED = 0;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static final int GC_HEADER_WORDS_REQUIRED = 0;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>  /* local status bits */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  static final byte NEW_OBJECT_MARK = 0; // using zero means no need for explicit initialization on allocation<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public static final int PINNED_BIT_NUMBER = ForwardingWord.FORWARDING_BITS;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final byte PINNED_BIT = 1&lt;&lt;PINNED_BIT_NUMBER;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>  private static final int STRADDLE_BIT_NUMBER = PINNED_BIT_NUMBER + 1;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  public static final byte STRADDLE_BIT = 1&lt;&lt;STRADDLE_BIT_NUMBER;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  /* mark bits */<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   *<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  private static final int  MARK_BASE = STRADDLE_BIT_NUMBER+1;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  static final int  MAX_MARKCOUNT_BITS = AVAILABLE_LOCAL_BITS-MARK_BASE;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  private static final byte MARK_INCREMENT = 1&lt;&lt;MARK_BASE;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final byte MARK_MASK = (byte) (((1&lt;&lt;MAX_MARKCOUNT_BITS)-1)&lt;&lt;MARK_BASE);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  private static final byte MARK_AND_FORWARDING_MASK = (byte) (MARK_MASK | ForwardingWord.FORWARDING_MASK);<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  public static final byte MARK_BASE_VALUE = MARK_INCREMENT;<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /****************************************************************************<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   *<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   * Marking<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   */<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>  /**<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   * Non-atomically test and set the mark bit of an object.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * @param object The object whose mark bit is to be written<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * @param markState The value to which the mark bits will be set<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * @return the old mark state<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  static byte testAndMark(ObjectReference object, byte markState) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    byte oldValue, newValue, oldMarkState;<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>    oldValue = VM.objectModel.readAvailableByte(object);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    oldMarkState = (byte) (oldValue &amp; MARK_MASK);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    if (oldMarkState != markState) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>      newValue = (byte) ((oldValue &amp; ~MARK_MASK) | markState);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      if (HeaderByte.NEEDS_UNLOGGED_BIT)<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        newValue |= HeaderByte.UNLOGGED_BIT;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      VM.objectModel.writeAvailableByte(object, newValue);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    return oldMarkState;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  static void setMarkStateUnlogAndUnlock(ObjectReference object, byte gcByte, byte markState) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    byte oldGCByte = gcByte;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    byte newGCByte = (byte) ((oldGCByte &amp; ~MARK_AND_FORWARDING_MASK) | markState);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    if (HeaderByte.NEEDS_UNLOGGED_BIT)<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      newGCByte |= HeaderByte.UNLOGGED_BIT;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    VM.objectModel.writeAvailableByte(object, newGCByte);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    if (VM.VERIFY_ASSERTIONS)<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      VM.assertions._assert((oldGCByte &amp; MARK_MASK) != markState);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>  /**<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * Return {@code true} if the mark count for an object has the given value.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * @param object The object whose mark bit is to be tested<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param value The value against which the mark bit will be tested<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * @return {@code true} if the mark bit for the object has the given value.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  static boolean testMarkState(ObjectReference object, byte value) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert((value &amp; MARK_MASK) == value);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    return (VM.objectModel.readAvailableByte(object) &amp; MARK_MASK) == value;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  static boolean testMarkState(byte gcByte, byte value) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert((value &amp; MARK_MASK) == value);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    return (gcByte &amp; MARK_MASK) == value;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>  static boolean isNewObject(ObjectReference object) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    return (VM.objectModel.readAvailableByte(object) &amp; MARK_AND_FORWARDING_MASK) == NEW_OBJECT_MARK;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>  static boolean isMatureObject(ObjectReference object) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    byte status = (byte) (VM.objectModel.readAvailableByte(object) &amp; MARK_AND_FORWARDING_MASK);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    boolean unforwarded = (status &amp; ForwardingWord.FORWARDING_MASK) == 0;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    boolean newObj = (status == NEW_OBJECT_MARK);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    return unforwarded &amp;&amp; !newObj;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>  @Inline<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  static void markAsStraddling(ObjectReference object) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    byte old = VM.objectModel.readAvailableByte(object);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    VM.objectModel.writeAvailableByte(object, (byte) (old | STRADDLE_BIT));<a name="line.125"></a>
+<span class="sourceLineNo">126</span>  }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>  @Inline<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  static boolean isStraddlingObject(ObjectReference object) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    return (VM.objectModel.readAvailableByte(object) &amp; STRADDLE_BIT) == STRADDLE_BIT;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>  @Inline<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  public static void pinObject(ObjectReference object) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    byte old = VM.objectModel.readAvailableByte(object);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    VM.objectModel.writeAvailableByte(object, (byte) (old | PINNED_BIT));<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>  @Inline<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  static boolean isPinnedObject(ObjectReference object) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    return (VM.objectModel.readAvailableByte(object) &amp; PINNED_BIT) == PINNED_BIT;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>  }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>  /**<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   * Write the allocState into the mark state fields of an object non-atomically.<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   * This is appropriate for collection time initialization.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   *<a name="line.147"></a>
+<span class="sourceLineNo">148</span>   * @param object The object whose mark state is to be written<a name="line.148"></a>
+<span class="sourceLineNo">149</span>   * @param markState TODO: what am I?<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   * @param straddle TODO: what am I?<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  static void writeMarkState(ObjectReference object, byte markState, boolean straddle) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    byte oldValue = VM.objectModel.readAvailableByte(object);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    byte markValue = markState;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    byte newValue = (byte) (oldValue &amp; ~MARK_AND_FORWARDING_MASK);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    if (HeaderByte.NEEDS_UNLOGGED_BIT)<a name="line.156"></a>
+<span class="sourceLineNo">157</span>      newValue |= HeaderByte.UNLOGGED_BIT;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    newValue |= markValue;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    if (straddle)<a name="line.159"></a>
+<span class="sourceLineNo">160</span>      newValue |= STRADDLE_BIT;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    VM.objectModel.writeAvailableByte(object, newValue);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>  static void returnToPriorStateAndEnsureUnlogged(ObjectReference object, byte status) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    if (HeaderByte.NEEDS_UNLOGGED_BIT) status |= HeaderByte.UNLOGGED_BIT;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    VM.objectModel.writeAvailableByte(object, status);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>  /**<a name="line.169"></a>
+<span class="sourceLineNo">170</span>   * Return the mark state incremented or decremented by one.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   *<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   * @param increment If {@code true}, then return the incremented value else return the decremented value<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @return the mark state incremented or decremented by one.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  static byte deltaMarkState(byte state, boolean increment) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    byte rtn = state;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    do {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      rtn = (byte) (increment ? rtn + MARK_INCREMENT : rtn - MARK_INCREMENT);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      rtn &amp;= MARK_MASK;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      } while (rtn &lt; MARK_BASE_VALUE);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(rtn != state);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    return rtn;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>}<a name="line.184"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

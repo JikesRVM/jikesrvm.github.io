@@ -1,0 +1,1093 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>ScanThread (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="ScanThread (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ScanThread.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mmtk/ScanStatics.html" title="class in org.jikesrvm.mm.mmtk"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mmtk/Statistics.html" title="class in org.jikesrvm.mm.mmtk"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mmtk/ScanThread.html" target="_top">Frames</a></li>
+<li><a href="ScanThread.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.mm.mmtk</div>
+<h2 title="Class ScanThread" class="title">Class ScanThread</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.mm.mmtk.ScanThread</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a>, <a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.80">ScanThread</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a></pre>
+<div class="block">Class that supports scanning thread stacks for references during
+ collections. References are located using GCMapIterators and are
+ inserted into a set of root locations.  Optionally, a set of
+ interior pointer locations associated with the object is created.<p>
+
+ Threads, stacks, jni environments, and register objects have a
+ complex interaction in terms of scanning.  The operation of
+ scanning the stack reveals not only roots inside the stack but also
+ the state of the register objects's gprs and the JNI refs array.
+ They are all associated via the thread object, making it natural
+ for scanThread to be considered a single operation with the method
+ directly accessing these objects via the thread object's
+ fields. <p>
+
+ One pitfall occurs when scanning the thread object (plus
+ dependents) when not all of the objects have been copied.  Then it
+ may be that the innards of the register object has not been copied
+ while the stack object has.  The result is that an inconsistent set
+ of slots is reported.  In this case, the copied register object may
+ not be correct if the copy occurs after the root locations are
+ discovered but before those locations are processed. In essence,
+ all of these objects form one logical unit but are physically
+ separated so that sometimes only part of it has been copied causing
+ the scan to be incorrect. <p>
+
+ The caller of the stack scanning routine must ensure that all of
+ these components's descendants are consistent (all copied) when
+ this method is called. <p>
+
+ <i>Code locations:</i> Identifying pointers <i>into</i> code
+ objects is essential if code objects are allowed to move (and if
+ the code objects were not otherwise kept alive, it would be
+ necessary to ensure the liveness of the code objects). A code
+ pointer is the only case in which we have interior pointers
+ (pointers into the inside of objects).  For such pointers, two
+ things must occur: first the pointed to object must be kept alive,
+ and second, if the pointed to object is moved by a copying
+ collector, the pointer into the object must be adjusted so it now
+ points into the newly copied object.<p></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#compiledMethod">compiledMethod</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#compiledMethodType">compiledMethodType</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#DEFAULT_VERBOSITY">DEFAULT_VERBOSITY</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#failed">failed</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#FAILURE_VERBOSITY">FAILURE_VERBOSITY</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#fp">fp</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#initialIPLoc">initialIPLoc</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#ip">ip</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#iterator">iterator</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html" title="class in org.jikesrvm.mm.mminterface">GCMapIteratorGroup</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#iteratorGroup">iteratorGroup</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#prevFp">prevFp</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#processCodeLocations">processCodeLocations</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#thread">thread</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#topFrame">topFrame</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#trace">trace</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#VALIDATE_REFS">VALIDATE_REFS</a></strong></code>
+<div class="block">quietly validates each ref reported by map iterators</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a></h3>
+<code><a href="../../../../org/jikesrvm/Constants.html#NOT_REACHED">NOT_REACHED</a>, <a href="../../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_BITS">REFLECTION_FPRS_BITS</a>, <a href="../../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_MASK">REFLECTION_FPRS_MASK</a>, <a href="../../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_BITS">REFLECTION_GPRS_BITS</a>, <a href="../../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_MASK">REFLECTION_GPRS_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.ThinLockConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_OFFSET">TL_DEDICATED_U16_OFFSET</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_SHIFT">TL_DEDICATED_U16_SHIFT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_MASK">TL_LOCK_COUNT_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_SHIFT">TL_LOCK_COUNT_SHIFT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_UNIT">TL_LOCK_COUNT_UNIT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_MASK">TL_LOCK_ID_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_SHIFT">TL_LOCK_ID_SHIFT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_RC">TL_NUM_BITS_RC</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_STAT">TL_NUM_BITS_STAT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_TID">TL_NUM_BITS_TID</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_BIASABLE">TL_STAT_BIASABLE</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_FAT">TL_STAT_FAT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_MASK">TL_STAT_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_SHIFT">TL_STAT_SHIFT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_THIN">TL_STAT_THIN</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_MASK">TL_THREAD_ID_MASK</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_SHIFT">TL_THREAD_ID_SHIFT</a>, <a href="../../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_UNLOCK_MASK">TL_UNLOCK_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.TIBLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#IMT_METHOD_SLOTS">IMT_METHOD_SLOTS</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#NEEDS_DYNAMIC_LINK">NEEDS_DYNAMIC_LINK</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_ARRAY_ELEMENT_TIB_INDEX">TIB_ARRAY_ELEMENT_TIB_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_DOES_IMPLEMENT_INDEX">TIB_DOES_IMPLEMENT_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_SPECIALIZED_METHOD_INDEX">TIB_FIRST_SPECIALIZED_METHOD_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_VIRTUAL_METHOD_INDEX">TIB_FIRST_VIRTUAL_METHOD_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_INTERFACE_DISPATCH_TABLE_INDEX">TIB_INTERFACE_DISPATCH_TABLE_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_SUPERCLASS_IDS_INDEX">TIB_SUPERCLASS_IDS_INDEX</a>, <a href="../../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_TYPE_INDEX">TIB_TYPE_INDEX</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.HeapLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BAD_MAP_COMPRESSION">BAD_MAP_COMPRESSION</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_END">BOOT_IMAGE_CODE_END</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_SIZE">BOOT_IMAGE_CODE_SIZE</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_START">BOOT_IMAGE_CODE_START</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_END">BOOT_IMAGE_DATA_END</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_SIZE">BOOT_IMAGE_DATA_SIZE</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_START">BOOT_IMAGE_DATA_START</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_END">BOOT_IMAGE_END</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_END">BOOT_IMAGE_RMAP_END</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_START">BOOT_IMAGE_RMAP_START</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#MAX_BOOT_IMAGE_RMAP_SIZE">MAX_BOOT_IMAGE_RMAP_SIZE</a>, <a href="../../../../org/jikesrvm/HeapLayoutConstants.html#MAXIMUM_MAPPABLE">MAXIMUM_MAPPABLE</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#ScanThread()">ScanThread</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#assertImmovableInCurrentCollection()">assertImmovableInCurrentCollection</a></strong>()</code>
+<div class="block">Assert that the stack is immovable.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#checkJNIBase()">checkJNIBase</a></strong>()</code>
+<div class="block">AIX-specific code.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#checkReference(org.vmmagic.unboxed.Address)">checkReference</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr)</code>
+<div class="block">Check that a reference encountered during scanning is valid.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#checkReference(org.vmmagic.unboxed.Address,%20int)">checkReference</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr,
+                            int&nbsp;verbosity)</code>
+<div class="block">Check that a reference encountered during scanning is valid.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#dumpRef(org.vmmagic.unboxed.Address,%20int)">dumpRef</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr,
+              int&nbsp;verbosity)</code>
+<div class="block">Print out information associated with a reference.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#dumpStackFrame(int)">dumpStackFrame</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Dump the contents of a stack frame.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#dumpTopFrameInfo(int)">dumpTopFrameInfo</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Print out the basic information associated with the top frame on
+ the stack.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#getHWExceptionRegisters()">getHWExceptionRegisters</a></strong>()</code>
+<div class="block">When an exception occurs, registers are saved temporarily.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#printMethod(org.jikesrvm.classloader.RVMMethod)">printMethod</a></strong>(<a href="../../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>
+<div class="block">Print out the name of a method</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#printMethodHeader()">printMethodHeader</a></strong>()</code>
+<div class="block">Print out the method header for the method associated with the
+ current frame</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#processCodeLocation(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address)">processCodeLocation</a></strong>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code,
+                                      <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;ipLoc)</code>
+<div class="block">Push a code pointer location onto the code locations deque,
+ optionally performing a sanity check first.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#processFrameForCode(int)">processFrameForCode</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Identify all pointers into code pointers associated with a frame.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#pushFrameIP(org.vmmagic.unboxed.ObjectReference,%20int)">pushFrameIP</a></strong>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code,
+                      int&nbsp;verbosity)</code>
+<div class="block">Push the instruction pointer associated with this frame onto the
+ code locations deque.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#reportDelayedRootEdge(org.mmtk.plan.TraceLocal,%20org.vmmagic.unboxed.Address)">reportDelayedRootEdge</a></strong>(<a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+                                          <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;addr)</code>
+<div class="block">Wrapper for <a href="../../../../org/mmtk/plan/TraceLocal.html#reportDelayedRootEdge(org.vmmagic.unboxed.Address)"><code>TraceLocal.reportDelayedRootEdge(Address)</code></a> that allows
+ sanity checking of the address.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanFrame(int)">scanFrame</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Scan the current stack frame.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanFrameForCode(org.vmmagic.unboxed.ObjectReference)">scanFrameForCode</a></strong>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code)</code>
+<div class="block">Scan this frame for internal code pointers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanFrameForObjects(int)">scanFrameForObjects</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Identify all the object pointers stored as local variables
+ associated with (though not necessarily strictly within!)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanThread(org.jikesrvm.scheduler.RVMThread,%20org.mmtk.plan.TraceLocal,%20boolean)">scanThread</a></strong>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+                    <a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+                    boolean&nbsp;processCodeLocations)</code>
+<div class="block">Scan a thread, placing the addresses of pointers into supplied buffers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanThread(org.jikesrvm.scheduler.RVMThread,%20org.mmtk.plan.TraceLocal,%20boolean,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">scanThread</a></strong>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+                    <a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+                    boolean&nbsp;processCodeLocations,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;topFrame)</code>
+<div class="block">A more general interface to thread scanning, which permits the
+ scanning of stack segments which are dislocated from the thread
+ structure.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#scanThreadInternal(org.vmmagic.unboxed.Address,%20int)">scanThreadInternal</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+                                    int&nbsp;verbosity)</code>
+<div class="block">The main stack scanning loop.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#setUpFrame(int)">setUpFrame</a></strong>(int&nbsp;verbosity)</code>
+<div class="block">Set up to scan the current stack frame.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mmtk/ScanThread.html#startScan(org.mmtk.plan.TraceLocal,%20boolean,%20org.jikesrvm.scheduler.RVMThread,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">startScan</a></strong>(<a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+                  boolean&nbsp;processCodeLocations,
+                  <a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;ip,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;fp,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;initialIPLoc,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;topFrame)</code>
+<div class="block">Initializes a ScanThread instance, and then scans a stack
+ associated with a thread, and places references in deques (one for
+ object pointers, one for interior code pointers).</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="VALIDATE_REFS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VALIDATE_REFS</h4>
+<pre>static final&nbsp;boolean <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.88">VALIDATE_REFS</a></pre>
+<div class="block">quietly validates each ref reported by map iterators</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mmtk.ScanThread.VALIDATE_REFS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="DEFAULT_VERBOSITY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_VERBOSITY</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.95">DEFAULT_VERBOSITY</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mmtk.ScanThread.DEFAULT_VERBOSITY">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="FAILURE_VERBOSITY">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FAILURE_VERBOSITY</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.96">FAILURE_VERBOSITY</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.jikesrvm.mm.mmtk.ScanThread.FAILURE_VERBOSITY">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="iteratorGroup">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>iteratorGroup</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html" title="class in org.jikesrvm.mm.mminterface">GCMapIteratorGroup</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.106">iteratorGroup</a></pre>
+</li>
+</ul>
+<a name="iterator">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>iterator</h4>
+<pre>private&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.108">iterator</a></pre>
+</li>
+</ul>
+<a name="trace">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>trace</h4>
+<pre>private&nbsp;<a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.110">trace</a></pre>
+</li>
+</ul>
+<a name="processCodeLocations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>processCodeLocations</h4>
+<pre>private&nbsp;boolean <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.111">processCodeLocations</a></pre>
+</li>
+</ul>
+<a name="thread">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>thread</h4>
+<pre>private&nbsp;<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.113">thread</a></pre>
+</li>
+</ul>
+<a name="ip">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ip</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.114">ip</a></pre>
+</li>
+</ul>
+<a name="fp">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fp</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.114">fp</a></pre>
+</li>
+</ul>
+<a name="prevFp">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>prevFp</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.114">prevFp</a></pre>
+</li>
+</ul>
+<a name="initialIPLoc">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialIPLoc</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.114">initialIPLoc</a></pre>
+</li>
+</ul>
+<a name="topFrame">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>topFrame</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.114">topFrame</a></pre>
+</li>
+</ul>
+<a name="compiledMethod">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>compiledMethod</h4>
+<pre>private&nbsp;<a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a> <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.116">compiledMethod</a></pre>
+</li>
+</ul>
+<a name="compiledMethodType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>compiledMethodType</h4>
+<pre>private&nbsp;int <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.117">compiledMethodType</a></pre>
+</li>
+</ul>
+<a name="failed">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>failed</h4>
+<pre>private&nbsp;boolean <a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.118">failed</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="ScanThread()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ScanThread</h4>
+<pre>public&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.80">ScanThread</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="scanThread(org.jikesrvm.scheduler.RVMThread, org.mmtk.plan.TraceLocal, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanThread</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.132">scanThread</a>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+              <a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+              boolean&nbsp;processCodeLocations)</pre>
+<div class="block">Scan a thread, placing the addresses of pointers into supplied buffers.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>thread</code> - The thread to be scanned</dd><dd><code>trace</code> - The trace instance to use for reporting references.</dd><dd><code>processCodeLocations</code> - Should code locations be processed?</dd></dl>
+</li>
+</ul>
+<a name="reportDelayedRootEdge(org.mmtk.plan.TraceLocal, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reportDelayedRootEdge</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.154">reportDelayedRootEdge</a>(<a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+                         <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;addr)</pre>
+<div class="block">Wrapper for <a href="../../../../org/mmtk/plan/TraceLocal.html#reportDelayedRootEdge(org.vmmagic.unboxed.Address)"><code>TraceLocal.reportDelayedRootEdge(Address)</code></a> that allows
+ sanity checking of the address.</div>
+</li>
+</ul>
+<a name="scanThread(org.jikesrvm.scheduler.RVMThread, org.mmtk.plan.TraceLocal, boolean, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanThread</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.172">scanThread</a>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+              <a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+              boolean&nbsp;processCodeLocations,
+              <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+              <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;topFrame)</pre>
+<div class="block">A more general interface to thread scanning, which permits the
+ scanning of stack segments which are dislocated from the thread
+ structure.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>thread</code> - The thread to be scanned</dd><dd><code>trace</code> - The trace instance to use for reporting references.</dd><dd><code>processCodeLocations</code> - Should code locations be processed?</dd><dd><code>gprs</code> - The general purpose registers associated with the
+ stack being scanned (normally extracted from the thread).</dd><dd><code>topFrame</code> - The top frame of the stack being scanned, or zero
+ if this is to be inferred from the thread (normally the case).</dd></dl>
+</li>
+</ul>
+<a name="startScan(org.mmtk.plan.TraceLocal, boolean, org.jikesrvm.scheduler.RVMThread, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startScan</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.217">startScan</a>(<a href="../../../../org/mmtk/plan/TraceLocal.html" title="class in org.mmtk.plan">TraceLocal</a>&nbsp;trace,
+             boolean&nbsp;processCodeLocations,
+             <a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+             <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+             <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;ip,
+             <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;fp,
+             <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;initialIPLoc,
+             <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;topFrame)</pre>
+<div class="block">Initializes a ScanThread instance, and then scans a stack
+ associated with a thread, and places references in deques (one for
+ object pointers, one for interior code pointers).  If the thread
+ scan fails, the thread is rescanned verbosely and a failure
+ occurs.<p>
+
+ The various state associated with stack scanning is captured by
+ instance variables of this type, which are initialized here.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>trace</code> - The trace instance to use for reporting locations.</dd><dd><code>thread</code> - Thread for the thread whose stack is being scanned</dd><dd><code>gprs</code> - The general purpose registers associated with the
+ stack being scanned (normally extracted from the thread).</dd><dd><code>ip</code> - The instruction pointer for the top frame of the stack
+ we're about to scan.</dd><dd><code>fp</code> - The frame pointer for the top frame of the stack we're
+ about to scan.</dd></dl>
+</li>
+</ul>
+<a name="scanThreadInternal(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanThreadInternal</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.250">scanThreadInternal</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;gprs,
+                      int&nbsp;verbosity)</pre>
+<div class="block">The main stack scanning loop.<p>
+
+ Walk the stack one frame at a time, top (lo) to bottom (hi),<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>gprs</code> - The general purpose registers associated with the
+ stack being scanned (normally extracted from the thread).</dd><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="getHWExceptionRegisters()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getHWExceptionRegisters</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.306">getHWExceptionRegisters</a>()</pre>
+<div class="block">When an exception occurs, registers are saved temporarily.  If
+ the stack being scanned is in this state, we need to scan those
+ registers for code pointers.  If the codeLocations deque is null,
+ then scanning for code pointers is not required, so we don't need
+ to do anything. (SB: Why only code pointers?).
+
+ Dave G:  The contents of the GPRs of the exceptionRegisters
+ are handled during normal stack scanning
+ (@see org.jikesrvm.runtime.compilers.common.HardwareTrapCompiledMethod.
+ It looks to me like the main goal of this method is to ensure that the
+ method in which the trap happened isn't treated as dead code and collected
+ (if it's been marked as obsolete, we are setting its activeOnStackFlag below).</div>
+</li>
+</ul>
+<a name="processCodeLocation(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>processCodeLocation</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.331">processCodeLocation</a>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code,
+                       <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;ipLoc)</pre>
+<div class="block">Push a code pointer location onto the code locations deque,
+ optionally performing a sanity check first.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>code</code> - The code object into which this interior pointer points</dd><dd><code>ipLoc</code> - The location of the pointer into this code object</dd></dl>
+</li>
+</ul>
+<a name="scanFrame(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanFrame</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.365">scanFrame</a>(int&nbsp;verbosity)</pre>
+<div class="block">Scan the current stack frame.<p>
+
+ First the various iterators are set up, then the frame is scanned
+ for regular pointers, before scanning for code pointers.  The
+ iterators are then cleaned up, and native frames skipped if
+ necessary.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="setUpFrame(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUpFrame</h4>
+<pre>private&nbsp;boolean&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.398">setUpFrame</a>(int&nbsp;verbosity)</pre>
+<div class="block">Set up to scan the current stack frame.  This means examining the
+ frame to discover the method being invoked and then retrieving
+ the associated metadata (stack maps etc).  Certain frames should
+ not be scanned---these are identified and skipped.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the frame should be scanned, false if it should
+ be skipped.</dd></dl>
+</li>
+</ul>
+<a name="scanFrameForObjects(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanFrameForObjects</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.446">scanFrameForObjects</a>(int&nbsp;verbosity)</pre>
+<div class="block">Identify all the object pointers stored as local variables
+ associated with (though not necessarily strictly within!) the
+ current frame.  Loop through the GC map iterator, getting the
+ address of each object pointer, adding them to the root locations
+ deque.<p>
+
+ NOTE: Because of the callee save policy of the optimizing
+ compiler, references associated with a given frame may be in
+ callee stack frames (lower memory), <i>outside</i> the current
+ frame.  So the iterator may return locations that are outside the
+ frame being scanned.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="processFrameForCode(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>processFrameForCode</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.472">processFrameForCode</a>(int&nbsp;verbosity)</pre>
+<div class="block">Identify all pointers into code pointers associated with a frame.
+ There are two cases to be considered: a) the instruction pointer
+ associated with each frame (stored in the thread's metadata for
+ the top frame and as a return address for all subsequent frames),
+ and b) local variables on the stack which happen to be pointers
+ to code.<p>
+
+ FIXME: SB: Why is it that JNI frames are skipped when considering
+ top of stack frames, while boot image frames are skipped when
+ considering other frames.  Shouldn't they both be considered in
+ both cases?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="pushFrameIP(org.vmmagic.unboxed.ObjectReference, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pushFrameIP</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.507">pushFrameIP</a>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code,
+               int&nbsp;verbosity)</pre>
+<div class="block">Push the instruction pointer associated with this frame onto the
+ code locations deque.<p>
+
+ A stack frame represents an execution context, and thus has an
+ instruction pointer associated with it.  In the case of the top
+ frame, the instruction pointer is captured by the IP register,
+ which is preserved in the thread data structure at thread switch
+ time.  In the case of all non-top frames, the next instruction
+ pointer is stored as the return address for the <i>previous</i>
+ frame.<p>
+
+ The address of the code pointer is pushed onto the code locations
+ deque along with the address of the code object into which it
+ points (both are required since the former is an internal
+ pointer).<p>
+
+ The code pointers are updated later (after stack scanning) when
+ the code locations deque is processed. The pointer from RVMMethod
+ to the code object is not updated until after stack scanning, so
+ the pointer to the (uncopied) code object is available throughout
+ the stack scanning process, which enables interior pointer
+ offsets to be correctly computed.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="scanFrameForCode(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanFrameForCode</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.541">scanFrameForCode</a>(<a href="../../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;code)</pre>
+<div class="block">Scan this frame for internal code pointers.  The GC map iterator
+ is used to identify any local variables (stored on the stack)
+ which happen to be pointers into code.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>code</code> - The code object associated with this frame.</dd></dl>
+</li>
+</ul>
+<a name="checkJNIBase()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkJNIBase</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.566">checkJNIBase</a>()</pre>
+<div class="block">AIX-specific code.<p>
+
+ If we are scanning the stack of a thread that entered the VM via
+ a createVM or attachVM then the "bottom" of the stack had native
+ C frames instead of the usual java frames.  The JNIEnv for the
+ thread may still contain jniRefs that have been returned to the
+ native C code, but have not been reported for GC.  calling
+ getNextReferenceAddress without first calling setup... will
+ report the remaining jniRefs in the current "frame" of the
+ jniRefs stack.  (this should be the bottom frame)<p>
+
+ FIXME: SB: Why is this AIX specific?  Why depend on the
+ preprocessor?</div>
+</li>
+</ul>
+<a name="assertImmovableInCurrentCollection()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertImmovableInCurrentCollection</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.595">assertImmovableInCurrentCollection</a>()</pre>
+<div class="block">Assert that the stack is immovable.<p>
+
+ Currently we do not allow stacks to be moved within the heap.  If
+ a stack contains native stack frames, then it is impossible for
+ us to safely move it.  Prior to the implementation of JNI, Jikes
+ RVM did allow the GC system to move thread stacks, and called a
+ special fixup routine, thread.fixupMovedStack to adjust all of
+ the special interior pointers (SP, FP).  If we implement split C
+ & Java stacks then we could allow the Java stacks to be moved,
+ but we can't move the native stack.</div>
+</li>
+</ul>
+<a name="dumpTopFrameInfo(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dumpTopFrameInfo</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.614">dumpTopFrameInfo</a>(int&nbsp;verbosity)</pre>
+<div class="block">Print out the basic information associated with the top frame on
+ the stack.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="dumpRef(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dumpRef</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.630">dumpRef</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr,
+           int&nbsp;verbosity)</pre>
+<div class="block">Print out information associated with a reference.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>refaddr</code> - The address of the reference in question.</dd><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="checkReference(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkReference</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.647">checkReference</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr,
+                  int&nbsp;verbosity)</pre>
+<div class="block">Check that a reference encountered during scanning is valid.  If
+ the reference is invalid, dump stack and die.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>refaddr</code> - The address of the reference in question.</dd><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+<a name="checkReference(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkReference</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.684">checkReference</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;refaddr)</pre>
+<div class="block">Check that a reference encountered during scanning is valid.  If
+ the reference is invalid, dump stack and die.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>refaddr</code> - The address of the reference in question.</dd></dl>
+</li>
+</ul>
+<a name="printMethod(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printMethod</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.701">printMethod</a>(<a href="../../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+<div class="block">Print out the name of a method</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>m</code> - The method to be printed</dd></dl>
+</li>
+</ul>
+<a name="printMethodHeader()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printMethodHeader</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.711">printMethodHeader</a>()</pre>
+<div class="block">Print out the method header for the method associated with the
+ current frame</div>
+</li>
+</ul>
+<a name="dumpStackFrame(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>dumpStackFrame</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mmtk/ScanThread.html#line.745">dumpStackFrame</a>(int&nbsp;verbosity)</pre>
+<div class="block">Dump the contents of a stack frame. Attempts to interpret each
+ word as an object reference</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>verbosity</code> - The level of verbosity to be used when
+ performing the scan.</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/ScanThread.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mmtk/ScanStatics.html" title="class in org.jikesrvm.mm.mmtk"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mmtk/Statistics.html" title="class in org.jikesrvm.mm.mmtk"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mmtk/ScanThread.html" target="_top">Frames</a></li>
+<li><a href="ScanThread.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

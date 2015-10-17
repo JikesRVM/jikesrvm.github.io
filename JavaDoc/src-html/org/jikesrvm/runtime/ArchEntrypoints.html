@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.runtime;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.classloader.RVMField;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * Entrypoints that are specific to instruction architecture.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public interface ArchEntrypoints {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>  NormalMethod newArrayArrayMethod =<a name="line.23"></a>
+<span class="sourceLineNo">024</span>      EntrypointHelper.getMethod("Lorg/jikesrvm/" + ArchEntrypoints.arch + "/MultianewarrayHelper;", "newArrayArray", "(IIII)Ljava/lang/Object;");<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  String arch = VM.BuildForIA32 ? "ia32" : "ppc";<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  String ArchCodeArrayName = "Lorg/jikesrvm/ArchitectureSpecific$CodeArray;";<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  RVMField reflectiveMethodInvokerInstructionsField =<a name="line.27"></a>
+<span class="sourceLineNo">028</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;",<a name="line.28"></a>
+<span class="sourceLineNo">029</span>               "reflectiveMethodInvokerInstructions",<a name="line.29"></a>
+<span class="sourceLineNo">030</span>               ArchCodeArrayName);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  RVMField saveThreadStateInstructionsField =<a name="line.31"></a>
+<span class="sourceLineNo">032</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;", "saveThreadStateInstructions", ArchCodeArrayName);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  RVMField threadSwitchInstructionsField =<a name="line.33"></a>
+<span class="sourceLineNo">034</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;", "threadSwitchInstructions", ArchCodeArrayName);<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  RVMField restoreHardwareExceptionStateInstructionsField =<a name="line.35"></a>
+<span class="sourceLineNo">036</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;",<a name="line.36"></a>
+<span class="sourceLineNo">037</span>               "restoreHardwareExceptionStateInstructions",<a name="line.37"></a>
+<span class="sourceLineNo">038</span>               ArchCodeArrayName);<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  RVMField saveVolatilesInstructionsField =<a name="line.39"></a>
+<span class="sourceLineNo">040</span>      (VM.BuildForPowerPC) ?<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;", "saveVolatilesInstructions", ArchCodeArrayName) : null;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  RVMField restoreVolatilesInstructionsField =<a name="line.42"></a>
+<span class="sourceLineNo">043</span>      (VM.BuildForPowerPC) ?<a name="line.43"></a>
+<span class="sourceLineNo">044</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/OutOfLineMachineCode;", "restoreVolatilesInstructions", ArchCodeArrayName) : null;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  RVMField trampolineRegistersField =<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "trampolineRegisters", "Lorg/jikesrvm/ArchitectureSpecific$Registers;");<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  RVMField hijackedReturnAddressField =<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hijackedReturnAddress", "Lorg/vmmagic/unboxed/Address;");<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   RVMField registersIPField =<a name="line.50"></a>
+<span class="sourceLineNo">051</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "ip", "Lorg/vmmagic/unboxed/Address;");<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  RVMField registersFPRsField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "fprs", "[D");<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  RVMField registersGPRsField =<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "gprs", "Lorg/vmmagic/unboxed/WordArray;");<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  RVMField registersInUseField = EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;", "inuse", "Z");<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  RVMField registersLRField =<a name="line.56"></a>
+<span class="sourceLineNo">057</span>      (VM.BuildForPowerPC) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                                      "lr",<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                                      "Lorg/vmmagic/unboxed/Address;") : null;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  RVMField registersFPField =<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/" + arch + "/Registers;",<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                                   "fp",<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                                   "Lorg/vmmagic/unboxed/Address;") : null;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  RVMField framePointerField =<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;",<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                                   "framePointer",<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                                   "Lorg/vmmagic/unboxed/Address;") : null;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  RVMField hiddenSignatureIdField =<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "hiddenSignatureId", "I") : null;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  RVMField arrayIndexTrapParamField =<a name="line.70"></a>
+<span class="sourceLineNo">071</span>      (VM.BuildForIA32) ? EntrypointHelper.getField("Lorg/jikesrvm/scheduler/RVMThread;", "arrayIndexTrapParam", "I") : null;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>}<a name="line.72"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

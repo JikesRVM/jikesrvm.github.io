@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.runtime;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.EntrypointHelper.getField;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.runtime.EntrypointHelper.getMethod;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.VM;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.classloader.RVMField;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Fields and methods of the virtual machine that are needed by<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * compiler-generated machine code or C runtime code.<a name="line.25"></a>
+<span class="sourceLineNo">026</span> */<a name="line.26"></a>
+<span class="sourceLineNo">027</span>public class Entrypoints {<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  // The usual causes for getField/Method() to fail are:<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  //  1. you misspelled the class name, member name, or member signature<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  //  2. the class containing the specified member didn't get compiled<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  //<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>  public static final NormalMethod bootMethod = EntrypointHelper.getMethod(org.jikesrvm.VM.class, "boot", "()V");<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static final RVMMethod java_lang_reflect_Method_invokeMethod =<a name="line.35"></a>
+<span class="sourceLineNo">036</span>      getMethod(java.lang.reflect.Method.class, "invoke",<a name="line.36"></a>
+<span class="sourceLineNo">037</span>          "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;");<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static final RVMMethod getClassFromStackFrame =<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    getMethod(org.jikesrvm.classloader.RVMClass.class, "getClassFromStackFrame", "(I)Lorg/jikesrvm/classloader/RVMClass;");<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final RVMMethod getClassLoaderFromStackFrame =<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    getMethod(org.jikesrvm.classloader.RVMClass.class, "getClassLoaderFromStackFrame", "(I)Ljava/lang/ClassLoader;");<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  public static final RVMField magicObjectRemapperField =<a name="line.43"></a>
+<span class="sourceLineNo">044</span>      getField(org.jikesrvm.runtime.Magic.class,<a name="line.44"></a>
+<span class="sourceLineNo">045</span>               "objectAddressRemapper",<a name="line.45"></a>
+<span class="sourceLineNo">046</span>               org.jikesrvm.runtime.ObjectAddressRemapper.class);<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final NormalMethod instanceOfMethod =<a name="line.48"></a>
+<span class="sourceLineNo">049</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "instanceOf", "(Ljava/lang/Object;I)Z");<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  public static final NormalMethod checkcastMethod =<a name="line.50"></a>
+<span class="sourceLineNo">051</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "checkcast", "(Ljava/lang/Object;I)V");<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static final NormalMethod checkstoreMethod =<a name="line.52"></a>
+<span class="sourceLineNo">053</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "checkstore", "(Ljava/lang/Object;Ljava/lang/Object;)V");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static final NormalMethod aastoreMethod =<a name="line.54"></a>
+<span class="sourceLineNo">055</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "aastore", "([Ljava/lang/Object;ILjava/lang/Object;)V");<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public static final NormalMethod aastoreUninterruptibleMethod =<a name="line.56"></a>
+<span class="sourceLineNo">057</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "aastoreUninterruptible", "([Ljava/lang/Object;ILjava/lang/Object;)V");<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  public static final NormalMethod athrowMethod =<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "athrow", "(Ljava/lang/Throwable;)V");<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  // Allocation-related entry points<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  //<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  public static final NormalMethod resolvedNewScalarMethod =<a name="line.63"></a>
+<span class="sourceLineNo">064</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class,<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                "resolvedNewScalar",<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                "(ILorg/jikesrvm/objectmodel/TIB;ZIIII)Ljava/lang/Object;");<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public static final NormalMethod unresolvedNewScalarMethod =<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unresolvedNewScalar", "(II)Ljava/lang/Object;");<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  public static final NormalMethod unresolvedNewArrayMethod =<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unresolvedNewArray", "(III)Ljava/lang/Object;");<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public static final NormalMethod resolvedNewArrayMethod =<a name="line.71"></a>
+<span class="sourceLineNo">072</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class,<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                "resolvedNewArray",<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                "(IIILorg/jikesrvm/objectmodel/TIB;IIII)Ljava/lang/Object;");<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  public static final RVMField sysWriteLockField = getField(org.jikesrvm.VM.class, "sysWriteLock", int.class);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  public static final RVMField intBufferLockField =<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      getField(org.jikesrvm.Services.class, "intBufferLock", int.class);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static final RVMField dumpBufferLockField =<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      getField(org.jikesrvm.Services.class, "dumpBufferLock", int.class);<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>  public static final NormalMethod unexpectedAbstractMethodCallMethod =<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unexpectedAbstractMethodCall", "()V");<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public static final NormalMethod raiseNullPointerException =<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseNullPointerException", "()V");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  public static final NormalMethod raiseArrayBoundsException =<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseArrayIndexOutOfBoundsException", "(I)V");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  public static final NormalMethod raiseArithmeticException =<a name="line.88"></a>
+<span class="sourceLineNo">089</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseArithmeticException", "()V");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  public static final NormalMethod raiseAbstractMethodError =<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseAbstractMethodError", "()V");<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  public static final NormalMethod raiseIllegalAccessError =<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "raiseIllegalAccessError", "()V");<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  public static final NormalMethod deliverHardwareExceptionMethod =<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "deliverHardwareException", "(II)V");<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  public static final NormalMethod unlockAndThrowMethod =<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      getMethod(org.jikesrvm.runtime.RuntimeEntrypoints.class, "unlockAndThrow", "(Ljava/lang/Object;Ljava/lang/Throwable;)V");<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public static final RVMField gcLockField = getField("Ljava/lang/VMCommonLibrarySupport$GCLock;", "gcLock", int.class);<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  public static final NormalMethod invokeInterfaceMethod =<a name="line.101"></a>
+<span class="sourceLineNo">102</span>      getMethod(org.jikesrvm.classloader.InterfaceInvocation.class,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                "invokeInterface",<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                "(Ljava/lang/Object;I)Lorg/jikesrvm/ArchitectureSpecific$CodeArray;");<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  public static final NormalMethod findItableMethod =<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      getMethod(org.jikesrvm.classloader.InterfaceInvocation.class,<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                "findITable",<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                "(Lorg/jikesrvm/objectmodel/TIB;I)Lorg/jikesrvm/objectmodel/ITable;");<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public static final NormalMethod unresolvedInvokeinterfaceImplementsTestMethod =<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      getMethod(org.jikesrvm.classloader.InterfaceInvocation.class,<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                "unresolvedInvokeinterfaceImplementsTest",<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                "(ILjava/lang/Object;)V");<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>  public static final NormalMethod lockMethod =<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      getMethod(org.jikesrvm.objectmodel.ObjectModel.class, "genericLock", "(Ljava/lang/Object;)V");<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  public static final NormalMethod unlockMethod =<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      getMethod(org.jikesrvm.objectmodel.ObjectModel.class, "genericUnlock", "(Ljava/lang/Object;)V");<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>  public static final NormalMethod inlineLockMethod =<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      getMethod(org.jikesrvm.scheduler.ThinLock.class,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                "inlineLock",<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;)V");<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  public static final NormalMethod inlineUnlockMethod =<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      getMethod(org.jikesrvm.scheduler.ThinLock.class,<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                "inlineUnlock",<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;)V");<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>  public static final NormalMethod lazyMethodInvokerMethod =<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      getMethod(org.jikesrvm.runtime.DynamicLinker.class, "lazyMethodInvoker", "()V");<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  public static final NormalMethod unimplementedNativeMethodMethod =<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      getMethod(org.jikesrvm.runtime.DynamicLinker.class, "unimplementedNativeMethod", "()V");<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  public static final NormalMethod sysCallMethod =<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      getMethod(org.jikesrvm.runtime.DynamicLinker.class, "sysCallMethod", "()V");<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>  public static final NormalMethod resolveMemberMethod =<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      getMethod(org.jikesrvm.classloader.TableBasedDynamicLinker.class, "resolveMember", "(I)I");<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  public static final RVMField memberOffsetsField =<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      getField(org.jikesrvm.classloader.TableBasedDynamicLinker.class, "memberOffsets", int[].class);<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  /** 1L */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public static final RVMField longOneField = getField(org.jikesrvm.runtime.MathConstants.class, "longOne", long.class);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>  /** -1.0F */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  public static final RVMField minusOneField = getField(org.jikesrvm.runtime.MathConstants.class, "minusOne", float.class);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  /** 0.0F */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  public static final RVMField zeroFloatField = getField(org.jikesrvm.runtime.MathConstants.class, "zero", float.class);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  /**0.5F */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  public static final RVMField halfFloatField = getField(org.jikesrvm.runtime.MathConstants.class, "half", float.class);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  /** 1.0F */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  public static final RVMField oneFloatField = getField(org.jikesrvm.runtime.MathConstants.class, "one", float.class);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  /** 2.0F */<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  public static final RVMField twoFloatField = getField(org.jikesrvm.runtime.MathConstants.class, "two", float.class);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  /** 2.0F^32 */<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  public static final RVMField two32Field = getField(org.jikesrvm.runtime.MathConstants.class, "two32", float.class);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  /** 0.5F^32 */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  public static final RVMField half32Field = getField(org.jikesrvm.runtime.MathConstants.class, "half32", float.class);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  /** 1e-9 */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  public static final RVMField billionthField = getField(org.jikesrvm.runtime.MathConstants.class, "billionth", double.class);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  /** 0.0 */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  public static final RVMField zeroDoubleField = getField(org.jikesrvm.runtime.MathConstants.class, "zeroD", double.class);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  /** 1.0 */<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  public static final RVMField oneDoubleField = getField(org.jikesrvm.runtime.MathConstants.class, "oneD", double.class);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  /** largest double that can be rounded to an int */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  public static final RVMField maxintField =<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      getField(org.jikesrvm.runtime.MathConstants.class, "maxint", double.class);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  /** largest double that can be rounded to a long */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public static final RVMField maxlongField =<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    getField(org.jikesrvm.runtime.MathConstants.class, "maxlong", double.class);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  /** smallest double that can be rounded to an int */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  public static final RVMField minintField =<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      getField(org.jikesrvm.runtime.MathConstants.class, "minint", double.class);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>  /** largest float that can be rounded to an int */<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  public static final RVMField maxintFloatField =<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    getField(org.jikesrvm.runtime.MathConstants.class, "maxintF", float.class);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>  /** largest float that can be rounded to a long */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  public static final RVMField maxlongFloatField =<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    getField(org.jikesrvm.runtime.MathConstants.class, "maxlongF", float.class);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  /** IEEEmagic constant */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  public static final RVMField IEEEmagicField =<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      getField(org.jikesrvm.runtime.MathConstants.class, "IEEEmagic", double.class);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  /** special double value for use in int &lt;--&gt; double conversions */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  public static final RVMField I2DconstantField =<a name="line.181"></a>
+<span class="sourceLineNo">182</span>      getField(org.jikesrvm.runtime.MathConstants.class,<a name="line.182"></a>
+<span class="sourceLineNo">183</span>               "I2Dconstant",<a name="line.183"></a>
+<span class="sourceLineNo">184</span>               double.class);<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>  public static final RVMField bootThreadField =<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    getField(org.jikesrvm.scheduler.RVMThread.class, "bootThread",<a name="line.187"></a>
+<span class="sourceLineNo">188</span>             org.jikesrvm.scheduler.RVMThread.class);<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>  public static final RVMField scratchStorageField =<a name="line.190"></a>
+<span class="sourceLineNo">191</span>      getField(org.jikesrvm.scheduler.RVMThread.class, "scratchStorage", double.class);<a name="line.191"></a>
+<span class="sourceLineNo">192</span>  public static final RVMField takeYieldpointField =<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      getField(org.jikesrvm.scheduler.RVMThread.class, "takeYieldpoint", int.class);<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>  public static final RVMField execStatusField = getField(org.jikesrvm.scheduler.RVMThread.class, "execStatus", int.class);<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>  public static final RVMField referenceReferentField =<a name="line.197"></a>
+<span class="sourceLineNo">198</span>      getField(java.lang.ref.Reference.class, "_referent", org.vmmagic.unboxed.Address.class);<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>  /** Used in deciding which stack frames we can elide when printing. */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  public static final NormalMethod mainThreadRunMethod =<a name="line.201"></a>
+<span class="sourceLineNo">202</span>      getMethod(org.jikesrvm.scheduler.MainThread.class, "run", "()V");<a name="line.202"></a>
+<span class="sourceLineNo">203</span><a name="line.203"></a>
+<span class="sourceLineNo">204</span>  public static final NormalMethod yieldpointFromPrologueMethod =<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromPrologue", "()V");<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  public static final NormalMethod yieldpointFromBackedgeMethod =<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromBackedge", "()V");<a name="line.207"></a>
+<span class="sourceLineNo">208</span>  public static final NormalMethod yieldpointFromEpilogueMethod =<a name="line.208"></a>
+<span class="sourceLineNo">209</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "yieldpointFromEpilogue", "()V");<a name="line.209"></a>
+<span class="sourceLineNo">210</span>  public static final NormalMethod enterJNIBlockedFromJNIFunctionCallMethod =<a name="line.210"></a>
+<span class="sourceLineNo">211</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "enterJNIBlockedFromJNIFunctionCall", "()V");<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  public static final NormalMethod enterJNIBlockedFromCallIntoNativeMethod =<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "enterJNIBlockedFromCallIntoNative", "()V");<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  public static final NormalMethod leaveJNIBlockedFromJNIFunctionCallMethod =<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "leaveJNIBlockedFromJNIFunctionCall", "()V");<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  public static final NormalMethod leaveJNIBlockedFromCallIntoNativeMethod =<a name="line.216"></a>
+<span class="sourceLineNo">217</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "leaveJNIBlockedFromCallIntoNative", "()V");<a name="line.217"></a>
+<span class="sourceLineNo">218</span><a name="line.218"></a>
+<span class="sourceLineNo">219</span>  public static final NormalMethod threadRunMethod = getMethod(org.jikesrvm.scheduler.RVMThread.class, "run", "()V");<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public static final NormalMethod threadStartoffMethod =<a name="line.220"></a>
+<span class="sourceLineNo">221</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "startoff", "()V");<a name="line.221"></a>
+<span class="sourceLineNo">222</span>  public static final RVMField threadStackField = getField(org.jikesrvm.scheduler.RVMThread.class, "stack", byte[].class);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  public static final RVMField stackLimitField =<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      getField(org.jikesrvm.scheduler.RVMThread.class, "stackLimit", org.vmmagic.unboxed.Address.class);<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>  public static final RVMField threadSlotField = getField(org.jikesrvm.scheduler.RVMThread.class, "threadSlot", int.class);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>  public static final RVMField jniEnvField =<a name="line.227"></a>
+<span class="sourceLineNo">228</span>      getField(org.jikesrvm.scheduler.RVMThread.class, "jniEnv", org.jikesrvm.jni.JNIEnvironment.class);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  public static final RVMField threadContextRegistersField =<a name="line.229"></a>
+<span class="sourceLineNo">230</span>      getField(org.jikesrvm.scheduler.RVMThread.class,<a name="line.230"></a>
+<span class="sourceLineNo">231</span>               "contextRegisters",<a name="line.231"></a>
+<span class="sourceLineNo">232</span>               org.jikesrvm.ArchitectureSpecific.Registers.class);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>  public static final RVMField threadContextRegistersSaveField =<a name="line.233"></a>
+<span class="sourceLineNo">234</span>      getField(org.jikesrvm.scheduler.RVMThread.class,<a name="line.234"></a>
+<span class="sourceLineNo">235</span>               "contextRegistersSave",<a name="line.235"></a>
+<span class="sourceLineNo">236</span>               org.jikesrvm.ArchitectureSpecific.Registers.class);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  public static final RVMField threadExceptionRegistersField =<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      getField(org.jikesrvm.scheduler.RVMThread.class,<a name="line.238"></a>
+<span class="sourceLineNo">239</span>               "exceptionRegisters",<a name="line.239"></a>
+<span class="sourceLineNo">240</span>               org.jikesrvm.ArchitectureSpecific.Registers.class);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>  public static final NormalMethod returnBarrierMethod = getMethod(org.jikesrvm.scheduler.RVMThread.class, "returnBarrier", "()V");<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>  public static final RVMField tracePrevAddressField =<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      getField(org.jikesrvm.objectmodel.MiscHeader.class, "prevAddress", org.vmmagic.unboxed.Word.class);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>  public static final RVMField traceOIDField =<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      getField(org.jikesrvm.objectmodel.MiscHeader.class, "oid", org.vmmagic.unboxed.Word.class);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>  /*<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  public static final RVMField dispenserField = getField(org.jikesrvm.mm.mmtk.Lock.class, "dispenser", int.class);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>  public static final RVMField servingField = getField(org.jikesrvm.mm.mmtk.Lock.class, "serving", int.class);<a name="line.249"></a>
+<span class="sourceLineNo">250</span>  public static final RVMField lockThreadField =<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      getField(org.jikesrvm.mm.mmtk.Lock.class, "thread", org.jikesrvm.scheduler.RVMThread.class);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  */<a name="line.252"></a>
+<span class="sourceLineNo">253</span>  public static final RVMField lockStateField = getField(org.jikesrvm.mm.mmtk.Lock.class, "state", int.class);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>  public static final RVMField gcStatusField = getField(org.mmtk.plan.Plan.class, "gcStatus", int.class);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  public static final RVMField SQCFField = getField(org.mmtk.utility.deque.SharedDeque.class, "completionFlag", int.class);<a name="line.255"></a>
+<span class="sourceLineNo">256</span>  public static final RVMField SQNCField = getField(org.mmtk.utility.deque.SharedDeque.class, "numConsumers", int.class);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>  public static final RVMField SQNCWField =<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      getField(org.mmtk.utility.deque.SharedDeque.class, "numConsumersWaiting", int.class);<a name="line.258"></a>
+<span class="sourceLineNo">259</span>  public static final RVMField SQheadField =<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      getField(org.mmtk.utility.deque.SharedDeque.class, "head", org.vmmagic.unboxed.Address.class);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>  public static final RVMField SQtailField =<a name="line.261"></a>
+<span class="sourceLineNo">262</span>      getField(org.mmtk.utility.deque.SharedDeque.class, "tail", org.vmmagic.unboxed.Address.class);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  public static final RVMField SQBEField = getField(org.mmtk.utility.deque.SharedDeque.class, "bufsenqueued", int.class);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  public static final RVMField synchronizedCounterField =<a name="line.264"></a>
+<span class="sourceLineNo">265</span>      getField(org.jikesrvm.mm.mmtk.SynchronizedCounter.class, "count", int.class);<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>  public static final NormalMethod booleanFieldWriteBarrierMethod =<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "booleanFieldWrite", "(Ljava/lang/Object;ZLorg/vmmagic/unboxed/Offset;I)V");<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  public static final NormalMethod booleanArrayWriteBarrierMethod =<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "booleanArrayWrite", "([ZIZ)V");<a name="line.270"></a>
+<span class="sourceLineNo">271</span>  public static final NormalMethod booleanFieldReadBarrierMethod =<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "booleanFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Z");<a name="line.272"></a>
+<span class="sourceLineNo">273</span>  public static final NormalMethod booleanArrayReadBarrierMethod =<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "booleanArrayRead", "([ZI)Z");<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>  public static final NormalMethod byteFieldWriteBarrierMethod =<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "byteFieldWrite", "(Ljava/lang/Object;BLorg/vmmagic/unboxed/Offset;I)V");<a name="line.277"></a>
+<span class="sourceLineNo">278</span>  public static final NormalMethod byteArrayWriteBarrierMethod =<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "byteArrayWrite", "([BIB)V");<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  public static final NormalMethod byteFieldReadBarrierMethod =<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "byteFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)B");<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  public static final NormalMethod byteArrayReadBarrierMethod =<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "byteArrayRead", "([BI)B");<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>  public static final NormalMethod charFieldWriteBarrierMethod =<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "charFieldWrite", "(Ljava/lang/Object;CLorg/vmmagic/unboxed/Offset;I)V");<a name="line.286"></a>
+<span class="sourceLineNo">287</span>  public static final NormalMethod charArrayWriteBarrierMethod =<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "charArrayWrite", "([CIC)V");<a name="line.288"></a>
+<span class="sourceLineNo">289</span>  public static final NormalMethod charFieldReadBarrierMethod =<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "charFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)C");<a name="line.290"></a>
+<span class="sourceLineNo">291</span>  public static final NormalMethod charArrayReadBarrierMethod =<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "charArrayRead", "([CI)C");<a name="line.292"></a>
+<span class="sourceLineNo">293</span><a name="line.293"></a>
+<span class="sourceLineNo">294</span>  public static final NormalMethod shortFieldWriteBarrierMethod =<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "shortFieldWrite", "(Ljava/lang/Object;SLorg/vmmagic/unboxed/Offset;I)V");<a name="line.295"></a>
+<span class="sourceLineNo">296</span>  public static final NormalMethod shortArrayWriteBarrierMethod =<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "shortArrayWrite", "([SIS)V");<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  public static final NormalMethod shortFieldReadBarrierMethod =<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "shortFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)S");<a name="line.299"></a>
+<span class="sourceLineNo">300</span>  public static final NormalMethod shortArrayReadBarrierMethod =<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "shortArrayRead", "([SI)S");<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>  public static final NormalMethod intFieldWriteBarrierMethod =<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "intFieldWrite", "(Ljava/lang/Object;ILorg/vmmagic/unboxed/Offset;I)V");<a name="line.304"></a>
+<span class="sourceLineNo">305</span>  public static final NormalMethod intArrayWriteBarrierMethod =<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "intArrayWrite", "([III)V");<a name="line.306"></a>
+<span class="sourceLineNo">307</span>  public static final NormalMethod intFieldReadBarrierMethod =<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "intFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)I");<a name="line.308"></a>
+<span class="sourceLineNo">309</span>  public static final NormalMethod intArrayReadBarrierMethod =<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "intArrayRead", "([II)I");<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>  public static final NormalMethod longFieldWriteBarrierMethod =<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "longFieldWrite", "(Ljava/lang/Object;JLorg/vmmagic/unboxed/Offset;I)V");<a name="line.313"></a>
+<span class="sourceLineNo">314</span>  public static final NormalMethod longArrayWriteBarrierMethod =<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "longArrayWrite", "([JIJ)V");<a name="line.315"></a>
+<span class="sourceLineNo">316</span>  public static final NormalMethod longFieldReadBarrierMethod =<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "longFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)J");<a name="line.317"></a>
+<span class="sourceLineNo">318</span>  public static final NormalMethod longArrayReadBarrierMethod =<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "longArrayRead", "([JI)J");<a name="line.319"></a>
+<span class="sourceLineNo">320</span><a name="line.320"></a>
+<span class="sourceLineNo">321</span>  public static final NormalMethod floatFieldWriteBarrierMethod =<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "floatFieldWrite", "(Ljava/lang/Object;FLorg/vmmagic/unboxed/Offset;I)V");<a name="line.322"></a>
+<span class="sourceLineNo">323</span>  public static final NormalMethod floatArrayWriteBarrierMethod =<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "floatArrayWrite", "([FIF)V");<a name="line.324"></a>
+<span class="sourceLineNo">325</span>  public static final NormalMethod floatFieldReadBarrierMethod =<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "floatFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)F");<a name="line.326"></a>
+<span class="sourceLineNo">327</span>  public static final NormalMethod floatArrayReadBarrierMethod =<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "floatArrayRead", "([FI)F");<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>  public static final NormalMethod doubleFieldWriteBarrierMethod =<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "doubleFieldWrite", "(Ljava/lang/Object;DLorg/vmmagic/unboxed/Offset;I)V");<a name="line.331"></a>
+<span class="sourceLineNo">332</span>  public static final NormalMethod doubleArrayWriteBarrierMethod =<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "doubleArrayWrite", "([DID)V");<a name="line.333"></a>
+<span class="sourceLineNo">334</span>  public static final NormalMethod doubleFieldReadBarrierMethod =<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "doubleFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)D");<a name="line.335"></a>
+<span class="sourceLineNo">336</span>  public static final NormalMethod doubleArrayReadBarrierMethod =<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "doubleArrayRead", "([DI)D");<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>  public static final NormalMethod objectFieldWriteBarrierMethod =<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectFieldWrite", "(Ljava/lang/Object;Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.340"></a>
+<span class="sourceLineNo">341</span>  public static final NormalMethod objectArrayWriteBarrierMethod =<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectArrayWrite", "([Ljava/lang/Object;ILjava/lang/Object;)V");<a name="line.342"></a>
+<span class="sourceLineNo">343</span>  public static final NormalMethod objectFieldReadBarrierMethod =<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Ljava/lang/Object;");<a name="line.344"></a>
+<span class="sourceLineNo">345</span>  public static final NormalMethod objectArrayReadBarrierMethod =<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectArrayRead", "([Ljava/lang/Object;I)Ljava/lang/Object;");<a name="line.346"></a>
+<span class="sourceLineNo">347</span><a name="line.347"></a>
+<span class="sourceLineNo">348</span>  public static final NormalMethod wordFieldWriteBarrierMethod =<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "wordFieldWrite", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Word;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.349"></a>
+<span class="sourceLineNo">350</span>  public static final NormalMethod wordFieldReadBarrierMethod =<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "wordFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Lorg/vmmagic/unboxed/Word;");<a name="line.351"></a>
+<span class="sourceLineNo">352</span><a name="line.352"></a>
+<span class="sourceLineNo">353</span>  public static final NormalMethod addressFieldWriteBarrierMethod =<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "addressFieldWrite", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Address;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.354"></a>
+<span class="sourceLineNo">355</span>  public static final NormalMethod addressFieldReadBarrierMethod =<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "addressFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Lorg/vmmagic/unboxed/Address;");<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>  public static final NormalMethod offsetFieldWriteBarrierMethod =<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "offsetFieldWrite", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.359"></a>
+<span class="sourceLineNo">360</span>  public static final NormalMethod offsetFieldReadBarrierMethod =<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "offsetFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Lorg/vmmagic/unboxed/Offset;");<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>  public static final NormalMethod extentFieldWriteBarrierMethod =<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "extentFieldWrite", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Extent;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.364"></a>
+<span class="sourceLineNo">365</span>  public static final NormalMethod extentFieldReadBarrierMethod =<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "extentFieldRead", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)Lorg/vmmagic/unboxed/Extent;");<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>  public static final NormalMethod objectStaticWriteBarrierMethod =<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectStaticWrite", "(Ljava/lang/Object;Lorg/vmmagic/unboxed/Offset;I)V");<a name="line.369"></a>
+<span class="sourceLineNo">370</span>  public static final NormalMethod objectStaticReadBarrierMethod =<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      getMethod(org.jikesrvm.mm.mminterface.Barriers.class, "objectStaticRead", "(Lorg/vmmagic/unboxed/Offset;I)Ljava/lang/Object;");<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>  public static final NormalMethod modifyCheckMethod =<a name="line.373"></a>
+<span class="sourceLineNo">374</span>      getMethod(org.jikesrvm.mm.mminterface.MemoryManager.class, "modifyCheck", "(Ljava/lang/Object;)V");<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>  // used in boot image writer<a name="line.376"></a>
+<span class="sourceLineNo">377</span>  public static final RVMField debugRequestedField =<a name="line.377"></a>
+<span class="sourceLineNo">378</span>      getField(org.jikesrvm.scheduler.RVMThread.class, "debugRequested", boolean.class);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  public static final NormalMethod dumpStackAndDieMethod =<a name="line.379"></a>
+<span class="sourceLineNo">380</span>      getMethod(org.jikesrvm.scheduler.RVMThread.class, "dumpStackAndDie", "(Lorg/vmmagic/unboxed/Address;)V");<a name="line.380"></a>
+<span class="sourceLineNo">381</span><a name="line.381"></a>
+<span class="sourceLineNo">382</span>  public static final RVMField latestContenderField =<a name="line.382"></a>
+<span class="sourceLineNo">383</span>      getField(org.jikesrvm.scheduler.SpinLock.class, "latestContender", org.jikesrvm.scheduler.RVMThread.class);<a name="line.383"></a>
+<span class="sourceLineNo">384</span><a name="line.384"></a>
+<span class="sourceLineNo">385</span>  public static final RVMField depthField = getField(org.jikesrvm.classloader.RVMType.class, "depth", int.class);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>  public static final RVMField idField = getField(org.jikesrvm.classloader.RVMType.class, "id", int.class);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>  public static final RVMField dimensionField = getField(org.jikesrvm.classloader.RVMType.class, "dimension", int.class);<a name="line.387"></a>
+<span class="sourceLineNo">388</span><a name="line.388"></a>
+<span class="sourceLineNo">389</span>  public static final RVMField innermostElementTypeDimensionField =<a name="line.389"></a>
+<span class="sourceLineNo">390</span>      getField(org.jikesrvm.classloader.RVMArray.class, "innermostElementTypeDimension", int.class);<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>  public static final RVMField JNIEnvSavedTRField =<a name="line.392"></a>
+<span class="sourceLineNo">393</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "savedTRreg", org.jikesrvm.scheduler.RVMThread.class);<a name="line.393"></a>
+<span class="sourceLineNo">394</span>  public static final RVMField JNIEnvBasePointerOnEntryToNative =<a name="line.394"></a>
+<span class="sourceLineNo">395</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "basePointerOnEntryToNative", org.vmmagic.unboxed.Address.class);<a name="line.395"></a>
+<span class="sourceLineNo">396</span>  public static final RVMField JNIGlobalRefsField =<a name="line.396"></a>
+<span class="sourceLineNo">397</span>    getField(org.jikesrvm.jni.JNIGlobalRefTable.class, "JNIGlobalRefs", org.vmmagic.unboxed.AddressArray.class);<a name="line.397"></a>
+<span class="sourceLineNo">398</span>  public static final RVMField JNIRefsField =<a name="line.398"></a>
+<span class="sourceLineNo">399</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefs", org.vmmagic.unboxed.AddressArray.class);<a name="line.399"></a>
+<span class="sourceLineNo">400</span>  public static final RVMField JNIRefsTopField = getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsTop", int.class);<a name="line.400"></a>
+<span class="sourceLineNo">401</span>  public static final RVMField JNIRefsMaxField = getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsMax", int.class);<a name="line.401"></a>
+<span class="sourceLineNo">402</span>  public static final RVMField JNIRefsSavedFPField =<a name="line.402"></a>
+<span class="sourceLineNo">403</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNIRefsSavedFP", int.class);<a name="line.403"></a>
+<span class="sourceLineNo">404</span>  public static final RVMField JNITopJavaFPField =<a name="line.404"></a>
+<span class="sourceLineNo">405</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "JNITopJavaFP", org.vmmagic.unboxed.Address.class);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>  public static final RVMField JNIHasPendingExceptionField =<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "hasPendingException", int.class);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>  public static final RVMField JNIExternalFunctionsField =<a name="line.408"></a>
+<span class="sourceLineNo">409</span>      getField(org.jikesrvm.jni.JNIEnvironment.class, "externalJNIFunctions", org.vmmagic.unboxed.Address.class);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>  public static final RVMField JNIEnvSavedJTOCField =<a name="line.410"></a>
+<span class="sourceLineNo">411</span>      VM.BuildForPowerPC ? getField(org.jikesrvm.jni.JNIEnvironment.class,<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                                    "savedJTOC",<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                                    org.vmmagic.unboxed.Address.class) : null;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>  public static final RVMMethod jniEntry =<a name="line.414"></a>
+<span class="sourceLineNo">415</span>      VM.BuildForIA32 ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                                  "entryToJNI",<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                                  "(I)V") : null;<a name="line.417"></a>
+<span class="sourceLineNo">418</span>  public static final RVMMethod jniExit =<a name="line.418"></a>
+<span class="sourceLineNo">419</span>      VM.BuildForIA32 ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                                  "exitFromJNI",<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                                  "(I)Ljava/lang/Object;") : null;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>      public static final RVMMethod jniThrowPendingException =<a name="line.422"></a>
+<span class="sourceLineNo">423</span>        VM.BuildForPowerPC ? getMethod(org.jikesrvm.jni.JNIEnvironment.class,<a name="line.423"></a>
+<span class="sourceLineNo">424</span>                                    "throwPendingException",<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                                    "()V") : null;<a name="line.425"></a>
+<span class="sourceLineNo">426</span><a name="line.426"></a>
+<span class="sourceLineNo">427</span>  public static final RVMField the_boot_recordField =<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      getField(org.jikesrvm.runtime.BootRecord.class, "the_boot_record", org.jikesrvm.runtime.BootRecord.class);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>  public static final RVMField externalSignalFlagField =<a name="line.429"></a>
+<span class="sourceLineNo">430</span>      getField(org.jikesrvm.runtime.BootRecord.class, "externalSignalFlag", int.class);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>  public static final RVMField sysLongDivideIPField =<a name="line.431"></a>
+<span class="sourceLineNo">432</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysLongDivideIP", org.vmmagic.unboxed.Address.class);<a name="line.432"></a>
+<span class="sourceLineNo">433</span>  public static final RVMField sysLongRemainderIPField =<a name="line.433"></a>
+<span class="sourceLineNo">434</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysLongRemainderIP", org.vmmagic.unboxed.Address.class);<a name="line.434"></a>
+<span class="sourceLineNo">435</span>  public static final RVMField sysLongToFloatIPField =<a name="line.435"></a>
+<span class="sourceLineNo">436</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysLongToFloatIP", org.vmmagic.unboxed.Address.class);<a name="line.436"></a>
+<span class="sourceLineNo">437</span>  public static final RVMField sysLongToDoubleIPField =<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysLongToDoubleIP", org.vmmagic.unboxed.Address.class);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>  public static final RVMField sysFloatToIntIPField =<a name="line.439"></a>
+<span class="sourceLineNo">440</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysFloatToIntIP", org.vmmagic.unboxed.Address.class);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>  public static final RVMField sysDoubleToIntIPField =<a name="line.441"></a>
+<span class="sourceLineNo">442</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysDoubleToIntIP", org.vmmagic.unboxed.Address.class);<a name="line.442"></a>
+<span class="sourceLineNo">443</span>  public static final RVMField sysFloatToLongIPField =<a name="line.443"></a>
+<span class="sourceLineNo">444</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysFloatToLongIP", org.vmmagic.unboxed.Address.class);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>  public static final RVMField sysDoubleToLongIPField =<a name="line.445"></a>
+<span class="sourceLineNo">446</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysDoubleToLongIP", org.vmmagic.unboxed.Address.class);<a name="line.446"></a>
+<span class="sourceLineNo">447</span>  public static final RVMField sysDoubleRemainderIPField =<a name="line.447"></a>
+<span class="sourceLineNo">448</span>      getField(org.jikesrvm.runtime.BootRecord.class, "sysDoubleRemainderIP", org.vmmagic.unboxed.Address.class);<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>  public static final RVMField edgeCountersField =<a name="line.450"></a>
+<span class="sourceLineNo">451</span>      getField(org.jikesrvm.compilers.baseline.EdgeCounts.class, "data", int[][].class);<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>  //////////////////<a name="line.453"></a>
+<span class="sourceLineNo">454</span>  // Entrypoints that are valid only when the opt compiler is included in the build<a name="line.454"></a>
+<span class="sourceLineNo">455</span>  //////////////////<a name="line.455"></a>
+<span class="sourceLineNo">456</span>  public static final RVMField specializedMethodsField;<a name="line.456"></a>
+<span class="sourceLineNo">457</span><a name="line.457"></a>
+<span class="sourceLineNo">458</span>  public static final NormalMethod optThreadSwitchFromOsrOptMethod;<a name="line.458"></a>
+<span class="sourceLineNo">459</span>  public static final NormalMethod optThreadSwitchFromPrologueMethod;<a name="line.459"></a>
+<span class="sourceLineNo">460</span>  public static final NormalMethod optThreadSwitchFromBackedgeMethod;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>  public static final NormalMethod optThreadSwitchFromEpilogueMethod;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>  public static final NormalMethod yieldpointFromNativePrologueMethod;<a name="line.462"></a>
+<span class="sourceLineNo">463</span>  public static final NormalMethod yieldpointFromNativeEpilogueMethod;<a name="line.463"></a>
+<span class="sourceLineNo">464</span>  public static final NormalMethod optResolveMethod;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>  public static final NormalMethod optNewArrayArrayMethod;<a name="line.465"></a>
+<span class="sourceLineNo">466</span>  public static final NormalMethod optNew2DArrayMethod;<a name="line.466"></a>
+<span class="sourceLineNo">467</span>  public static final NormalMethod sysArrayCopy;<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+<span class="sourceLineNo">469</span>  static {<a name="line.469"></a>
+<span class="sourceLineNo">470</span>    if (VM.BuildForOptCompiler) {<a name="line.470"></a>
+<span class="sourceLineNo">471</span>      specializedMethodsField =<a name="line.471"></a>
+<span class="sourceLineNo">472</span>          getField(org.jikesrvm.compilers.opt.specialization.SpecializedMethodPool.class,<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                   "specializedMethods",<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                   org.jikesrvm.ArchitectureSpecific.CodeArray[].class);<a name="line.474"></a>
+<span class="sourceLineNo">475</span>      optThreadSwitchFromOsrOptMethod =<a name="line.475"></a>
+<span class="sourceLineNo">476</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromOsrOpt", "()V");<a name="line.476"></a>
+<span class="sourceLineNo">477</span>      optThreadSwitchFromPrologueMethod =<a name="line.477"></a>
+<span class="sourceLineNo">478</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromPrologue", "()V");<a name="line.478"></a>
+<span class="sourceLineNo">479</span>      optThreadSwitchFromBackedgeMethod =<a name="line.479"></a>
+<span class="sourceLineNo">480</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromBackedge", "()V");<a name="line.480"></a>
+<span class="sourceLineNo">481</span>      optThreadSwitchFromEpilogueMethod =<a name="line.481"></a>
+<span class="sourceLineNo">482</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromEpilogue", "()V");<a name="line.482"></a>
+<span class="sourceLineNo">483</span>      yieldpointFromNativePrologueMethod =<a name="line.483"></a>
+<span class="sourceLineNo">484</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromNativePrologue", "()V");<a name="line.484"></a>
+<span class="sourceLineNo">485</span>      yieldpointFromNativeEpilogueMethod =<a name="line.485"></a>
+<span class="sourceLineNo">486</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "yieldpointFromNativeEpilogue", "()V");<a name="line.486"></a>
+<span class="sourceLineNo">487</span>      optResolveMethod = getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptSaveVolatile.class, "resolve", "()V");<a name="line.487"></a>
+<span class="sourceLineNo">488</span><a name="line.488"></a>
+<span class="sourceLineNo">489</span>      optNewArrayArrayMethod =<a name="line.489"></a>
+<span class="sourceLineNo">490</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptLinker.class, "newArrayArray", "(I[II)Ljava/lang/Object;");<a name="line.490"></a>
+<span class="sourceLineNo">491</span>      optNew2DArrayMethod =<a name="line.491"></a>
+<span class="sourceLineNo">492</span>          getMethod(org.jikesrvm.compilers.opt.runtimesupport.OptLinker.class, "new2DArray", "(IIII)Ljava/lang/Object;");<a name="line.492"></a>
+<span class="sourceLineNo">493</span>      sysArrayCopy = getMethod("Ljava/lang/VMCommonLibrarySupport;", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V");<a name="line.493"></a>
+<span class="sourceLineNo">494</span>      sysArrayCopy.setRuntimeServiceMethod(false);<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    } else {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>      specializedMethodsField = null;<a name="line.496"></a>
+<span class="sourceLineNo">497</span>      optThreadSwitchFromOsrOptMethod = null;<a name="line.497"></a>
+<span class="sourceLineNo">498</span>      optThreadSwitchFromPrologueMethod = null;<a name="line.498"></a>
+<span class="sourceLineNo">499</span>      optThreadSwitchFromBackedgeMethod = null;<a name="line.499"></a>
+<span class="sourceLineNo">500</span>      optThreadSwitchFromEpilogueMethod = null;<a name="line.500"></a>
+<span class="sourceLineNo">501</span>      yieldpointFromNativePrologueMethod = null;<a name="line.501"></a>
+<span class="sourceLineNo">502</span>      yieldpointFromNativeEpilogueMethod = null;<a name="line.502"></a>
+<span class="sourceLineNo">503</span>      optResolveMethod = null;<a name="line.503"></a>
+<span class="sourceLineNo">504</span>      optNewArrayArrayMethod = null;<a name="line.504"></a>
+<span class="sourceLineNo">505</span>      optNew2DArrayMethod = null;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>      sysArrayCopy = null;<a name="line.506"></a>
+<span class="sourceLineNo">507</span>    }<a name="line.507"></a>
+<span class="sourceLineNo">508</span>  }<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>  public static final RVMField classLoaderDefinedPackages =<a name="line.510"></a>
+<span class="sourceLineNo">511</span>    getField(java.lang.ClassLoader.class, "definedPackages", java.util.HashMap.class);<a name="line.511"></a>
+<span class="sourceLineNo">512</span><a name="line.512"></a>
+<span class="sourceLineNo">513</span>  public static final RVMField luni1;<a name="line.513"></a>
+<span class="sourceLineNo">514</span>  public static final RVMField luni2;<a name="line.514"></a>
+<span class="sourceLineNo">515</span>  public static final RVMField luni3;<a name="line.515"></a>
+<span class="sourceLineNo">516</span>  public static final RVMField luni4;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>  public static final RVMField luni5;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>  public static final RVMField luni6;<a name="line.518"></a>
+<span class="sourceLineNo">519</span><a name="line.519"></a>
+<span class="sourceLineNo">520</span>  static {<a name="line.520"></a>
+<span class="sourceLineNo">521</span>    if (VM.BuildForHarmony) {<a name="line.521"></a>
+<span class="sourceLineNo">522</span>      luni1 = getField("Lorg/apache/harmony/luni/util/Msg;", "bundle", java.util.ResourceBundle.class);<a name="line.522"></a>
+<span class="sourceLineNo">523</span>      luni2 = getField("Lorg/apache/harmony/archive/internal/nls/Messages;", "bundle", java.util.ResourceBundle.class);<a name="line.523"></a>
+<span class="sourceLineNo">524</span>      luni3 = getField("Lorg/apache/harmony/luni/internal/nls/Messages;", "bundle", java.util.ResourceBundle.class);<a name="line.524"></a>
+<span class="sourceLineNo">525</span>      luni4 = getField("Lorg/apache/harmony/nio/internal/nls/Messages;", "bundle", java.util.ResourceBundle.class);<a name="line.525"></a>
+<span class="sourceLineNo">526</span>      luni5 = getField("Lorg/apache/harmony/niochar/internal/nls/Messages;", "bundle", java.util.ResourceBundle.class);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>      luni6 = getField(java.util.logging.LogManager.class, "manager", java.util.logging.LogManager.class);<a name="line.527"></a>
+<span class="sourceLineNo">528</span>    } else {<a name="line.528"></a>
+<span class="sourceLineNo">529</span>      luni1 = null;<a name="line.529"></a>
+<span class="sourceLineNo">530</span>      luni2 = null;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>      luni3 = null;<a name="line.531"></a>
+<span class="sourceLineNo">532</span>      luni4 = null;<a name="line.532"></a>
+<span class="sourceLineNo">533</span>      luni5 = null;<a name="line.533"></a>
+<span class="sourceLineNo">534</span>      luni6 = null;<a name="line.534"></a>
+<span class="sourceLineNo">535</span>    }<a name="line.535"></a>
+<span class="sourceLineNo">536</span>  }<a name="line.536"></a>
+<span class="sourceLineNo">537</span>}<a name="line.537"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

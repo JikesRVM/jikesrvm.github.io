@@ -1,0 +1,515 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.scheduler;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.SysCall.sysCall;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.vmmagic.pragma.Unpreemptible;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.pragma.NonMoving;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.NoInline;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.vmmagic.pragma.NoOptCompile;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.vmmagic.pragma.BaselineSaveLSRegisters;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.Word;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * Implementation of a heavy lock and condition variable implemented using<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * the primitives available from the operating system.  Currently we use<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * a pthread_mutex_t and pthread_cond_it.  When instantiated, the mutex<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * and cond are allocated.  There is currently no way to destroy either<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * (thus, pool and reuse accordingly).<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * It is perfectly safe to use this throughout the VM for locking.  It is<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * meant to provide roughly the same functionality as Java monitors,<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * except:<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;ul&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;li&gt;This class provides a faster slow path than Java monitors.&lt;/li&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;li&gt;This class provides a slower fast path than Java monitors.&lt;/li&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;li&gt;This class does not have any interaction with Thread.interrupt()<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *     or Thread.stop().  Thus, if you block on a lock or a wait and the<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *     calling thread is stopped or interrupted, nothing will happen<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *     until the lock is acquired or the wait is notified.&lt;/li&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * &lt;li&gt;This class will work in the inner guts of the RVM runtime because<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *     it gives you the ability to lock and unlock, as well as wait and<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *     notify, without using any other VM runtime functionality.&lt;/li&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;li&gt;This class allows you to optionally block without letting the thread<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *     system know that you are blocked.  The benefit is that you can<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *     perform synchronization without depending on RVM thread subsystem functionality.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *     However, most of the time, you should use the methods that inform<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *     the thread system that you are blocking.  Methods that have the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *     "Nicely" suffix will inform the thread system if you are blocked,<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *     while methods that do not have the suffix will either not block<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *     (as is the case with unlock and broadcast) or will block without<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *     letting anyone know (like lock and wait).  Not letting the threading<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *     system know that you are blocked may cause things like GC to stall<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *     until you unblock.&lt;/li&gt;<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * &lt;/ul&gt;<a name="line.57"></a>
+<span class="sourceLineNo">058</span> */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>@Uninterruptible<a name="line.59"></a>
+<span class="sourceLineNo">060</span>@NonMoving<a name="line.60"></a>
+<span class="sourceLineNo">061</span>public class Monitor {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  Word monitor;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  int holderSlot=-1; // use the slot so that we're even more GC safe<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  int recCount;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public int acquireCount;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * Allocate a heavy condition variable and lock.  This involves<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * allocating stuff in C that never gets deallocated.  Thus, don't<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   * instantiate too many of these.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public Monitor() {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    monitor = sysCall.sysMonitorCreate();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * Wait until it is possible to acquire the lock and then acquire it.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * There is no bound on how long you might wait, if someone else is<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * holding the lock and there is no bound on how long they will hold it.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * As well, even if there is a bound on how long a thread might hold a<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * lock but there are multiple threads contending on its acquisition,<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * there will not necessarily be a bound on how long any particular<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * thread will wait until it gets its turn.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * &lt;p&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   * This blocking method method does not notify the threading subsystem<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   * that it is blocking.  Thus, if someone (like, say, the GC) requests<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   * that the thread is blocked then their request will block until this<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * method unblocks.  If this sounds like it might be undesirable, call<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   * lockNicely instead.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  @NoInline<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  @NoOptCompile<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  public void lockNoHandshake() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    int mySlot = RVMThread.getCurrentThreadSlot();<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    if (mySlot != holderSlot) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      sysCall.sysMonitorEnter(monitor);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      if (VM.VerifyAssertions) VM._assert(recCount==0);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      holderSlot = mySlot;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    recCount++;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    acquireCount++;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * Relock the mutex after using unlockCompletely.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  @NoInline<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  @NoOptCompile<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  public void relockNoHandshake(int recCount) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    sysCall.sysMonitorEnter(monitor);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    if (VM.VerifyAssertions) VM._assert(this.recCount==0);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    holderSlot=RVMThread.getCurrentThreadSlot();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    this.recCount=recCount;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    acquireCount++;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   * Wait until it is possible to acquire the lock and then acquire it.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * There is no bound on how long you might wait, if someone else is<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * holding the lock and there is no bound on how long they will hold it.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * As well, even if there is a bound on how long a thread might hold a<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * lock but there are multiple threads contending on its acquisition,<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   * there will not necessarily be a bound on how long any particular<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   * thread will wait until it gets its turn.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   * &lt;p&gt;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * This blocking method method notifies the threading subsystem that it<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * is blocking.  Thus, it may be safer than calling lock.  But,<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * its reliance on threading subsystem accounting methods may mean that<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * it cannot be used in certain contexts (say, the threading subsystem<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * itself).<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * &lt;p&gt;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * This method will ensure that if it blocks, it does so with the<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * mutex not held.  This is useful for cases where the subsystem that<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * requested you to block needs to acquire the lock you were trying to<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * acquire when the blocking request came.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * &lt;p&gt;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * It is usually not necessary to call this method instead of lock(),<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   * since most VM locks are held for short periods of time.<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  @Unpreemptible("If the lock cannot be acquired, this method will allow the thread to be asynchronously blocked")<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  @NoInline<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  @NoOptCompile<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public void lockWithHandshake() {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    int mySlot = RVMThread.getCurrentThreadSlot();<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    if (mySlot != holderSlot) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>      lockWithHandshakeNoRec();<a name="line.144"></a>
+<span class="sourceLineNo">145</span>      if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      if (VM.VerifyAssertions) VM._assert(recCount==0);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      holderSlot = mySlot;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    recCount++;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    acquireCount++;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  @NoInline<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  @NoOptCompile<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  @BaselineSaveLSRegisters<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  @Unpreemptible<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  private void lockWithHandshakeNoRec() {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    RVMThread.saveThreadState();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    lockWithHandshakeNoRecImpl();<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  @NoInline<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  @Unpreemptible<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  @NoOptCompile<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  private void lockWithHandshakeNoRecImpl() {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    for (;;) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      RVMThread.enterNative();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      sysCall.sysMonitorEnter(monitor);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      if (RVMThread.attemptLeaveNativeNoBlock()) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        return;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      } else {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        sysCall.sysMonitorExit(monitor);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>        RVMThread.leaveNative();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>  }<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  /**<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * Relock the mutex after using unlockCompletely, but do so "nicely".<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  @NoInline<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  @NoOptCompile<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  @BaselineSaveLSRegisters<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  @Unpreemptible("If the lock cannot be reacquired, this method may allow the thread to be asynchronously blocked")<a name="line.181"></a>
+<span class="sourceLineNo">182</span>  public void relockWithHandshake(int recCount) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    RVMThread.saveThreadState();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    relockWithHandshakeImpl(recCount);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  @NoInline<a name="line.186"></a>
+<span class="sourceLineNo">187</span>  @Unpreemptible<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  @NoOptCompile<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  private void relockWithHandshakeImpl(int recCount) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    for (;;) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>      RVMThread.enterNative();<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      sysCall.sysMonitorEnter(monitor);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      if (RVMThread.attemptLeaveNativeNoBlock()) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        break;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      } else {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        sysCall.sysMonitorExit(monitor);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        RVMThread.leaveNative();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>      }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    if (VM.VerifyAssertions) VM._assert(this.recCount==0);<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    holderSlot=RVMThread.getCurrentThreadSlot();<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    this.recCount=recCount;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  }<a name="line.204"></a>
+<span class="sourceLineNo">205</span>  /**<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * Release the lock.  This method should (in principle) be non-blocking,<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * and, as such, it does not notify the threading subsystem that it is<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   * blocking.<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   */<a name="line.209"></a>
+<span class="sourceLineNo">210</span>  @NoInline<a name="line.210"></a>
+<span class="sourceLineNo">211</span>  @NoOptCompile<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  public void unlock() {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    if (--recCount==0) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      holderSlot=-1;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      sysCall.sysMonitorExit(monitor);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    }<a name="line.216"></a>
+<span class="sourceLineNo">217</span>  }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>  /**<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   * Completely release the lock, ignoring recursion.  Returns the<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * recursion count.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   */<a name="line.221"></a>
+<span class="sourceLineNo">222</span>  @NoInline<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  @NoOptCompile<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public int unlockCompletely() {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    int result=recCount;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    recCount=0;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    holderSlot=-1;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    sysCall.sysMonitorExit(monitor);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    return result;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>  }<a name="line.230"></a>
+<span class="sourceLineNo">231</span>  /**<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * Wait until someone calls broadcast.<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * &lt;p&gt;<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * This blocking method method does not notify the threading subsystem<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * that it is blocking.  Thus, if someone (like, say, the GC) requests<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * that the thread is blocked then their request will block until this<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   * method unblocks.  If this sounds like it might be undesirable, call<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * waitNicely instead.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   */<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  @NoInline<a name="line.240"></a>
+<span class="sourceLineNo">241</span>  @NoOptCompile<a name="line.241"></a>
+<span class="sourceLineNo">242</span>  public void waitNoHandshake() {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    int recCount=this.recCount;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    this.recCount=0;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    holderSlot=-1;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    sysCall.sysMonitorWait(monitor);<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    if (VM.VerifyAssertions) VM._assert(this.recCount==0);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    this.recCount=recCount;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    holderSlot=RVMThread.getCurrentThreadSlot();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>  }<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  /**<a name="line.252"></a>
+<span class="sourceLineNo">253</span>   * Wait until someone calls broadcast, or until the clock reaches the<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * given time.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   * &lt;p&gt;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>   * This blocking method method does not notify the threading subsystem<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   * that it is blocking.  Thus, if someone (like, say, the GC) requests<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * that the thread is blocked then their request will block until this<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * method unblocks.  If this sounds like it might be undesirable, call<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * timedWaitAbsoluteNicely instead.<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   */<a name="line.261"></a>
+<span class="sourceLineNo">262</span>  @NoInline<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  @NoOptCompile<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  public void timedWaitAbsoluteNoHandshake(long whenWakeupNanos) {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    int recCount=this.recCount;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    this.recCount=0;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    holderSlot=-1;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    sysCall.sysMonitorTimedWaitAbsolute(monitor, whenWakeupNanos);<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    if (VM.VerifyAssertions) VM._assert(holderSlot==-1);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    if (VM.VerifyAssertions) VM._assert(this.recCount==0);<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    this.recCount=recCount;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    holderSlot=RVMThread.getCurrentThreadSlot();<a name="line.272"></a>
+<span class="sourceLineNo">273</span>  }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  /**<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   * Wait until someone calls broadcast, or until at least the given<a name="line.275"></a>
+<span class="sourceLineNo">276</span>   * number of nanoseconds pass.<a name="line.276"></a>
+<span class="sourceLineNo">277</span>   * &lt;p&gt;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>   * This blocking method method does not notify the threading subsystem<a name="line.278"></a>
+<span class="sourceLineNo">279</span>   * that it is blocking.  Thus, if someone (like, say, the GC) requests<a name="line.279"></a>
+<span class="sourceLineNo">280</span>   * that the thread is blocked then their request will block until this<a name="line.280"></a>
+<span class="sourceLineNo">281</span>   * method unblocks.  If this sounds like it might be undesirable, call<a name="line.281"></a>
+<span class="sourceLineNo">282</span>   * timedWaitRelativeNicely instead.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>   */<a name="line.283"></a>
+<span class="sourceLineNo">284</span>  @NoInline<a name="line.284"></a>
+<span class="sourceLineNo">285</span>  @NoOptCompile<a name="line.285"></a>
+<span class="sourceLineNo">286</span>  public void timedWaitRelativeNoHandshake(long delayNanos) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    long now=sysCall.sysNanoTime();<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    timedWaitAbsoluteNoHandshake(now+delayNanos);<a name="line.288"></a>
+<span class="sourceLineNo">289</span>  }<a name="line.289"></a>
+<span class="sourceLineNo">290</span>  /**<a name="line.290"></a>
+<span class="sourceLineNo">291</span>   * Wait until someone calls broadcast.<a name="line.291"></a>
+<span class="sourceLineNo">292</span>   * &lt;p&gt;<a name="line.292"></a>
+<span class="sourceLineNo">293</span>   * This blocking method notifies the threading subsystem that it<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * is blocking.  Thus, it is generally safer than calling wait.  But,<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   * its reliance on threading subsystem accounting methods may mean that<a name="line.295"></a>
+<span class="sourceLineNo">296</span>   * it cannot be used in certain contexts (say, the threading subsystem<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   * itself).<a name="line.297"></a>
+<span class="sourceLineNo">298</span>   * &lt;p&gt;<a name="line.298"></a>
+<span class="sourceLineNo">299</span>   * This method will ensure that if it blocks, it does so with the<a name="line.299"></a>
+<span class="sourceLineNo">300</span>   * mutex not held.  This is useful for cases where the subsystem that<a name="line.300"></a>
+<span class="sourceLineNo">301</span>   * requested you to block needs to acquire the lock you were trying to<a name="line.301"></a>
+<span class="sourceLineNo">302</span>   * acquire when the blocking request came.<a name="line.302"></a>
+<span class="sourceLineNo">303</span>   */<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  @NoInline<a name="line.304"></a>
+<span class="sourceLineNo">305</span>  @NoOptCompile<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  @BaselineSaveLSRegisters<a name="line.306"></a>
+<span class="sourceLineNo">307</span>  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")<a name="line.307"></a>
+<span class="sourceLineNo">308</span>  public void waitWithHandshake() {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    RVMThread.saveThreadState();<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    waitWithHandshakeImpl();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>  }<a name="line.311"></a>
+<span class="sourceLineNo">312</span>  @NoInline<a name="line.312"></a>
+<span class="sourceLineNo">313</span>  @Unpreemptible<a name="line.313"></a>
+<span class="sourceLineNo">314</span>  @NoOptCompile<a name="line.314"></a>
+<span class="sourceLineNo">315</span>  private void waitWithHandshakeImpl() {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    RVMThread.enterNative();<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    waitNoHandshake();<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    int recCount=unlockCompletely();<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    RVMThread.leaveNative();<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    relockWithHandshakeImpl(recCount);<a name="line.320"></a>
+<span class="sourceLineNo">321</span>  }<a name="line.321"></a>
+<span class="sourceLineNo">322</span>  /**<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   * Wait until someone calls broadcast, or until the clock reaches the<a name="line.323"></a>
+<span class="sourceLineNo">324</span>   * given time.<a name="line.324"></a>
+<span class="sourceLineNo">325</span>   * &lt;p&gt;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>   * This blocking method method notifies the threading subsystem that it<a name="line.326"></a>
+<span class="sourceLineNo">327</span>   * is blocking.  Thus, it is generally safer than calling<a name="line.327"></a>
+<span class="sourceLineNo">328</span>   * timedWaitAbsolute.  But, its reliance on threading subsystem accounting<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * methods may mean that it cannot be used in certain contexts (say, the<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * threading subsystem itself).<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * &lt;p&gt;<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   * This method will ensure that if it blocks, it does so with the<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   * mutex not held.  This is useful for cases where the subsystem that<a name="line.333"></a>
+<span class="sourceLineNo">334</span>   * requested you to block needs to acquire the lock you were trying to<a name="line.334"></a>
+<span class="sourceLineNo">335</span>   * acquire when the blocking request came.<a name="line.335"></a>
+<span class="sourceLineNo">336</span>   */<a name="line.336"></a>
+<span class="sourceLineNo">337</span>  @NoInline<a name="line.337"></a>
+<span class="sourceLineNo">338</span>  @NoOptCompile<a name="line.338"></a>
+<span class="sourceLineNo">339</span>  @BaselineSaveLSRegisters<a name="line.339"></a>
+<span class="sourceLineNo">340</span>  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")<a name="line.340"></a>
+<span class="sourceLineNo">341</span>  public void timedWaitAbsoluteWithHandshake(long whenWakeupNanos) {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    RVMThread.saveThreadState();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    timedWaitAbsoluteWithHandshakeImpl(whenWakeupNanos);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>  }<a name="line.344"></a>
+<span class="sourceLineNo">345</span>  @NoInline<a name="line.345"></a>
+<span class="sourceLineNo">346</span>  @Unpreemptible<a name="line.346"></a>
+<span class="sourceLineNo">347</span>  @NoOptCompile<a name="line.347"></a>
+<span class="sourceLineNo">348</span>  private void timedWaitAbsoluteWithHandshakeImpl(long whenWakeupNanos) {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    RVMThread.enterNative();<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    timedWaitAbsoluteNoHandshake(whenWakeupNanos);<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    int recCount=unlockCompletely();<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    RVMThread.leaveNative();<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    relockWithHandshakeImpl(recCount);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>  }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>  /**<a name="line.355"></a>
+<span class="sourceLineNo">356</span>   * Wait until someone calls broadcast, or until at least the given<a name="line.356"></a>
+<span class="sourceLineNo">357</span>   * number of nanoseconds pass.<a name="line.357"></a>
+<span class="sourceLineNo">358</span>   * &lt;p&gt;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>   * This blocking method method notifies the threading subsystem that it<a name="line.359"></a>
+<span class="sourceLineNo">360</span>   * is blocking.  Thus, it is generally safer than calling<a name="line.360"></a>
+<span class="sourceLineNo">361</span>   * timedWaitRelative.  But, its reliance on threading subsystem accounting<a name="line.361"></a>
+<span class="sourceLineNo">362</span>   * methods may mean that it cannot be used in certain contexts (say, the<a name="line.362"></a>
+<span class="sourceLineNo">363</span>   * threading subsystem itself).<a name="line.363"></a>
+<span class="sourceLineNo">364</span>   * &lt;p&gt;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>   * This method will ensure that if it blocks, it does so with the<a name="line.365"></a>
+<span class="sourceLineNo">366</span>   * mutex not held.  This is useful for cases where the subsystem that<a name="line.366"></a>
+<span class="sourceLineNo">367</span>   * requested you to block needs to acquire the lock you were trying to<a name="line.367"></a>
+<span class="sourceLineNo">368</span>   * acquire when the blocking request came.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   */<a name="line.369"></a>
+<span class="sourceLineNo">370</span>  @NoInline<a name="line.370"></a>
+<span class="sourceLineNo">371</span>  @NoOptCompile<a name="line.371"></a>
+<span class="sourceLineNo">372</span>  @BaselineSaveLSRegisters<a name="line.372"></a>
+<span class="sourceLineNo">373</span>  @Unpreemptible("While the thread is waiting, this method may allow the thread to be asynchronously blocked")<a name="line.373"></a>
+<span class="sourceLineNo">374</span>  public void timedWaitRelativeWithHandshake(long delayNanos) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    RVMThread.saveThreadState();<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    timedWaitRelativeWithHandshakeImpl(delayNanos);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>  }<a name="line.377"></a>
+<span class="sourceLineNo">378</span>  @NoInline<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  @Unpreemptible<a name="line.379"></a>
+<span class="sourceLineNo">380</span>  @NoOptCompile<a name="line.380"></a>
+<span class="sourceLineNo">381</span>  private void timedWaitRelativeWithHandshakeImpl(long delayNanos) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>    RVMThread.enterNative();<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    timedWaitRelativeNoHandshake(delayNanos);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>    int recCount=unlockCompletely();<a name="line.384"></a>
+<span class="sourceLineNo">385</span>    RVMThread.leaveNative();<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    relockWithHandshakeImpl(recCount);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>  }<a name="line.387"></a>
+<span class="sourceLineNo">388</span><a name="line.388"></a>
+<span class="sourceLineNo">389</span>  /**<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * Send a broadcast, which should awaken anyone who is currently blocked<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * in any of the wait methods.  This method should (in principle) be<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   * non-blocking, and, as such, it does not notify the threading subsystem<a name="line.392"></a>
+<span class="sourceLineNo">393</span>   * that it is blocking.<a name="line.393"></a>
+<span class="sourceLineNo">394</span>   */<a name="line.394"></a>
+<span class="sourceLineNo">395</span>  @NoInline<a name="line.395"></a>
+<span class="sourceLineNo">396</span>  @NoOptCompile<a name="line.396"></a>
+<span class="sourceLineNo">397</span>  public void broadcast() {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>    sysCall.sysMonitorBroadcast(monitor);<a name="line.398"></a>
+<span class="sourceLineNo">399</span>  }<a name="line.399"></a>
+<span class="sourceLineNo">400</span>  /**<a name="line.400"></a>
+<span class="sourceLineNo">401</span>   * Send a broadcast after first acquiring the lock.  Release the lock<a name="line.401"></a>
+<span class="sourceLineNo">402</span>   * after sending the broadcast.  In most cases where you want to send<a name="line.402"></a>
+<span class="sourceLineNo">403</span>   * a broadcast but you don't need to acquire the lock to set the<a name="line.403"></a>
+<span class="sourceLineNo">404</span>   * condition that the other thread(s) are waiting on, you want to call<a name="line.404"></a>
+<span class="sourceLineNo">405</span>   * this method instead of &lt;code&gt;broadcast&lt;/code&gt;.<a name="line.405"></a>
+<span class="sourceLineNo">406</span>   */<a name="line.406"></a>
+<span class="sourceLineNo">407</span>  @NoInline<a name="line.407"></a>
+<span class="sourceLineNo">408</span>  @NoOptCompile<a name="line.408"></a>
+<span class="sourceLineNo">409</span>  public void lockedBroadcastNoHandshake() {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    lockNoHandshake();<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    broadcast();<a name="line.411"></a>
+<span class="sourceLineNo">412</span>    unlock();<a name="line.412"></a>
+<span class="sourceLineNo">413</span>  }<a name="line.413"></a>
+<span class="sourceLineNo">414</span><a name="line.414"></a>
+<span class="sourceLineNo">415</span>  @NoInline<a name="line.415"></a>
+<span class="sourceLineNo">416</span>  public static boolean lockNoHandshake(Monitor l) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    if (l==null) {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>      return false;<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    } else {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>      l.lockNoHandshake();<a name="line.420"></a>
+<span class="sourceLineNo">421</span>      return true;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>    }<a name="line.422"></a>
+<span class="sourceLineNo">423</span>  }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>  @NoInline<a name="line.424"></a>
+<span class="sourceLineNo">425</span>  public static void unlock(boolean b, Monitor l) {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>    if (b) l.unlock();<a name="line.426"></a>
+<span class="sourceLineNo">427</span>  }<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>  @NoInline<a name="line.429"></a>
+<span class="sourceLineNo">430</span>  @NoOptCompile<a name="line.430"></a>
+<span class="sourceLineNo">431</span>  @Unpreemptible<a name="line.431"></a>
+<span class="sourceLineNo">432</span>  public static void lockWithHandshake(Monitor m1,Word priority1,<a name="line.432"></a>
+<span class="sourceLineNo">433</span>                                       Monitor m2,Word priority2) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    if (priority1.LE(priority2)) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>      m1.lockWithHandshake();<a name="line.435"></a>
+<span class="sourceLineNo">436</span>      m2.lockWithHandshake();<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    } else {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      m2.lockWithHandshake();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>      m1.lockWithHandshake();<a name="line.439"></a>
+<span class="sourceLineNo">440</span>    }<a name="line.440"></a>
+<span class="sourceLineNo">441</span>  }<a name="line.441"></a>
+<span class="sourceLineNo">442</span>}<a name="line.442"></a>
+<span class="sourceLineNo">443</span><a name="line.443"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

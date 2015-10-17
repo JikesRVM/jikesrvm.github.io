@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.objectmodel;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.classloader.SpecializedMethodManager;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * Layout the TIB (Type Information Block).<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * &lt;p&gt;<a name="line.20"></a>
+<span class="sourceLineNo">021</span> *<a name="line.21"></a>
+<span class="sourceLineNo">022</span> *  &lt;pre&gt;<a name="line.22"></a>
+<span class="sourceLineNo">023</span> *  --------------------------------------------------------------------------------------------<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *                        Type Information Block (TIB) Layout Constants<a name="line.24"></a>
+<span class="sourceLineNo">025</span> *  --------------------------------------------------------------------------------------------<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *                                 Object[] (type info block)        RVMType (class info)<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *                                    /                              /<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *            +--------------------+              +--------------+<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *            |    TIB pointer     |              |  TIB pointer |<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *            +--------------------+              +--------------+<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *            |      status        |              |    status    |<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *            +--------------------+              +--------------+<a name="line.33"></a>
+<span class="sourceLineNo">034</span> *            |      length        |              |    field0    |<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *            +--------------------+              +--------------+<a name="line.35"></a>
+<span class="sourceLineNo">036</span> *    TIB:  0:|       type         +------------&gt; |     ...      |<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *            +--------------------+              +--------------+<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *          1:|   superclass ids   +--&gt;           |   fieldN-1   |<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *            +--------------------+              +--------------+<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *          2:|  implements trits  +--&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *            +--------------------+<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *          3:|  array element TIB +--&gt;<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *            +--------------------+<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *          4:|     iTABLES/IMT    +--&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *            +--------------------+<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *          5:|  specialized 0     +--&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *            +--------------------+<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *            |       ...          +--&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *            +--------------------+<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *         V0:|  virtual method 0  +-----+<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *            +--------------------+     |<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *            |       ...          |     |                         INSTRUCTION[] (machine code)<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *            +--------------------+     |                        /<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *       VN-1:| virtual method N-1 |     |        +--------------+<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *            +--------------------+     |        |  TIB pointer |<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *                                       |        +--------------+<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *                                       |        |    status    |<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *                                       |        +--------------+<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *                                       |        |    length    |<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *                                       |        +--------------+<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *                                       +-------&gt;|    code0     |<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *                                                +--------------+<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *                                                |      ...     |<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *                                                +--------------+<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *                                                |    codeN-1   |<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *                                                +--------------+<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * &lt;/pre&gt;<a name="line.68"></a>
+<span class="sourceLineNo">069</span> */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>public interface TIBLayoutConstants {<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /** Number of slots reserved for interface method pointers. */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  int IMT_METHOD_SLOTS = VM.BuildForIMTInterfaceInvocation ? 29 : 0;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>  /** First slot of TIB points to RVMType (slot 0 in above diagram). */<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  int TIB_TYPE_INDEX = 0;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /** A vector of ids for classes that this one extends. See<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   DynamicTypeCheck.java */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  int TIB_SUPERCLASS_IDS_INDEX = TIB_TYPE_INDEX + 1;<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>  /** Does this class implement the ith interface? See DynamicTypeCheck.java */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  int TIB_DOES_IMPLEMENT_INDEX = TIB_SUPERCLASS_IDS_INDEX + 1;<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>  /** The TIB of the elements type of an array (may be {@code null} in fringe cases<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   *  when element type couldn't be resolved during array resolution).<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   *  Will be {@code null} when not an array.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  int TIB_ARRAY_ELEMENT_TIB_INDEX = TIB_DOES_IMPLEMENT_INDEX + 1;<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   * A pointer to either an ITable or InterfaceMethodTable (IMT)<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * depending on which dispatch implementation we are using.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  int TIB_INTERFACE_DISPATCH_TABLE_INDEX = TIB_ARRAY_ELEMENT_TIB_INDEX + 1;<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   *  A set of 0 or more specialized methods used in the VM such as for GC scanning.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   */<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  int TIB_FIRST_SPECIALIZED_METHOD_INDEX = TIB_INTERFACE_DISPATCH_TABLE_INDEX + 1;<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * Next group of slots point to virtual method code blocks (slots V1..VN in above diagram).<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  int TIB_FIRST_VIRTUAL_METHOD_INDEX = TIB_FIRST_SPECIALIZED_METHOD_INDEX + SpecializedMethodManager.numSpecializedMethods();<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * Special value returned by RVMClassLoader.getFieldOffset() or<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * RVMClassLoader.getMethodOffset() to indicate fields or methods<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * that must be accessed via dynamic linking code because their<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   * offset is not yet known or the class's static initializer has not<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * yet been run.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   *<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   *  We choose a value that will never match a valid jtoc-,<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   *  instance-, or virtual method table- offset. Short.MIN_VALUE+1 is<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   *  a good value:<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   *<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   *  &lt;ul&gt;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   *  &lt;li&gt;the jtoc offsets are aligned and this value should be<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   *  too huge to address the table&lt;/li&gt;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   *  &lt;li&gt;instance field offsets are always &amp;gte; -4&lt;/li&gt;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   *  &lt;li&gt;virtual method offsets are always positive w.r.t. TIB pointer&lt;/li&gt;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   *  &lt;li&gt;fits into a PowerPC 16bit immediate operand&lt;/li&gt;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   *   &lt;/ul&gt;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>  int NEEDS_DYNAMIC_LINK = Short.MIN_VALUE + 1;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>}<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

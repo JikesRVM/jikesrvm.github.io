@@ -1,0 +1,434 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>GCMapIteratorGroup (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GCMapIteratorGroup (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GCMapIteratorGroup.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mminterface/HandInlinedScanning.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html" target="_top">Frames</a></li>
+<li><a href="GCMapIteratorGroup.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.mm.mminterface</div>
+<h2 title="Class GCMapIteratorGroup" class="title">Class GCMapIteratorGroup</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.mm.mminterface.GCMapIteratorGroup</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.44">GCMapIteratorGroup</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></pre>
+<div class="block">Maintains a collection of compiler specific GCMapIterators that are used
+ by collection threads when scanning thread stacks to locate object references
+ in those stacks. Each collector thread has its own GCMapIteratorGroup.
+ <p>
+ The group contains a GCMapIterator for each type of stack frame that
+ may be found while scanning a stack during garbage collection, including
+ frames for baseline compiled methods, OPT compiled methods, and frames
+ for transitions from Java into JNI native code. These iterators are
+ responsible for reporting the location of references in the stack or
+ register save areas.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface"><code>GCMapIterator</code></a>, 
+<a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common"><code>CompiledMethod</code></a>, 
+<a href="../../../../org/jikesrvm/mm/mminterface/CollectorThread.html" title="class in org.jikesrvm.mm.mminterface"><code>CollectorThread</code></a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#baselineIterator">baselineIterator</a></strong></code>
+<div class="block">iterator for baseline compiled frames</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#hardwareTrapIterator">hardwareTrapIterator</a></strong></code>
+<div class="block">iterator for HardwareTrap stackframes</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#jniIterator">jniIterator</a></strong></code>
+<div class="block">iterator for JNI Java -> C  stackframes</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#optIterator">optIterator</a></strong></code>
+<div class="block">iterator for opt compiled frames</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/WordArray.html" title="class in org.vmmagic.unboxed">WordArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#registerLocations">registerLocations</a></strong></code>
+<div class="block">current location (memory address) of each gpr register</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#GCMapIteratorGroup()">GCMapIteratorGroup</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#getJniIterator()">getJniIterator</a></strong>()</code>
+<div class="block">get the GCMapIterator used for scanning JNI native stack frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#newStackWalk(org.jikesrvm.scheduler.RVMThread,%20org.vmmagic.unboxed.Address)">newStackWalk</a></strong>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+                        <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;registerLocation)</code>
+<div class="block">Prepare to scan a thread's stack for object references.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#selectIterator(org.jikesrvm.compilers.common.CompiledMethod)">selectIterator</a></strong>(<a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>&nbsp;compiledMethod)</code>
+<div class="block">Select iterator for scanning for object references in a stackframe.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="registerLocations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerLocations</h4>
+<pre>private final&nbsp;<a href="../../../../org/vmmagic/unboxed/WordArray.html" title="class in org.vmmagic.unboxed">WordArray</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.47">registerLocations</a></pre>
+<div class="block">current location (memory address) of each gpr register</div>
+</li>
+</ul>
+<a name="baselineIterator">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>baselineIterator</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.50">baselineIterator</a></pre>
+<div class="block">iterator for baseline compiled frames</div>
+</li>
+</ul>
+<a name="optIterator">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>optIterator</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.53">optIterator</a></pre>
+<div class="block">iterator for opt compiled frames</div>
+</li>
+</ul>
+<a name="hardwareTrapIterator">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hardwareTrapIterator</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.56">hardwareTrapIterator</a></pre>
+<div class="block">iterator for HardwareTrap stackframes</div>
+</li>
+</ul>
+<a name="jniIterator">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>jniIterator</h4>
+<pre>private final&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a> <a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.59">jniIterator</a></pre>
+<div class="block">iterator for JNI Java -> C  stackframes</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="GCMapIteratorGroup()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>GCMapIteratorGroup</h4>
+<pre>public&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.61">GCMapIteratorGroup</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="newStackWalk(org.jikesrvm.scheduler.RVMThread, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>newStackWalk</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.88">newStackWalk</a>(<a href="../../../../org/jikesrvm/scheduler/RVMThread.html" title="class in org.jikesrvm.scheduler">RVMThread</a>&nbsp;thread,
+                <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;registerLocation)</pre>
+<div class="block">Prepare to scan a thread's stack for object references.
+ Called by collector threads when beginning to scan a threads stack.
+ Calls newStackWalk for each of the contained GCMapIterators.
+ <p>
+ Assumption:  the thread is currently suspended, ie. its saved gprs[]
+ contain the thread's full register state.
+ <p>
+ Side effect: registerLocations[] initialized with pointers to the
+ thread's saved gprs[] (in thread.contextRegisters.gprs)
+ <p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>thread</code> - Thread whose registers and stack are to be scanned</dd></dl>
+</li>
+</ul>
+<a name="selectIterator(org.jikesrvm.compilers.common.CompiledMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>selectIterator</h4>
+<pre>public&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.111">selectIterator</a>(<a href="../../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>&nbsp;compiledMethod)</pre>
+<div class="block">Select iterator for scanning for object references in a stackframe.
+ Called by collector threads while scanning a threads stack.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>compiledMethod</code> - CompiledMethod for the method executing
+                        in the stack frame</dd>
+<dt><span class="strong">Returns:</span></dt><dd>GCMapIterator to use</dd></dl>
+</li>
+</ul>
+<a name="getJniIterator()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getJniIterator</h4>
+<pre>public&nbsp;<a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface">GCMapIterator</a>&nbsp;<a href="../../../../src-html/org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html#line.134">getJniIterator</a>()</pre>
+<div class="block">get the GCMapIterator used for scanning JNI native stack frames.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>jniIterator</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/GCMapIteratorGroup.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/jikesrvm/mm/mminterface/GCMapIterator.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/jikesrvm/mm/mminterface/HandInlinedScanning.html" title="class in org.jikesrvm.mm.mminterface"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/jikesrvm/mm/mminterface/GCMapIteratorGroup.html" target="_top">Frames</a></li>
+<li><a href="GCMapIteratorGroup.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

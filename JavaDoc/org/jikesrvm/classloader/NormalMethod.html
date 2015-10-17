@@ -1,0 +1,1527 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>NormalMethod (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="NormalMethod (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/NormalMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/classloader/NativeMethod.html" title="class in org.jikesrvm.classloader"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/classloader/Primitive.html" title="class in org.jikesrvm.classloader"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/classloader/NormalMethod.html" target="_top">Frames</a></li>
+<li><a href="NormalMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.classloader</div>
+<h2 title="Class NormalMethod" class="title">Class NormalMethod</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.AnnotatedElement</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/classloader/RVMMember.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.RVMMember</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.RVMMethod</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.classloader.NormalMethod</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/reflect/AnnotatedElement.html?is-external=true" title="class or interface in java.lang.reflect">AnnotatedElement</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html" title="interface in org.jikesrvm.classloader">BytecodeConstants</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a>, <a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a>, <a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.26">NormalMethod</a>
+extends <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>
+implements <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html" title="interface in org.jikesrvm.classloader">BytecodeConstants</a></pre>
+<div class="block">A method of a java class that has bytecodes.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#ALLOCATION_COST">ALLOCATION_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#ARRAY_LOAD_COST">ARRAY_LOAD_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#ARRAY_STORE_COST">ARRAY_STORE_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#bytecodes">bytecodes</a></strong></code>
+<div class="block">bytecodes for this method (<code>null</code> --> none)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#CALL_COST">CALL_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#CLASS_CHECK_COST">CLASS_CHECK_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#exceptionHandlerMap">exceptionHandlerMap</a></strong></code>
+<div class="block">try/catch/finally blocks for this method (<code>null</code> --> none)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_ALLOCATION">HAS_ALLOCATION</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_ARRAY_READ">HAS_ARRAY_READ</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_ARRAY_WRITE">HAS_ARRAY_WRITE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_BACK_BRANCH">HAS_BACK_BRANCH</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_COND_BRANCH">HAS_COND_BRANCH</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_FIELD_READ">HAS_FIELD_READ</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_FIELD_WRITE">HAS_FIELD_WRITE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_INVOKE">HAS_INVOKE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_JSR">HAS_JSR</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_MAGIC">HAS_MAGIC</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_SWITCH">HAS_SWITCH</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_SYNCH">HAS_SYNCH</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#HAS_THROW">HAS_THROW</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#IS_RS_METHOD">IS_RS_METHOD</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#JSR_COST">JSR_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#lineNumberMap">lineNumberMap</a></strong></code>
+<div class="block">pc to source-line info (<code>null</code> --> none)
+ Each entry contains both the line number (upper 16 bits)
+ and corresponding start PC (lower 16 bits).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,<a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#localVariableTables">localVariableTables</a></strong></code>
+<div class="block">the local variable table</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private short</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#localWords">localWords</a></strong></code>
+<div class="block">words needed for local variables (including parameters)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#LONG_OPERATION_COST">LONG_OPERATION_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#MAGIC_COST">MAGIC_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private short</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#operandWords">operandWords</a></strong></code>
+<div class="block">words needed for operand stack (high water mark)
+ TODO: OSR redesign;  add subclass of NormalMethod for OSR method
+       and then make this field final in NormalMethod.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,byte[]&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#osrPrologues">osrPrologues</a></strong></code>
+<div class="block">Possible OSR record of osr prologue</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#savedOperandWords">savedOperandWords</a></strong></code>
+<div class="block">Possibly OSR prologue may change the maximum stack height, remember the
+ original stack height</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#SIMPLE_OPERATION_COST">SIMPLE_OPERATION_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#STORE_CHECK_COST">STORE_CHECK_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#summaryFlags">summaryFlags</a></strong></code>
+<div class="block">storage for bytecode summary flags</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#summarySize">summarySize</a></strong></code>
+<div class="block">storage for bytecode summary size</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#SWITCH_COST">SWITCH_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#SYNCH_COST">SYNCH_COST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,byte[]&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#synthesizedBytecodes">synthesizedBytecodes</a></strong></code>
+<div class="block">Possible OSR bytecode array consisting of prologue and original bytecodes</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#THROW_COST">THROW_COST</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.RVMMethod">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#currentCompiledMethod">currentCompiledMethod</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.RVMMember">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMMember.html" title="class in org.jikesrvm.classloader">RVMMember</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMMember.html#memRef">memRef</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#modifiers">modifiers</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#offset">offset</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.AnnotatedElement">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">AnnotatedElement</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#declaredAnnotationDatas">declaredAnnotationDatas</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.BytecodeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/BytecodeConstants.html" title="interface in org.jikesrvm.classloader">BytecodeConstants</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aaload">JBC_aaload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aastore">JBC_aastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aconst_null">JBC_aconst_null</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aload">JBC_aload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aload_0">JBC_aload_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aload_1">JBC_aload_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aload_2">JBC_aload_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_aload_3">JBC_aload_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_anewarray">JBC_anewarray</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_areturn">JBC_areturn</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_arraylength">JBC_arraylength</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_astore">JBC_astore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_astore_0">JBC_astore_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_astore_1">JBC_astore_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_astore_2">JBC_astore_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_astore_3">JBC_astore_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_athrow">JBC_athrow</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_baload">JBC_baload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_bastore">JBC_bastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_bipush">JBC_bipush</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_caload">JBC_caload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_castore">JBC_castore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_checkcast">JBC_checkcast</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_d2f">JBC_d2f</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_d2i">JBC_d2i</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_d2l">JBC_d2l</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dadd">JBC_dadd</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_daload">JBC_daload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dastore">JBC_dastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dcmpg">JBC_dcmpg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dcmpl">JBC_dcmpl</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dconst_0">JBC_dconst_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dconst_1">JBC_dconst_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ddiv">JBC_ddiv</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dload">JBC_dload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dload_0">JBC_dload_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dload_1">JBC_dload_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dload_2">JBC_dload_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dload_3">JBC_dload_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dmul">JBC_dmul</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dneg">JBC_dneg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_drem">JBC_drem</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dreturn">JBC_dreturn</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dstore">JBC_dstore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dstore_0">JBC_dstore_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dstore_1">JBC_dstore_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dstore_2">JBC_dstore_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dstore_3">JBC_dstore_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dsub">JBC_dsub</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup">JBC_dup</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup_x1">JBC_dup_x1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup_x2">JBC_dup_x2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup2">JBC_dup2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup2_x1">JBC_dup2_x1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_dup2_x2">JBC_dup2_x2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_f2d">JBC_f2d</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_f2i">JBC_f2i</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_f2l">JBC_f2l</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fadd">JBC_fadd</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_faload">JBC_faload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fastore">JBC_fastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fcmpg">JBC_fcmpg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fcmpl">JBC_fcmpl</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fconst_0">JBC_fconst_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fconst_1">JBC_fconst_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fconst_2">JBC_fconst_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fdiv">JBC_fdiv</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fload">JBC_fload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fload_0">JBC_fload_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fload_1">JBC_fload_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fload_2">JBC_fload_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fload_3">JBC_fload_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fmul">JBC_fmul</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fneg">JBC_fneg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_frem">JBC_frem</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_freturn">JBC_freturn</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fstore">JBC_fstore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fstore_0">JBC_fstore_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fstore_1">JBC_fstore_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fstore_2">JBC_fstore_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fstore_3">JBC_fstore_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_fsub">JBC_fsub</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_getfield">JBC_getfield</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_getstatic">JBC_getstatic</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_goto">JBC_goto</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_goto_w">JBC_goto_w</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_i2d">JBC_i2d</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_i2f">JBC_i2f</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_i2l">JBC_i2l</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iadd">JBC_iadd</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iaload">JBC_iaload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iand">JBC_iand</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iastore">JBC_iastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_0">JBC_iconst_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_1">JBC_iconst_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_2">JBC_iconst_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_3">JBC_iconst_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_4">JBC_iconst_4</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_5">JBC_iconst_5</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iconst_m1">JBC_iconst_m1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_idiv">JBC_idiv</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_acmpeq">JBC_if_acmpeq</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_acmpne">JBC_if_acmpne</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmpeq">JBC_if_icmpeq</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmpge">JBC_if_icmpge</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmpgt">JBC_if_icmpgt</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmple">JBC_if_icmple</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmplt">JBC_if_icmplt</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_if_icmpne">JBC_if_icmpne</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifeq">JBC_ifeq</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifge">JBC_ifge</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifgt">JBC_ifgt</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifle">JBC_ifle</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iflt">JBC_iflt</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifne">JBC_ifne</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifnonnull">JBC_ifnonnull</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ifnull">JBC_ifnull</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iinc">JBC_iinc</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iload">JBC_iload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iload_0">JBC_iload_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iload_1">JBC_iload_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iload_2">JBC_iload_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iload_3">JBC_iload_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_impdep1">JBC_impdep1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_impdep2">JBC_impdep2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_imul">JBC_imul</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ineg">JBC_ineg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_instanceof">JBC_instanceof</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_int2byte">JBC_int2byte</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_int2char">JBC_int2char</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_int2short">JBC_int2short</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_invokeinterface">JBC_invokeinterface</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_invokespecial">JBC_invokespecial</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_invokestatic">JBC_invokestatic</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_invokevirtual">JBC_invokevirtual</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ior">JBC_ior</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_irem">JBC_irem</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ireturn">JBC_ireturn</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ishl">JBC_ishl</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ishr">JBC_ishr</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_istore">JBC_istore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_istore_0">JBC_istore_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_istore_1">JBC_istore_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_istore_2">JBC_istore_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_istore_3">JBC_istore_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_isub">JBC_isub</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_iushr">JBC_iushr</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ixor">JBC_ixor</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_jsr">JBC_jsr</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_jsr_w">JBC_jsr_w</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_l2d">JBC_l2d</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_l2f">JBC_l2f</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_l2i">JBC_l2i</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ladd">JBC_ladd</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_laload">JBC_laload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_land">JBC_land</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lastore">JBC_lastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lcmp">JBC_lcmp</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lconst_0">JBC_lconst_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lconst_1">JBC_lconst_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ldc">JBC_ldc</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ldc_w">JBC_ldc_w</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ldc2_w">JBC_ldc2_w</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ldiv">JBC_ldiv</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_length">JBC_length</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lload">JBC_lload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lload_0">JBC_lload_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lload_1">JBC_lload_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lload_2">JBC_lload_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lload_3">JBC_lload_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lmul">JBC_lmul</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lneg">JBC_lneg</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lookupswitch">JBC_lookupswitch</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lor">JBC_lor</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lrem">JBC_lrem</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lreturn">JBC_lreturn</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lshl">JBC_lshl</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lshr">JBC_lshr</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lstore">JBC_lstore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lstore_0">JBC_lstore_0</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lstore_1">JBC_lstore_1</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lstore_2">JBC_lstore_2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lstore_3">JBC_lstore_3</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lsub">JBC_lsub</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lushr">JBC_lushr</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_lxor">JBC_lxor</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_monitorenter">JBC_monitorenter</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_monitorexit">JBC_monitorexit</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_multianewarray">JBC_multianewarray</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_name">JBC_name</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_new">JBC_new</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_newarray">JBC_newarray</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_nop">JBC_nop</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_pop">JBC_pop</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_pop2">JBC_pop2</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_putfield">JBC_putfield</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_putstatic">JBC_putstatic</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_ret">JBC_ret</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_return">JBC_return</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_saload">JBC_saload</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_sastore">JBC_sastore</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_sipush">JBC_sipush</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_swap">JBC_swap</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_tableswitch">JBC_tableswitch</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_wide">JBC_wide</a>, <a href="../../../org/jikesrvm/classloader/BytecodeConstants.html#JBC_xxxunusedxxx">JBC_xxxunusedxxx</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a></h3>
+<code><a href="../../../org/jikesrvm/Constants.html#NOT_REACHED">NOT_REACHED</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_BITS">REFLECTION_FPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_MASK">REFLECTION_FPRS_MASK</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_BITS">REFLECTION_GPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_MASK">REFLECTION_GPRS_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.ThinLockConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_OFFSET">TL_DEDICATED_U16_OFFSET</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_SHIFT">TL_DEDICATED_U16_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_MASK">TL_LOCK_COUNT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_SHIFT">TL_LOCK_COUNT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_UNIT">TL_LOCK_COUNT_UNIT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_MASK">TL_LOCK_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_SHIFT">TL_LOCK_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_RC">TL_NUM_BITS_RC</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_STAT">TL_NUM_BITS_STAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_TID">TL_NUM_BITS_TID</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_BIASABLE">TL_STAT_BIASABLE</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_FAT">TL_STAT_FAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_MASK">TL_STAT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_SHIFT">TL_STAT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_THIN">TL_STAT_THIN</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_MASK">TL_THREAD_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_SHIFT">TL_THREAD_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_UNLOCK_MASK">TL_UNLOCK_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.TIBLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#IMT_METHOD_SLOTS">IMT_METHOD_SLOTS</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#NEEDS_DYNAMIC_LINK">NEEDS_DYNAMIC_LINK</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_ARRAY_ELEMENT_TIB_INDEX">TIB_ARRAY_ELEMENT_TIB_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_DOES_IMPLEMENT_INDEX">TIB_DOES_IMPLEMENT_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_SPECIALIZED_METHOD_INDEX">TIB_FIRST_SPECIALIZED_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_VIRTUAL_METHOD_INDEX">TIB_FIRST_VIRTUAL_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_INTERFACE_DISPATCH_TABLE_INDEX">TIB_INTERFACE_DISPATCH_TABLE_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_SUPERCLASS_IDS_INDEX">TIB_SUPERCLASS_IDS_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_TYPE_INDEX">TIB_TYPE_INDEX</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.HeapLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/HeapLayoutConstants.html#BAD_MAP_COMPRESSION">BAD_MAP_COMPRESSION</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_END">BOOT_IMAGE_CODE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_SIZE">BOOT_IMAGE_CODE_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_START">BOOT_IMAGE_CODE_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_END">BOOT_IMAGE_DATA_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_SIZE">BOOT_IMAGE_DATA_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_START">BOOT_IMAGE_DATA_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_END">BOOT_IMAGE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_END">BOOT_IMAGE_RMAP_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_START">BOOT_IMAGE_RMAP_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAX_BOOT_IMAGE_RMAP_SIZE">MAX_BOOT_IMAGE_RMAP_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAXIMUM_MAPPABLE">MAXIMUM_MAPPABLE</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.ClassLoaderConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ABSTRACT">ACC_ABSTRACT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ANNOTATION">ACC_ANNOTATION</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ENUM">ACC_ENUM</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_FINAL">ACC_FINAL</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_INTERFACE">ACC_INTERFACE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_NATIVE">ACC_NATIVE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PRIVATE">ACC_PRIVATE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PROTECTED">ACC_PROTECTED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PUBLIC">ACC_PUBLIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STATIC">ACC_STATIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STRICT">ACC_STRICT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SUPER">ACC_SUPER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNCHRONIZED">ACC_SYNCHRONIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNTHETIC">ACC_SYNTHETIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_TRANSIENT">ACC_TRANSIENT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_VOLATILE">ACC_VOLATILE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_CLASSES">APPLICABLE_TO_CLASSES</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_FIELDS">APPLICABLE_TO_FIELDS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_METHODS">APPLICABLE_TO_METHODS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ArrayTypeCode">ArrayTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BooleanTypeCode">BooleanTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BRIDGE">BRIDGE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ByteTypeCode">ByteTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CharTypeCode">CharTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZED">CLASS_INITIALIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZER_FAILED">CLASS_INITIALIZER_FAILED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZING">CLASS_INITIALIZING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INSTANTIATED">CLASS_INSTANTIATED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_LOADED">CLASS_LOADED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_RESOLVED">CLASS_RESOLVED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_VACANT">CLASS_VACANT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ClassTypeCode">ClassTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_CLASS">CP_CLASS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_DOUBLE">CP_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_FLOAT">CP_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_INT">CP_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_LONG">CP_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_MEMBER">CP_MEMBER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_STRING">CP_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_UTF">CP_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#DoubleTypeCode">DoubleTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#FloatTypeCode">FloatTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#IntTypeCode">IntTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#LongTypeCode">LongTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ShortTypeCode">ShortTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_DOUBLE">TAG_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FIELDREF">TAG_FIELDREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FLOAT">TAG_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INT">TAG_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INTERFACE_METHODREF">TAG_INTERFACE_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_LONG">TAG_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_MEMBERNAME_AND_DESCRIPTOR">TAG_MEMBERNAME_AND_DESCRIPTOR</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_METHODREF">TAG_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_STRING">TAG_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_TYPEREF">TAG_TYPEREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UNUSED">TAG_UNUSED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UTF">TAG_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VARARGS">VARARGS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VoidTypeCode">VoidTypeCode</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#NormalMethod(org.jikesrvm.classloader.TypeReference,%20org.jikesrvm.classloader.MemberReference,%20short,%20org.jikesrvm.classloader.TypeReference[],%20short,%20short,%20byte[],%20org.jikesrvm.classloader.ExceptionHandlerMap,%20int[],%20org.jikesrvm.classloader.LocalVariableTable,%20int[],%20org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.RVMAnnotation[],%20org.jikesrvm.classloader.RVMAnnotation[][],%20java.lang.Object)">NormalMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;dc,
+                        <a href="../../../org/jikesrvm/classloader/MemberReference.html" title="class in org.jikesrvm.classloader">MemberReference</a>&nbsp;mr,
+                        short&nbsp;mo,
+                        <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;et,
+                        short&nbsp;lw,
+                        short&nbsp;ow,
+                        byte[]&nbsp;bc,
+                        <a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a>&nbsp;eMap,
+                        int[]&nbsp;lm,
+                        <a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a>&nbsp;lvt,
+                        int[]&nbsp;constantPool,
+                        <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;sig,
+                        <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[]&nbsp;annotations,
+                        <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[][]&nbsp;parameterAnnotations,
+                        <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;ad)</code>
+<div class="block">Construct a normal Java bytecode method's information</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#computeSummary(int[])">computeSummary</a></strong>(int[]&nbsp;constantPool)</code>
+<div class="block">This method computes a summary of interesting method characteristics
+ and stores an encoding of the summary as an int.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#finalizeOsrSpecialization()">finalizeOsrSpecialization</a></strong>()</code>
+<div class="block">Restores the original state of the method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#genCode()">genCode</a></strong>()</code>
+<div class="block">Generate the code for this method</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getBytecodeLength()">getBytecodeLength</a></strong>()</code>
+<div class="block">Size of bytecodes for this method</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getBytecodes()">getBytecodes</a></strong>()</code>
+<div class="block">Get a representation of the bytecodes in the code attribute of this method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getDynamicLink(org.jikesrvm.runtime.DynamicLink,%20int)">getDynamicLink</a></strong>(<a href="../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime">DynamicLink</a>&nbsp;dynamicLink,
+                            int&nbsp;bcIndex)</code>
+<div class="block">Fill in DynamicLink object for the invoke at the given bytecode index</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getExceptionHandlerMap()">getExceptionHandlerMap</a></strong>()</code>
+<div class="block">Exceptions caught by this method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getLineNumberForBCIndex(int)">getLineNumberForBCIndex</a></strong>(int&nbsp;bci)</code>
+<div class="block">Return the line number information for the argument bytecode index.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getLocalVariableTable()">getLocalVariableTable</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getLocalWords()">getLocalWords</a></strong>()</code>
+<div class="block">Space required by this method for its local variables, in words.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getOperandWords()">getOperandWords</a></strong>()</code>
+<div class="block">Space required by this method for its operand stack, in words.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getOsrPrologue()">getOsrPrologue</a></strong>()</code>
+<div class="block">Returns a bytecode stream of osr prologue</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getOsrPrologueLength()">getOsrPrologueLength</a></strong>()</code>
+<div class="block">Returns the OSR prologue length for adjusting various tables and maps.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#getOsrSynthesizedBytecodes()">getOsrSynthesizedBytecodes</a></strong>()</code>
+<div class="block">Returns the synthesized bytecode stream with osr prologue</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasAllocation()">hasAllocation</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasArrayRead()">hasArrayRead</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasArrayWrite()">hasArrayWrite</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasBackwardsBranch()">hasBackwardsBranch</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasCondBranch()">hasCondBranch</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasFieldRead()">hasFieldRead</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasFieldWrite()">hasFieldWrite</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasInvoke()">hasInvoke</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasJSR()">hasJSR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasMagic()">hasMagic</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasSwitch()">hasSwitch</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasSynch()">hasSynch</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#hasThrow()">hasThrow</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#inlinedSizeEstimate()">inlinedSizeEstimate</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#isForOsrSpecialization()">isForOsrSpecialization</a></strong>()</code>
+<div class="block">Checks if the method is in state for OSR specialization now</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#isRuntimeServiceMethod()">isRuntimeServiceMethod</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#mayWrite(org.jikesrvm.classloader.RVMField)">mayWrite</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#recomputeSummary(int[])">recomputeSummary</a></strong>(int[]&nbsp;constantPool)</code>
+<div class="block">For use by <a href="../../../org/jikesrvm/classloader/RVMClass.html#allBootImageTypesResolved()"><code>RVMClass.allBootImageTypesResolved()</code></a> only.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#setForOsrSpecialization(byte[],%20short)">setForOsrSpecialization</a></strong>(byte[]&nbsp;prologue,
+                                              short&nbsp;newStackHeight)</code>
+<div class="block">Sets method in state for OSR specialization, i.e, the subsequent calls
+ of <a href="../../../org/jikesrvm/classloader/NormalMethod.html#getBytecodes()"><code>getBytecodes()</code></a> return the stream of specialized bytecodes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/NormalMethod.html#setRuntimeServiceMethod(boolean)">setRuntimeServiceMethod</a></strong>(boolean&nbsp;value)</code>
+<div class="block">Set the value of the 'runtime service method' flag to the argument
+ value.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.RVMMethod">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#compile()">compile</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#createAnnotationInit(org.jikesrvm.classloader.TypeReference,%20int[],%20org.jikesrvm.classloader.MemberReference,%20int,%20org.jikesrvm.classloader.RVMField[],%20org.jikesrvm.classloader.RVMMethod[],%20int[])">createAnnotationInit</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#createAnnotationMethod(org.jikesrvm.classloader.TypeReference,%20int[],%20org.jikesrvm.classloader.MemberReference,%20org.jikesrvm.classloader.RVMMethod,%20int)">createAnnotationMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#createDefaultConstructor(org.jikesrvm.classloader.TypeReference,%20org.jikesrvm.classloader.MemberReference)">createDefaultConstructor</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#createReflectionMethod(org.jikesrvm.classloader.TypeReference,%20int[],%20org.jikesrvm.classloader.MethodReference)">createReflectionMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#findOrCreateJtocOffset()">findOrCreateJtocOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getAnnotationDefault()">getAnnotationDefault</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getCurrentCompiledMethod()">getCurrentCompiledMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getCurrentEntryCodeArray()">getCurrentEntryCodeArray</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getDeclaredParameterAnnotations()">getDeclaredParameterAnnotations</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getExceptionTypes()">getExceptionTypes</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getInvoker()">getInvoker</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getParameterTypes()">getParameterTypes</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getParameterWords()">getParameterWords</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#getReturnType()">getReturnType</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#hasNoInlinePragma()">hasNoInlinePragma</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#invalidateCompiledMethod(org.jikesrvm.compilers.common.CompiledMethod)">invalidateCompiledMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isAbstract()">isAbstract</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isBridge()">isBridge</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isClassInitializer()">isClassInitializer</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isCompiled()">isCompiled</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isFinal()">isFinal</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isInterruptible()">isInterruptible</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isNative()">isNative</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isNonMovingAllocation()">isNonMovingAllocation</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isObjectInitializer()">isObjectInitializer</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isObjectInitializerHelper()">isObjectInitializerHelper</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isPure()">isPure</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isRuntimePure()">isRuntimePure</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isSpecializedInvoke()">isSpecializedInvoke</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isStatic()">isStatic</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isStrictFP()">isStrictFP</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isSynchronized()">isSynchronized</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isSynthetic()">isSynthetic</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isSysCall()">isSysCall</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isUninterruptible()">isUninterruptible</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isUnpreemptible()">isUnpreemptible</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#isVarArgs()">isVarArgs</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#readMethod(org.jikesrvm.classloader.TypeReference,%20int[],%20org.jikesrvm.classloader.MemberReference,%20short,%20java.io.DataInputStream)">readMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMMethod.html#replaceCompiledMethod(org.jikesrvm.compilers.common.CompiledMethod)">replaceCompiledMethod</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.RVMMember">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMMember.html" title="class in org.jikesrvm.classloader">RVMMember</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMMember.html#getDeclaringClass()">getDeclaringClass</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getDescriptor()">getDescriptor</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getId()">getId</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getMemberRef()">getMemberRef</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getModifiers()">getModifiers</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getName()">getName</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getOffset()">getOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#getSignature()">getSignature</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#hashCode()">hashCode</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#hasOffset()">hasOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#isPrivate()">isPrivate</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#isProtected()">isProtected</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#isPublic()">isPublic</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#setOffset(org.vmmagic.unboxed.Offset)">setOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMMember.html#toString()">toString</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.AnnotatedElement">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">AnnotatedElement</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotation(java.lang.Class)">getAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotations()">getAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotationsInternal()">getAnnotationsInternal</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getDeclaredAnnotations()">getDeclaredAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getDeclaredAnnotationsInternal()">getDeclaredAnnotationsInternal</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasAnnotations()">hasAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasBaselineNoRegistersAnnotation()">hasBaselineNoRegistersAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasBaselineSaveLSRegistersAnnotation()">hasBaselineSaveLSRegistersAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasInlineAnnotation()">hasInlineAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasInterruptibleAnnotation()">hasInterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasLogicallyUninterruptibleAnnotation()">hasLogicallyUninterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoBoundsCheckAnnotation()">hasNoBoundsCheckAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoCheckStoreAnnotation()">hasNoCheckStoreAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoEscapesAnnotation()">hasNoEscapesAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoInlineAnnotation()">hasNoInlineAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNonMovingAllocationAnnotation()">hasNonMovingAllocationAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNonMovingAnnotation()">hasNonMovingAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoNullCheckAnnotation()">hasNoNullCheckAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoOptCompileAnnotation()">hasNoOptCompileAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasPreemptibleAnnotation()">hasPreemptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasPureAnnotation()">hasPureAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasRuntimeFinalAnnotation()">hasRuntimeFinalAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasRuntimePureAnnotation()">hasRuntimePureAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUninterruptibleAnnotation()">hasUninterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUninterruptibleNoWarnAnnotation()">hasUninterruptibleNoWarnAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUnpreemptibleAnnotation()">hasUnpreemptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUnpreemptibleNoWarnAnnotation()">hasUnpreemptibleNoWarnAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUntracedAnnotation()">hasUntracedAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#isAnnotationDeclared(org.jikesrvm.classloader.TypeReference)">isAnnotationDeclared</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#isAnnotationPresent(java.lang.Class)">isAnnotationPresent</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#readAnnotations(int[],%20java.io.DataInputStream,%20java.lang.ClassLoader)">readAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#toAnnotations(java.lang.Object)">toAnnotations</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="SIMPLE_OPERATION_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SIMPLE_OPERATION_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.40">SIMPLE_OPERATION_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.SIMPLE_OPERATION_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="LONG_OPERATION_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LONG_OPERATION_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.41">LONG_OPERATION_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.LONG_OPERATION_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="ARRAY_LOAD_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ARRAY_LOAD_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.42">ARRAY_LOAD_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.ARRAY_LOAD_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="ARRAY_STORE_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ARRAY_STORE_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.43">ARRAY_STORE_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.ARRAY_STORE_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="JSR_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>JSR_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.44">JSR_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.JSR_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="CALL_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CALL_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.45">CALL_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.CALL_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MAGIC_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAGIC_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.48">MAGIC_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.MAGIC_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="ALLOCATION_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ALLOCATION_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.54">ALLOCATION_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.ALLOCATION_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="CLASS_CHECK_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CLASS_CHECK_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.56">CLASS_CHECK_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.CLASS_CHECK_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="STORE_CHECK_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STORE_CHECK_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.57">STORE_CHECK_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.STORE_CHECK_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="THROW_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>THROW_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.59">THROW_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.THROW_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="SYNCH_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SYNCH_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.64">SYNCH_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.SYNCH_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="SWITCH_COST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SWITCH_COST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.68">SWITCH_COST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.SWITCH_COST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_MAGIC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_MAGIC</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.71">HAS_MAGIC</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_MAGIC">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_SYNCH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_SYNCH</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.72">HAS_SYNCH</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_SYNCH">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_ALLOCATION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_ALLOCATION</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.73">HAS_ALLOCATION</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_ALLOCATION">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_THROW">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_THROW</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.74">HAS_THROW</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_THROW">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_INVOKE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_INVOKE</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.75">HAS_INVOKE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_INVOKE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_FIELD_READ">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_FIELD_READ</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.76">HAS_FIELD_READ</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_FIELD_READ">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_FIELD_WRITE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_FIELD_WRITE</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.77">HAS_FIELD_WRITE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_FIELD_WRITE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_ARRAY_READ">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_ARRAY_READ</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.78">HAS_ARRAY_READ</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_ARRAY_READ">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_ARRAY_WRITE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_ARRAY_WRITE</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.79">HAS_ARRAY_WRITE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_ARRAY_WRITE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_JSR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_JSR</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.80">HAS_JSR</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_JSR">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_COND_BRANCH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_COND_BRANCH</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.81">HAS_COND_BRANCH</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_COND_BRANCH">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_SWITCH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_SWITCH</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.82">HAS_SWITCH</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_SWITCH">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="HAS_BACK_BRANCH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>HAS_BACK_BRANCH</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.83">HAS_BACK_BRANCH</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.HAS_BACK_BRANCH">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="IS_RS_METHOD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>IS_RS_METHOD</h4>
+<pre>private static final&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.84">IS_RS_METHOD</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.classloader.NormalMethod.IS_RS_METHOD">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="summaryFlags">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>summaryFlags</h4>
+<pre>private&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.89">summaryFlags</a></pre>
+<div class="block">storage for bytecode summary flags</div>
+</li>
+</ul>
+<a name="summarySize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>summarySize</h4>
+<pre>private&nbsp;char <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.93">summarySize</a></pre>
+<div class="block">storage for bytecode summary size</div>
+</li>
+</ul>
+<a name="localWords">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>localWords</h4>
+<pre>private final&nbsp;short <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.98">localWords</a></pre>
+<div class="block">words needed for local variables (including parameters)</div>
+</li>
+</ul>
+<a name="operandWords">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>operandWords</h4>
+<pre>private&nbsp;short <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.105">operandWords</a></pre>
+<div class="block">words needed for operand stack (high water mark)
+ TODO: OSR redesign;  add subclass of NormalMethod for OSR method
+       and then make this field final in NormalMethod.</div>
+</li>
+</ul>
+<a name="bytecodes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bytecodes</h4>
+<pre>private final&nbsp;byte[] <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.110">bytecodes</a></pre>
+<div class="block">bytecodes for this method (<code>null</code> --> none)</div>
+</li>
+</ul>
+<a name="exceptionHandlerMap">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exceptionHandlerMap</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a> <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.115">exceptionHandlerMap</a></pre>
+<div class="block">try/catch/finally blocks for this method (<code>null</code> --> none)</div>
+</li>
+</ul>
+<a name="lineNumberMap">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lineNumberMap</h4>
+<pre>private final&nbsp;int[] <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.122">lineNumberMap</a></pre>
+<div class="block">pc to source-line info (<code>null</code> --> none)
+ Each entry contains both the line number (upper 16 bits)
+ and corresponding start PC (lower 16 bits).</div>
+</li>
+</ul>
+<a name="localVariableTables">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>localVariableTables</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,<a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a>&gt; <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.127">localVariableTables</a></pre>
+<div class="block">the local variable table</div>
+</li>
+</ul>
+<a name="synthesizedBytecodes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>synthesizedBytecodes</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,byte[]&gt; <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.131">synthesizedBytecodes</a></pre>
+<div class="block">Possible OSR bytecode array consisting of prologue and original bytecodes</div>
+</li>
+</ul>
+<a name="osrPrologues">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>osrPrologues</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,byte[]&gt; <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.134">osrPrologues</a></pre>
+<div class="block">Possible OSR record of osr prologue</div>
+</li>
+</ul>
+<a name="savedOperandWords">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>savedOperandWords</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/util/HashMapRVM.html" title="class in org.jikesrvm.util">HashMapRVM</a>&lt;<a href="../../../org/jikesrvm/classloader/NormalMethod.html" title="class in org.jikesrvm.classloader">NormalMethod</a>,<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</a>&gt; <a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.140">savedOperandWords</a></pre>
+<div class="block">Possibly OSR prologue may change the maximum stack height, remember the
+ original stack height</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="NormalMethod(org.jikesrvm.classloader.TypeReference, org.jikesrvm.classloader.MemberReference, short, org.jikesrvm.classloader.TypeReference[], short, short, byte[], org.jikesrvm.classloader.ExceptionHandlerMap, int[], org.jikesrvm.classloader.LocalVariableTable, int[], org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.RVMAnnotation[], org.jikesrvm.classloader.RVMAnnotation[][], java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>NormalMethod</h4>
+<pre><a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.162">NormalMethod</a>(<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;dc,
+            <a href="../../../org/jikesrvm/classloader/MemberReference.html" title="class in org.jikesrvm.classloader">MemberReference</a>&nbsp;mr,
+            short&nbsp;mo,
+            <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;et,
+            short&nbsp;lw,
+            short&nbsp;ow,
+            byte[]&nbsp;bc,
+            <a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a>&nbsp;eMap,
+            int[]&nbsp;lm,
+            <a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a>&nbsp;lvt,
+            int[]&nbsp;constantPool,
+            <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;sig,
+            <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[]&nbsp;annotations,
+            <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[][]&nbsp;parameterAnnotations,
+            <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;ad)</pre>
+<div class="block">Construct a normal Java bytecode method's information</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>dc</code> - the TypeReference object of the class that declared this field</dd><dd><code>mr</code> - the canonical memberReference for this member.</dd><dd><code>mo</code> - modifiers associated with this member.</dd><dd><code>et</code> - exceptions thrown by this method.</dd><dd><code>lw</code> - the number of local words used by the bytecode of this method</dd><dd><code>ow</code> - the number of operand words used by the bytecode of this method</dd><dd><code>bc</code> - the bytecodes of this method</dd><dd><code>eMap</code> - the exception handler map for this method</dd><dd><code>lm</code> - the line number map for this method</dd><dd><code>lvt</code> - the local variable table for this method</dd><dd><code>constantPool</code> - the constantPool for this method</dd><dd><code>sig</code> - generic type of this method.</dd><dd><code>annotations</code> - array of runtime visible annotations</dd><dd><code>parameterAnnotations</code> - array of runtime visible paramter annotations</dd><dd><code>ad</code> - annotation default value for that appears in annotation classes</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="genCode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>genCode</h4>
+<pre>protected&nbsp;<a href="../../../org/jikesrvm/compilers/common/CompiledMethod.html" title="class in org.jikesrvm.compilers.common">CompiledMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.176">genCode</a>()
+                          throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/VerifyError.html?is-external=true" title="class or interface in java.lang">VerifyError</a></pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#genCode()">RVMMethod</a></code></strong></div>
+<div class="block">Generate the code for this method</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#genCode()">genCode</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/VerifyError.html?is-external=true" title="class or interface in java.lang">VerifyError</a></code></dd></dl>
+</li>
+</ul>
+<a name="getLocalWords()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLocalWords</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.189">getLocalWords</a>()</pre>
+<div class="block">Space required by this method for its local variables, in words.
+ Note: local variables include parameters</div>
+</li>
+</ul>
+<a name="getOperandWords()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOperandWords</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.197">getOperandWords</a>()</pre>
+<div class="block">Space required by this method for its operand stack, in words.</div>
+</li>
+</ul>
+<a name="getBytecodes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBytecodes</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.205">getBytecodes</a>()</pre>
+<div class="block">Get a representation of the bytecodes in the code attribute of this method.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>object representing the bytecodes</dd></dl>
+</li>
+</ul>
+<a name="getDynamicLink(org.jikesrvm.runtime.DynamicLink, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDynamicLink</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.215">getDynamicLink</a>(<a href="../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime">DynamicLink</a>&nbsp;dynamicLink,
+                  int&nbsp;bcIndex)</pre>
+<div class="block">Fill in DynamicLink object for the invoke at the given bytecode index</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>dynamicLink</code> - the dynamicLink object to initialize</dd><dd><code>bcIndex</code> - the bcIndex of the invoke instruction</dd></dl>
+</li>
+</ul>
+<a name="getBytecodeLength()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBytecodeLength</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.230">getBytecodeLength</a>()</pre>
+<div class="block">Size of bytecodes for this method</div>
+</li>
+</ul>
+<a name="getExceptionHandlerMap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getExceptionHandlerMap</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/ExceptionHandlerMap.html" title="class in org.jikesrvm.classloader">ExceptionHandlerMap</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.239">getExceptionHandlerMap</a>()</pre>
+<div class="block">Exceptions caught by this method.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>info (null --> method doesn't catch any exceptions)</dd></dl>
+</li>
+</ul>
+<a name="getLineNumberForBCIndex(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLineNumberForBCIndex</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.248">getLineNumberForBCIndex</a>(int&nbsp;bci)</pre>
+<div class="block">Return the line number information for the argument bytecode index.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>The line number, a positive integer.  Zero means unable to find.</dd></dl>
+</li>
+</ul>
+<a name="isForOsrSpecialization()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isForOsrSpecialization</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.272">isForOsrSpecialization</a>()</pre>
+<div class="block">Checks if the method is in state for OSR specialization now</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code>, if it is (with prologue)</dd></dl>
+</li>
+</ul>
+<a name="setForOsrSpecialization(byte[], short)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setForOsrSpecialization</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.287">setForOsrSpecialization</a>(byte[]&nbsp;prologue,
+                           short&nbsp;newStackHeight)</pre>
+<div class="block">Sets method in state for OSR specialization, i.e, the subsequent calls
+ of <a href="../../../org/jikesrvm/classloader/NormalMethod.html#getBytecodes()"><code>getBytecodes()</code></a> return the stream of specialized bytecodes.<p>
+
+ NB: between flag and action, it should not allow GC or threadSwitch happen.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>prologue</code> - The bytecode of prologue</dd><dd><code>newStackHeight</code> - The prologue may change the default height of
+                        stack</dd></dl>
+</li>
+</ul>
+<a name="finalizeOsrSpecialization()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>finalizeOsrSpecialization</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.315">finalizeOsrSpecialization</a>()</pre>
+<div class="block">Restores the original state of the method.</div>
+</li>
+</ul>
+<a name="getOsrPrologueLength()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOsrPrologueLength</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.338">getOsrPrologueLength</a>()</pre>
+<div class="block">Returns the OSR prologue length for adjusting various tables and maps.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the length of prologue if the method is in state for OSR,
+         0 otherwise.</dd></dl>
+</li>
+</ul>
+<a name="getOsrPrologue()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOsrPrologue</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.352">getOsrPrologue</a>()</pre>
+<div class="block">Returns a bytecode stream of osr prologue</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>osr prologue bytecode stream</dd></dl>
+</li>
+</ul>
+<a name="getOsrSynthesizedBytecodes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOsrSynthesizedBytecodes</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/BytecodeStream.html" title="class in org.jikesrvm.classloader">BytecodeStream</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.369">getOsrSynthesizedBytecodes</a>()</pre>
+<div class="block">Returns the synthesized bytecode stream with osr prologue</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>bytecode stream</dd></dl>
+</li>
+</ul>
+<a name="inlinedSizeEstimate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>inlinedSizeEstimate</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.386">inlinedSizeEstimate</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>An estimate of the expected size of the machine code instructions
+ that will be generated by the opt compiler if the method is inlined.</dd></dl>
+</li>
+</ul>
+<a name="hasMagic()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasMagic</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.393">hasMagic</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a Magic.xxx or Address.yyy</dd></dl>
+</li>
+</ul>
+<a name="hasSynch()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasSynch</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.400">hasSynch</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a monitorenter/exit or is synchronized</dd></dl>
+</li>
+</ul>
+<a name="hasAllocation()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasAllocation</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.407">hasAllocation</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains an allocation</dd></dl>
+</li>
+</ul>
+<a name="hasThrow()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasThrow</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.414">hasThrow</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains an athrow</dd></dl>
+</li>
+</ul>
+<a name="hasInvoke()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasInvoke</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.421">hasInvoke</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains an invoke</dd></dl>
+</li>
+</ul>
+<a name="hasFieldRead()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasFieldRead</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.428">hasFieldRead</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a getfield or getstatic</dd></dl>
+</li>
+</ul>
+<a name="hasFieldWrite()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasFieldWrite</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.435">hasFieldWrite</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a putfield or putstatic</dd></dl>
+</li>
+</ul>
+<a name="hasArrayRead()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasArrayRead</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.442">hasArrayRead</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains an array load</dd></dl>
+</li>
+</ul>
+<a name="hasArrayWrite()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasArrayWrite</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.449">hasArrayWrite</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains an array store</dd></dl>
+</li>
+</ul>
+<a name="hasJSR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasJSR</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.456">hasJSR</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a jsr</dd></dl>
+</li>
+</ul>
+<a name="hasCondBranch()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasCondBranch</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.463">hasCondBranch</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a conditional branch</dd></dl>
+</li>
+</ul>
+<a name="hasSwitch()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasSwitch</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.470">hasSwitch</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a switch</dd></dl>
+</li>
+</ul>
+<a name="hasBackwardsBranch()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasBackwardsBranch</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.477">hasBackwardsBranch</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method contains a backwards branch</dd></dl>
+</li>
+</ul>
+<a name="isRuntimeServiceMethod()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isRuntimeServiceMethod</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.482">isRuntimeServiceMethod</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#isRuntimeServiceMethod()">isRuntimeServiceMethod</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method is the implementation of a runtime service
+ that is called "under the covers" from the generated code and thus is not subject to
+ inlining via the normal mechanisms.</dd></dl>
+</li>
+</ul>
+<a name="setRuntimeServiceMethod(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRuntimeServiceMethod</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.495">setRuntimeServiceMethod</a>(boolean&nbsp;value)</pre>
+<div class="block">Set the value of the 'runtime service method' flag to the argument
+ value.  A method is considered to be a runtime service method if it
+ is only/primarily invoked "under the covers" from the generated code
+ and thus is not subject to inlining via the normal mechanisms.
+ For example, the implementations of bytecodes such as new or checkcast
+ or the implementation of yieldpoints.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - <code>true</code> if this is a runtime service method, false it is not.</dd></dl>
+</li>
+</ul>
+<a name="mayWrite(org.jikesrvm.classloader.RVMField)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mayWrite</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.504">mayWrite</a>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field)</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html#mayWrite(org.jikesrvm.classloader.RVMField)">mayWrite</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the method may write to a given field</dd></dl>
+</li>
+</ul>
+<a name="recomputeSummary(int[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recomputeSummary</h4>
+<pre>void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.523">recomputeSummary</a>(int[]&nbsp;constantPool)</pre>
+<div class="block">For use by <a href="../../../org/jikesrvm/classloader/RVMClass.html#allBootImageTypesResolved()"><code>RVMClass.allBootImageTypesResolved()</code></a> only.</div>
+</li>
+</ul>
+<a name="computeSummary(int[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>computeSummary</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.536">computeSummary</a>(int[]&nbsp;constantPool)</pre>
+<div class="block">This method computes a summary of interesting method characteristics
+ and stores an encoding of the summary as an int.</div>
+</li>
+</ul>
+<a name="getLocalVariableTable()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getLocalVariableTable</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/LocalVariableTable.html" title="class in org.jikesrvm.classloader">LocalVariableTable</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/NormalMethod.html#line.791">getLocalVariableTable</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>LocalVariableTable associated with this method</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/NormalMethod.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/classloader/NativeMethod.html" title="class in org.jikesrvm.classloader"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/classloader/Primitive.html" title="class in org.jikesrvm.classloader"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/classloader/NormalMethod.html" target="_top">Frames</a></li>
+<li><a href="NormalMethod.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>Allocator (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Allocator (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Allocator.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li>Prev Class</li>
+<li><a href="../../../../org/mmtk/utility/alloc/BlockAllocator.html" title="class in org.mmtk.utility.alloc"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/mmtk/utility/alloc/Allocator.html" target="_top">Frames</a></li>
+<li><a href="Allocator.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.mmtk.utility.alloc</div>
+<h2 title="Class Allocator" class="title">Class Allocator</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.mmtk.utility.alloc.Allocator</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html" title="class in org.mmtk.utility.alloc">BumpPointer</a>, <a href="../../../../org/mmtk/utility/alloc/ImmixAllocator.html" title="class in org.mmtk.utility.alloc">ImmixAllocator</a>, <a href="../../../../org/mmtk/utility/alloc/LargeObjectAllocator.html" title="class in org.mmtk.utility.alloc">LargeObjectAllocator</a>, <a href="../../../../org/mmtk/utility/alloc/SegregatedFreeList.html" title="class in org.mmtk.utility.alloc">SegregatedFreeList</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public abstract class <a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.42">Allocator</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></pre>
+<div class="block">This abstract base class provides the basis for processor-local
+ allocation.  The key functionality provided is the retry mechanism
+ that is necessary to correctly handle the fact that a "slow-path"
+ allocation can cause a GC which violate the uninterruptability assumption.
+ This results in the thread being moved to a different processor so that
+ the allocator object it is using is not actually the one for the processor
+ it is running on.<p>
+
+ This class also includes functionality to assist allocators with
+ ensuring that requests are aligned according to requests.<p>
+
+ Failing to handle this properly will lead to very hard to trace bugs
+ where the allocation that caused a GC or allocations immediately following
+ GC are run incorrectly.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocationSuccess">allocationSuccess</a></strong></code>
+<div class="block">Has an allocation succeeded since the emergency collection?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#collectionAttempts">collectionAttempts</a></strong></code>
+<div class="block">Maximum number of failed attempts by a single thread</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../org/mmtk/vm/Lock.html" title="class in org.mmtk.vm">Lock</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#oomLock">oomLock</a></strong></code>
+<div class="block">Lock used for out of memory handling</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.mmtk.utility.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.mmtk.utility.<a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></h3>
+<code><a href="../../../../org/mmtk/utility/Constants.html#ALIGNMENT_VALUE">ALIGNMENT_VALUE</a>, <a href="../../../../org/mmtk/utility/Constants.html#ARRAY_ELEMENT">ARRAY_ELEMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_KBYTE">BYTES_IN_KBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_MBYTE">BYTES_IN_MBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#CARD_MASK">CARD_MASK</a>, <a href="../../../../org/mmtk/utility/Constants.html#CARD_META_PAGES_PER_REGION">CARD_META_PAGES_PER_REGION</a>, <a href="../../../../org/mmtk/utility/Constants.html#INSTANCE_FIELD">INSTANCE_FIELD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS_SPACE">LOG_BYTES_IN_ADDRESS_SPACE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_KBYTE">LOG_BYTES_IN_KBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_MBYTE">LOG_BYTES_IN_MBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_BYTES">LOG_CARD_BYTES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_GRAIN">LOG_CARD_GRAIN</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_BYTES">LOG_CARD_META_BYTES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_PAGES">LOG_CARD_META_PAGES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_SIZE">LOG_CARD_META_SIZE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_UNITS">LOG_CARD_UNITS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_MIN_ALIGNMENT">LOG_MIN_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_ALIGNMENT">MAX_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_BYTES_PADDING">MAX_BYTES_PADDING</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_INT">MAX_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MIN_ALIGNMENT">MIN_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MIN_INT">MIN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#SUPPORT_CARD_SCANNING">SUPPORT_CARD_SCANNING</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#Allocator()">Allocator</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocation(org.vmmagic.unboxed.Address,%20int,%20int)">alignAllocation</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                              int&nbsp;alignment,
+                              int&nbsp;offset)</code>
+<div class="block">Aligns up an allocation request.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocation(org.vmmagic.unboxed.Address,%20int,%20int,%20int,%20boolean)">alignAllocation</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                              int&nbsp;alignment,
+                              int&nbsp;offset,
+                              int&nbsp;knownAlignment,
+                              boolean&nbsp;fillAlignmentGap)</code>
+<div class="block">Aligns up an allocation request.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocationNoFill(org.vmmagic.unboxed.Address,%20int,%20int)">alignAllocationNoFill</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                                          int&nbsp;alignment,
+                                          int&nbsp;offset)</code>
+<div class="block">Aligns up an allocation request.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlow(int,%20int,%20int)">allocSlow</a></strong>(int&nbsp;bytes,
+                  int&nbsp;alignment,
+                  int&nbsp;offset)</code>
+<div class="block"><b>Out-of-line</b> slow path allocation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlowInline(int,%20int,%20int)">allocSlowInline</a></strong>(int&nbsp;bytes,
+                              int&nbsp;alignment,
+                              int&nbsp;offset)</code>
+<div class="block"><b>Inline</b> slow path allocation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected abstract <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlowOnce(int,%20int,%20int)">allocSlowOnce</a></strong>(int&nbsp;bytes,
+                          int&nbsp;alignment,
+                          int&nbsp;offset)</code>
+<div class="block">Single slow path allocation attempt.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#determineCollectionAttempts()">determineCollectionAttempts</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#fillAlignmentGap(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">fillAlignmentGap</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                                <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end)</code>
+<div class="block">Fill the specified region with the alignment value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#getMaximumAlignedSize(int,%20int)">getMaximumAlignedSize</a></strong>(int&nbsp;size,
+                                          int&nbsp;alignment)</code>
+<div class="block">This method calculates the minimum size that will guarantee the allocation
+ of a specified number of bytes at the specified alignment.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#getMaximumAlignedSize(int,%20int,%20int)">getMaximumAlignedSize</a></strong>(int&nbsp;size,
+                                          int&nbsp;alignment,
+                                          int&nbsp;knownAlignment)</code>
+<div class="block">This method calculates the minimum size that will guarantee the allocation
+ of a specified number of bytes at the specified alignment.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected abstract <a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/Allocator.html#getSpace()">getSpace</a></strong>()</code>
+<div class="block">Return the space this allocator is currently bound to.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="oomLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>oomLock</h4>
+<pre>private static&nbsp;<a href="../../../../org/mmtk/vm/Lock.html" title="class in org.mmtk.vm">Lock</a> <a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.45">oomLock</a></pre>
+<div class="block">Lock used for out of memory handling</div>
+</li>
+</ul>
+<a name="allocationSuccess">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocationSuccess</h4>
+<pre>private static volatile&nbsp;boolean <a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.47">allocationSuccess</a></pre>
+<div class="block">Has an allocation succeeded since the emergency collection?</div>
+</li>
+</ul>
+<a name="collectionAttempts">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>collectionAttempts</h4>
+<pre>private static&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.49">collectionAttempts</a></pre>
+<div class="block">Maximum number of failed attempts by a single thread</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="Allocator()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Allocator</h4>
+<pre>public&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.42">Allocator</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="determineCollectionAttempts()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>determineCollectionAttempts</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.54">determineCollectionAttempts</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a consecutive failure count for any allocating thread.</dd></dl>
+</li>
+</ul>
+<a name="getSpace()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSpace</h4>
+<pre>protected abstract&nbsp;<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.69">getSpace</a>()</pre>
+<div class="block">Return the space this allocator is currently bound to.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>The Space.</dd></dl>
+</li>
+</ul>
+<a name="alignAllocation(org.vmmagic.unboxed.Address, int, int, int, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignAllocation</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.87">alignAllocation</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                      int&nbsp;alignment,
+                      int&nbsp;offset,
+                      int&nbsp;knownAlignment,
+                      boolean&nbsp;fillAlignmentGap)</pre>
+<div class="block">Aligns up an allocation request. The allocation request accepts a
+ region, that must be at least particle aligned, an alignment
+ request (some power of two number of particles) and an offset (a
+ number of particles). There is also a knownAlignment parameter to
+ allow a more optimised check when the particular allocator in use
+ always aligns at a coarser grain than individual particles, such
+ as some free lists.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region to align up.</dd><dd><code>alignment</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd><dd><code>knownAlignment</code> - The statically known minimum alignment.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The aligned up address.</dd></dl>
+</li>
+</ul>
+<a name="fillAlignmentGap(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fillAlignmentGap</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.135">fillAlignmentGap</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end)</pre>
+<div class="block">Fill the specified region with the alignment value.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>start</code> - The start of the region.</dd><dd><code>end</code> - A pointer past the end of the region.</dd></dl>
+</li>
+</ul>
+<a name="alignAllocation(org.vmmagic.unboxed.Address, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignAllocation</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.161">alignAllocation</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                      int&nbsp;alignment,
+                      int&nbsp;offset)</pre>
+<div class="block">Aligns up an allocation request. The allocation request accepts a
+ region, that must be at least particle aligned, an alignment
+ request (some power of two number of particles) and an offset (a
+ number of particles).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region to align up.</dd><dd><code>alignment</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The aligned up address.</dd></dl>
+</li>
+</ul>
+<a name="alignAllocationNoFill(org.vmmagic.unboxed.Address, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignAllocationNoFill</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.177">alignAllocationNoFill</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                            int&nbsp;alignment,
+                            int&nbsp;offset)</pre>
+<div class="block">Aligns up an allocation request. The allocation request accepts a
+ region, that must be at least particle aligned, an alignment
+ request (some power of two number of particles) and an offset (a
+ number of particles).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region to align up.</dd><dd><code>alignment</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The aligned up address.</dd></dl>
+</li>
+</ul>
+<a name="getMaximumAlignedSize(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaximumAlignedSize</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.189">getMaximumAlignedSize</a>(int&nbsp;size,
+                        int&nbsp;alignment)</pre>
+<div class="block">This method calculates the minimum size that will guarantee the allocation
+ of a specified number of bytes at the specified alignment.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>size</code> - The number of bytes (not aligned).</dd><dd><code>alignment</code> - The requested alignment (some factor of 2).</dd></dl>
+</li>
+</ul>
+<a name="getMaximumAlignedSize(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMaximumAlignedSize</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.204">getMaximumAlignedSize</a>(int&nbsp;size,
+                        int&nbsp;alignment,
+                        int&nbsp;knownAlignment)</pre>
+<div class="block">This method calculates the minimum size that will guarantee the allocation
+ of a specified number of bytes at the specified alignment.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>size</code> - The number of bytes (not aligned).</dd><dd><code>alignment</code> - The requested alignment (some factor of 2).</dd><dd><code>knownAlignment</code> - The known minimum alignment. Specifically for use in
+ allocators that enforce greater than particle alignment. It is a <b>precondition</b>
+ that size is aligned to knownAlignment, and that knownAlignment >= MIN_ALGINMENT.</dd></dl>
+</li>
+</ul>
+<a name="allocSlowOnce(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocSlowOnce</h4>
+<pre>protected abstract&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.223">allocSlowOnce</a>(int&nbsp;bytes,
+                    int&nbsp;alignment,
+                    int&nbsp;offset)</pre>
+<div class="block">Single slow path allocation attempt. This is called by allocSlow.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The size of the allocation request</dd><dd><code>alignment</code> - The required alignment</dd><dd><code>offset</code> - The alignment offset</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The start address of the region, or zero if allocation fails</dd></dl>
+</li>
+</ul>
+<a name="allocSlow(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocSlow</h4>
+<pre>public final&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.236">allocSlow</a>(int&nbsp;bytes,
+                int&nbsp;alignment,
+                int&nbsp;offset)</pre>
+<div class="block"><b>Out-of-line</b> slow path allocation. This method forces slow path
+ allocation to be out of line (typically desirable, but not when the
+ calling context is already explicitly out-of-line).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The size of the allocation request</dd><dd><code>alignment</code> - The required alignment</dd><dd><code>offset</code> - The alignment offset</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The start address of the region, or zero if allocation fails</dd></dl>
+</li>
+</ul>
+<a name="allocSlowInline(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>allocSlowInline</h4>
+<pre>public final&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/Allocator.html#line.253">allocSlowInline</a>(int&nbsp;bytes,
+                      int&nbsp;alignment,
+                      int&nbsp;offset)</pre>
+<div class="block"><b>Inline</b> slow path allocation. This method attempts allocSlowOnce
+ several times, and allows collection to occur, and ensures that execution
+ safely resumes by taking care of potential thread/mutator context affinity
+ changes. All allocators should use this as the trampoline for slow
+ path allocation.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The size of the allocation request</dd><dd><code>alignment</code> - The required alignment</dd><dd><code>offset</code> - The alignment offset</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The start address of the region, or zero if allocation fails</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Allocator.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li>Prev Class</li>
+<li><a href="../../../../org/mmtk/utility/alloc/BlockAllocator.html" title="class in org.mmtk.utility.alloc"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/mmtk/utility/alloc/Allocator.html" target="_top">Frames</a></li>
+<li><a href="Allocator.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

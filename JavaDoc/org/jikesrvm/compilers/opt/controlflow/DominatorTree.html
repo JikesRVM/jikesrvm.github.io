@@ -1,0 +1,576 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>DominatorTree (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="DominatorTree (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DominatorTree.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorSystem.html" title="class in org.jikesrvm.compilers.opt.controlflow"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTreeNode.html" title="class in org.jikesrvm.compilers.opt.controlflow"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/controlflow/DominatorTree.html" target="_top">Frames</a></li>
+<li><a href="DominatorTree.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.compilers.opt.controlflow</div>
+<h2 title="Class DominatorTree" class="title">Class DominatorTree</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html" title="class in org.jikesrvm.compilers.opt.util">org.jikesrvm.compilers.opt.util.Tree</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.compilers.opt.controlflow.DominatorTree</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.28">DominatorTree</a>
+extends <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html" title="class in org.jikesrvm.compilers.opt.util">Tree</a></pre>
+<div class="block">This class provides the abstraction of a dominator tree
+
+ <p>TODO: we do not support IRs with exception handlers.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTreeNode.html" title="class in org.jikesrvm.compilers.opt.controlflow">DominatorTreeNode</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#dominatorInfoMap">dominatorInfoMap</a></strong></code>
+<div class="block">A structure used to quickly index into the DominatorVertex tree</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#forward">forward</a></strong></code>
+<div class="block"><code>true</code> if we are computing regular dominators, <code>false</code> for post-dominators</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#ir">ir</a></strong></code>
+<div class="block">The governing IR</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#DominatorTree(org.jikesrvm.compilers.opt.ir.IR,%20boolean)">DominatorTree</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+                          boolean&nbsp;forward)</code>
+<div class="block">Build a dominator tree from an IR.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#addNode(org.jikesrvm.compilers.opt.ir.BasicBlock)">addNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</code>
+<div class="block">Creates dominator tree nodes for the passed block and adds them to the
+ map.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#deepestCommonAncestor(org.jikesrvm.compilers.opt.ir.BasicBlock,%20org.jikesrvm.compilers.opt.ir.BasicBlock)">deepestCommonAncestor</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;a,
+                                          <a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</code>
+<div class="block">Return the deepest common dominance ancestor of blocks <code>a</code> and <code>b</code></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#depth(org.jikesrvm.compilers.opt.ir.BasicBlock)">depth</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</code>
+<div class="block">Return the distance from the root of the dominator tree to a given
+ basic block</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#dominates(org.jikesrvm.compilers.opt.ir.BasicBlock,%20org.jikesrvm.compilers.opt.ir.BasicBlock)">dominates</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;master,
+                  <a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;slave)</code>
+<div class="block">Does basic block number "master" dominate basic block number "slave"?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#dominates(int,%20org.jikesrvm.util.BitVector)">dominates</a></strong>(int&nbsp;b,
+                  <a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a>&nbsp;bits)</code>
+<div class="block">Does basic block number b dominate all basic blocks in a set?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#dominates(int,%20int)">dominates</a></strong>(int&nbsp;master,
+                  int&nbsp;slave)</code>
+<div class="block">Does basic block number "master" dominate basic block number "slave"?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/TreeNode.html" title="class in org.jikesrvm.compilers.opt.util">TreeNode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#getChildren(org.jikesrvm.compilers.opt.ir.BasicBlock)">getChildren</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</code>
+<div class="block">Enumerate the children of the vertex corresponding to a basic
+ block</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#getDominanceFrontier(org.jikesrvm.compilers.opt.ir.BasicBlock)">getDominanceFrontier</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</code>
+<div class="block">Return the (already calculated) dominance frontier for
+ a basic block</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#getDominanceFrontier(int)">getDominanceFrontier</a></strong>(int&nbsp;number)</code>
+<div class="block">Return the (already calculated) dominance frontier for
+ a basic block</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#getFirstNode()">getFirstNode</a></strong>()</code>
+<div class="block">Get the first node, either entry or exit
+ depending on which way we are viewing the graph</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#getParent(org.jikesrvm.compilers.opt.ir.BasicBlock)">getParent</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</code>
+<div class="block">Return the parent of the vertex corresponding to a basic
+ block</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#perform(org.jikesrvm.compilers.opt.ir.IR,%20boolean)">perform</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+              boolean&nbsp;forward)</code>
+<div class="block">Build a dominator tree from an IR.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.compilers.opt.util.Tree">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.compilers.opt.util.<a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html" title="class in org.jikesrvm.compilers.opt.util">Tree</a></h3>
+<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#elements()">elements</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#getBottomUpEnumerator()">getBottomUpEnumerator</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#getRoot()">getRoot</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#getTopDownEnumerator()">getTopDownEnumerator</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#isEmpty()">isEmpty</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#numberOfNodes()">numberOfNodes</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#setRoot(org.jikesrvm.compilers.opt.util.TreeNode)">setRoot</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/Tree.html#toString()">toString</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="forward">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forward</h4>
+<pre>private final&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.32">forward</a></pre>
+<div class="block"><code>true</code> if we are computing regular dominators, <code>false</code> for post-dominators</div>
+</li>
+</ul>
+<a name="ir">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ir</h4>
+<pre>private final&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.37">ir</a></pre>
+<div class="block">The governing IR</div>
+</li>
+</ul>
+<a name="dominatorInfoMap">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>dominatorInfoMap</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTreeNode.html" title="class in org.jikesrvm.compilers.opt.controlflow">DominatorTreeNode</a>[] <a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.42">dominatorInfoMap</a></pre>
+<div class="block">A structure used to quickly index into the DominatorVertex tree</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="DominatorTree(org.jikesrvm.compilers.opt.ir.IR, boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DominatorTree</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.88">DominatorTree</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+             boolean&nbsp;forward)</pre>
+<div class="block">Build a dominator tree from an IR. NOTE: the dominator
+ information MUST be computed BEFORE calling this
+ constructor!</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ir</code> - the governing IR</dd><dd><code>forward</code> - are we building regular dominators or post-dominators?</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="perform(org.jikesrvm.compilers.opt.ir.IR, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>perform</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.53">perform</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir,
+           boolean&nbsp;forward)</pre>
+<div class="block">Build a dominator tree from an IR. NOTE: the dominator
+ information MUST be computed BEFORE calling this method!
+ We assume the scratch object of each basic block contains
+ the LTDominatorInfo object holding this information.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ir</code> - the governing IR</dd><dd><code>forward</code> - are we building regular dominators or post-dominators?</dd></dl>
+</li>
+</ul>
+<a name="getFirstNode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstNode</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.147">getFirstNode</a>()</pre>
+<div class="block">Get the first node, either entry or exit
+ depending on which way we are viewing the graph</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the entry node or exit node</dd></dl>
+</li>
+</ul>
+<a name="getChildren(org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getChildren</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/TreeNode.html" title="class in org.jikesrvm.compilers.opt.util">TreeNode</a>&gt;&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.162">getChildren</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</pre>
+<div class="block">Enumerate the children of the vertex corresponding to a basic
+ block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bb</code> - the basic block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>an Enumeration of bb's children</dd></dl>
+</li>
+</ul>
+<a name="getParent(org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getParent</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.174">getParent</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</pre>
+<div class="block">Return the parent of the vertex corresponding to a basic
+ block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bb</code> - the basic block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>bb's parent</dd></dl>
+</li>
+</ul>
+<a name="getDominanceFrontier(org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDominanceFrontier</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.186">getDominanceFrontier</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;bb)</pre>
+<div class="block">Return the (already calculated) dominance frontier for
+ a basic block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bb</code> - the basic block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a BitVector representing the dominance frontier</dd></dl>
+</li>
+</ul>
+<a name="getDominanceFrontier(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDominanceFrontier</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.198">getDominanceFrontier</a>(int&nbsp;number)</pre>
+<div class="block">Return the (already calculated) dominance frontier for
+ a basic block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>number</code> - the number of the basic block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>a BitVector representing the dominance frontier</dd></dl>
+</li>
+</ul>
+<a name="dominates(int, org.jikesrvm.util.BitVector)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dominates</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.209">dominates</a>(int&nbsp;b,
+                <a href="../../../../../org/jikesrvm/util/BitVector.html" title="class in org.jikesrvm.util">BitVector</a>&nbsp;bits)</pre>
+<div class="block">Does basic block number b dominate all basic blocks in a set?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>b</code> - the number of the basic block to test</dd><dd><code>bits</code> - BitVector representation of the set of basic blocks to test</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true or false</dd></dl>
+</li>
+</ul>
+<a name="dominates(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dominates</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.228">dominates</a>(int&nbsp;master,
+                int&nbsp;slave)</pre>
+<div class="block">Does basic block number "master" dominate basic block number "slave"?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>master</code> - the number of the proposed "master" basic block</dd><dd><code>slave</code> - the number of the proposed "slave block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>"master dominates slave"</dd></dl>
+</li>
+</ul>
+<a name="dominates(org.jikesrvm.compilers.opt.ir.BasicBlock, org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dominates</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.243">dominates</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;master,
+                <a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;slave)</pre>
+<div class="block">Does basic block number "master" dominate basic block number "slave"?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>master</code> - the number of the proposed "master" basic block</dd><dd><code>slave</code> - the number of the proposed "slave block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>"master dominates slave"</dd></dl>
+</li>
+</ul>
+<a name="addNode(org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addNode</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.254">addNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</pre>
+<div class="block">Creates dominator tree nodes for the passed block and adds them to the
+ map.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>b</code> - the basic block</dd></dl>
+</li>
+</ul>
+<a name="depth(org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>depth</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.266">depth</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</pre>
+<div class="block">Return the distance from the root of the dominator tree to a given
+ basic block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>b</code> - the basic block in question</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>b</code>'s depth</dd></dl>
+</li>
+</ul>
+<a name="deepestCommonAncestor(org.jikesrvm.compilers.opt.ir.BasicBlock, org.jikesrvm.compilers.opt.ir.BasicBlock)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>deepestCommonAncestor</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/controlflow/DominatorTree.html#line.278">deepestCommonAncestor</a>(<a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;a,
+                               <a href="../../../../../org/jikesrvm/compilers/opt/ir/BasicBlock.html" title="class in org.jikesrvm.compilers.opt.ir">BasicBlock</a>&nbsp;b)</pre>
+<div class="block">Return the deepest common dominance ancestor of blocks <code>a</code> and <code>b</code></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>a</code> - The first basic block</dd><dd><code>b</code> - The second basic block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the deepest common dominance ancestor of blocks <code>a</code>
+        and <code>b</code></dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DominatorTree.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorSystem.html" title="class in org.jikesrvm.compilers.opt.controlflow"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/controlflow/DominatorTreeNode.html" title="class in org.jikesrvm.compilers.opt.controlflow"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/controlflow/DominatorTree.html" target="_top">Frames</a></li>
+<li><a href="DominatorTree.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.driver;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.ArrayList;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.ArchitectureSpecificOpt.MIROptimizationPlanner;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.adaptive.recompilation.instrumentation.InsertInstructionCounters;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.adaptive.recompilation.instrumentation.InsertMethodInvocationCounter;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.adaptive.recompilation.instrumentation.InsertYieldpointCounters;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.adaptive.recompilation.instrumentation.InstrumentationSamplingFramework;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.adaptive.recompilation.instrumentation.LowerInstrumentation;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.AdjustBranchProbabilities;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.FieldAnalysis;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.LocalCSE;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.LocalCastOptimization;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.LocalConstantProp;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.LocalCopyProp;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.Simple;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.bc2ir.ConvertBCtoHIR;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.compilers.opt.bc2ir.OsrPointConstructor;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.compilers.opt.controlflow.BranchOptimizations;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jikesrvm.compilers.opt.controlflow.BuildLST;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.controlflow.CFGTransformations;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.compilers.opt.controlflow.DominanceFrontier;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.compilers.opt.controlflow.DominatorsPhase;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jikesrvm.compilers.opt.controlflow.EstimateBlockFrequencies;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.jikesrvm.compilers.opt.controlflow.LoopUnrolling;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.jikesrvm.compilers.opt.controlflow.ReorderingPhase;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.jikesrvm.compilers.opt.controlflow.StaticSplitting;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.jikesrvm.compilers.opt.controlflow.TailRecursionElimination;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.jikesrvm.compilers.opt.controlflow.YieldPoints;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.jikesrvm.compilers.opt.escape.EscapeTransformations;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import org.jikesrvm.compilers.opt.hir2lir.ConvertHIRtoLIR;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import org.jikesrvm.compilers.opt.hir2lir.ExpandRuntimeServices;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import org.jikesrvm.compilers.opt.regalloc.CoalesceMoves;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import org.jikesrvm.compilers.opt.ssa.GCP;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>import org.jikesrvm.compilers.opt.ssa.LeaveSSA;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>import org.jikesrvm.compilers.opt.ssa.LiveRangeSplitting;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>import org.jikesrvm.compilers.opt.ssa.LoadElimination;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>import org.jikesrvm.compilers.opt.ssa.LoopVersioning;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>import org.jikesrvm.compilers.opt.ssa.PiNodes;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>import org.jikesrvm.compilers.opt.ssa.RedundantBranchElimination;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>import org.jikesrvm.compilers.opt.ssa.SSATuneUp;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>import org.jikesrvm.osr.AdjustBCIndexes;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>/**<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * This class specifies the order in which CompilerPhases are<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * executed during the HIR and LIR phase of the opt compilation of a method.<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * @see MIROptimizationPlanner<a name="line.64"></a>
+<span class="sourceLineNo">065</span> */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>public class OptimizationPlanner {<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>  /**<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   * The master optimization plan.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   * All plans that are actually executed should be subsets of this plan<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * constructed by calling createOptimizationPlan.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  private static OptimizationPlanElement[] masterPlan;<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>  /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * Generate a report of time spent in various phases of the opt compiler.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * &lt;p&gt; NB: This method may be called in a context where classloading and/or<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * GC cannot be allowed.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * Therefore we must use primitive sysWrites for output and avoid string<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * appends and other allocations.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * @param explain Should an explanation of the metrics be generated?<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public static void generateOptimizingCompilerSubsystemReport(boolean explain) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    if (!VM.MeasureCompilationPhases) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      return;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>    VM.sysWrite("\t\tOptimizing Compiler SubSystem\n");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    VM.sysWrite("\tPhase\t\t\t\t\tTime\n");<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    VM.sysWrite("\t\t\t\t\t   (ms)    (%ofTotal)\n");<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    double total = 0.0;<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    for (OptimizationPlanElement element : masterPlan) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      total += element.elapsedTime();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>    for (OptimizationPlanElement element : masterPlan) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      element.reportStats(8, 40, total);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    VM.sysWrite("\n\tTOTAL COMPILATION TIME\t\t");<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    int t = (int) total, places = t;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    if (places == 0) {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      places = 1;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    while (places &lt; 1000000) { // Right-align 't'<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      VM.sysWrite(" ");<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      places *= 10;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    VM.sysWrite(t);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    VM.sysWrite("\n");<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>  /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   * Using the passed options create an optimization plan<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * by selecting a subset of the elements in the masterPlan.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   *<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * @param options the Options to use<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * @return an OptimizationPlanElement[] selected from<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   * the masterPlan based on options.<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   */<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  public static OptimizationPlanElement[] createOptimizationPlan(OptOptions options) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    if (masterPlan == null) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      initializeMasterPlan();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    ArrayList&lt;OptimizationPlanElement&gt; temp = new ArrayList&lt;OptimizationPlanElement&gt;();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    for (OptimizationPlanElement element : masterPlan) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      if (element.shouldPerform(options)) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        temp.add(element);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      }<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    if (VM.writingBootImage) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      masterPlan = null;  // avoid problems with classes not being in bootimage.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    return toArray(temp);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * This method is called to initialize all phases to support<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   *  measuring compilation.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  public static void initializeMeasureCompilation() {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    for (OptimizationPlanElement element : masterPlan) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      element.initializeForMeasureCompilation();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * Initialize the "master plan", which holds all optimization elements<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * that will normally execute.<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  private static void initializeMasterPlan() {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    ArrayList&lt;OptimizationPlanElement&gt; temp = new ArrayList&lt;OptimizationPlanElement&gt;();<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    BC2HIR(temp);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    HIROptimizations(temp);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    HIR2LIR(temp);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    LIROptimizations(temp);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    MIROptimizationPlanner.intializeMasterPlan(temp);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    masterPlan = toArray(temp);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>  /**<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   * Convert the ArrayList to an array of elements.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   * @param planElementList the array list to convert, must be non-{@code null}<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   * @return list as array<a name="line.167"></a>
+<span class="sourceLineNo">168</span>   */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  private static OptimizationPlanElement[] toArray(ArrayList&lt;OptimizationPlanElement&gt; planElementList) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    OptimizationPlanElement[] p = new OptimizationPlanElement[planElementList.size()];<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    planElementList.toArray(p);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    return p;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>  }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>  /**<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * This method defines the optimization plan elements required to<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * generate HIR from bytecodes.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   *<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   * @param p the plan under construction<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  private static void BC2HIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    composeComponents(p, "Convert Bytecodes to HIR", new Object[]{<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        // Generate HIR from bytecodes<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        new ConvertBCtoHIR(),<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>        new AdjustBCIndexes(), new OsrPointConstructor(),<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>        // Always do initial wave of peephole branch optimizations<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        new BranchOptimizations(0, true, false),<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>        // ir now contains well formed HIR. Optionally do a verification pass.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        new CompilerPhase() {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>          @Override<a name="line.193"></a>
+<span class="sourceLineNo">194</span>          public String getName() {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            return "HIR Verification";<a name="line.195"></a>
+<span class="sourceLineNo">196</span>          }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>          @Override<a name="line.197"></a>
+<span class="sourceLineNo">198</span>          public void perform(IR ir) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            if (IR.SANITY_CHECK) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>              ir.verify("Initial HIR", true);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>          }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>          @Override<a name="line.203"></a>
+<span class="sourceLineNo">204</span>          public CompilerPhase newExecution(IR ir) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            return this;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>          }<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        },<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>        // Adjust static branch probabilities to account for infrequent blocks<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        new AdjustBranchProbabilities(),<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>        // Optional printing of initial HIR<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        // Do this after branch optimization, since without merging<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        // FallThroughOuts, the IR is quite ugly.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        new IRPrinter("Initial HIR") {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>          @Override<a name="line.216"></a>
+<span class="sourceLineNo">217</span>          public boolean shouldPerform(OptOptions options) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>            return options.PRINT_HIGH;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>          }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        }});<a name="line.220"></a>
+<span class="sourceLineNo">221</span>  }<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>  /**<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   * This method defines the optimization plan elements that<a name="line.224"></a>
+<span class="sourceLineNo">225</span>   * are to be performed on the HIR.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   *<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   * @param p the plan under construction<a name="line.227"></a>
+<span class="sourceLineNo">228</span>   */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  private static void HIROptimizations(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    // Various large-scale CFG transformations.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    // Do these very early in the pipe so that all HIR opts can benefit.<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    composeComponents(p, "CFG Transformations", new Object[]{<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        // tail recursion elimination<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        new TailRecursionElimination(),<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        // Estimate block frequencies if doing any of<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        // static splitting, cfg transformations, or loop unrolling.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        // Assumption: none of these are active at O0.<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        new OptimizationPlanCompositeElement("Basic Block Frequency Estimation",<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                                                 new Object[]{new BuildLST(), new EstimateBlockFrequencies()}) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>          @Override<a name="line.240"></a>
+<span class="sourceLineNo">241</span>          public boolean shouldPerform(OptOptions options) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>            return options.getOptLevel() &gt;= 1;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>          }<a name="line.243"></a>
+<span class="sourceLineNo">244</span>        },<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        // CFG splitting<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        new StaticSplitting(),<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        // restructure loops<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        new CFGTransformations(),<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        // Loop unrolling<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        new LoopUnrolling(), new BranchOptimizations(1, true, true),});<a name="line.250"></a>
+<span class="sourceLineNo">251</span><a name="line.251"></a>
+<span class="sourceLineNo">252</span>    // Use the LST to insert yieldpoints and estimate<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    // basic block frequency from branch probabilities<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    composeComponents(p,<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                      "CFG Structural Analysis",<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                      new Object[]{new BuildLST(), new YieldPoints(), new EstimateBlockFrequencies()});<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    // Simple flow-insensitive optimizations<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    addComponent(p, new Simple(1, true, true, false, false));<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span>    // Simple escape analysis and related transformations<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    addComponent(p, new EscapeTransformations());<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>    // Perform peephole branch optimizations to clean-up before SSA stuff<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    addComponent(p, new BranchOptimizations(1, true, true));<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    // SSA meta-phase<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    SSAinHIR(p);<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>    // Perform local copy propagation for a factored basic block.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    addComponent(p, new LocalCopyProp());<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    // Perform local constant propagation for a factored basic block.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    addComponent(p, new LocalConstantProp());<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    // Perform local common-subexpression elimination for a<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    // factored basic block.<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    addComponent(p, new LocalCSE(true));<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    // Flow-insensitive field analysis<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    addComponent(p, new FieldAnalysis());<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    if (VM.BuildForAdaptiveSystem) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      // Insert counter on each method prologue<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      // Insert yieldpoint counters<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      addComponent(p, new InsertYieldpointCounters());<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      // Insert counter on each HIR instruction<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      addComponent(p, new InsertInstructionCounters());<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      // Insert method invocation counters<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      addComponent(p, new InsertMethodInvocationCounter());<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>  }<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>  /**<a name="line.290"></a>
+<span class="sourceLineNo">291</span>   * This method defines the optimization plan elements that<a name="line.291"></a>
+<span class="sourceLineNo">292</span>   * are to be performed with SSA form on HIR.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>   *<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * @param p the plan under construction<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   */<a name="line.295"></a>
+<span class="sourceLineNo">296</span>  private static void SSAinHIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    composeComponents(p, "SSA", new Object[]{<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        // Use the LST to estimate basic block frequency from branch probabilities<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        new OptimizationPlanCompositeElement("Basic Block Frequency Estimation",<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                                                 new Object[]{new BuildLST(), new EstimateBlockFrequencies()}) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>          @Override<a name="line.301"></a>
+<span class="sourceLineNo">302</span>          public boolean shouldPerform(OptOptions options) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            return options.getOptLevel() &gt;= 3;<a name="line.303"></a>
+<span class="sourceLineNo">304</span>          }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        },<a name="line.305"></a>
+<span class="sourceLineNo">306</span><a name="line.306"></a>
+<span class="sourceLineNo">307</span>        new OptimizationPlanCompositeElement("HIR SSA transformations", new Object[]{<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            // Local copy propagation<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            new LocalCopyProp(),<a name="line.309"></a>
+<span class="sourceLineNo">310</span>            // Local constant propagation<a name="line.310"></a>
+<span class="sourceLineNo">311</span>            new LocalConstantProp(),<a name="line.311"></a>
+<span class="sourceLineNo">312</span>            // Insert PI Nodes<a name="line.312"></a>
+<span class="sourceLineNo">313</span>            new PiNodes(true),<a name="line.313"></a>
+<span class="sourceLineNo">314</span>            // branch optimization<a name="line.314"></a>
+<span class="sourceLineNo">315</span>            new BranchOptimizations(3, true, true),<a name="line.315"></a>
+<span class="sourceLineNo">316</span>            // Compute dominators<a name="line.316"></a>
+<span class="sourceLineNo">317</span>            new DominatorsPhase(true),<a name="line.317"></a>
+<span class="sourceLineNo">318</span>            // compute dominance frontier<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            new DominanceFrontier(),<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            // load elimination<a name="line.320"></a>
+<span class="sourceLineNo">321</span>            new LoadElimination(1),<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            // load elimination<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            new LoadElimination(2),<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            // load elimination<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            new LoadElimination(3),<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            // load elimination<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            new LoadElimination(4),<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            // load elimination<a name="line.328"></a>
+<span class="sourceLineNo">329</span>            new LoadElimination(5),<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            // eliminate redundant conditional branches<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            new RedundantBranchElimination(),<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            // path sensitive constant propagation<a name="line.332"></a>
+<span class="sourceLineNo">333</span>            new SSATuneUp(),<a name="line.333"></a>
+<span class="sourceLineNo">334</span>            // clean up Pi Nodes<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            new PiNodes(false),<a name="line.335"></a>
+<span class="sourceLineNo">336</span>            // Simple SSA optimizations,<a name="line.336"></a>
+<span class="sourceLineNo">337</span>            new SSATuneUp(),<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            // Global Code Placement,<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            new GCP(),<a name="line.339"></a>
+<span class="sourceLineNo">340</span>            // Loop versioning<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            new LoopVersioning(),<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            // Leave SSA<a name="line.342"></a>
+<span class="sourceLineNo">343</span>            new LeaveSSA()}) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>          @Override<a name="line.344"></a>
+<span class="sourceLineNo">345</span>          public boolean shouldPerform(OptOptions options) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>            return options.getOptLevel() &gt;= 3;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>          }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        },<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        // Coalesce moves<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        new CoalesceMoves(),<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>        // SSA reveals new opportunites for the following<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        new OptimizationPlanCompositeElement("Post SSA cleanup",<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                                                 new Object[]{new LocalCopyProp(),<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                                                              new LocalConstantProp(),<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                                                              new Simple(3, true, true, false, false),<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                                                              new EscapeTransformations(),<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                                                              new BranchOptimizations(3, true, true)}) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>          @Override<a name="line.359"></a>
+<span class="sourceLineNo">360</span>          public boolean shouldPerform(OptOptions options) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>            return options.getOptLevel() &gt;= 3;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>          }<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        }});<a name="line.363"></a>
+<span class="sourceLineNo">364</span>  }<a name="line.364"></a>
+<span class="sourceLineNo">365</span><a name="line.365"></a>
+<span class="sourceLineNo">366</span>  /**<a name="line.366"></a>
+<span class="sourceLineNo">367</span>   * This method defines the optimization plan elements that<a name="line.367"></a>
+<span class="sourceLineNo">368</span>   * are to be performed with SSA form on LIR.<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   *<a name="line.369"></a>
+<span class="sourceLineNo">370</span>   * @param p the plan under construction<a name="line.370"></a>
+<span class="sourceLineNo">371</span>   */<a name="line.371"></a>
+<span class="sourceLineNo">372</span>  private static void SSAinLIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    composeComponents(p, "SSA", new Object[]{<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        // Use the LST to estimate basic block frequency from branch probabilities<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        new OptimizationPlanCompositeElement("Basic Block Frequency Estimation",<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                                                 new Object[]{new BuildLST(), new EstimateBlockFrequencies()}) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>          @Override<a name="line.377"></a>
+<span class="sourceLineNo">378</span>          public boolean shouldPerform(OptOptions options) {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            return options.getOptLevel() &gt;= 3;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>          }<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        },<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>        new OptimizationPlanCompositeElement("LIR SSA transformations", new Object[]{<a name="line.383"></a>
+<span class="sourceLineNo">384</span>            // restructure loops<a name="line.384"></a>
+<span class="sourceLineNo">385</span>            new CFGTransformations(),<a name="line.385"></a>
+<span class="sourceLineNo">386</span>            // Compute dominators<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            new DominatorsPhase(true),<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            // compute dominance frontier<a name="line.388"></a>
+<span class="sourceLineNo">389</span>            new DominanceFrontier(),<a name="line.389"></a>
+<span class="sourceLineNo">390</span>            // Global Code Placement,<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            new GCP(),<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            // Leave SSA<a name="line.392"></a>
+<span class="sourceLineNo">393</span>            new LeaveSSA()}) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>          @Override<a name="line.394"></a>
+<span class="sourceLineNo">395</span>          public boolean shouldPerform(OptOptions options) {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>            return options.getOptLevel() &gt;= 3;<a name="line.396"></a>
+<span class="sourceLineNo">397</span>          }<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        },<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        // Live range splitting<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        new LiveRangeSplitting(),<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>        // Coalesce moves<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        new CoalesceMoves(),<a name="line.403"></a>
+<span class="sourceLineNo">404</span><a name="line.404"></a>
+<span class="sourceLineNo">405</span>        // SSA reveals new opportunites for the following<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        new OptimizationPlanCompositeElement("Post SSA cleanup",<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                                                 new Object[]{new LocalCopyProp(),<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                                                              new LocalConstantProp(),<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                                                              new Simple(3, true, true, false, false),<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                                                              new BranchOptimizations(3, true, true)}) {<a name="line.410"></a>
+<span class="sourceLineNo">411</span>          @Override<a name="line.411"></a>
+<span class="sourceLineNo">412</span>          public boolean shouldPerform(OptOptions options) {<a name="line.412"></a>
+<span class="sourceLineNo">413</span>            return options.getOptLevel() &gt;= 3;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>          }<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        }});<a name="line.415"></a>
+<span class="sourceLineNo">416</span>  }<a name="line.416"></a>
+<span class="sourceLineNo">417</span><a name="line.417"></a>
+<span class="sourceLineNo">418</span>  /**<a name="line.418"></a>
+<span class="sourceLineNo">419</span>   * This method defines the optimization plan elements that<a name="line.419"></a>
+<span class="sourceLineNo">420</span>   * are to be performed to lower HIR to LIR.<a name="line.420"></a>
+<span class="sourceLineNo">421</span>   *<a name="line.421"></a>
+<span class="sourceLineNo">422</span>   * @param p the plan under construction<a name="line.422"></a>
+<span class="sourceLineNo">423</span>   */<a name="line.423"></a>
+<span class="sourceLineNo">424</span>  private static void HIR2LIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    composeComponents(p, "Convert HIR to LIR", new Object[]{<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        // Optional printing of final HIR<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        new IRPrinter("Final HIR") {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>          @Override<a name="line.428"></a>
+<span class="sourceLineNo">429</span>          public boolean shouldPerform(OptOptions options) {<a name="line.429"></a>
+<span class="sourceLineNo">430</span>            return options.PRINT_FINAL_HIR;<a name="line.430"></a>
+<span class="sourceLineNo">431</span>          }<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        },<a name="line.432"></a>
+<span class="sourceLineNo">433</span><a name="line.433"></a>
+<span class="sourceLineNo">434</span>        // Inlining "runtime service" methods<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        new ExpandRuntimeServices(),<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        // Peephole branch optimizations<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        new BranchOptimizations(1, true, true),<a name="line.437"></a>
+<span class="sourceLineNo">438</span>        // Local optimizations of checkcasts<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        new LocalCastOptimization(),<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        // Massive operator expansion<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        new ConvertHIRtoLIR(),<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        // Peephole branch optimizations<a name="line.442"></a>
+<span class="sourceLineNo">443</span>        new BranchOptimizations(0, true, true),<a name="line.443"></a>
+<span class="sourceLineNo">444</span>        // Adjust static branch probabilites to account for infrequent blocks<a name="line.444"></a>
+<span class="sourceLineNo">445</span>        // introduced by the inlining of runtime services.<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        new AdjustBranchProbabilities(),<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        // Optional printing of initial LIR<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        new IRPrinter("Initial LIR") {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>          @Override<a name="line.449"></a>
+<span class="sourceLineNo">450</span>          public boolean shouldPerform(OptOptions options) {<a name="line.450"></a>
+<span class="sourceLineNo">451</span>            return options.PRINT_LOW;<a name="line.451"></a>
+<span class="sourceLineNo">452</span>          }<a name="line.452"></a>
+<span class="sourceLineNo">453</span>        }});<a name="line.453"></a>
+<span class="sourceLineNo">454</span>  }<a name="line.454"></a>
+<span class="sourceLineNo">455</span><a name="line.455"></a>
+<span class="sourceLineNo">456</span>  /**<a name="line.456"></a>
+<span class="sourceLineNo">457</span>   * This method defines the optimization plan elements that<a name="line.457"></a>
+<span class="sourceLineNo">458</span>   * are to be performed on the LIR.<a name="line.458"></a>
+<span class="sourceLineNo">459</span>   *<a name="line.459"></a>
+<span class="sourceLineNo">460</span>   * @param p the plan under construction<a name="line.460"></a>
+<span class="sourceLineNo">461</span>   */<a name="line.461"></a>
+<span class="sourceLineNo">462</span>  private static void LIROptimizations(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>    // SSA meta-phase<a name="line.463"></a>
+<span class="sourceLineNo">464</span>    SSAinLIR(p);<a name="line.464"></a>
+<span class="sourceLineNo">465</span>    // Perform local copy propagation for a factored basic block.<a name="line.465"></a>
+<span class="sourceLineNo">466</span>    addComponent(p, new LocalCopyProp());<a name="line.466"></a>
+<span class="sourceLineNo">467</span>    // Perform local constant propagation for a factored basic block.<a name="line.467"></a>
+<span class="sourceLineNo">468</span>    addComponent(p, new LocalConstantProp());<a name="line.468"></a>
+<span class="sourceLineNo">469</span>    // Perform local common-subexpression elimination for a factored basic block.<a name="line.469"></a>
+<span class="sourceLineNo">470</span>    addComponent(p, new LocalCSE(false));<a name="line.470"></a>
+<span class="sourceLineNo">471</span>    // Simple flow-insensitive optimizations<a name="line.471"></a>
+<span class="sourceLineNo">472</span>    addComponent(p, new Simple(0, false, false, false, VM.BuildForIA32));<a name="line.472"></a>
+<span class="sourceLineNo">473</span><a name="line.473"></a>
+<span class="sourceLineNo">474</span>    // Use the LST to estimate basic block frequency<a name="line.474"></a>
+<span class="sourceLineNo">475</span>    addComponent(p,<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                 new OptimizationPlanCompositeElement("Basic Block Frequency Estimation",<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                                                          new Object[]{new BuildLST(),<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                                                                       new EstimateBlockFrequencies()}));<a name="line.478"></a>
+<span class="sourceLineNo">479</span><a name="line.479"></a>
+<span class="sourceLineNo">480</span>    // Perform basic block reordering<a name="line.480"></a>
+<span class="sourceLineNo">481</span>    addComponent(p, new ReorderingPhase());<a name="line.481"></a>
+<span class="sourceLineNo">482</span>    // Perform peephole branch optimizations<a name="line.482"></a>
+<span class="sourceLineNo">483</span>    addComponent(p, new BranchOptimizations(0, false, true));<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>    if (VM.BuildForAdaptiveSystem) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>      // Arnold &amp; Ryder instrumentation sampling framework<a name="line.486"></a>
+<span class="sourceLineNo">487</span>      addComponent(p, new InstrumentationSamplingFramework());<a name="line.487"></a>
+<span class="sourceLineNo">488</span><a name="line.488"></a>
+<span class="sourceLineNo">489</span>      // Convert high level place holder instructions into actual instrumentation<a name="line.489"></a>
+<span class="sourceLineNo">490</span>      addComponent(p, new LowerInstrumentation());<a name="line.490"></a>
+<span class="sourceLineNo">491</span>    }<a name="line.491"></a>
+<span class="sourceLineNo">492</span>  }<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>  // Helper functions for constructing the masterPlan.<a name="line.494"></a>
+<span class="sourceLineNo">495</span>  protected static void addComponent(ArrayList&lt;OptimizationPlanElement&gt; p, CompilerPhase e) {<a name="line.495"></a>
+<span class="sourceLineNo">496</span>    addComponent(p, new OptimizationPlanAtomicElement(e));<a name="line.496"></a>
+<span class="sourceLineNo">497</span>  }<a name="line.497"></a>
+<span class="sourceLineNo">498</span><a name="line.498"></a>
+<span class="sourceLineNo">499</span>  /**<a name="line.499"></a>
+<span class="sourceLineNo">500</span>   * Add an optimization plan element to a vector.<a name="line.500"></a>
+<span class="sourceLineNo">501</span>   */<a name="line.501"></a>
+<span class="sourceLineNo">502</span>  protected static void addComponent(ArrayList&lt;OptimizationPlanElement&gt; p, OptimizationPlanElement e) {<a name="line.502"></a>
+<span class="sourceLineNo">503</span>    p.add(e);<a name="line.503"></a>
+<span class="sourceLineNo">504</span>  }<a name="line.504"></a>
+<span class="sourceLineNo">505</span><a name="line.505"></a>
+<span class="sourceLineNo">506</span>  /**<a name="line.506"></a>
+<span class="sourceLineNo">507</span>   * Add a set of optimization plan elements to a vector.<a name="line.507"></a>
+<span class="sourceLineNo">508</span>   * @param p    the vector to add to<a name="line.508"></a>
+<span class="sourceLineNo">509</span>   * @param name the name for this composition<a name="line.509"></a>
+<span class="sourceLineNo">510</span>   * @param es   the array of composed elements<a name="line.510"></a>
+<span class="sourceLineNo">511</span>   */<a name="line.511"></a>
+<span class="sourceLineNo">512</span>  protected static void composeComponents(ArrayList&lt;OptimizationPlanElement&gt; p, String name, Object[] es) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>    p.add(OptimizationPlanCompositeElement.compose(name, es));<a name="line.513"></a>
+<span class="sourceLineNo">514</span>  }<a name="line.514"></a>
+<span class="sourceLineNo">515</span>}<a name="line.515"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.utility;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.plan.Plan;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.vm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.vmmagic.pragma.*;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>/**<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * This is a very simple, generic malloc-free allocator.  It works<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * abstractly, in "units", which the user may associate with some<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * other allocatable resource (e.g. heap blocks).  The user issues<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * requests for N units and the allocator returns the index of the<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * first of a contiguous set of N units or fails, returning -1.  The<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * user frees the block of N units by calling &lt;code&gt;free()&lt;/code&gt; with<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * the index of the first unit as the argument.&lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Properties/Constraints:&lt;ul&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *   &lt;li&gt; The allocator consumes one word per allocatable unit (plus<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *   a fixed overhead of about 128 words).&lt;/li&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *   &lt;li&gt; The allocator can only deal with MAX_UNITS units (see below for<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *   the value).&lt;/li&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;/ul&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * The basic data structure used by the algorithm is a large table,<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * with one word per allocatable unit.  Each word is used in a<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * number of different ways, some combination of "undefined" (32),<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * "free/used" (1), "multi/single" (1), "prev" (15), "next" (15) &amp;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * "size" (15) where field sizes in bits are in parenthesis.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;pre&gt;<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *                       +-+-+-----------+-----------+<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *                       |f|m|    prev   | next/size |<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *                       +-+-+-----------+-----------+<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *   - single free unit: "free", "single", "prev", "next"<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *   - single used unit: "used", "single"<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *    - contiguous free units<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *     . first unit: "free", "multi", "prev", "next"<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *     . second unit: "free", "multi", "size"<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *     . last unit: "free", "multi", "size"<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *    - contiguous used units<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *     . first unit: "used", "multi", "prev", "next"<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *     . second unit: "used", "multi", "size"<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *     . last unit: "used", "multi", "size"<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *    - any other unit: undefined<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *                       +-+-+-----------+-----------+<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *   top sentinel        |0|0|    tail   |   head    |  [-1]<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *                       +-+-+-----------+-----------+<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *                                     ....<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *            /--------  +-+-+-----------+-----------+<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *            |          |1|1|   prev    |   next    |  [j]<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *            |          +-+-+-----------+-----------+<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *            |          |1|1|           |   size    |  [j+1]<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *         free multi    +-+-+-----------+-----------+<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *         unit block    |              ...          |  ...<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *            |          +-+-+-----------+-----------+<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *            |          |1|1|           |   size    |<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *           &gt;--------  +-+-+-----------+-----------+<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *   single free unit    |1|0|   prev    |   next    |<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *           &gt;--------  +-+-+-----------+-----------+<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *   single used unit    |0|0|                       |<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *           &gt;--------  +-+-+-----------------------+<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *            |          |0|1|                       |<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *            |          +-+-+-----------+-----------+<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *            |          |0|1|           |   size    |<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *         used multi    +-+-+-----------+-----------+<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *         unit block    |              ...          |<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *            |          +-+-+-----------+-----------+<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *            |          |0|1|           |   size    |<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *            \--------  +-+-+-----------+-----------+<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *                                     ....<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *                       +-+-+-----------------------+<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *   bottom sentinel     |0|0|                       |  [N]<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *                       +-+-+-----------------------+<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * &lt;/pre&gt;<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * The sentinels serve as guards against out of range coalescing<a name="line.88"></a>
+<span class="sourceLineNo">089</span> * because they both appear as "used" blocks and so will never<a name="line.89"></a>
+<span class="sourceLineNo">090</span> * coalesce.  The top sentinel also serves as the head and tail of<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * the doubly linked list of free blocks.<a name="line.91"></a>
+<span class="sourceLineNo">092</span> */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>@Uninterruptible<a name="line.93"></a>
+<span class="sourceLineNo">094</span>public final class GenericFreeList extends BaseGenericFreeList implements Constants {<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>  /****************************************************************************<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * Public instance methods<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   */<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * Constructor<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * @param units The number of allocatable units for this free list<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  public GenericFreeList(int units) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    this(units, units);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>  /**<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   * Constructor<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   *<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   * @param units The number of allocatable units for this free list<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * @param grain Units are allocated such that they will never cross this granularity boundary<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  public GenericFreeList(int units, int grain) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    this(units, grain, 1);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>  /**<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   * Constructor<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   * @param units The number of allocatable units for this free list<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * @param grain Units are allocated such that they will never cross this granularity boundary<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * @param heads The number of free lists which will share this instance<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  public GenericFreeList(int units, int grain, int heads) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    this.parent = null;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(units &lt;= MAX_UNITS &amp;&amp; heads &lt;= MAX_HEADS);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    this.heads = heads;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    head = -1;<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>    // allocate the data structure, including space for top &amp; bottom sentinels<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    table = new int[(units + 1 + heads) &lt;&lt; 1];<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    initializeHeap(units, grain);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>  /**<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * Resize the free list for a parent free list.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   * This must not be called dynamically (ie not after bootstrap).<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * @param units The number of allocatable units for this free list<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * @param grain Units are allocated such that they will never cross this granularity boundary<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  @Interruptible<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  public void resizeFreeList(int units, int grain) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(parent == null &amp;&amp; !Plan.isInitialized());<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    table = new int[(units + 1 + heads) &lt;&lt; 1];<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    initializeHeap(units, grain);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>  /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * Resize the free list for a child free list.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   * This must not be called dynamically (ie not after bootstrap).<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  @Interruptible<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  public void resizeFreeList() {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(parent != null &amp;&amp; !Plan.isInitialized());<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    table = parent.getTable();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>  /**<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   * Constructor<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   *<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   * @param parent The parent, owning the data structures this instance will share<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   * @param ordinal The ordinal number of this child<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   */<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  public GenericFreeList(GenericFreeList parent, int ordinal) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    this.parent = parent;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    this.table = parent.getTable();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    this.heads = parent.getHeads();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    this.head = -(1 + ordinal);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(-this.head &lt;= this.heads);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>  }<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>  /* Getter */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  int[] getTable() { return table; }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  int getHeads() { return heads; }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>  /**<a name="line.180"></a>
+<span class="sourceLineNo">181</span>   * Initialize a unit as a sentinel<a name="line.181"></a>
+<span class="sourceLineNo">182</span>   *<a name="line.182"></a>
+<span class="sourceLineNo">183</span>   * @param unit The unit to be initialized<a name="line.183"></a>
+<span class="sourceLineNo">184</span>   */<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  @Override<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  protected void setSentinel(int unit) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    setLoEntry(unit, NEXT_MASK &amp; unit);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    setHiEntry(unit, PREV_MASK &amp; unit);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  }<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>  /**<a name="line.191"></a>
+<span class="sourceLineNo">192</span>   * Get the size of a lump of units<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   * @param unit The first unit in the lump of units<a name="line.194"></a>
+<span class="sourceLineNo">195</span>   * @return The size of the lump of units<a name="line.195"></a>
+<span class="sourceLineNo">196</span>   */<a name="line.196"></a>
+<span class="sourceLineNo">197</span>  @Override<a name="line.197"></a>
+<span class="sourceLineNo">198</span>  protected int getSize(int unit) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    if ((getHiEntry(unit) &amp; MULTI_MASK) == MULTI_MASK)<a name="line.199"></a>
+<span class="sourceLineNo">200</span>      return (getHiEntry(unit + 1) &amp; SIZE_MASK);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    else<a name="line.201"></a>
+<span class="sourceLineNo">202</span>      return 1;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>  /**<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * Set the size of lump of units<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   *<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   * @param unit The first unit in the lump of units<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * @param size The size of the lump of units<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   */<a name="line.210"></a>
+<span class="sourceLineNo">211</span>  @Override<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  protected void setSize(int unit, int size) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    if (size &gt; 1) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      setHiEntry(unit, getHiEntry(unit) | MULTI_MASK);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      setHiEntry(unit + 1, MULTI_MASK | size);<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      setHiEntry(unit + size - 1, MULTI_MASK | size);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    } else<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      setHiEntry(unit, getHiEntry(unit) &amp; ~MULTI_MASK);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>  }<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>  /**<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   * Establish whether a lump of units is free<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   *<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   * @param unit The first or last unit in the lump<a name="line.224"></a>
+<span class="sourceLineNo">225</span>   * @return {@code true} if the lump is free<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   */<a name="line.226"></a>
+<span class="sourceLineNo">227</span>  @Override<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  protected boolean getFree(int unit) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    return ((getLoEntry(unit) &amp; FREE_MASK) == FREE_MASK);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>  }<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>  /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * Set the "free" flag for a lump of units (both the first and last<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * units in the lump are set.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   *<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * @param unit The first unit in the lump<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   * @param isFree {@code true} if the lump is to be marked as free<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   */<a name="line.238"></a>
+<span class="sourceLineNo">239</span>  @Override<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  protected void setFree(int unit, boolean isFree) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    int size;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    if (isFree) {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>      setLoEntry(unit, getLoEntry(unit) | FREE_MASK);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      if ((size = getSize(unit)) &gt; 1)<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        setLoEntry(unit + size - 1, getLoEntry(unit + size - 1) | FREE_MASK);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    } else {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      setLoEntry(unit, getLoEntry(unit) &amp; ~FREE_MASK);<a name="line.247"></a>
+<span class="sourceLineNo">248</span>      if ((size = getSize(unit)) &gt; 1)<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        setLoEntry(unit + size - 1, getLoEntry(unit + size - 1) &amp; ~FREE_MASK);<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span>  }<a name="line.251"></a>
+<span class="sourceLineNo">252</span><a name="line.252"></a>
+<span class="sourceLineNo">253</span>  /**<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * Get the next lump in the doubly linked free list<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   *<a name="line.255"></a>
+<span class="sourceLineNo">256</span>   * @param unit The index of the first unit in the current lump<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   * @return The index of the first unit of the next lump of units in the list<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   */<a name="line.258"></a>
+<span class="sourceLineNo">259</span>  @Override<a name="line.259"></a>
+<span class="sourceLineNo">260</span>  protected int getNext(int unit) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    int next = getHiEntry(unit) &amp; NEXT_MASK;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    return (next &lt;= MAX_UNITS) ? next : head;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>  /**<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   * Set the next lump in the doubly linked free list<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   *<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   * @param unit The index of the first unit in the lump to be set<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   * @param next The value to be set.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>  @Override<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  protected void setNext(int unit, int next) {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert((next &gt;= -heads) &amp;&amp; (next &lt;= MAX_UNITS));<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    int oldValue = getHiEntry(unit);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    int newValue = (oldValue &amp; ~NEXT_MASK) | (next &amp; NEXT_MASK);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    setHiEntry(unit, newValue);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>  }<a name="line.277"></a>
+<span class="sourceLineNo">278</span><a name="line.278"></a>
+<span class="sourceLineNo">279</span>  /**<a name="line.279"></a>
+<span class="sourceLineNo">280</span>   * Get the previous lump in the doubly linked free list<a name="line.280"></a>
+<span class="sourceLineNo">281</span>   *<a name="line.281"></a>
+<span class="sourceLineNo">282</span>   * @param unit The index of the first unit in the current lump<a name="line.282"></a>
+<span class="sourceLineNo">283</span>   * @return The index of the first unit of the previous lump of units<a name="line.283"></a>
+<span class="sourceLineNo">284</span>   * in the list<a name="line.284"></a>
+<span class="sourceLineNo">285</span>   */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>  @Override<a name="line.286"></a>
+<span class="sourceLineNo">287</span>  protected int getPrev(int unit) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    int prev = getLoEntry(unit) &amp; PREV_MASK;<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    return (prev &lt;= MAX_UNITS) ? prev : head;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>  }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>  /**<a name="line.292"></a>
+<span class="sourceLineNo">293</span>   * Set the previous lump in the doubly linked free list<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   *<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   * @param unit The index of the first unit in the lump to be set<a name="line.295"></a>
+<span class="sourceLineNo">296</span>   * @param prev The value to be set.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   */<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  @Override<a name="line.298"></a>
+<span class="sourceLineNo">299</span>  protected void setPrev(int unit, int prev) {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert((prev &gt;= -heads) &amp;&amp; (prev &lt;= MAX_UNITS));<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    int oldValue = getLoEntry(unit);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    int newValue = (oldValue &amp; ~PREV_MASK) | (prev &amp; PREV_MASK);<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    setLoEntry(unit, newValue);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>  /**<a name="line.306"></a>
+<span class="sourceLineNo">307</span>   * Set the uncoalescable bit associated with this unit.<a name="line.307"></a>
+<span class="sourceLineNo">308</span>   * This ensures this unit cannot be coalesced with units below<a name="line.308"></a>
+<span class="sourceLineNo">309</span>   * it.<a name="line.309"></a>
+<span class="sourceLineNo">310</span>   *<a name="line.310"></a>
+<span class="sourceLineNo">311</span>   * @param unit The unit whose uncoalescable bit is to be set<a name="line.311"></a>
+<span class="sourceLineNo">312</span>   */<a name="line.312"></a>
+<span class="sourceLineNo">313</span>  public void setUncoalescable(int unit) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    setLoEntry(unit, getLoEntry(unit) | COALESC_MASK);<a name="line.314"></a>
+<span class="sourceLineNo">315</span>  }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>  /**<a name="line.317"></a>
+<span class="sourceLineNo">318</span>   * Clear the uncoalescable bit associated with this unit.<a name="line.318"></a>
+<span class="sourceLineNo">319</span>   * This allows this unit to be coalesced with units below<a name="line.319"></a>
+<span class="sourceLineNo">320</span>   * it.<a name="line.320"></a>
+<span class="sourceLineNo">321</span>   *<a name="line.321"></a>
+<span class="sourceLineNo">322</span>   * @param unit The unit whose uncoalescable bit is to be cleared<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   */<a name="line.323"></a>
+<span class="sourceLineNo">324</span>  public void clearUncoalescable(int unit) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    setLoEntry(unit, getLoEntry(unit) &amp; ~COALESC_MASK);<a name="line.325"></a>
+<span class="sourceLineNo">326</span>  }<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>  /**<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * Return true if this unit may be coalesced with the unit below it.<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   *<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * @param unit The unit in question<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   * @return {@code true} if this unit may be coalesced with the unit below it.<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>  @Override<a name="line.334"></a>
+<span class="sourceLineNo">335</span>  public boolean isCoalescable(int unit) {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    return (getLoEntry(unit) &amp; COALESC_MASK) == 0;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>  }<a name="line.337"></a>
+<span class="sourceLineNo">338</span><a name="line.338"></a>
+<span class="sourceLineNo">339</span>  /**<a name="line.339"></a>
+<span class="sourceLineNo">340</span>   * Get the lump to the "left" of the current lump (i.e. "above" it)<a name="line.340"></a>
+<span class="sourceLineNo">341</span>   *<a name="line.341"></a>
+<span class="sourceLineNo">342</span>   * @param unit The index of the first unit in the lump in question<a name="line.342"></a>
+<span class="sourceLineNo">343</span>   * @return The index of the first unit in the lump to the<a name="line.343"></a>
+<span class="sourceLineNo">344</span>   * "left"/"above" the lump in question.<a name="line.344"></a>
+<span class="sourceLineNo">345</span>   */<a name="line.345"></a>
+<span class="sourceLineNo">346</span>  @Override<a name="line.346"></a>
+<span class="sourceLineNo">347</span>  protected int getLeft(int unit) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    if ((getHiEntry(unit - 1) &amp; MULTI_MASK) == MULTI_MASK)<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      return unit - (getHiEntry(unit - 1) &amp; SIZE_MASK);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    else<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      return unit - 1;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>  }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>  /**<a name="line.355"></a>
+<span class="sourceLineNo">356</span>   * Get the contents of an entry<a name="line.356"></a>
+<span class="sourceLineNo">357</span>   *<a name="line.357"></a>
+<span class="sourceLineNo">358</span>   * @param unit The index of the unit<a name="line.358"></a>
+<span class="sourceLineNo">359</span>   * @return The contents of the unit<a name="line.359"></a>
+<span class="sourceLineNo">360</span>   */<a name="line.360"></a>
+<span class="sourceLineNo">361</span>  private int getLoEntry(int unit) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    return table[(unit + heads) &lt;&lt; 1];<a name="line.362"></a>
+<span class="sourceLineNo">363</span>  }<a name="line.363"></a>
+<span class="sourceLineNo">364</span>  private int getHiEntry(int unit) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>    return table[((unit + heads) &lt;&lt; 1) + 1];<a name="line.365"></a>
+<span class="sourceLineNo">366</span>  }<a name="line.366"></a>
+<span class="sourceLineNo">367</span><a name="line.367"></a>
+<span class="sourceLineNo">368</span>  /**<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   * Set the contents of an entry<a name="line.369"></a>
+<span class="sourceLineNo">370</span>   *<a name="line.370"></a>
+<span class="sourceLineNo">371</span>   * @param unit The index of the unit<a name="line.371"></a>
+<span class="sourceLineNo">372</span>   * @param value The contents of the unit<a name="line.372"></a>
+<span class="sourceLineNo">373</span>   */<a name="line.373"></a>
+<span class="sourceLineNo">374</span>  private void setLoEntry(int unit, int value) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    table[(unit + heads) &lt;&lt; 1] = value;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>  }<a name="line.376"></a>
+<span class="sourceLineNo">377</span>  private void setHiEntry(int unit, int value) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>    table[((unit + heads) &lt;&lt; 1) + 1] = value;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>  }<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>  private static final int TOTAL_BITS = 32;<a name="line.381"></a>
+<span class="sourceLineNo">382</span>  private static final int UNIT_BITS = (TOTAL_BITS - 2);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>  public static final int MAX_UNITS = (int) (((((long) 1) &lt;&lt; UNIT_BITS) - 1) - MAX_HEADS - 1);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>  private static final int NEXT_MASK = (int) ((((long) 1) &lt;&lt; UNIT_BITS) - 1);<a name="line.384"></a>
+<span class="sourceLineNo">385</span>  private static final int PREV_MASK = (int) ((((long) 1) &lt;&lt; UNIT_BITS) - 1);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>  private static final int FREE_MASK = 1 &lt;&lt; (TOTAL_BITS - 1);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>  private static final int MULTI_MASK = 1 &lt;&lt; (TOTAL_BITS - 1);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>  private static final int COALESC_MASK = 1 &lt;&lt; (TOTAL_BITS - 2);<a name="line.388"></a>
+<span class="sourceLineNo">389</span>  private static final int SIZE_MASK = (int) ((((long) 1) &lt;&lt; UNIT_BITS) - 1);<a name="line.389"></a>
+<span class="sourceLineNo">390</span><a name="line.390"></a>
+<span class="sourceLineNo">391</span>  private int[] table;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>  private final GenericFreeList parent;<a name="line.392"></a>
+<span class="sourceLineNo">393</span>}<a name="line.393"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

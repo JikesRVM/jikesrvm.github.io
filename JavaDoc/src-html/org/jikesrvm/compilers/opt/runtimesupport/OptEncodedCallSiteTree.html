@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.runtimesupport;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.util.Enumeration;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.inlining.CallSiteTree;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.inlining.CallSiteTreeNode;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.util.TreeNode;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.pragma.Interruptible;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Suppose the following inlining actions have been taken<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &lt;pre&gt;<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * (&amp;lt;callerMID, bcIndex, calleeMID&amp;gt;):<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &amp;lt;A, 12, B&amp;gt;, &amp;lt;A,14,C&amp;gt;, &amp;lt;A,16,D&amp;gt;, &amp;lt; B,3,E&amp;gt;, &amp;lt; B,5,F &amp;gt;, &amp;lt;C,10,G&amp;gt;, &amp;lt;G,20,H&amp;gt;,<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &amp;lt;H,30,I&amp;gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;/pre&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * Then the &lt;code&gt;OptEncodedCallSiteTree &lt;/code&gt; would be:<a name="line.32"></a>
+<span class="sourceLineNo">033</span> *<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;pre&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * -1, A, -2, 12, B, 14, C, 16, D, -6, 3, E, 5, F, -9, 10, G, -2, 20 H -2 30 I<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;/pre&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>@Uninterruptible<a name="line.38"></a>
+<span class="sourceLineNo">039</span>public abstract class OptEncodedCallSiteTree {<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static int getMethodID(int entryOffset, int[] encoding) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    return encoding[entryOffset + 1];<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  static void setMethodID(int entryOffset, int[] encoding, int methodID) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    encoding[entryOffset + 1] = methodID;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public static int getByteCodeOffset(int entryOffset, int[] encoding) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    return encoding[entryOffset];<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  @Interruptible<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static int[] getEncoding(CallSiteTree tree) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    int size = 0;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    if (tree.isEmpty()) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>      return null;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    } else {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      Enumeration&lt;TreeNode&gt; e = tree.elements();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>      while (e.hasMoreElements()) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        TreeNode x = e.nextElement();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        if (x.getLeftChild() == null) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>          size += 2;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        } else {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>          size += 3;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>      }<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      int[] encoding = new int[size];<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      getEncoding((CallSiteTreeNode) tree.getRoot(), 0, -1, encoding);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      return encoding;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>  @Interruptible<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  static int getEncoding(CallSiteTreeNode current, int offset, int parent, int[] encoding) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    int i = offset;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    if (parent != -1) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      encoding[i++] = parent - offset;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    CallSiteTreeNode x = current;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    int j = i;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    while (x != null) {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      x.encodedOffset = j;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      int byteCodeIndex = x.callSite.bcIndex;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      encoding[j++] = (byteCodeIndex &gt;= 0) ? byteCodeIndex : -1;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      encoding[j++] = x.callSite.getMethod().getId();<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      x = (CallSiteTreeNode) x.getRightSibling();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    x = current;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    int thisParent = i;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    while (x != null) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      if (x.getLeftChild() != null) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        j = getEncoding((CallSiteTreeNode) x.getLeftChild(), j, thisParent, encoding);<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      }<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      thisParent += 2;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      x = (CallSiteTreeNode) x.getRightSibling();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    return j;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  public static int getParent(int index, int[] encodedTree) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    while (index &gt;= 0 &amp;&amp; encodedTree[index] &gt;= -1) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      index--;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    if (index &lt; 0) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      return -1;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    } else {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      return index + encodedTree[index];<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>  public static boolean edgePresent(int desiredCaller, int desiredBCIndex, int desiredCallee, int[] encoding) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    if (encoding.length &lt; 3) return false; // Why are we creating an encoding with no real data???<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    if (VM.VerifyAssertions) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      VM._assert(encoding[0] == -1);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      VM._assert(encoding[2] == -2);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    int idx = 3;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    int parent = encoding[1];<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    while (idx &lt; encoding.length) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      if (encoding[idx] &lt; 0) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        parent = idx + encoding[idx];<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        idx++;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      if (parent == desiredCaller) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>        if (encoding[idx] == desiredBCIndex &amp;&amp; encoding[idx + 1] == desiredCallee) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>          return true;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      idx += 2;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    return false;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>}<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

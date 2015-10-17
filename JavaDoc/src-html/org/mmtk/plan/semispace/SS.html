@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.plan.semispace;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.policy.CopySpace;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.policy.Space;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.plan.*;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.utility.heap.VMRequest;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.pragma.*;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.unboxed.*;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * This class implements a simple semi-space collector. See the Jones<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * &amp; Lins GC book, section 2.2 for an overview of the basic<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * algorithm. This implementation also includes a large object space<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * (LOS), and an uncollected "immortal" space.&lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * All plans make a clear distinction between &lt;i&gt;global&lt;/i&gt; and<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;i&gt;thread-local&lt;/i&gt; activities.  Global activities must be<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * synchronized, whereas no synchronization is required for<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * thread-local activities.  Instances of Plan map 1:1 to "kernel<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * threads" (aka CPUs).  Thus instance<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * methods allow fast, unsychronized access to Plan utilities such as<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * allocation and collection.  Each instance rests on static resources<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * (such as memory and virtual memory resources) which are "global"<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * and therefore "static" members of Plan.  This mapping of threads to<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * instances is crucial to understanding the correctness and<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * performance properties of this plan.<a name="line.39"></a>
+<span class="sourceLineNo">040</span> */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>@Uninterruptible<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public class SS extends StopTheWorld {<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>  /****************************************************************************<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   *<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * Class variables<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   */<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /** {@code true} if allocating into the "higher" semispace */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  public static boolean hi = false;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /** One of the two semi spaces that alternate roles at each collection */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final CopySpace copySpace0 = new CopySpace("ss0", false, VMRequest.create());<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static final int SS0 = copySpace0.getDescriptor();<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>  /** One of the two semi spaces that alternate roles at each collection */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  public static final CopySpace copySpace1 = new CopySpace("ss1", true, VMRequest.create());<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  public static final int SS1 = copySpace1.getDescriptor();<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  public final Trace ssTrace;<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>  /****************************************************************************<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   * Initialization<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   */<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>  /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * Class variables<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>  /**<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   */<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  public static final int ALLOC_SS = Plan.ALLOC_DEFAULT;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  public static final int SCAN_SS = 0;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * Constructor<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  public SS() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    ssTrace = new Trace(metaDataSpace);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * @return The to space for the current collection.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  @Inline<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  public static CopySpace toSpace() {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    return hi ? copySpace1 : copySpace0;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * @return The from space for the current collection.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  @Inline<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  public static CopySpace fromSpace() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    return hi ? copySpace0 : copySpace1;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /****************************************************************************<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   *<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * Collection<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   */<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * {@inheritDoc}<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  @Override<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  @Inline<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  public void collectionPhase(short phaseId) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    if (phaseId == SS.PREPARE) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      hi = !hi; // flip the semi-spaces<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      // prepare each of the collected regions<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      copySpace0.prepare(hi);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      copySpace1.prepare(!hi);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>      ssTrace.prepare();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      super.collectionPhase(phaseId);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      return;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    if (phaseId == CLOSURE) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>      ssTrace.prepare();<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      return;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    if (phaseId == SS.RELEASE) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      // release the collected region<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      fromSpace().release();<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>      super.collectionPhase(phaseId);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      return;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>    super.collectionPhase(phaseId);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>  /****************************************************************************<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * Accounting<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   */<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>  /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * Return the number of pages reserved for copying.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  @Override<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  public final int getCollectionReserve() {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    // we must account for the number of pages required for copying,<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    // which equals the number of semi-space pages reserved<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    return toSpace().reservedPages() + super.getCollectionReserve();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>  /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * Return the number of pages reserved for use given the pending<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   * allocation.  This is &lt;i&gt;exclusive of&lt;/i&gt; space reserved for<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   * copying.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  @Override<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  public int getPagesUsed() {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    return super.getPagesUsed() + toSpace().reservedPages();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>  /**<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   * Return the number of pages available for allocation, &lt;i&gt;assuming<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   * all future allocation is to the semi-space&lt;/i&gt;.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   *<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   * @return The number of pages available for allocation, &lt;i&gt;assuming<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   * all future allocation is to the semi-space&lt;/i&gt;.<a name="line.167"></a>
+<span class="sourceLineNo">168</span>   */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  @Override<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  public final int getPagesAvail() {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    return(super.getPagesAvail()) &gt;&gt; 1;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>  @Override<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  public boolean willNeverMove(ObjectReference object) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    if (Space.isInSpace(SS0, object) || Space.isInSpace(SS1, object))<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      return false;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    return super.willNeverMove(object);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  }<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>  @Override<a name="line.181"></a>
+<span class="sourceLineNo">182</span>  @Interruptible<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  protected void registerSpecializedMethods() {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    TransitiveClosure.registerSpecializedScan(SCAN_SS, SSTraceLocal.class);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    super.registerSpecializedMethods();<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>}<a name="line.187"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

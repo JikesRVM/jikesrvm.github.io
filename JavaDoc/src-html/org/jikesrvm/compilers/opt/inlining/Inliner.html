@@ -1,0 +1,523 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.inlining;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.ir.Operators.IG_CLASS_TEST;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.compilers.opt.ir.Operators.IG_METHOD_TEST;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.compilers.opt.ir.Operators.IG_PATCH_POINT;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.compilers.opt.ir.Operators.INSTANCEOF_NOTNULL;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.compilers.opt.ir.Operators.INT_IFCMP;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.compilers.opt.ir.Operators.MUST_IMPLEMENT_INTERFACE;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.Enumeration;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.VM;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.adaptive.database.AOSDatabase;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.classloader.RVMClass;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.classloader.RVMType;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.classloader.TypeReference;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.ClassLoaderProxy;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.compilers.opt.OptimizingCompilerException;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jikesrvm.compilers.opt.bc2ir.BC2IR;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.bc2ir.GenerationContext;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.compilers.opt.driver.OptConstants;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jikesrvm.compilers.opt.ir.Call;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.jikesrvm.compilers.opt.ir.ExceptionHandlerBasicBlock;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import org.jikesrvm.compilers.opt.ir.ExceptionHandlerBasicBlockBag;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import org.jikesrvm.compilers.opt.ir.IfCmp;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import org.jikesrvm.compilers.opt.ir.InlineGuard;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import org.jikesrvm.compilers.opt.ir.InstanceOf;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import org.jikesrvm.compilers.opt.ir.Register;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import org.jikesrvm.compilers.opt.ir.TypeCheck;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import org.jikesrvm.compilers.opt.ir.operand.BranchProfileOperand;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import org.jikesrvm.compilers.opt.ir.operand.ConditionOperand;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>import org.jikesrvm.compilers.opt.ir.operand.MethodOperand;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>import org.jikesrvm.compilers.opt.ir.operand.TypeOperand;<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>/**<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * This class contains the high level logic for executing an inlining decision.<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * @see InlineDecision<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * @see GenerationContext<a name="line.61"></a>
+<span class="sourceLineNo">062</span> */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>public class Inliner {<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * The following flag enables debug counters and requires an adaptive boot<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * image and flag "INSERT_DEBUGGING_COUNTERS" to be true. See instrumentation<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * section of the user guide for more information.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  private static final boolean COUNT_FAILED_GUARDS = false;<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * Execute an inlining decision inlDec for the CALL instruction<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   * callSite that is contained in ir.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   *<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * @param inlDec the inlining decision to execute<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * @param ir the governing IR<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * @param callSite the call site to inline<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  public static void execute(InlineDecision inlDec, IR ir, Instruction callSite) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    // Find out where the call site is and isolate it in its own basic block.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    BasicBlock bb = callSite.getBasicBlock().segregateInstruction(callSite, ir);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    BasicBlock in = bb.prevBasicBlockInCodeOrder();<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    BasicBlock out = bb.nextBasicBlockInCodeOrder();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    // Clear the sratch object of any register operands being<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    // passed as parameters.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    // BC2IR uses this field for its own purposes, and will be confused<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    // if the scratch object has been used by someone else and not cleared.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    for (int i = 0; i &lt; Call.getNumberOfParams(callSite); i++) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      Operand arg = Call.getParam(callSite, i);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      if (arg instanceof RegisterOperand) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        ((RegisterOperand) arg).scratchObject = null;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    // We need to ensure that inlining the CALL instruction does not<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    // insert any new exceptional edges into the CFG that were not<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    // present before the inlining.  Note that inlining the CALL may<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    // introduce new CALLS, for which we don't know the exception<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    // behavior.  However, we know that any new PEIs introduced in the<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    // inlined code had better not add exceptional edges to the<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    // original CFG.  So, create a new ExceptionHandlerBasicBlockBag<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    // which will enforce this behavior.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    ExceptionHandlerBasicBlock[] catchBlocks = new ExceptionHandlerBasicBlock[bb.getNumberOfExceptionalOut()];<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    Enumeration&lt;BasicBlock&gt; e = bb.getExceptionalOut();<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    for (int i = 0; i &lt; catchBlocks.length; i++) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      catchBlocks[i] = (ExceptionHandlerBasicBlock) e.nextElement();<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    ExceptionHandlerBasicBlockBag bag = new ExceptionHandlerBasicBlockBag(catchBlocks, null);<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>    // Execute the inlining decision, updating ir.gc's state.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    GenerationContext childgc = execute(inlDec, ir.gc, bag, callSite);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    // Splice the callee into the caller's code order<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    ir.cfg.removeFromCFGAndCodeOrder(bb);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    ir.cfg.breakCodeOrder(in, out);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    ir.cfg.linkInCodeOrder(in, childgc.cfg.firstInCodeOrder());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    ir.cfg.linkInCodeOrder(childgc.cfg.lastInCodeOrder(), out);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    // Splice the callee into the caller's CFG<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    in.insertOut(childgc.prologue);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    if (childgc.epilogue != null) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      childgc.epilogue.insertOut(out);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * Return a generation context that represents the<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * execution of inlDec in the context &lt;code&gt;&amp;lt;parent,ebag&amp;gt;&lt;/code&gt; for<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * the call instruction callSite.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * &lt;p&gt; PRECONDITION: inlDec.isYes()<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * &lt;p&gt; POSTCONDITIONS:<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * Let gc be the returned generation context.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * &lt;ul&gt;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   *  &lt;li&gt; gc.cfg.firstInCodeOrder is the entry to the inlined context<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   *  &lt;li&gt;gc.cfg.lastInCodeOrder is the exit from the inlined context<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   *  &lt;li&gt; GenerationContext.transferState(parent, child) has been called.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * &lt;/ul&gt;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   *<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   * @param inlDec the inlining decision to execute<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   * @param parent the caller generation context<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * @param ebag exception handler scope for the caller<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   * @param callSite the callsite to execute<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * @return a generation context that represents the execution of the<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   *         inline decision in the given context<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  public static GenerationContext execute(InlineDecision inlDec, GenerationContext parent,<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                                          ExceptionHandlerBasicBlockBag ebag, Instruction callSite) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    if (inlDec.needsGuard()) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      //Step 1: create the synthetic generation context we'll<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      // return to our caller.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      GenerationContext container = GenerationContext.createSynthetic(parent, ebag);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>      container.cfg.breakCodeOrder(container.prologue, container.epilogue);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      // Step 2: (a) Print a message (optional)<a name="line.151"></a>
+<span class="sourceLineNo">152</span>      //         (b) Generate the child GC for each target<a name="line.152"></a>
+<span class="sourceLineNo">153</span>      RVMMethod[] targets = inlDec.getTargets();<a name="line.153"></a>
+<span class="sourceLineNo">154</span>      byte[] guards = inlDec.getGuards();<a name="line.154"></a>
+<span class="sourceLineNo">155</span>      GenerationContext[] children = new GenerationContext[targets.length];<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      for (int i = 0; i &lt; targets.length; i++) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        NormalMethod callee = (NormalMethod) targets[i];<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        // (a)<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        if (parent.options.PRINT_INLINE_REPORT) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>          String guard = guards[i] == OptOptions.INLINE_GUARD_CLASS_TEST ? " (class test) " : " (method test) ";<a name="line.160"></a>
+<span class="sourceLineNo">161</span>          VM.sysWrite("\tGuarded inline" + guard + " " + callee +<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                      " into " + callSite.position.getMethod() +<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                      " at bytecode " + callSite.bcIndex + "\n");<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        // (b)<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        children[i] = GenerationContext.createChildContext(parent, ebag, callee, callSite);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        BC2IR.generateHIR(children[i]);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        GenerationContext.transferState(parent, children[i]);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      // Step 3: Merge together result from children into container.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      //         Note: if the child ended with only exception control flow, then<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      //         child.result will be null, which we want to interpret as top.<a name="line.172"></a>
+<span class="sourceLineNo">173</span>      //         Operand.meet interprets null as bottom, so we have to do some<a name="line.173"></a>
+<span class="sourceLineNo">174</span>      //         special purpose coding wrapping the calls to Operand.meet.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>      if (Call.hasResult(callSite)) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>        Register reg = Call.getResult(callSite).getRegister();<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        container.result = children[0].result;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        for (int i = 1; i &lt; targets.length; i++) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>          if (children[i].result != null) {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>            container.result = (container.result == null) ? children[i].result : Operand.meet(container.result, children[i].result, reg);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>          }<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>        if (!inlDec.OSRTestFailed()) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>          // Account for the non-predicted case as well...<a name="line.186"></a>
+<span class="sourceLineNo">187</span>          RegisterOperand failureCaseResult = Call.getResult(callSite).copyRO();<a name="line.187"></a>
+<span class="sourceLineNo">188</span>          container.result = (container.result == null) ?  failureCaseResult : Operand.meet(container.result, failureCaseResult, reg);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>      }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>      // Step 4: Create a block to contain a copy of the original call or an OSR_Yieldpoint<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      //         to cover the case that all predictions fail.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      BasicBlock testFailed = new BasicBlock(callSite.bcIndex, callSite.position, parent.cfg);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      testFailed.exceptionHandlers = ebag;<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>      if (COUNT_FAILED_GUARDS &amp;&amp; Controller.options.INSERT_DEBUGGING_COUNTERS) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        // Get a dynamic count of how many times guards fail at runtime.<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        // Need a name for the event to count.  In this example, a<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        // separate counter for each method by using the method name<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        // as the event name.  You could also have used just the string<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        // "Guarded inline failed" to keep only one counter.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        String eventName = "Guarded inline failed: " + callSite.position.getMethod().toString();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        // Create instruction that will increment the counter<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        // corresponding to the named event.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        Instruction counterInst = AOSDatabase.debuggingCounterData.getCounterInstructionForEvent(eventName);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        testFailed.appendInstruction(counterInst);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>      }<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>      if (inlDec.OSRTestFailed()) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        // note where we're storing the osr barrier instruction<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        Instruction lastOsrBarrier = (Instruction)callSite.scratchObject;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        Instruction s = BC2IR._osrHelper(lastOsrBarrier);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        s.position = callSite.position;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>        s.bcIndex = callSite.bcIndex;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>        testFailed.appendInstruction(s);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        testFailed.insertOut(parent.exit);<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      } else {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        Instruction call = callSite.copyWithoutLinks();<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        Call.getMethod(call).setIsGuardedInlineOffBranch(true);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        call.bcIndex = callSite.bcIndex;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        call.position = callSite.position;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        testFailed.appendInstruction(call);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        testFailed.insertOut(container.epilogue);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        // This is ugly....since we didn't call BC2IR to generate the<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        // block with callSite we have to initialize the block's exception<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        // behavior manually.<a name="line.227"></a>
+<span class="sourceLineNo">228</span>        // We can't call createSubBlock to do it because callSite may not<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        // be in a basic block yet (when execute is invoked from<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        // BC2IR.maybeInlineMethod).<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        if (ebag != null) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>          for (Enumeration&lt;BasicBlock&gt; e = ebag.enumerator(); e.hasMoreElements();) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>            BasicBlock handler = e.nextElement();<a name="line.233"></a>
+<span class="sourceLineNo">234</span>            testFailed.insertOut(handler);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>          }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>        }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        testFailed.setCanThrowExceptions();<a name="line.237"></a>
+<span class="sourceLineNo">238</span>        testFailed.setMayThrowUncaughtException();<a name="line.238"></a>
+<span class="sourceLineNo">239</span>      }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      container.cfg.linkInCodeOrder(testFailed, container.epilogue);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      testFailed.setInfrequent();<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>      // Step 5: Patch together all the callees by generating guard blocks<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      BasicBlock firstIfBlock = testFailed;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>      // Note: We know that receiver must be a register<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      // operand (and not a string constant) because we are doing a<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      // guarded inlining....if it was a string constant we'd have<a name="line.247"></a>
+<span class="sourceLineNo">248</span>      // been able to inline without a guard.<a name="line.248"></a>
+<span class="sourceLineNo">249</span>      Operand receiver = Call.getParam(callSite, 0);<a name="line.249"></a>
+<span class="sourceLineNo">250</span>      MethodOperand mo = Call.getMethod(callSite);<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      boolean isInterface = mo.isInterface();<a name="line.251"></a>
+<span class="sourceLineNo">252</span>      if (isInterface) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        if (VM.BuildForIMTInterfaceInvocation) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>          RVMType interfaceType = mo.getTarget().getDeclaringClass();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>          TypeReference recTypeRef = receiver.getType();<a name="line.255"></a>
+<span class="sourceLineNo">256</span>          RVMClass recType = (RVMClass) recTypeRef.peekType();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>          // Attempt to avoid inserting the check by seeing if the<a name="line.257"></a>
+<span class="sourceLineNo">258</span>          // known static type of the receiver implements the interface.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>          boolean requiresImplementsTest = true;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>          if (recType != null &amp;&amp; recType.isResolved() &amp;&amp; !recType.isInterface()) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            byte doesImplement = ClassLoaderProxy.includesType(interfaceType.getTypeRef(), recTypeRef);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>            requiresImplementsTest = doesImplement != OptConstants.YES;<a name="line.262"></a>
+<span class="sourceLineNo">263</span>          }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>          if (requiresImplementsTest) {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>            RegisterOperand checkedReceiver = parent.temps.makeTemp(receiver);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>            Instruction dtc =<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                TypeCheck.create(MUST_IMPLEMENT_INTERFACE,<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                    checkedReceiver,<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                    receiver.copy(),<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                    new TypeOperand(interfaceType),<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                    Call.getGuard(callSite).copy());<a name="line.271"></a>
+<span class="sourceLineNo">272</span>            dtc.copyPosition(callSite);<a name="line.272"></a>
+<span class="sourceLineNo">273</span>            checkedReceiver.refine(interfaceType.getTypeRef());<a name="line.273"></a>
+<span class="sourceLineNo">274</span>            Call.setParam(callSite, 0, checkedReceiver.copyRO());<a name="line.274"></a>
+<span class="sourceLineNo">275</span>            testFailed.prependInstruction(dtc);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>          }<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      // Basic idea of loop: Path together an if...else if.... else...<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      // chain from the bottom (testFailed). Some excessive cuteness<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      // to allow us to have multiple if blocks for a single<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      // "logical" test and to share test insertion for interfaces/virtuals.<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      for (int i = children.length - 1; i &gt;= 0; i--, testFailed = firstIfBlock) {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>        firstIfBlock = new BasicBlock(callSite.bcIndex, callSite.position, parent.cfg);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>        firstIfBlock.exceptionHandlers = ebag;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        BasicBlock lastIfBlock = firstIfBlock;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        RVMMethod target = children[i].method;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        Instruction tmp;<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>        if (isInterface) {<a name="line.290"></a>
+<span class="sourceLineNo">291</span>          RVMClass callDeclClass = mo.getTarget().getDeclaringClass();<a name="line.291"></a>
+<span class="sourceLineNo">292</span>          if (!callDeclClass.isInterface()) {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>            // Part of ensuring that we catch IncompatibleClassChangeErrors<a name="line.293"></a>
+<span class="sourceLineNo">294</span>            // is making sure that we know that callDeclClass is an<a name="line.294"></a>
+<span class="sourceLineNo">295</span>            // interface before we attempt to side-step the usual invoke<a name="line.295"></a>
+<span class="sourceLineNo">296</span>            // interface sequence.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>            // If we don't know at least this much, we can't do the inlining.<a name="line.297"></a>
+<span class="sourceLineNo">298</span>            // We used online profile data to tell us that the target was a<a name="line.298"></a>
+<span class="sourceLineNo">299</span>            // frequently called method from this (interface invoke)<a name="line.299"></a>
+<span class="sourceLineNo">300</span>            // callSite, so it would be truly bizarre for us to not be able<a name="line.300"></a>
+<span class="sourceLineNo">301</span>            // to establish that callDeclClass is an interface now.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>            // If we were using static heuristics to do guarded inlining<a name="line.302"></a>
+<span class="sourceLineNo">303</span>            // of interface calls, then we'd probably need to do the<a name="line.303"></a>
+<span class="sourceLineNo">304</span>            // "right" thing and detect this situation<a name="line.304"></a>
+<span class="sourceLineNo">305</span>            // before we generated all of the childCFG's and got them<a name="line.305"></a>
+<span class="sourceLineNo">306</span>            // entangled into the parent (due to exceptional control flow).<a name="line.306"></a>
+<span class="sourceLineNo">307</span>            // This potential entanglement is what forces us to bail on<a name="line.307"></a>
+<span class="sourceLineNo">308</span>            // the entire compilation.<a name="line.308"></a>
+<span class="sourceLineNo">309</span>            throw new OptimizingCompilerException(<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                "Attempted guarded inline of invoke interface when decl class of target method may not be an interface");<a name="line.310"></a>
+<span class="sourceLineNo">311</span>          }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>          // We potentially have to generate IR to perform two tests here:<a name="line.313"></a>
+<span class="sourceLineNo">314</span>          // (1) Does the receiver object implement callDeclClass?<a name="line.314"></a>
+<span class="sourceLineNo">315</span>          // (2) Given that it does, is target the method that would<a name="line.315"></a>
+<span class="sourceLineNo">316</span>          //     be invoked for this receiver?<a name="line.316"></a>
+<span class="sourceLineNo">317</span>          // It is quite common to be able to answer (1) "YES" at compile<a name="line.317"></a>
+<span class="sourceLineNo">318</span>          // time, in which case we only have to generate IR to establish<a name="line.318"></a>
+<span class="sourceLineNo">319</span>          // (2) at runtime.<a name="line.319"></a>
+<span class="sourceLineNo">320</span>          byte doesImplement = ClassLoaderProxy.<a name="line.320"></a>
+<span class="sourceLineNo">321</span>              includesType(callDeclClass.getTypeRef(), target.getDeclaringClass().getTypeRef());<a name="line.321"></a>
+<span class="sourceLineNo">322</span>          if (doesImplement != OptConstants.YES) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>            // We can't be sure at compile time that the receiver implements<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            // the interface. So, inject a test to make sure that it does.<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            // Unlike the above case, this can actually happen (when<a name="line.325"></a>
+<span class="sourceLineNo">326</span>            // the method is inherited but only the child actually<a name="line.326"></a>
+<span class="sourceLineNo">327</span>            // implements the interface).<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            if (parent.options.PRINT_INLINE_REPORT) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>              VM.sysWrite("\t\tRequired additional instanceof " + callDeclClass + " test\n");<a name="line.329"></a>
+<span class="sourceLineNo">330</span>            }<a name="line.330"></a>
+<span class="sourceLineNo">331</span>            firstIfBlock = new BasicBlock(callSite.bcIndex, callSite.position, parent.cfg);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>            firstIfBlock.exceptionHandlers = ebag;<a name="line.332"></a>
+<span class="sourceLineNo">333</span><a name="line.333"></a>
+<span class="sourceLineNo">334</span>            RegisterOperand instanceOfResult = parent.temps.makeTempInt();<a name="line.334"></a>
+<span class="sourceLineNo">335</span>            tmp =<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                InstanceOf.create(INSTANCEOF_NOTNULL,<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                                  instanceOfResult,<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                                  new TypeOperand(callDeclClass),<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                                  receiver.copy(),<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                                  Call.getGuard(callSite));<a name="line.340"></a>
+<span class="sourceLineNo">341</span>            tmp.copyPosition(callSite);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>            firstIfBlock.appendInstruction(tmp);<a name="line.342"></a>
+<span class="sourceLineNo">343</span><a name="line.343"></a>
+<span class="sourceLineNo">344</span>            tmp =<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                IfCmp.create(INT_IFCMP,<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                             parent.temps.makeTempValidation(),<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                             instanceOfResult.copyD2U(),<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                             new IntConstantOperand(0),<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                             ConditionOperand.EQUAL(),<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                             testFailed.makeJumpTarget(),<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                             BranchProfileOperand.unlikely());<a name="line.351"></a>
+<span class="sourceLineNo">352</span>            tmp.copyPosition(callSite);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>            firstIfBlock.appendInstruction(tmp);<a name="line.353"></a>
+<span class="sourceLineNo">354</span><a name="line.354"></a>
+<span class="sourceLineNo">355</span>            firstIfBlock.insertOut(testFailed);<a name="line.355"></a>
+<span class="sourceLineNo">356</span>            firstIfBlock.insertOut(lastIfBlock);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>            container.cfg.linkInCodeOrder(firstIfBlock, lastIfBlock);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>          }<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>        if (guards[i] == OptOptions.INLINE_GUARD_CLASS_TEST) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>          tmp =<a name="line.362"></a>
+<span class="sourceLineNo">363</span>              InlineGuard.create(IG_CLASS_TEST,<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                                 receiver.copy(),<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                                 Call.getGuard(callSite).copy(),<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                                 new TypeOperand(target.getDeclaringClass()),<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                                 testFailed.makeJumpTarget(),<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                                 BranchProfileOperand.unlikely());<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        } else if (guards[i] == OptOptions.INLINE_GUARD_METHOD_TEST) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span>          // method test for interface requires additional check if<a name="line.370"></a>
+<span class="sourceLineNo">371</span>          // the reciever's class is a subclass of inlined method's<a name="line.371"></a>
+<span class="sourceLineNo">372</span>          // declaring class.<a name="line.372"></a>
+<span class="sourceLineNo">373</span>          if (isInterface) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>            RegisterOperand t = parent.temps.makeTempInt();<a name="line.374"></a>
+<span class="sourceLineNo">375</span>            Instruction test =<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                InstanceOf.create(INSTANCEOF_NOTNULL,<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                                  t,<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                                  new TypeOperand(target.getDeclaringClass().getTypeRef()),<a name="line.378"></a>
+<span class="sourceLineNo">379</span>                                  receiver.copy());<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            test.copyPosition(callSite);<a name="line.380"></a>
+<span class="sourceLineNo">381</span>            lastIfBlock.appendInstruction(test);<a name="line.381"></a>
+<span class="sourceLineNo">382</span><a name="line.382"></a>
+<span class="sourceLineNo">383</span>            Instruction cmp =<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                IfCmp.create(INT_IFCMP,<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                             parent.temps.makeTempValidation(),<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                             t.copyD2U(),<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                             new IntConstantOperand(0),<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                             ConditionOperand.EQUAL(),<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                             testFailed.makeJumpTarget(),<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                             BranchProfileOperand.unlikely());<a name="line.390"></a>
+<span class="sourceLineNo">391</span>            cmp.copyPosition(callSite);<a name="line.391"></a>
+<span class="sourceLineNo">392</span>            lastIfBlock.appendInstruction(cmp);<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>            BasicBlock subclassTest = new BasicBlock(callSite.bcIndex, callSite.position, parent.cfg);<a name="line.394"></a>
+<span class="sourceLineNo">395</span><a name="line.395"></a>
+<span class="sourceLineNo">396</span>            lastIfBlock.insertOut(testFailed);<a name="line.396"></a>
+<span class="sourceLineNo">397</span>            lastIfBlock.insertOut(subclassTest);<a name="line.397"></a>
+<span class="sourceLineNo">398</span><a name="line.398"></a>
+<span class="sourceLineNo">399</span>            container.cfg.linkInCodeOrder(lastIfBlock, subclassTest);<a name="line.399"></a>
+<span class="sourceLineNo">400</span><a name="line.400"></a>
+<span class="sourceLineNo">401</span>            lastIfBlock = subclassTest;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>          }<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>          tmp =<a name="line.404"></a>
+<span class="sourceLineNo">405</span>              InlineGuard.create(IG_METHOD_TEST,<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                                 receiver.copy(),<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                                 Call.getGuard(callSite).copy(),<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                                 MethodOperand.VIRTUAL(target.getMemberRef().asMethodReference(), target),<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                                 testFailed.makeJumpTarget(),<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                                 BranchProfileOperand.unlikely());<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        } else {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>          tmp =<a name="line.412"></a>
+<span class="sourceLineNo">413</span>              InlineGuard.create(IG_PATCH_POINT,<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                                 receiver.copy(),<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                                 Call.getGuard(callSite).copy(),<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                                 MethodOperand.VIRTUAL(target.getMemberRef().asMethodReference(), target),<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                                 testFailed.makeJumpTarget(),<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                                 inlDec.OSRTestFailed() ? BranchProfileOperand.never() : BranchProfileOperand.unlikely());<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        }<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        tmp.copyPosition(callSite);<a name="line.420"></a>
+<span class="sourceLineNo">421</span>        lastIfBlock.appendInstruction(tmp);<a name="line.421"></a>
+<span class="sourceLineNo">422</span><a name="line.422"></a>
+<span class="sourceLineNo">423</span>        lastIfBlock.insertOut(testFailed);<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        lastIfBlock.insertOut(children[i].prologue);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        container.cfg.linkInCodeOrder(lastIfBlock, children[i].cfg.firstInCodeOrder());<a name="line.425"></a>
+<span class="sourceLineNo">426</span>        if (children[i].epilogue != null) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>          children[i].epilogue.appendInstruction(container.epilogue.makeGOTO());<a name="line.427"></a>
+<span class="sourceLineNo">428</span>          children[i].epilogue.insertOut(container.epilogue);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        }<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        container.cfg.linkInCodeOrder(children[i].cfg.lastInCodeOrder(), testFailed);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>      }<a name="line.431"></a>
+<span class="sourceLineNo">432</span>      //Step 6: finish by linking container.prologue &amp; testFailed<a name="line.432"></a>
+<span class="sourceLineNo">433</span>      container.prologue.insertOut(testFailed);<a name="line.433"></a>
+<span class="sourceLineNo">434</span>      container.cfg.linkInCodeOrder(container.prologue, testFailed);<a name="line.434"></a>
+<span class="sourceLineNo">435</span>      return container;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>    } else {<a name="line.436"></a>
+<span class="sourceLineNo">437</span>      if (VM.VerifyAssertions) VM._assert(inlDec.getNumberOfTargets() == 1);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      NormalMethod callee = (NormalMethod) inlDec.getTargets()[0];<a name="line.438"></a>
+<span class="sourceLineNo">439</span>      if (parent.options.PRINT_INLINE_REPORT) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>        VM.sysWrite("\tInline " + callee +<a name="line.440"></a>
+<span class="sourceLineNo">441</span>                    " into " + callSite.position.getMethod() +<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                    " at bytecode " + callSite.bcIndex + "\n");<a name="line.442"></a>
+<span class="sourceLineNo">443</span>      }<a name="line.443"></a>
+<span class="sourceLineNo">444</span>      GenerationContext child = GenerationContext.<a name="line.444"></a>
+<span class="sourceLineNo">445</span>          createChildContext(parent, ebag, callee, callSite);<a name="line.445"></a>
+<span class="sourceLineNo">446</span>      BC2IR.generateHIR(child);<a name="line.446"></a>
+<span class="sourceLineNo">447</span>      GenerationContext.transferState(parent, child);<a name="line.447"></a>
+<span class="sourceLineNo">448</span>      return child;<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    }<a name="line.449"></a>
+<span class="sourceLineNo">450</span>  }<a name="line.450"></a>
+<span class="sourceLineNo">451</span>}<a name="line.451"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

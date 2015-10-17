@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.bc2ir.ia32;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.classloader.Atom;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.classloader.RVMField;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.classloader.MethodReference;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.classloader.TypeReference;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.MagicNotImplementedException;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.bc2ir.BC2IR;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.bc2ir.GenerationContext;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.Binary;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.CacheOp;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.Empty;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.GetField;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.Load;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.Move;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.Operators;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.Store;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.ir.ia32.PhysicalRegisterSet;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.ir.operand.AddressConstantOperand;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.compilers.opt.ir.operand.LocationOperand;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.ir.operand.TrueGuardOperand;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.ia32.StackframeLayoutConstants;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.runtime.ArchEntrypoints;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jikesrvm.runtime.Magic;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import org.jikesrvm.runtime.MagicNames;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * This class implements the machine-specific magics for the opt compiler.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * @see org.jikesrvm.compilers.opt.bc2ir.GenerateMagic for the machine-independent magics<a name="line.45"></a>
+<span class="sourceLineNo">046</span> */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>public abstract class GenerateMachineSpecificMagic implements Operators, StackframeLayoutConstants {<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * "Semantic inlining" of methods of the Magic class.<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * Based on the methodName, generate a sequence of opt instructions<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * that implement the magic, updating the stack as necessary<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   *<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * @param bc2ir the bc2ir object generating the ir containing this magic<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * @param gc == bc2ir.gc<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * @param meth the RVMMethod that is the magic method<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  public static boolean generateMagic(BC2IR bc2ir, GenerationContext gc, MethodReference meth)<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      throws MagicNotImplementedException {<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    Atom methodName = meth.getName();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    PhysicalRegisterSet phys = gc.temps.getPhysicalRegisterSet();<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    if (methodName == MagicNames.getESIAsThread) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      RegisterOperand rop = gc.temps.makeTROp();<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      bc2ir.markGuardlessNonNull(rop);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>      bc2ir.push(rop);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    } else if (methodName == MagicNames.setESIAsThread) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      Operand val = bc2ir.popRef();<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      if (val instanceof RegisterOperand) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        bc2ir.appendInstruction(Move.create(REF_MOVE, gc.temps.makeTROp(), val));<a name="line.71"></a>
+<span class="sourceLineNo">072</span>      } else {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        String msg = " Unexpected operand Magic.setESIAsThread";<a name="line.73"></a>
+<span class="sourceLineNo">074</span>        throw MagicNotImplementedException.UNEXPECTED(msg);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>      }<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    } else if (methodName == MagicNames.getFramePointer) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      gc.allocFrame = true;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      RegisterOperand val = gc.temps.makeTemp(TypeReference.Address);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      RVMField f = ArchEntrypoints.framePointerField;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      RegisterOperand pr = new RegisterOperand(phys.getESI(), TypeReference.Int);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      bc2ir.appendInstruction(GetField.create(GETFIELD,<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                                              val,<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                                              pr.copy(),<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                                              new AddressConstantOperand(f.getOffset()),<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                                              new LocationOperand(f),<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                                              new TrueGuardOperand()));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      bc2ir.push(val.copyD2U());<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    } else if (methodName == MagicNames.getJTOC || methodName == MagicNames.getTocPointer) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>      TypeReference t = (methodName == MagicNames.getJTOC ? TypeReference.IntArray : TypeReference.Address);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      RegisterOperand val = gc.temps.makeTemp(t);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      AddressConstantOperand addr = new AddressConstantOperand(Magic.getTocPointer());<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      bc2ir.appendInstruction(Move.create(REF_MOVE, val, addr));<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      bc2ir.push(val.copyD2U());<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    } else if (methodName == MagicNames.isync) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      // nothing required on Intel<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    } else if (methodName == MagicNames.sync) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      // nothing required on Intel<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    } else if (methodName == MagicNames.prefetch) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      bc2ir.appendInstruction(CacheOp.create(PREFETCH, bc2ir.popAddress()));<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    } else if (methodName == MagicNames.pause) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>      bc2ir.appendInstruction(Empty.create(PAUSE));<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    } else if (methodName == MagicNames.getCallerFramePointer) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      Operand fp = bc2ir.popAddress();<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      RegisterOperand val = gc.temps.makeTemp(TypeReference.Address);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      bc2ir.appendInstruction(Load.create(REF_LOAD,<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                                          val,<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                                          fp,<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                                          new IntConstantOperand(STACKFRAME_FRAME_POINTER_OFFSET),<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                                          null));<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      bc2ir.push(val.copyD2U());<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    } else if (methodName == MagicNames.setCallerFramePointer) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      Operand val = bc2ir.popAddress();<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      Operand fp = bc2ir.popAddress();<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      bc2ir.appendInstruction(Store.create(REF_STORE,<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                                           val,<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                                           fp,<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                                           new IntConstantOperand(STACKFRAME_FRAME_POINTER_OFFSET),<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                                           null));<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    } else if (methodName == MagicNames.getCompiledMethodID) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      Operand fp = bc2ir.popAddress();<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      RegisterOperand val = gc.temps.makeTempInt();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      bc2ir.appendInstruction(Load.create(INT_LOAD,<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                                          val,<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                                          fp,<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                                          new IntConstantOperand(STACKFRAME_METHOD_ID_OFFSET),<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                                          null));<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      bc2ir.push(val.copyD2U());<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    } else if (methodName == MagicNames.setCompiledMethodID) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      Operand val = bc2ir.popInt();<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      Operand fp = bc2ir.popAddress();<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      bc2ir.appendInstruction(Store.create(INT_STORE,<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                                           val,<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                                           fp,<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                                           new IntConstantOperand(STACKFRAME_METHOD_ID_OFFSET),<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                                           null));<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    } else if (methodName == MagicNames.getReturnAddressLocation) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      Operand fp = bc2ir.popAddress();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      RegisterOperand val = gc.temps.makeTemp(TypeReference.Address);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      bc2ir.appendInstruction(Binary.create(REF_ADD,<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                                            val,<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                                            fp,<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                            new IntConstantOperand(STACKFRAME_RETURN_ADDRESS_OFFSET)));<a name="line.142"></a>
+<span class="sourceLineNo">143</span>      bc2ir.push(val.copyD2U());<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    } else {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>      // Distinguish between magics that we know we don't implement<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      // (and never plan to implement) and those (usually new ones)<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      // that we want to be warned that we don't implement.<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      String msg = " Magic method not implemented: " + meth;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      if (methodName == MagicNames.returnToNewStack) {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        throw MagicNotImplementedException.EXPECTED(msg);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      } else {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        return false;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>        // throw MagicNotImplementedException.UNEXPECTED(msg);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>      }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    return true;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>}<a name="line.158"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

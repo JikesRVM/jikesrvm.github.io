@@ -1,0 +1,2294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>BootRecord (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BootRecord (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BootRecord.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/ArchEntrypoints.html" title="interface in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/BootRecord.html" target="_top">Frames</a></li>
+<li><a href="BootRecord.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.runtime</div>
+<h2 title="Class BootRecord" class="title">Class BootRecord</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.runtime.BootRecord</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.93">BootRecord</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Information required to start the virtual machine and communicate
+ with the outside world.
+
+ <p> The virtual machine image consists entirely of java objects.
+ The first java-object, the boot record, is the communication area between
+ the host operating system and the virtual machine. It consists of read-only
+ fields containing startup information used by the assembler bootstrap
+ loader, by the virtual machine's initializer methods, and by the virtual
+ machine's operating system call interface methods.
+
+ <p> See also: BootImageWriter.main(), RunBootImage.C
+
+ <p>The boot record looks like this
+ (note that fields are layed out "backwards"):
+
+ <pre>
+                       lo-mem
+                  +---------------+
+                  |   fieldN-1    |
+                  +---------------+
+                  |     ...       |
+                  +---------------+
+                  |    field1     |
+                  +---------------+
+                  |    field0     |
+                  +---------------+ \
+                  |  tib pointer  |  |
+                  +---------------+  | object header
+                  |  lock word    |  |
+                  +---------------+ /
+                       hi-mem
+ </pre>
+
+ The "spRegister" field of the boot record points to the word immediately
+ preceeding the top of a stack object (ie. it's ready to accept a "push"
+ instruction). The stack object is an array of words that looks like this:
+
+ <pre>
+                       lo-mem
+                  +---------------+ \
+                  |  tib pointer  |  |
+                  +---------------+  | array
+                  |  lock word    |  |   object
+                  +---------------+  |      header
+                  |    .length    |  |
+                  +---------------+ /
+                  |    <empty>    |
+                  +---------------+
+                  |     ...       |
+                  +---------------+
+                  |    <empty>    |
+                  +---------------+
+    spRegister ->      hi-mem
+ </pre>
+
+ <P> The "ipRegister" field of the boot record points to the first word
+ of an array of machine instructions comprising
+ the virtual machine's startoff code -- see "VM.boot()".
+
+ <P> The "tocRegister" field of the boot record points to an array of words
+ containing the static fields and method addresses of the virtual
+ machine image -- see "Statics.slots[]".
+
+ <P> The remaining fields of the boot record serve as a function linkage area
+ between services residing in the host operating system and services
+ residing in the virtual machine.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootCompleted">bootCompleted</a></strong></code>
+<div class="block">flag to indicate RVM has completed booting and ready to run Java programs
+ added by Ton Ngo for JNI support</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageCodeEnd">bootImageCodeEnd</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageCodeStart">bootImageCodeStart</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageDataEnd">bootImageDataEnd</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageDataStart">bootImageDataStart</a></strong></code>
+<div class="block">address at which image is to be loaded into memory</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageRMapEnd">bootImageRMapEnd</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootImageRMapStart">bootImageRMapStart</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#bootThreadOffset">bootThreadOffset</a></strong></code>
+<div class="block">jtoc offset of RVMThread.bootThread</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#debugRequestedOffset">debugRequestedOffset</a></strong></code>
+<div class="block">jtoc offset of RVMThread.debugRequested</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#deliverHardwareExceptionOffset">deliverHardwareExceptionOffset</a></strong></code>
+<div class="block">jtoc offset of RuntimeEntrypoints.deliverHardwareException()</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#dumpStackAndDieOffset">dumpStackAndDieOffset</a></strong></code>
+<div class="block">jtoc offset of RVMThread.dumpStackAndDie(I)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#externalSignalFlag">externalSignalFlag</a></strong></code>
+<div class="block">an external signal has been sent e.g. kill -signalnumber processid</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverAddStreamIP">gcspyDriverAddStreamIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverEndOutputIP">gcspyDriverEndOutputIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverInitIP">gcspyDriverInitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverInitOutputIP">gcspyDriverInitOutputIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverResizeIP">gcspyDriverResizeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverSetTileNameIP">gcspyDriverSetTileNameIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverSetTileNameRangeIP">gcspyDriverSetTileNameRangeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverSpaceInfoIP">gcspyDriverSpaceInfoIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverStartCommIP">gcspyDriverStartCommIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverStreamByteValueIP">gcspyDriverStreamByteValueIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverStreamIntValueIP">gcspyDriverStreamIntValueIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverStreamIP">gcspyDriverStreamIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverStreamShortValueIP">gcspyDriverStreamShortValueIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverSummaryIP">gcspyDriverSummaryIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyDriverSummaryValueIP">gcspyDriverSummaryValueIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyFormatSizeIP">gcspyFormatSizeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyIntWriteControlIP">gcspyIntWriteControlIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerAddDriverIP">gcspyMainServerAddDriverIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerAddEventIP">gcspyMainServerAddEventIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerInitIP">gcspyMainServerInitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerIsConnectedIP">gcspyMainServerIsConnectedIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerOuterLoopIP">gcspyMainServerOuterLoopIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerSafepointIP">gcspyMainServerSafepointIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerSetGeneralInfoIP">gcspyMainServerSetGeneralInfoIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerStartCompensationTimerIP">gcspyMainServerStartCompensationTimerIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyMainServerStopCompensationTimerIP">gcspyMainServerStopCompensationTimerIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspySprintfIP">gcspySprintfIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyStartserverIP">gcspyStartserverIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#gcspyStreamInitIP">gcspyStreamInitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#hardwareTrapMethodId">hardwareTrapMethodId</a></strong></code>
+<div class="block">method id for inserting stackframes at site of hardware traps</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#heapRanges">heapRanges</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#initialHeapSize">initialHeapSize</a></strong></code>
+<div class="block">initial size of heap</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#ipRegister">ipRegister</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#maximumHeapSize">maximumHeapSize</a></strong></code>
+<div class="block">maximum size of heap</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#spRegister">spRegister</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysAccessIP">sysAccessIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysArgIP">sysArgIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysBytesAvailableIP">sysBytesAvailableIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysCallocIP">sysCallocIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysConsoleWriteCharIP">sysConsoleWriteCharIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysConsoleWriteDoubleIP">sysConsoleWriteDoubleIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysConsoleWriteIntegerIP">sysConsoleWriteIntegerIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysConsoleWriteLongIP">sysConsoleWriteLongIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysCopyIP">sysCopyIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysCreateThreadSpecificDataKeysIP">sysCreateThreadSpecificDataKeysIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysCurrentTimeMillisIP">sysCurrentTimeMillisIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDisableAlignmentCheckingIP">sysDisableAlignmentCheckingIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDlopenIP">sysDlopenIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDlsymIP">sysDlsymIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDoubleRemainderIP">sysDoubleRemainderIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDoubleToIntIP">sysDoubleToIntIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysDoubleToLongIP">sysDoubleToLongIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysEnableAlignmentCheckingIP">sysEnableAlignmentCheckingIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysExitIP">sysExitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysFloatToIntIP">sysFloatToIntIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysFloatToLongIP">sysFloatToLongIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysFreeIP">sysFreeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysGetenvIP">sysGetenvIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysGetPageSizeIP">sysGetPageSizeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysGetThreadIdIP">sysGetThreadIdIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysJavaVM">sysJavaVM</a></strong></code>
+<div class="block">address of JavaVM, used by JNI_OnLoad and JNIEnv.GetJavaVM,
+ defined in Sys.C</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysLongDivideIP">sysLongDivideIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysLongRemainderIP">sysLongRemainderIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysLongToDoubleIP">sysLongToDoubleIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysLongToFloatIP">sysLongToFloatIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMallocIP">sysMallocIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMMapErrnoIP">sysMMapErrnoIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMMapIP">sysMMapIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorBroadcastIP">sysMonitorBroadcastIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorCreateIP">sysMonitorCreateIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorDestroyIP">sysMonitorDestroyIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorEnterIP">sysMonitorEnterIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorExitIP">sysMonitorExitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorTimedWaitAbsoluteIP">sysMonitorTimedWaitAbsoluteIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMonitorWaitIP">sysMonitorWaitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysMProtectIP">sysMProtectIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysNanoSleepIP">sysNanoSleepIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysNanoTimeIP">sysNanoTimeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysNumProcessorsIP">sysNumProcessorsIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysParseMemorySizeIP">sysParseMemorySizeIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPerfEventCreateIP">sysPerfEventCreateIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPerfEventDisableIP">sysPerfEventDisableIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPerfEventEnableIP">sysPerfEventEnableIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPerfEventInitIP">sysPerfEventInitIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPerfEventReadIP">sysPerfEventReadIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPrimitiveParseFloatIP">sysPrimitiveParseFloatIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysPrimitiveParseIntIP">sysPrimitiveParseIntIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysReadByteIP">sysReadByteIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysReadBytesIP">sysReadBytesIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysReportAlignmentCheckingIP">sysReportAlignmentCheckingIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysSetFdCloseOnExecIP">sysSetFdCloseOnExecIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysSetupHardwareTrapHandlerIP">sysSetupHardwareTrapHandlerIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysStashVMThreadIP">sysStashVMThreadIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysStatIP">sysStatIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysSyncCacheIP">sysSyncCacheIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysSyncFileIP">sysSyncFileIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysThreadBindIP">sysThreadBindIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysThreadBindSupportedIP">sysThreadBindSupportedIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysThreadCreateIP">sysThreadCreateIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysThreadTerminateIP">sysThreadTerminateIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysThreadYieldIP">sysThreadYieldIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathAcosIP">sysVMMathAcosIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathAsinIP">sysVMMathAsinIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathAtan2IP">sysVMMathAtan2IP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathAtanIP">sysVMMathAtanIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathCbrtIP">sysVMMathCbrtIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathCeilIP">sysVMMathCeilIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathCoshIP">sysVMMathCoshIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathCosIP">sysVMMathCosIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathExpIP">sysVMMathExpIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathExpm1IP">sysVMMathExpm1IP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathFloorIP">sysVMMathFloorIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathHypotIP">sysVMMathHypotIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathIEEEremainderIP">sysVMMathIEEEremainderIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathLog10IP">sysVMMathLog10IP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathLog1pIP">sysVMMathLog1pIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathLogIP">sysVMMathLogIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathPowIP">sysVMMathPowIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathRintIP">sysVMMathRintIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathSinhIP">sysVMMathSinhIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathSinIP">sysVMMathSinIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathSqrtIP">sysVMMathSqrtIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathTanhIP">sysVMMathTanhIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysVMMathTanIP">sysVMMathTanIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysWriteByteIP">sysWriteByteIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysWriteBytesIP">sysWriteBytesIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysZeroIP">sysZeroIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysZeroNTIP">sysZeroNTIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#sysZeroPagesIP">sysZeroPagesIP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/jikesrvm/runtime/BootRecord.html" title="class in org.jikesrvm.runtime">BootRecord</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#the_boot_record">the_boot_record</a></strong></code>
+<div class="block">The following static field is initialized by the boot image writer.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#tiRegister">tiRegister</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#tocRegister">tocRegister</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#verboseBoot">verboseBoot</a></strong></code>
+<div class="block">Verbosity level for booting
+ set by -X:verboseBoot=</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#BootRecord()">BootRecord</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#setHeapRange(int,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">setHeapRange</a></strong>(int&nbsp;id,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/BootRecord.html#showHeapRanges()">showHeapRanges</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="the_boot_record">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>the_boot_record</h4>
+<pre>public static&nbsp;<a href="../../../org/jikesrvm/runtime/BootRecord.html" title="class in org.jikesrvm.runtime">BootRecord</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.102">the_boot_record</a></pre>
+<div class="block">The following static field is initialized by the boot image writer.
+ It allows the virtual machine to address the boot record using normal
+ field access instructions (the assembler bootstrap function, on the other
+ hand, simply addresses the boot record as the first object in
+ the boot image).</div>
+</li>
+</ul>
+<a name="bootImageDataStart">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageDataStart</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.138">bootImageDataStart</a></pre>
+<div class="block">address at which image is to be loaded into memory</div>
+</li>
+</ul>
+<a name="bootImageDataEnd">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageDataEnd</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.139">bootImageDataEnd</a></pre>
+</li>
+</ul>
+<a name="bootImageCodeStart">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageCodeStart</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.140">bootImageCodeStart</a></pre>
+</li>
+</ul>
+<a name="bootImageCodeEnd">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageCodeEnd</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.141">bootImageCodeEnd</a></pre>
+</li>
+</ul>
+<a name="bootImageRMapStart">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageRMapStart</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.142">bootImageRMapStart</a></pre>
+</li>
+</ul>
+<a name="bootImageRMapEnd">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageRMapEnd</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.143">bootImageRMapEnd</a></pre>
+</li>
+</ul>
+<a name="initialHeapSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialHeapSize</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.148">initialHeapSize</a></pre>
+<div class="block">initial size of heap</div>
+</li>
+</ul>
+<a name="maximumHeapSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maximumHeapSize</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.153">maximumHeapSize</a></pre>
+<div class="block">maximum size of heap</div>
+</li>
+</ul>
+<a name="heapRanges">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>heapRanges</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.156">heapRanges</a></pre>
+</li>
+</ul>
+<a name="verboseBoot">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>verboseBoot</h4>
+<pre>public&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.162">verboseBoot</a></pre>
+<div class="block">Verbosity level for booting
+ set by -X:verboseBoot=</div>
+</li>
+</ul>
+<a name="tiRegister">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tiRegister</h4>
+<pre>public&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.166">tiRegister</a></pre>
+</li>
+</ul>
+<a name="spRegister">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>spRegister</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.167">spRegister</a></pre>
+</li>
+</ul>
+<a name="ipRegister">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ipRegister</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.168">ipRegister</a></pre>
+</li>
+</ul>
+<a name="tocRegister">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tocRegister</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.169">tocRegister</a></pre>
+</li>
+</ul>
+<a name="bootCompleted">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootCompleted</h4>
+<pre>int <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.175">bootCompleted</a></pre>
+<div class="block">flag to indicate RVM has completed booting and ready to run Java programs
+ added by Ton Ngo for JNI support</div>
+</li>
+</ul>
+<a name="sysJavaVM">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysJavaVM</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.181">sysJavaVM</a></pre>
+<div class="block">address of JavaVM, used by JNI_OnLoad and JNIEnv.GetJavaVM,
+ defined in Sys.C</div>
+</li>
+</ul>
+<a name="hardwareTrapMethodId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hardwareTrapMethodId</h4>
+<pre>int <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.188">hardwareTrapMethodId</a></pre>
+<div class="block">method id for inserting stackframes at site of hardware traps</div>
+</li>
+</ul>
+<a name="deliverHardwareExceptionOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deliverHardwareExceptionOffset</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.192">deliverHardwareExceptionOffset</a></pre>
+<div class="block">jtoc offset of RuntimeEntrypoints.deliverHardwareException()</div>
+</li>
+</ul>
+<a name="dumpStackAndDieOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dumpStackAndDieOffset</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.196">dumpStackAndDieOffset</a></pre>
+<div class="block">jtoc offset of RVMThread.dumpStackAndDie(I)</div>
+</li>
+</ul>
+<a name="bootThreadOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootThreadOffset</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.200">bootThreadOffset</a></pre>
+<div class="block">jtoc offset of RVMThread.bootThread</div>
+</li>
+</ul>
+<a name="debugRequestedOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>debugRequestedOffset</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.204">debugRequestedOffset</a></pre>
+<div class="block">jtoc offset of RVMThread.debugRequested</div>
+</li>
+</ul>
+<a name="externalSignalFlag">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>externalSignalFlag</h4>
+<pre>int <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.209">externalSignalFlag</a></pre>
+<div class="block">an external signal has been sent e.g. kill -signalnumber processid</div>
+</li>
+</ul>
+<a name="sysConsoleWriteCharIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysConsoleWriteCharIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.215">sysConsoleWriteCharIP</a></pre>
+</li>
+</ul>
+<a name="sysConsoleWriteIntegerIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysConsoleWriteIntegerIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.216">sysConsoleWriteIntegerIP</a></pre>
+</li>
+</ul>
+<a name="sysConsoleWriteLongIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysConsoleWriteLongIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.217">sysConsoleWriteLongIP</a></pre>
+</li>
+</ul>
+<a name="sysConsoleWriteDoubleIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysConsoleWriteDoubleIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.218">sysConsoleWriteDoubleIP</a></pre>
+</li>
+</ul>
+<a name="sysExitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysExitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.221">sysExitIP</a></pre>
+</li>
+</ul>
+<a name="sysArgIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysArgIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.222">sysArgIP</a></pre>
+</li>
+</ul>
+<a name="sysGetenvIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysGetenvIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.225">sysGetenvIP</a></pre>
+</li>
+</ul>
+<a name="sysCopyIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysCopyIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.228">sysCopyIP</a></pre>
+</li>
+</ul>
+<a name="sysMallocIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMallocIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.229">sysMallocIP</a></pre>
+</li>
+</ul>
+<a name="sysCallocIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysCallocIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.230">sysCallocIP</a></pre>
+</li>
+</ul>
+<a name="sysFreeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysFreeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.231">sysFreeIP</a></pre>
+</li>
+</ul>
+<a name="sysZeroNTIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysZeroNTIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.232">sysZeroNTIP</a></pre>
+</li>
+</ul>
+<a name="sysZeroIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysZeroIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.233">sysZeroIP</a></pre>
+</li>
+</ul>
+<a name="sysZeroPagesIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysZeroPagesIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.234">sysZeroPagesIP</a></pre>
+</li>
+</ul>
+<a name="sysSyncCacheIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysSyncCacheIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.235">sysSyncCacheIP</a></pre>
+</li>
+</ul>
+<a name="sysStatIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysStatIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.238">sysStatIP</a></pre>
+</li>
+</ul>
+<a name="sysReadByteIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysReadByteIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.239">sysReadByteIP</a></pre>
+</li>
+</ul>
+<a name="sysWriteByteIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysWriteByteIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.240">sysWriteByteIP</a></pre>
+</li>
+</ul>
+<a name="sysReadBytesIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysReadBytesIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.241">sysReadBytesIP</a></pre>
+</li>
+</ul>
+<a name="sysWriteBytesIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysWriteBytesIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.242">sysWriteBytesIP</a></pre>
+</li>
+</ul>
+<a name="sysBytesAvailableIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysBytesAvailableIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.243">sysBytesAvailableIP</a></pre>
+</li>
+</ul>
+<a name="sysSyncFileIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysSyncFileIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.244">sysSyncFileIP</a></pre>
+</li>
+</ul>
+<a name="sysSetFdCloseOnExecIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysSetFdCloseOnExecIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.245">sysSetFdCloseOnExecIP</a></pre>
+</li>
+</ul>
+<a name="sysAccessIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysAccessIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.247">sysAccessIP</a></pre>
+</li>
+</ul>
+<a name="sysMMapIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMMapIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.250">sysMMapIP</a></pre>
+</li>
+</ul>
+<a name="sysMMapErrnoIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMMapErrnoIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.251">sysMMapErrnoIP</a></pre>
+</li>
+</ul>
+<a name="sysMProtectIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMProtectIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.252">sysMProtectIP</a></pre>
+</li>
+</ul>
+<a name="sysGetPageSizeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysGetPageSizeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.253">sysGetPageSizeIP</a></pre>
+</li>
+</ul>
+<a name="sysNumProcessorsIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysNumProcessorsIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.256">sysNumProcessorsIP</a></pre>
+</li>
+</ul>
+<a name="sysThreadBindSupportedIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysThreadBindSupportedIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.257">sysThreadBindSupportedIP</a></pre>
+</li>
+</ul>
+<a name="sysThreadBindIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysThreadBindIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.258">sysThreadBindIP</a></pre>
+</li>
+</ul>
+<a name="sysThreadCreateIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysThreadCreateIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.259">sysThreadCreateIP</a></pre>
+</li>
+</ul>
+<a name="sysThreadYieldIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysThreadYieldIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.260">sysThreadYieldIP</a></pre>
+</li>
+</ul>
+<a name="sysGetThreadIdIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysGetThreadIdIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.261">sysGetThreadIdIP</a></pre>
+</li>
+</ul>
+<a name="sysSetupHardwareTrapHandlerIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysSetupHardwareTrapHandlerIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.262">sysSetupHardwareTrapHandlerIP</a></pre>
+</li>
+</ul>
+<a name="sysStashVMThreadIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysStashVMThreadIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.263">sysStashVMThreadIP</a></pre>
+</li>
+</ul>
+<a name="sysThreadTerminateIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysThreadTerminateIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.264">sysThreadTerminateIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorCreateIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorCreateIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.267">sysMonitorCreateIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorDestroyIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorDestroyIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.268">sysMonitorDestroyIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorEnterIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorEnterIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.269">sysMonitorEnterIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorExitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorExitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.270">sysMonitorExitIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorTimedWaitAbsoluteIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorTimedWaitAbsoluteIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.271">sysMonitorTimedWaitAbsoluteIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorWaitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorWaitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.272">sysMonitorWaitIP</a></pre>
+</li>
+</ul>
+<a name="sysMonitorBroadcastIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysMonitorBroadcastIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.273">sysMonitorBroadcastIP</a></pre>
+</li>
+</ul>
+<a name="sysLongDivideIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysLongDivideIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.277">sysLongDivideIP</a></pre>
+</li>
+</ul>
+<a name="sysLongRemainderIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysLongRemainderIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.279">sysLongRemainderIP</a></pre>
+</li>
+</ul>
+<a name="sysLongToFloatIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysLongToFloatIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.281">sysLongToFloatIP</a></pre>
+</li>
+</ul>
+<a name="sysLongToDoubleIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysLongToDoubleIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.283">sysLongToDoubleIP</a></pre>
+</li>
+</ul>
+<a name="sysFloatToIntIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysFloatToIntIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.285">sysFloatToIntIP</a></pre>
+</li>
+</ul>
+<a name="sysDoubleToIntIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDoubleToIntIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.287">sysDoubleToIntIP</a></pre>
+</li>
+</ul>
+<a name="sysFloatToLongIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysFloatToLongIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.289">sysFloatToLongIP</a></pre>
+</li>
+</ul>
+<a name="sysDoubleToLongIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDoubleToLongIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.291">sysDoubleToLongIP</a></pre>
+</li>
+</ul>
+<a name="sysDoubleRemainderIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDoubleRemainderIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.293">sysDoubleRemainderIP</a></pre>
+</li>
+</ul>
+<a name="sysPrimitiveParseFloatIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPrimitiveParseFloatIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.294">sysPrimitiveParseFloatIP</a></pre>
+</li>
+</ul>
+<a name="sysPrimitiveParseIntIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPrimitiveParseIntIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.295">sysPrimitiveParseIntIP</a></pre>
+</li>
+</ul>
+<a name="sysParseMemorySizeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysParseMemorySizeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.296">sysParseMemorySizeIP</a></pre>
+</li>
+</ul>
+<a name="sysCurrentTimeMillisIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysCurrentTimeMillisIP</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.299">sysCurrentTimeMillisIP</a></pre>
+</li>
+</ul>
+<a name="sysNanoTimeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysNanoTimeIP</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.300">sysNanoTimeIP</a></pre>
+</li>
+</ul>
+<a name="sysNanoSleepIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysNanoSleepIP</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.301">sysNanoSleepIP</a></pre>
+</li>
+</ul>
+<a name="sysDlopenIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDlopenIP</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.304">sysDlopenIP</a></pre>
+</li>
+</ul>
+<a name="sysDlsymIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDlsymIP</h4>
+<pre><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.305">sysDlsymIP</a></pre>
+</li>
+</ul>
+<a name="sysCreateThreadSpecificDataKeysIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysCreateThreadSpecificDataKeysIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.308">sysCreateThreadSpecificDataKeysIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathSinIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathSinIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.311">sysVMMathSinIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathCosIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathCosIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.312">sysVMMathCosIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathTanIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathTanIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.313">sysVMMathTanIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathAsinIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathAsinIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.314">sysVMMathAsinIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathAcosIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathAcosIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.315">sysVMMathAcosIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathAtanIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathAtanIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.316">sysVMMathAtanIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathAtan2IP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathAtan2IP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.317">sysVMMathAtan2IP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathCoshIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathCoshIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.318">sysVMMathCoshIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathSinhIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathSinhIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.319">sysVMMathSinhIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathTanhIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathTanhIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.320">sysVMMathTanhIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathExpIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathExpIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.321">sysVMMathExpIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathLogIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathLogIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.322">sysVMMathLogIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathSqrtIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathSqrtIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.323">sysVMMathSqrtIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathPowIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathPowIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.324">sysVMMathPowIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathIEEEremainderIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathIEEEremainderIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.325">sysVMMathIEEEremainderIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathCeilIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathCeilIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.326">sysVMMathCeilIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathFloorIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathFloorIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.327">sysVMMathFloorIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathRintIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathRintIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.328">sysVMMathRintIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathCbrtIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathCbrtIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.329">sysVMMathCbrtIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathExpm1IP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathExpm1IP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.330">sysVMMathExpm1IP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathHypotIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathHypotIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.331">sysVMMathHypotIP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathLog10IP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathLog10IP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.332">sysVMMathLog10IP</a></pre>
+</li>
+</ul>
+<a name="sysVMMathLog1pIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysVMMathLog1pIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.333">sysVMMathLog1pIP</a></pre>
+</li>
+</ul>
+<a name="sysEnableAlignmentCheckingIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysEnableAlignmentCheckingIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.336">sysEnableAlignmentCheckingIP</a></pre>
+</li>
+</ul>
+<a name="sysDisableAlignmentCheckingIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysDisableAlignmentCheckingIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.337">sysDisableAlignmentCheckingIP</a></pre>
+</li>
+</ul>
+<a name="sysReportAlignmentCheckingIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysReportAlignmentCheckingIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.338">sysReportAlignmentCheckingIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverAddStreamIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverAddStreamIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.342">gcspyDriverAddStreamIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverEndOutputIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverEndOutputIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.343">gcspyDriverEndOutputIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverInitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverInitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.344">gcspyDriverInitIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverInitOutputIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverInitOutputIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.345">gcspyDriverInitOutputIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverResizeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverResizeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.346">gcspyDriverResizeIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverSetTileNameRangeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverSetTileNameRangeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.347">gcspyDriverSetTileNameRangeIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverSetTileNameIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverSetTileNameIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.348">gcspyDriverSetTileNameIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverSpaceInfoIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverSpaceInfoIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.349">gcspyDriverSpaceInfoIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverStartCommIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverStartCommIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.350">gcspyDriverStartCommIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverStreamIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverStreamIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.351">gcspyDriverStreamIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverStreamByteValueIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverStreamByteValueIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.352">gcspyDriverStreamByteValueIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverStreamShortValueIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverStreamShortValueIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.353">gcspyDriverStreamShortValueIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverStreamIntValueIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverStreamIntValueIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.354">gcspyDriverStreamIntValueIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverSummaryIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverSummaryIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.355">gcspyDriverSummaryIP</a></pre>
+</li>
+</ul>
+<a name="gcspyDriverSummaryValueIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyDriverSummaryValueIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.356">gcspyDriverSummaryValueIP</a></pre>
+</li>
+</ul>
+<a name="gcspyIntWriteControlIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyIntWriteControlIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.358">gcspyIntWriteControlIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerAddDriverIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerAddDriverIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.360">gcspyMainServerAddDriverIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerAddEventIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerAddEventIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.361">gcspyMainServerAddEventIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerInitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerInitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.362">gcspyMainServerInitIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerIsConnectedIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerIsConnectedIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.363">gcspyMainServerIsConnectedIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerOuterLoopIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerOuterLoopIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.364">gcspyMainServerOuterLoopIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerSafepointIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerSafepointIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.365">gcspyMainServerSafepointIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerSetGeneralInfoIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerSetGeneralInfoIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.366">gcspyMainServerSetGeneralInfoIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerStartCompensationTimerIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerStartCompensationTimerIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.367">gcspyMainServerStartCompensationTimerIP</a></pre>
+</li>
+</ul>
+<a name="gcspyMainServerStopCompensationTimerIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyMainServerStopCompensationTimerIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.368">gcspyMainServerStopCompensationTimerIP</a></pre>
+</li>
+</ul>
+<a name="gcspyStartserverIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyStartserverIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.370">gcspyStartserverIP</a></pre>
+</li>
+</ul>
+<a name="gcspyStreamInitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyStreamInitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.372">gcspyStreamInitIP</a></pre>
+</li>
+</ul>
+<a name="gcspyFormatSizeIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyFormatSizeIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.374">gcspyFormatSizeIP</a></pre>
+</li>
+</ul>
+<a name="gcspySprintfIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspySprintfIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.375">gcspySprintfIP</a></pre>
+</li>
+</ul>
+<a name="sysPerfEventInitIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPerfEventInitIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.378">sysPerfEventInitIP</a></pre>
+</li>
+</ul>
+<a name="sysPerfEventCreateIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPerfEventCreateIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.379">sysPerfEventCreateIP</a></pre>
+</li>
+</ul>
+<a name="sysPerfEventEnableIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPerfEventEnableIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.380">sysPerfEventEnableIP</a></pre>
+</li>
+</ul>
+<a name="sysPerfEventDisableIP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sysPerfEventDisableIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.381">sysPerfEventDisableIP</a></pre>
+</li>
+</ul>
+<a name="sysPerfEventReadIP">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>sysPerfEventReadIP</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.382">sysPerfEventReadIP</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="BootRecord()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>BootRecord</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.104">BootRecord</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="showHeapRanges()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>showHeapRanges</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.112">showHeapRanges</a>()</pre>
+</li>
+</ul>
+<a name="setHeapRange(int, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setHeapRange</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/BootRecord.html#line.122">setHeapRange</a>(int&nbsp;id,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end)</pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BootRecord.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/ArchEntrypoints.html" title="interface in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/BootRecord.html" target="_top">Frames</a></li>
+<li><a href="BootRecord.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.adaptive.util;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.io.BufferedReader;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.io.FileInputStream;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.io.IOException;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.io.InputStreamReader;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.ArrayList;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.util.List;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.NoSuchElementException;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.StringTokenizer;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.VM;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.classloader.Atom;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Utility to read compiler advice annotations from file in ascii format.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Takes a single argument: the name of the file containing the ascii<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * annotations.  Each line of the file corresponds to an annotation<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * for one method and has the following format:<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * &lt;p&gt;<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;pre&gt;<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;class&gt; &lt;method&gt; &lt;signature&gt; &lt;advice&gt; &lt;optLevel&gt;<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;/pre&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * Where the types and meanings of the fields is as follows:<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;ul&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;li&gt;&lt;code&gt;&amp;lt;class&gt;&lt;/code&gt; &lt;i&gt;string&lt;/i&gt; The name of the class&lt;/li&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * &lt;li&gt;&lt;code&gt;&amp;lt;method&gt;&lt;/code&gt; &lt;i&gt;string&lt;/i&gt; The name of the method&lt;/li&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;li&gt;&lt;code&gt;&amp;lt;signature&gt;&lt;/code&gt; &lt;i&gt;string&lt;/i&gt; The method signature&lt;/li&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * &lt;li&gt;&lt;code&gt;&amp;lt;advice&gt;&lt;/code&gt; &lt;i&gt;int&lt;/i&gt; The compiler type to be used --<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * an integer value corresponding to the compiler enumeration in<a name="line.42"></a>
+<span class="sourceLineNo">043</span> CompiledMethod&lt;/li&gt;<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;li&gt;&lt;code&gt;&amp;lt;optLevel&gt;&lt;/code&gt; &lt;i&gt;int&lt;/i&gt; (Optional) The opt level to use<a name="line.44"></a>
+<span class="sourceLineNo">045</span> if compiler is optimizing compiler&lt;/li&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;/ul&gt;<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * @see CompilerAdvice<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * @see CompilerAdviceAttribute<a name="line.50"></a>
+<span class="sourceLineNo">051</span> */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>class CompilerAdviceInfoReader {<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>  /**<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * Read annotations from a specified file. Reads all annotations at<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * once and returns a collection of compiler advice attributes.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   * @param file The annotation file to be read<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   * @return A list of compiler advice attributes<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  public static List&lt;CompilerAdviceAttribute&gt; readCompilerAdviceFile(String file) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    List&lt;CompilerAdviceAttribute&gt; compilerAdviceInfo = new ArrayList&lt;CompilerAdviceAttribute&gt;();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    BufferedReader fileIn = null;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>    if (file == null) return null;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>    try {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      fileIn = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>      try {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        for (String s = fileIn.readLine(); s != null; s = fileIn.readLine()) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>          if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWrite("."); }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>          StringTokenizer parser = new StringTokenizer(s, " \n,");<a name="line.73"></a>
+<span class="sourceLineNo">074</span>          compilerAdviceInfo.add(readOneAttribute(parser));<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      } catch (IOException e) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        e.printStackTrace();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        VM.sysFail("Error parsing input compilation advice file " + file);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>      fileIn.close();<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    } catch (java.io.FileNotFoundException e) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      System.out.println("IO: Couldn't read compiler advice attribute file: " + file + e);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      return null;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    } catch (java.io.UnsupportedEncodingException e) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      System.out.println("IO: UTF-8 is not supported: " + e);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      return null;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    } catch (java.io.IOException e) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      System.out.println("IO: Couldn't close compiler advice attribute file: " + file + e);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      return null;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>    return compilerAdviceInfo;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * Actual reading is done here.  This method reads one attribute<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * from a single line of an input stream.  There are six elements<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * per line corresponding to each call site. First three are<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * strings, &lt;i&gt;class name&lt;/i&gt;, &lt;i&gt;method name&lt;/i&gt;, &lt;i&gt;method<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * signature&lt;/i&gt;, followed by one number,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * &lt;i&gt;compiler advice&lt;/i&gt;.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   * @param st an input stream<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   * @return an compileration advice atribute<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  private static CompilerAdviceAttribute readOneAttribute(StringTokenizer st) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    int compiler, optLevel = -1;<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>    try {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      Atom cls = Atom.findOrCreateUnicodeAtom(st.nextToken());<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      Atom mth = Atom.findOrCreateUnicodeAtom(st.nextToken());<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      Atom sig = Atom.findOrCreateUnicodeAtom(st.nextToken());<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      compiler = Integer.parseInt(st.nextToken());<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      optLevel = Integer.parseInt(st.nextToken());<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      // this is the attribute which will be returned<a name="line.117"></a>
+<span class="sourceLineNo">118</span>      CompilerAdviceAttribute newAttrib;<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>      if (optLevel &gt;= 0) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        newAttrib = new CompilerAdviceAttribute(cls, mth, sig, compiler, optLevel);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      } else {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        newAttrib = new CompilerAdviceAttribute(cls, mth, sig, compiler);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>      return newAttrib;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    } catch (NoSuchElementException e) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      return null;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    }<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>}<a name="line.132"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

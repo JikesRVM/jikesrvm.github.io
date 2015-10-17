@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.classloader;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import java.io.DataInputStream;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import java.io.File;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.io.FileInputStream;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.io.IOException;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.io.InputStream;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import java.net.URL;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import java.util.Enumeration;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import java.util.HashMap;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import java.util.StringTokenizer;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import java.util.Vector;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.zip.ZipEntry;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.util.zip.ZipFile;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.VM;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.Entrypoints;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.util.ImmutableEntryHashMapRVM;<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>/**<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * Implements an object that functions as the bootstrap class loader.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * This class is a Singleton pattern.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>public final class BootstrapClassLoader extends java.lang.ClassLoader {<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>  private final ImmutableEntryHashMapRVM&lt;String, RVMType&gt; loaded =<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    new ImmutableEntryHashMapRVM&lt;String, RVMType&gt;();<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>  /** Places whence we load bootstrap .class files. */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  private static String bootstrapClasspath;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * Set list of places to be searched for VM classes and resources.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   * @param bootstrapClasspath path specification in standard "classpath"<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   *    format<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static void setBootstrapRepositories(String bootstrapClasspath) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    BootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * @return List of places to be searched for VM classes and resources,<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   *      in standard "classpath" format<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public static String getBootstrapRepositories() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    return bootstrapClasspath;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  }<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * Initialize for execution.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * @param bootstrapClasspath names of directories containing the bootstrap<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * .class files, and the names of any .zip/.jar files.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   * These are the ones that implement the VM and its<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   * standard runtime libraries.  This may contain several names separated<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * with colons (':'), just<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * as a classpath may.   (&lt;code&gt;null&lt;/code&gt; ==&gt; use the values specified by<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * {@link #setBootstrapRepositories} when the boot image was created.  This<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   * feature is not actually used, but may be helpful in avoiding trouble.)<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public static void boot(String bootstrapClasspath) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    if (bootstrapClasspath != null) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>      BootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    zipFileCache = new HashMap&lt;String, ZipFile&gt;();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    if (VM.runningVM) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      try {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        /* Here, we have to replace the fields that aren't carried over from<a name="line.78"></a>
+<span class="sourceLineNo">079</span>         * boot image writing time to run time.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>         * This would be the following, if the fields weren't final:<a name="line.80"></a>
+<span class="sourceLineNo">081</span>         *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>         * bootstrapClassLoader.definedPackages    = new HashMap();<a name="line.82"></a>
+<span class="sourceLineNo">083</span>         */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        Entrypoints.classLoaderDefinedPackages.setObjectValueUnchecked(bootstrapClassLoader,<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                                                                          new java.util.HashMap&lt;String, Package&gt;());<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      } catch (Exception e) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        VM.sysFail("Failed to setup bootstrap class loader");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  /** Prevent other classes from constructing one. */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  private BootstrapClassLoader() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    super(null);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /* Interface */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  private static final BootstrapClassLoader bootstrapClassLoader = new BootstrapClassLoader();<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>  public static BootstrapClassLoader getBootstrapClassLoader() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    return bootstrapClassLoader;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  }<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>  /**<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   * Backdoor for use by TypeReference.resolve when !VM.runningVM.<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   * As of this writing, it is not used by any other classes.<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * @throws NoClassDefFoundError<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  synchronized RVMType loadVMClass(String className) throws NoClassDefFoundError {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    try {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      InputStream is = getResourceAsStream(className.replace('.', File.separatorChar) + ".class");<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      if (is == null) throw new NoClassDefFoundError(className);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      DataInputStream dataInputStream = new DataInputStream(is);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      RVMType type = null;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      try {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        // Debugging:<a name="line.116"></a>
+<span class="sourceLineNo">117</span>        // VM.sysWriteln("loadVMClass: trying to resolve className " + className);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        type = RVMClassLoader.defineClassInternal(className, dataInputStream, this);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        loaded.put(className, type);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      } finally {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        try {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>          // Make sure the input stream is closed.<a name="line.122"></a>
+<span class="sourceLineNo">123</span>          dataInputStream.close();<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        } catch (IOException e) { }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      }<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      return type;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    } catch (NoClassDefFoundError e) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      throw e;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    } catch (Throwable e) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      // We didn't find the class, or it wasn't valid, etc.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      NoClassDefFoundError ncdf = new NoClassDefFoundError(className);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      ncdf.initCause(e);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      throw ncdf;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>  @Override<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  public synchronized Class&lt;?&gt; loadClass(String className, boolean resolveClass) throws ClassNotFoundException {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    if (!VM.runningVM) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      return super.loadClass(className, resolveClass);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    if (className.startsWith("L") &amp;&amp; className.endsWith(";")) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>      className = className.substring(1, className.length() - 2);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    }<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    RVMType loadedType = loaded.get(className);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    Class&lt;?&gt; loadedClass;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    if (loadedType == null) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      loadedClass = findClass(className);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    } else {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>      loadedClass = loadedType.getClassForType();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    if (resolveClass) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>      resolveClass(loadedClass);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    return loadedClass;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>  /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   * Search the bootstrap class loader's classpath for given class.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   *<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   * @param className the name of the class to load<a name="line.161"></a>
+<span class="sourceLineNo">162</span>   * @return the class object, if it was found<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   * @exception ClassNotFoundException if the class was not found, or was invalid<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  @Override<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public Class&lt;?&gt; findClass(String className) throws ClassNotFoundException {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    final boolean DBG=false;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    if (!VM.runningVM) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      return super.findClass(className);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    if (className.startsWith("[")) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      TypeReference typeRef =<a name="line.172"></a>
+<span class="sourceLineNo">173</span>          TypeReference.findOrCreate(this, Atom.findOrCreateAsciiAtom(className.replace('.', '/')));<a name="line.173"></a>
+<span class="sourceLineNo">174</span>      RVMType ans = typeRef.resolve();<a name="line.174"></a>
+<span class="sourceLineNo">175</span>      loaded.put(className, ans);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>      return ans.getClassForType();<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    } else {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      if (!VM.fullyBooted) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>        VM.sysWrite("Trying to load a class (");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        VM.sysWrite(className);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        VM.sysWrite(") too early in the booting process, before dynamic");<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        VM.sysWriteln(" class loading is enabled; aborting.");<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        VM.sysFail("Trying to load a class too early in the booting process");<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      // class types: try to find the class file<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      try {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        if (className.startsWith("L") &amp;&amp; className.endsWith(";")) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>          className = className.substring(1, className.length() - 2);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>        InputStream is = getResourceAsStream(className.replace('.', File.separatorChar) + ".class");<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        if (is == null) throw new ClassNotFoundException(className);<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        DataInputStream dataInputStream = new DataInputStream(is);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        Class&lt;?&gt; cls = null;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        try {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>          RVMType type = RVMClassLoader.defineClassInternal(className, dataInputStream, this);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>          loaded.put(className, type);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>          cls = type.getClassForType();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        } finally {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>          try {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>            // Make sure the input stream is closed.<a name="line.200"></a>
+<span class="sourceLineNo">201</span>            dataInputStream.close();<a name="line.201"></a>
+<span class="sourceLineNo">202</span>          } catch (IOException e) { }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        return cls;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      } catch (ClassNotFoundException e) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        throw e;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      } catch (Throwable e) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        if (DBG) {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>          VM.sysWrite("About to throw ClassNotFoundException(", className, ") because we got this Throwable:");<a name="line.209"></a>
+<span class="sourceLineNo">210</span>          e.printStackTrace();<a name="line.210"></a>
+<span class="sourceLineNo">211</span>        }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        // We didn't find the class, or it wasn't valid, etc.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        throw new ClassNotFoundException(className, e);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  }<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>  /** Keep this a static field, since it's looked at in<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   *  {@link MemberReference#parse}. */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public static final String myName = "BootstrapCL";<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>  @Override<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  public String toString() { return myName; }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>  private static HashMap&lt;String, ZipFile&gt; zipFileCache;<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>  private interface Handler&lt;T&gt; {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    void process(ZipFile zf, ZipEntry ze) throws Exception;<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>    void process(File f) throws Exception;<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    T getResult();<a name="line.232"></a>
+<span class="sourceLineNo">233</span>  }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>  @Override<a name="line.235"></a>
+<span class="sourceLineNo">236</span>  public InputStream getResourceAsStream(final String name) {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    Handler&lt;InputStream&gt; findStream = new Handler&lt;InputStream&gt;() {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      InputStream stream;<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>      @Override<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      public InputStream getResult() { return stream; }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>      @Override<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      public void process(ZipFile zf, ZipEntry ze) throws Exception {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        stream = zf.getInputStream(ze);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>      @Override<a name="line.248"></a>
+<span class="sourceLineNo">249</span>      public void process(File file) throws Exception {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>        stream = new FileInputStream(file);<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      }<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    };<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    return getResourceInternal(name, findStream, false);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>  @Override<a name="line.257"></a>
+<span class="sourceLineNo">258</span>  public URL findResource(final String name) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    Handler&lt;URL&gt; findURL = new Handler&lt;URL&gt;() {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      URL url;<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>      @Override<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      public URL getResult() { return url; }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>      @Override<a name="line.265"></a>
+<span class="sourceLineNo">266</span>      public void process(ZipFile zf, ZipEntry ze) throws Exception {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>        url = new URL("jar", null, -1, "file:" + zf.getName() + "!/" + name);<a name="line.267"></a>
+<span class="sourceLineNo">268</span>      }<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>      @Override<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      public void process(File file) throws Exception {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        url = new URL("file", null, -1, file.getName());<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    };<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>    return getResourceInternal(name, findURL, false);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>  }<a name="line.277"></a>
+<span class="sourceLineNo">278</span><a name="line.278"></a>
+<span class="sourceLineNo">279</span>  @Override<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  public Enumeration&lt;URL&gt; findResources(final String name) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    Handler&lt;Enumeration&lt;URL&gt;&gt; findURL = new Handler&lt;Enumeration&lt;URL&gt;&gt;() {<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      Vector&lt;URL&gt; urls;<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>      @Override<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      public Enumeration&lt;URL&gt; getResult() {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        if (urls == null) urls = new Vector&lt;URL&gt;();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        return urls.elements();<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      }<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>      @Override<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      public void process(ZipFile zf, ZipEntry ze) throws Exception {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        if (urls == null) urls = new Vector&lt;URL&gt;();<a name="line.292"></a>
+<span class="sourceLineNo">293</span>        urls.addElement(new URL("jar", null, -1, "file:" + zf.getName() + "!/" + name));<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      }<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>      @Override<a name="line.296"></a>
+<span class="sourceLineNo">297</span>      public void process(File file) throws Exception {<a name="line.297"></a>
+<span class="sourceLineNo">298</span>        if (urls == null) urls = new Vector&lt;URL&gt;();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        urls.addElement(new URL("file", null, -1, file.getName()));<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      }<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    };<a name="line.301"></a>
+<span class="sourceLineNo">302</span><a name="line.302"></a>
+<span class="sourceLineNo">303</span>    return getResourceInternal(name, findURL, true);<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>  private &lt;T&gt; T getResourceInternal(String name, Handler&lt;T&gt; h, boolean multiple) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    if (name.startsWith(File.separator)) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>      name = name.substring(File.separator.length());<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>    StringTokenizer tok = new StringTokenizer(getBootstrapRepositories(), File.pathSeparator);<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>    while (tok.hasMoreElements()) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>      try {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>        String path = tok.nextToken();<a name="line.315"></a>
+<span class="sourceLineNo">316</span>        if (path.endsWith(".jar") || path.endsWith(".zip")) {<a name="line.316"></a>
+<span class="sourceLineNo">317</span>          ZipFile zf = zipFileCache.get(path);<a name="line.317"></a>
+<span class="sourceLineNo">318</span>          if (zf == null) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>            zf = new ZipFile(path);<a name="line.319"></a>
+<span class="sourceLineNo">320</span>            if (zf == null) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>              continue;<a name="line.321"></a>
+<span class="sourceLineNo">322</span>            } else {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>              zipFileCache.put(path, zf);<a name="line.323"></a>
+<span class="sourceLineNo">324</span>            }<a name="line.324"></a>
+<span class="sourceLineNo">325</span>          }<a name="line.325"></a>
+<span class="sourceLineNo">326</span>          // Zip spec. states that separator must be '/' in the path<a name="line.326"></a>
+<span class="sourceLineNo">327</span>          if (File.separatorChar != '/') {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>            name = name.replace(File.separatorChar, '/');<a name="line.328"></a>
+<span class="sourceLineNo">329</span>          }<a name="line.329"></a>
+<span class="sourceLineNo">330</span>          ZipEntry ze = zf.getEntry(name);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>          if (ze == null) continue;<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>          h.process(zf, ze);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>          if (!multiple) return h.getResult();<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        } else if (path.endsWith(File.separator)) {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>          File file = new File(path + name);<a name="line.336"></a>
+<span class="sourceLineNo">337</span>          if (file.exists()) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>            h.process(file);<a name="line.338"></a>
+<span class="sourceLineNo">339</span>            if (!multiple) return h.getResult();<a name="line.339"></a>
+<span class="sourceLineNo">340</span>          }<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        } else {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>          File file = new File(path + File.separator + name);<a name="line.342"></a>
+<span class="sourceLineNo">343</span>          if (file.exists()) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>            h.process(file);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>            if (!multiple) return h.getResult();<a name="line.345"></a>
+<span class="sourceLineNo">346</span>          }<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      } catch (Exception e) {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>    return (multiple) ? h.getResult() : null;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>  }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>}<a name="line.354"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

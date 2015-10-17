@@ -1,0 +1,2017 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>Callbacks (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="Callbacks (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Callbacks.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../index-all.html">Index</a></li>
+<li><a href="../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../org/jikesrvm/ArchitectureSpecificOpt.StackManager.html" title="class in org.jikesrvm"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../org/jikesrvm/Callbacks.AppCompleteMonitor.html" title="interface in org.jikesrvm"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../index.html?org/jikesrvm/Callbacks.html" target="_top">Frames</a></li>
+<li><a href="Callbacks.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm</div>
+<h2 title="Class Callbacks" class="title">Class Callbacks</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.Callbacks</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public final class <a href="../../src-html/org/jikesrvm/Callbacks.html#line.68">Callbacks</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">A class for managing various callbacks from the VM.
+
+ <p>Consumers should register an implementation of the needed interface with
+ a given callback method, and will get notified when the event happens.
+
+ <p>Note: callback consumers should not rely on any particular order of
+ callback invocation.
+
+ <p>TODO: allow limited control over callback order.
+
+ <p>
+ The following events are currently implemented.  See code for exact
+ invocation syntax.
+ <ul>
+ <li> ClassLoaded       - called after a RVMClass is loaded
+ <li> ClassResolved     - called after a RVMClass is resolved
+ <li> ClassInstantiated - called after a RVMClass is instantiated
+ <li> ClassInitialized  - called after a RVMClass is initialized
+ <li> MethodOverride    - called when a method in a newly loaded class
+                          overrides a method in an existing class
+ <li> MethodCompile     - called before a method is compiled
+ <li> ForName           - called when java.lang.Class.forName() is invoked
+ <li> BootImageWriting  - called when boot image writing is started
+ <li> Startup           - called when the VM has completed booting
+ <li> Exit              - called when the VM is about to exit  (note: this is very fragile; TODO: remove???)
+ <li> AppStart          - called before the application starts executing
+                          all runs -- needs application support)
+ <li> AppComplete       - called after the application completes executing
+                          all runs --- needs application support)
+ <li> AppRunStart       - called before the application starts a run
+                          (many applications have several runs -- needs
+                          application support)
+ <li> AppRunComplete    - called after the application completes a run
+                          (many applications have several runs --- needs
+                          application support)
+ <li> RecompileAllDynamicallyLoadedMethods - called when the application
+                          wants to recompile all methods that were previously
+                          dynamically compiled.  Could be useful for
+                          studying the the impact of how much of
+                          class hierarchy being loaded effects compilation
+                          performance
+                          (application must call this explicitly for anything
+                           to happen)
+ </ul></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.AppCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppCompleteMonitor</a></strong></code>
+<div class="block">Interface for monitoring when an application completes executing</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.AppRunCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunCompleteMonitor</a></strong></code>
+<div class="block">Interface for monitoring when an application completes a run</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.AppRunStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunStartMonitor</a></strong></code>
+<div class="block">Interface for monitoring when an application starts a run</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.AppStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppStartMonitor</a></strong></code>
+<div class="block">Interface for monitoring when an application starts executing</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.BootImageMonitor.html" title="interface in org.jikesrvm">Callbacks.BootImageMonitor</a></strong></code>
+<div class="block">Interface for monitoring boot image writing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></strong></code>
+<div class="block">Linked list of callbacks.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ClassInitializedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInitializedMonitor</a></strong></code>
+<div class="block">Interface for monitoring class initialization.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ClassInstantiatedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInstantiatedMonitor</a></strong></code>
+<div class="block">Interface for monitoring class instantiation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ClassLoadedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassLoadedMonitor</a></strong></code>
+<div class="block">Interface for monitoring class loading.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ClassResolvedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassResolvedMonitor</a></strong></code>
+<div class="block">Interface for monitoring class resolution.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.DefineClassMonitor.html" title="interface in org.jikesrvm">Callbacks.DefineClassMonitor</a></strong></code>
+<div class="block">Interface for monitoring defineClass calls.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ExitMonitor.html" title="interface in org.jikesrvm">Callbacks.ExitMonitor</a></strong></code>
+<div class="block">Interface for monitoring VM exit.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.ForNameMonitor.html" title="interface in org.jikesrvm">Callbacks.ForNameMonitor</a></strong></code>
+<div class="block">Interface for monitoring forName calls.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.LoadClassMonitor.html" title="interface in org.jikesrvm">Callbacks.LoadClassMonitor</a></strong></code>
+<div class="block">Interface for monitoring loadClass calls.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.MethodCompileMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodCompileMonitor</a></strong></code>
+<div class="block">Interface for monitoring method compile.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.MethodOverrideMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodOverrideMonitor</a></strong></code>
+<div class="block">Interface for monitoring method override.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor.html" title="interface in org.jikesrvm">Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor</a></strong></code>
+<div class="block">Interface for requesting VM to recompile all previously dynamically compiled methods</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.StartupMonitor.html" title="interface in org.jikesrvm">Callbacks.StartupMonitor</a></strong></code>
+<div class="block">Interface for monitoring VM startup.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appCompleteCallbacks">appCompleteCallbacks</a></strong></code>
+<div class="block">Application Execution Complete callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appCompleteLock">appCompleteLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appRunCompleteCallbacks">appRunCompleteCallbacks</a></strong></code>
+<div class="block">Application Run Complete callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appRunCompleteLock">appRunCompleteLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appRunStartCallbacks">appRunStartCallbacks</a></strong></code>
+<div class="block">Application Run Start callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appRunStartLock">appRunStartLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appStartCallbacks">appStartCallbacks</a></strong></code>
+<div class="block">Application Start executing callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#appStartLock">appStartLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#bootImageCallbacks">bootImageCallbacks</a></strong></code>
+<div class="block">Boot image writing callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#bootImageEnabled">bootImageEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#bootImageLock">bootImageLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInitializedCallbacks">classInitializedCallbacks</a></strong></code>
+<div class="block">Class initialization callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInitializedEnabled">classInitializedEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInitializedLock">classInitializedLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInstantiatedCallbacks">classInstantiatedCallbacks</a></strong></code>
+<div class="block">Class instantiation callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInstantiatedEnabled">classInstantiatedEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classInstantiatedLock">classInstantiatedLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classLoadedCallbacks">classLoadedCallbacks</a></strong></code>
+<div class="block">Class loading callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classLoadedEnabled">classLoadedEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classLoadedLock">classLoadedLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classResolvedCallbacks">classResolvedCallbacks</a></strong></code>
+<div class="block">Class resolution callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classResolvedEnabled">classResolvedEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#classResolvedLock">classResolvedLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#defineClassCallbacks">defineClassCallbacks</a></strong></code>
+<div class="block">defineclass call callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#defineClassEnabled">defineClassEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#defineClassLock">defineClassLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#exitCallbacks">exitCallbacks</a></strong></code>
+<div class="block">VM exit callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#exitCallbacksStarted">exitCallbacksStarted</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#exitLock">exitLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#forNameCallbacks">forNameCallbacks</a></strong></code>
+<div class="block">forName call callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#forNameEnabled">forNameEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#forNameLock">forNameLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#loadClassCallbacks">loadClassCallbacks</a></strong></code>
+<div class="block">loadclass call callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#loadClassEnabled">loadClassEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#loadClassLock">loadClassLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodCompileCallbacks">methodCompileCallbacks</a></strong></code>
+<div class="block">Method compile callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodCompileEnabled">methodCompileEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodCompileLock">methodCompileLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodOverrideCallbacks">methodOverrideCallbacks</a></strong></code>
+<div class="block">Method override callback list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodOverrideEnabled">methodOverrideEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#methodOverrideLock">methodOverrideLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#recompileAllCallbacks">recompileAllCallbacks</a></strong></code>
+<div class="block">Recompile all callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#recompileAllLock">recompileAllLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#startupCallbacks">startupCallbacks</a></strong></code>
+<div class="block">VM startup callback list.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#startupEnabled">startupEnabled</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#startupLock">startupLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_ADDMONITOR">TRACE_ADDMONITOR</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_APP_COMPLETE">TRACE_APP_COMPLETE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_APP_RUN_COMPLETE">TRACE_APP_RUN_COMPLETE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_APP_RUN_START">TRACE_APP_RUN_START</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_APP_START">TRACE_APP_START</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_BOOTIMAGE">TRACE_BOOTIMAGE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_CLASSINITIALIZED">TRACE_CLASSINITIALIZED</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_CLASSINSTANTIATED">TRACE_CLASSINSTANTIATED</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_CLASSLOADED">TRACE_CLASSLOADED</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_CLASSRESOLVED">TRACE_CLASSRESOLVED</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_DEFINECLASS">TRACE_DEFINECLASS</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_EXIT">TRACE_EXIT</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_FORNAME">TRACE_FORNAME</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_LOADCLASS">TRACE_LOADCLASS</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_METHODCOMPILE">TRACE_METHODCOMPILE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_METHODOVERRIDE">TRACE_METHODOVERRIDE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_RECOMPILE_ALL">TRACE_RECOMPILE_ALL</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#TRACE_STARTUP">TRACE_STARTUP</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../org/jikesrvm/Callbacks.html#Callbacks()">Callbacks</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addAppCompleteMonitor(org.jikesrvm.Callbacks.AppCompleteMonitor)">addAppCompleteMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.AppCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppCompleteMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for when the application completes executing</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addAppRunCompleteMonitor(org.jikesrvm.Callbacks.AppRunCompleteMonitor)">addAppRunCompleteMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.AppRunCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunCompleteMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for when the application completes a run</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addAppRunStartMonitor(org.jikesrvm.Callbacks.AppRunStartMonitor)">addAppRunStartMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.AppRunStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunStartMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for when the application starts a run</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addAppStartMonitor(org.jikesrvm.Callbacks.AppStartMonitor)">addAppStartMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.AppStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppStartMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for when the application starts executing</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addBootImageMonitor(org.jikesrvm.Callbacks.BootImageMonitor)">addBootImageMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.BootImageMonitor.html" title="interface in org.jikesrvm">Callbacks.BootImageMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for boot image writing.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addClassInitializedMonitor(org.jikesrvm.Callbacks.ClassInitializedMonitor)">addClassInitializedMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ClassInitializedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInitializedMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for class initialization.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addClassInstantiatedMonitor(org.jikesrvm.Callbacks.ClassInstantiatedMonitor)">addClassInstantiatedMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ClassInstantiatedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInstantiatedMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for class instantiation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addClassLoadedMonitor(org.jikesrvm.Callbacks.ClassLoadedMonitor)">addClassLoadedMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ClassLoadedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassLoadedMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for class loading.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addClassResolvedMonitor(org.jikesrvm.Callbacks.ClassResolvedMonitor)">addClassResolvedMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ClassResolvedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassResolvedMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for class resolution.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addDefineClassMonitor(org.jikesrvm.Callbacks.DefineClassMonitor)">addDefineClassMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.DefineClassMonitor.html" title="interface in org.jikesrvm">Callbacks.DefineClassMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for defineClass call.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addExitMonitor(org.jikesrvm.Callbacks.ExitMonitor)">addExitMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ExitMonitor.html" title="interface in org.jikesrvm">Callbacks.ExitMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for VM exit.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addForNameMonitor(org.jikesrvm.Callbacks.ForNameMonitor)">addForNameMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.ForNameMonitor.html" title="interface in org.jikesrvm">Callbacks.ForNameMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for forName call.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addLoadClassMonitor(org.jikesrvm.Callbacks.LoadClassMonitor)">addLoadClassMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.LoadClassMonitor.html" title="interface in org.jikesrvm">Callbacks.LoadClassMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for loadClass call.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addMethodCompileMonitor(org.jikesrvm.Callbacks.MethodCompileMonitor)">addMethodCompileMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.MethodCompileMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodCompileMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for method compile.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addMethodOverrideMonitor(org.jikesrvm.Callbacks.MethodOverrideMonitor)">addMethodOverrideMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.MethodOverrideMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodOverrideMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for method override.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addRecompileAllDynamicallyLoadedMethodsMonitor(org.jikesrvm.Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor)">addRecompileAllDynamicallyLoadedMethodsMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor.html" title="interface in org.jikesrvm">Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for when the application requests to recompile all
+  dynamically loaded classes</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#addStartupMonitor(org.jikesrvm.Callbacks.StartupMonitor)">addStartupMonitor</a></strong>(<a href="../../org/jikesrvm/Callbacks.StartupMonitor.html" title="interface in org.jikesrvm">Callbacks.StartupMonitor</a>&nbsp;cb)</code>
+<div class="block">Register a callback for VM startup.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#boot()">boot</a></strong>()</code>
+<div class="block">Perform boot-time actions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#getClass(java.lang.Object)">getClass</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</code>
+<div class="block">Return class name of the object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#getThread()">getThread</a></strong>()</code>
+<div class="block">Return current thread id.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#init()">init</a></strong>()</code>
+<div class="block">Initialize callbacks.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyAppComplete(java.lang.String)">notifyAppComplete</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app)</code>
+<div class="block">Notify the callback manager that the application completed executing
+ Will return once all the callbacks are invoked.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyAppRunComplete(java.lang.String,%20int)">notifyAppRunComplete</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app,
+                                        int&nbsp;run)</code>
+<div class="block">Notify the callback manager that the application completed a run
+ Will return once all the callbacks are invoked.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyAppRunStart(java.lang.String,%20int)">notifyAppRunStart</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app,
+                                  int&nbsp;run)</code>
+<div class="block">Notify the callback manager that the application started a run
+ Will return once all the callbacks are invoked.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyAppStart(java.lang.String)">notifyAppStart</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app)</code>
+<div class="block">Notify the callback manager that the application started executing
+ Will return once all the callbacks are invoked.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyBootImage(java.util.Enumeration)">notifyBootImage</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;types)</code>
+<div class="block">Notify the monitor that boot image writing is in progress.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyClassInitialized(org.jikesrvm.classloader.RVMClass)">notifyClassInitialized</a></strong>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</code>
+<div class="block">Notify the callback manager that a class has been initialized.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyClassInstantiated(org.jikesrvm.classloader.RVMClass)">notifyClassInstantiated</a></strong>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</code>
+<div class="block">Notify the callback manager that a class has been instantiated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyClassLoaded(org.jikesrvm.classloader.RVMClass)">notifyClassLoaded</a></strong>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</code>
+<div class="block">Notify the callback manager that a class has been loaded.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyClassResolved(org.jikesrvm.classloader.RVMClass)">notifyClassResolved</a></strong>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</code>
+<div class="block">Notify the callback manager that a class has been resolved.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyDefineClass(org.jikesrvm.classloader.RVMType)">notifyDefineClass</a></strong>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Notify the monitor that java.lang.Class.defineclass was called.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyExit(int)">notifyExit</a></strong>(int&nbsp;value)</code>
+<div class="block">Notify the callback manager that the VM is about to exit.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyForName(org.jikesrvm.classloader.RVMType)">notifyForName</a></strong>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Notify the monitor that java.lang.Class.forName was called.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyLoadClass(org.jikesrvm.classloader.RVMType)">notifyLoadClass</a></strong>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Notify the monitor that java.lang.Class.loadclass was called.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyMethodCompile(org.jikesrvm.classloader.RVMMethod,%20int)">notifyMethodCompile</a></strong>(<a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                                      int&nbsp;compiler)</code>
+<div class="block">Notify the callback manager that a method is about to be compiled.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyMethodOverride(org.jikesrvm.classloader.RVMMethod,%20org.jikesrvm.classloader.RVMMethod)">notifyMethodOverride</a></strong>(<a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                                        <a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;parent)</code>
+<div class="block">Notify the callback manager that a method has been overridden.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#notifyStartup()">notifyStartup</a></strong>()</code>
+<div class="block">Notify the callback manager that the VM has started up.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#printStack(java.lang.String)">printStack</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message)</code>
+<div class="block">Print current stack trace.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../org/jikesrvm/Callbacks.html#recompileAllDynamicallyLoadedMethods()">recompileAllDynamicallyLoadedMethods</a></strong>()</code>
+<div class="block">Notify the callback manager that the application requested a recompile all
+ Will return once all the callbacks are invoked.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="classLoadedCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classLoadedCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.87">classLoadedCallbacks</a></pre>
+<div class="block">Class loading callback list.</div>
+</li>
+</ul>
+<a name="classLoadedLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classLoadedLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.88">classLoadedLock</a></pre>
+</li>
+</ul>
+<a name="classLoadedEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classLoadedEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.89">classLoadedEnabled</a></pre>
+</li>
+</ul>
+<a name="classResolvedCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classResolvedCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.147">classResolvedCallbacks</a></pre>
+<div class="block">Class resolution callback list.</div>
+</li>
+</ul>
+<a name="classResolvedLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classResolvedLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.148">classResolvedLock</a></pre>
+</li>
+</ul>
+<a name="classResolvedEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classResolvedEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.149">classResolvedEnabled</a></pre>
+</li>
+</ul>
+<a name="classInstantiatedCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInstantiatedCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.207">classInstantiatedCallbacks</a></pre>
+<div class="block">Class instantiation callback list.</div>
+</li>
+</ul>
+<a name="classInstantiatedLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInstantiatedLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.208">classInstantiatedLock</a></pre>
+</li>
+</ul>
+<a name="classInstantiatedEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInstantiatedEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.209">classInstantiatedEnabled</a></pre>
+</li>
+</ul>
+<a name="classInitializedCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInitializedCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.267">classInitializedCallbacks</a></pre>
+<div class="block">Class initialization callback list.</div>
+</li>
+</ul>
+<a name="classInitializedLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInitializedLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.268">classInitializedLock</a></pre>
+</li>
+</ul>
+<a name="classInitializedEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInitializedEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.269">classInitializedEnabled</a></pre>
+</li>
+</ul>
+<a name="methodOverrideCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodOverrideCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.328">methodOverrideCallbacks</a></pre>
+<div class="block">Method override callback list.</div>
+</li>
+</ul>
+<a name="methodOverrideLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodOverrideLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.329">methodOverrideLock</a></pre>
+</li>
+</ul>
+<a name="methodOverrideEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodOverrideEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.330">methodOverrideEnabled</a></pre>
+</li>
+</ul>
+<a name="methodCompileCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodCompileCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.399">methodCompileCallbacks</a></pre>
+<div class="block">Method compile callback list.</div>
+</li>
+</ul>
+<a name="methodCompileLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodCompileLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.400">methodCompileLock</a></pre>
+</li>
+</ul>
+<a name="methodCompileEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>methodCompileEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.401">methodCompileEnabled</a></pre>
+</li>
+</ul>
+<a name="forNameCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forNameCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.465">forNameCallbacks</a></pre>
+<div class="block">forName call callback list.</div>
+</li>
+</ul>
+<a name="forNameLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forNameLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.466">forNameLock</a></pre>
+</li>
+</ul>
+<a name="forNameEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forNameEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.467">forNameEnabled</a></pre>
+</li>
+</ul>
+<a name="defineClassCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>defineClassCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.525">defineClassCallbacks</a></pre>
+<div class="block">defineclass call callback list.</div>
+</li>
+</ul>
+<a name="defineClassLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>defineClassLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.526">defineClassLock</a></pre>
+</li>
+</ul>
+<a name="defineClassEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>defineClassEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.527">defineClassEnabled</a></pre>
+</li>
+</ul>
+<a name="loadClassCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadClassCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.585">loadClassCallbacks</a></pre>
+<div class="block">loadclass call callback list.</div>
+</li>
+</ul>
+<a name="loadClassLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadClassLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.586">loadClassLock</a></pre>
+</li>
+</ul>
+<a name="loadClassEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadClassEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.587">loadClassEnabled</a></pre>
+</li>
+</ul>
+<a name="bootImageCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.645">bootImageCallbacks</a></pre>
+<div class="block">Boot image writing callback list.</div>
+</li>
+</ul>
+<a name="bootImageLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.646">bootImageLock</a></pre>
+</li>
+</ul>
+<a name="bootImageEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bootImageEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.647">bootImageEnabled</a></pre>
+</li>
+</ul>
+<a name="startupCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startupCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.701">startupCallbacks</a></pre>
+<div class="block">VM startup callback list.</div>
+</li>
+</ul>
+<a name="startupLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startupLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.702">startupLock</a></pre>
+</li>
+</ul>
+<a name="startupEnabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startupEnabled</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.703">startupEnabled</a></pre>
+</li>
+</ul>
+<a name="exitCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exitCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.758">exitCallbacks</a></pre>
+<div class="block">VM exit callback list.</div>
+</li>
+</ul>
+<a name="exitLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exitLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.759">exitLock</a></pre>
+</li>
+</ul>
+<a name="exitCallbacksStarted">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exitCallbacksStarted</h4>
+<pre>private static&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.760">exitCallbacksStarted</a></pre>
+</li>
+</ul>
+<a name="appStartCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appStartCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.819">appStartCallbacks</a></pre>
+<div class="block">Application Start executing callback list.</div>
+</li>
+</ul>
+<a name="appStartLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appStartLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.820">appStartLock</a></pre>
+</li>
+</ul>
+<a name="appCompleteCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appCompleteCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.873">appCompleteCallbacks</a></pre>
+<div class="block">Application Execution Complete callback list.</div>
+</li>
+</ul>
+<a name="appCompleteLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appCompleteLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.874">appCompleteLock</a></pre>
+</li>
+</ul>
+<a name="appRunStartCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appRunStartCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.930">appRunStartCallbacks</a></pre>
+<div class="block">Application Run Start callback list.</div>
+</li>
+</ul>
+<a name="appRunStartLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appRunStartLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.931">appRunStartLock</a></pre>
+</li>
+</ul>
+<a name="appRunCompleteCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appRunCompleteCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.992">appRunCompleteCallbacks</a></pre>
+<div class="block">Application Run Complete callback list.</div>
+</li>
+</ul>
+<a name="appRunCompleteLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>appRunCompleteLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.993">appRunCompleteLock</a></pre>
+</li>
+</ul>
+<a name="recompileAllCallbacks">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recompileAllCallbacks</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/Callbacks.CallbackList.html" title="class in org.jikesrvm">Callbacks.CallbackList</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1049">recompileAllCallbacks</a></pre>
+<div class="block">Recompile all callback list.</div>
+</li>
+</ul>
+<a name="recompileAllLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recompileAllLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1050">recompileAllLock</a></pre>
+</li>
+</ul>
+<a name="TRACE_ADDMONITOR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_ADDMONITOR</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1116">TRACE_ADDMONITOR</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_ADDMONITOR">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_CLASSLOADED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_CLASSLOADED</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1117">TRACE_CLASSLOADED</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_CLASSLOADED">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_CLASSRESOLVED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_CLASSRESOLVED</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1118">TRACE_CLASSRESOLVED</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_CLASSRESOLVED">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_CLASSINITIALIZED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_CLASSINITIALIZED</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1119">TRACE_CLASSINITIALIZED</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_CLASSINITIALIZED">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_CLASSINSTANTIATED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_CLASSINSTANTIATED</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1120">TRACE_CLASSINSTANTIATED</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_CLASSINSTANTIATED">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_METHODOVERRIDE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_METHODOVERRIDE</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1121">TRACE_METHODOVERRIDE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_METHODOVERRIDE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_METHODCOMPILE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_METHODCOMPILE</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1122">TRACE_METHODCOMPILE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_METHODCOMPILE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_FORNAME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_FORNAME</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1123">TRACE_FORNAME</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_FORNAME">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_DEFINECLASS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_DEFINECLASS</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1124">TRACE_DEFINECLASS</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_DEFINECLASS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_LOADCLASS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_LOADCLASS</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1125">TRACE_LOADCLASS</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_LOADCLASS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_BOOTIMAGE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_BOOTIMAGE</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1126">TRACE_BOOTIMAGE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_BOOTIMAGE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_STARTUP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_STARTUP</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1127">TRACE_STARTUP</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_STARTUP">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_EXIT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_EXIT</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1128">TRACE_EXIT</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_EXIT">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_APP_RUN_START">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_APP_RUN_START</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1129">TRACE_APP_RUN_START</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_APP_RUN_START">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_APP_RUN_COMPLETE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_APP_RUN_COMPLETE</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1130">TRACE_APP_RUN_COMPLETE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_APP_RUN_COMPLETE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_APP_START">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_APP_START</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1131">TRACE_APP_START</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_APP_START">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_APP_COMPLETE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRACE_APP_COMPLETE</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1132">TRACE_APP_COMPLETE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_APP_COMPLETE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRACE_RECOMPILE_ALL">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TRACE_RECOMPILE_ALL</h4>
+<pre>private static final&nbsp;boolean <a href="../../src-html/org/jikesrvm/Callbacks.html#line.1133">TRACE_RECOMPILE_ALL</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../constant-values.html#org.jikesrvm.Callbacks.TRACE_RECOMPILE_ALL">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="Callbacks()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Callbacks</h4>
+<pre>public&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.68">Callbacks</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="addClassLoadedMonitor(org.jikesrvm.Callbacks.ClassLoadedMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addClassLoadedMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.95">addClassLoadedMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ClassLoadedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassLoadedMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for class loading.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyClassLoaded(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyClassLoaded</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.110">notifyClassLoaded</a>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</pre>
+<div class="block">Notify the callback manager that a class has been loaded.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>klass</code> - the class that was loaded</dd></dl>
+</li>
+</ul>
+<a name="addClassResolvedMonitor(org.jikesrvm.Callbacks.ClassResolvedMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addClassResolvedMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.155">addClassResolvedMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ClassResolvedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassResolvedMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for class resolution.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyClassResolved(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyClassResolved</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.170">notifyClassResolved</a>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</pre>
+<div class="block">Notify the callback manager that a class has been resolved.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>klass</code> - the class that was resolved</dd></dl>
+</li>
+</ul>
+<a name="addClassInstantiatedMonitor(org.jikesrvm.Callbacks.ClassInstantiatedMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addClassInstantiatedMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.215">addClassInstantiatedMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ClassInstantiatedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInstantiatedMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for class instantiation.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyClassInstantiated(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyClassInstantiated</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.230">notifyClassInstantiated</a>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</pre>
+<div class="block">Notify the callback manager that a class has been instantiated.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>klass</code> - the class that was instantiated</dd></dl>
+</li>
+</ul>
+<a name="addClassInitializedMonitor(org.jikesrvm.Callbacks.ClassInitializedMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addClassInitializedMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.275">addClassInitializedMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ClassInitializedMonitor.html" title="interface in org.jikesrvm">Callbacks.ClassInitializedMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for class initialization.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyClassInitialized(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyClassInitialized</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.290">notifyClassInitialized</a>(<a href="../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;klass)</pre>
+<div class="block">Notify the callback manager that a class has been initialized.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>klass</code> - the class that was initialized</dd></dl>
+</li>
+</ul>
+<a name="addMethodOverrideMonitor(org.jikesrvm.Callbacks.MethodOverrideMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addMethodOverrideMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.336">addMethodOverrideMonitor</a>(<a href="../../org/jikesrvm/Callbacks.MethodOverrideMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodOverrideMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for method override.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyMethodOverride(org.jikesrvm.classloader.RVMMethod, org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyMethodOverride</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.352">notifyMethodOverride</a>(<a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                        <a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;parent)</pre>
+<div class="block">Notify the callback manager that a method has been overridden.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>method</code> - the method that was loaded</dd><dd><code>parent</code> - the method that it overrides (null if none)</dd></dl>
+</li>
+</ul>
+<a name="addMethodCompileMonitor(org.jikesrvm.Callbacks.MethodCompileMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addMethodCompileMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.407">addMethodCompileMonitor</a>(<a href="../../org/jikesrvm/Callbacks.MethodCompileMonitor.html" title="interface in org.jikesrvm">Callbacks.MethodCompileMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for method compile.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyMethodCompile(org.jikesrvm.classloader.RVMMethod, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyMethodCompile</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.426">notifyMethodCompile</a>(<a href="../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                       int&nbsp;compiler)</pre>
+<div class="block">Notify the callback manager that a method is about to be compiled.
+ NOTE: use VM.runningVM and VM.writingBootImage to determine
+       whether the VM is running</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>method</code> - the method that will be compiled</dd><dd><code>compiler</code> - the compiler that will be invoked
+        Values are constants in CompiledMethod</dd></dl>
+</li>
+</ul>
+<a name="addForNameMonitor(org.jikesrvm.Callbacks.ForNameMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addForNameMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.473">addForNameMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ForNameMonitor.html" title="interface in org.jikesrvm">Callbacks.ForNameMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for forName call.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyForName(org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyForName</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.488">notifyForName</a>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</pre>
+<div class="block">Notify the monitor that java.lang.Class.forName was called.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - the type that will be returned</dd></dl>
+</li>
+</ul>
+<a name="addDefineClassMonitor(org.jikesrvm.Callbacks.DefineClassMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDefineClassMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.533">addDefineClassMonitor</a>(<a href="../../org/jikesrvm/Callbacks.DefineClassMonitor.html" title="interface in org.jikesrvm">Callbacks.DefineClassMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for defineClass call.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyDefineClass(org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyDefineClass</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.548">notifyDefineClass</a>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</pre>
+<div class="block">Notify the monitor that java.lang.Class.defineclass was called.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - the type that will be returned</dd></dl>
+</li>
+</ul>
+<a name="addLoadClassMonitor(org.jikesrvm.Callbacks.LoadClassMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addLoadClassMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.593">addLoadClassMonitor</a>(<a href="../../org/jikesrvm/Callbacks.LoadClassMonitor.html" title="interface in org.jikesrvm">Callbacks.LoadClassMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for loadClass call.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyLoadClass(org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyLoadClass</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.608">notifyLoadClass</a>(<a href="../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</pre>
+<div class="block">Notify the monitor that java.lang.Class.loadclass was called.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - the type that will be returned</dd></dl>
+</li>
+</ul>
+<a name="addBootImageMonitor(org.jikesrvm.Callbacks.BootImageMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addBootImageMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.653">addBootImageMonitor</a>(<a href="../../org/jikesrvm/Callbacks.BootImageMonitor.html" title="interface in org.jikesrvm">Callbacks.BootImageMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for boot image writing.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyBootImage(java.util.Enumeration)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyBootImage</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.668">notifyBootImage</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;types)</pre>
+<div class="block">Notify the monitor that boot image writing is in progress.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>types</code> - the types that are included in the boot image</dd></dl>
+</li>
+</ul>
+<a name="addStartupMonitor(org.jikesrvm.Callbacks.StartupMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addStartupMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.709">addStartupMonitor</a>(<a href="../../org/jikesrvm/Callbacks.StartupMonitor.html" title="interface in org.jikesrvm">Callbacks.StartupMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for VM startup.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyStartup()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyStartup</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.724">notifyStartup</a>()</pre>
+<div class="block">Notify the callback manager that the VM has started up.
+ NOTE: Runs in the main thread!</div>
+</li>
+</ul>
+<a name="addExitMonitor(org.jikesrvm.Callbacks.ExitMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addExitMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.766">addExitMonitor</a>(<a href="../../org/jikesrvm/Callbacks.ExitMonitor.html" title="interface in org.jikesrvm">Callbacks.ExitMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for VM exit.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyExit(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyExit</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.782">notifyExit</a>(int&nbsp;value)</pre>
+<div class="block">Notify the callback manager that the VM is about to exit.
+ Will return once all the callbacks are invoked.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - the exit value</dd></dl>
+</li>
+</ul>
+<a name="addAppStartMonitor(org.jikesrvm.Callbacks.AppStartMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAppStartMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.826">addAppStartMonitor</a>(<a href="../../org/jikesrvm/Callbacks.AppStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppStartMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for when the application starts executing</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyAppStart(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyAppStart</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.842">notifyAppStart</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app)</pre>
+<div class="block">Notify the callback manager that the application started executing
+ Will return once all the callbacks are invoked.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>app</code> - name of application</dd></dl>
+</li>
+</ul>
+<a name="addAppCompleteMonitor(org.jikesrvm.Callbacks.AppCompleteMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAppCompleteMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.880">addAppCompleteMonitor</a>(<a href="../../org/jikesrvm/Callbacks.AppCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppCompleteMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for when the application completes executing</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyAppComplete(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyAppComplete</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.896">notifyAppComplete</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app)</pre>
+<div class="block">Notify the callback manager that the application completed executing
+ Will return once all the callbacks are invoked.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>app</code> - name of application</dd></dl>
+</li>
+</ul>
+<a name="addAppRunStartMonitor(org.jikesrvm.Callbacks.AppRunStartMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAppRunStartMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.937">addAppRunStartMonitor</a>(<a href="../../org/jikesrvm/Callbacks.AppRunStartMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunStartMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for when the application starts a run</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyAppRunStart(java.lang.String, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyAppRunStart</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.954">notifyAppRunStart</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app,
+                     int&nbsp;run)</pre>
+<div class="block">Notify the callback manager that the application started a run
+ Will return once all the callbacks are invoked.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>app</code> - application name</dd><dd><code>run</code> - run number</dd></dl>
+</li>
+</ul>
+<a name="addAppRunCompleteMonitor(org.jikesrvm.Callbacks.AppRunCompleteMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addAppRunCompleteMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.999">addAppRunCompleteMonitor</a>(<a href="../../org/jikesrvm/Callbacks.AppRunCompleteMonitor.html" title="interface in org.jikesrvm">Callbacks.AppRunCompleteMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for when the application completes a run</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="notifyAppRunComplete(java.lang.String, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyAppRunComplete</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1016">notifyAppRunComplete</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;app,
+                        int&nbsp;run)</pre>
+<div class="block">Notify the callback manager that the application completed a run
+ Will return once all the callbacks are invoked.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>app</code> - name of application</dd><dd><code>run</code> - run number</dd></dl>
+</li>
+</ul>
+<a name="addRecompileAllDynamicallyLoadedMethodsMonitor(org.jikesrvm.Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addRecompileAllDynamicallyLoadedMethodsMonitor</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1057">addRecompileAllDynamicallyLoadedMethodsMonitor</a>(<a href="../../org/jikesrvm/Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor.html" title="interface in org.jikesrvm">Callbacks.RecompileAllDynamicallyLoadedMethodsMonitor</a>&nbsp;cb)</pre>
+<div class="block">Register a callback for when the application requests to recompile all
+  dynamically loaded classes</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cb</code> - the object to notify when event happens</dd></dl>
+</li>
+</ul>
+<a name="recompileAllDynamicallyLoadedMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recompileAllDynamicallyLoadedMethods</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1072">recompileAllDynamicallyLoadedMethods</a>()</pre>
+<div class="block">Notify the callback manager that the application requested a recompile all
+ Will return once all the callbacks are invoked.</div>
+</li>
+</ul>
+<a name="init()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>init</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1096">init</a>()</pre>
+<div class="block">Initialize callbacks.</div>
+</li>
+</ul>
+<a name="boot()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>boot</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1101">boot</a>()</pre>
+<div class="block">Perform boot-time actions.</div>
+</li>
+</ul>
+<a name="getClass(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getClass</h4>
+<pre>private static&nbsp;<a href="../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1140">getClass</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</pre>
+<div class="block">Return class name of the object.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>o</code> - the object</dd>
+<dt><span class="strong">Returns:</span></dt><dd>class name of the object</dd></dl>
+</li>
+</ul>
+<a name="getThread()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getThread</h4>
+<pre>private static&nbsp;int&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1153">getThread</a>()</pre>
+<div class="block">Return current thread id.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>current thread id</dd></dl>
+</li>
+</ul>
+<a name="printStack(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>printStack</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../src-html/org/jikesrvm/Callbacks.html#line.1166">printStack</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;message)</pre>
+<div class="block">Print current stack trace.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>message</code> - error message</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/Callbacks.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../index-all.html">Index</a></li>
+<li><a href="../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../org/jikesrvm/ArchitectureSpecificOpt.StackManager.html" title="class in org.jikesrvm"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../org/jikesrvm/Callbacks.AppCompleteMonitor.html" title="interface in org.jikesrvm"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../index.html?org/jikesrvm/Callbacks.html" target="_top">Frames</a></li>
+<li><a href="Callbacks.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

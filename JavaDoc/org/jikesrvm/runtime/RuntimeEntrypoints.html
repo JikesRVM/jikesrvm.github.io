@@ -1,0 +1,1547 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>RuntimeEntrypoints (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="RuntimeEntrypoints (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/RuntimeEntrypoints.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/ReflectionBase.html" title="class in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/RuntimeEntrypoints.html" target="_top">Frames</a></li>
+<li><a href="RuntimeEntrypoints.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.runtime</div>
+<h2 title="Class RuntimeEntrypoints" class="title">Class RuntimeEntrypoints</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.runtime.RuntimeEntrypoints</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../org/jikesrvm/ArchitectureSpecific.StackframeLayoutConstants.html" title="interface in org.jikesrvm">ArchitectureSpecific.StackframeLayoutConstants</a>, <a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html" title="interface in org.jikesrvm.ia32">StackframeLayoutConstants</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a>, <a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public class <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.79">RuntimeEntrypoints</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../org/jikesrvm/ArchitectureSpecific.StackframeLayoutConstants.html" title="interface in org.jikesrvm">ArchitectureSpecific.StackframeLayoutConstants</a></pre>
+<div class="block">Entrypoints into the runtime of the virtual machine.
+
+ <p> These are "helper functions" called from machine code
+ emitted by BaselineCompilerImpl.
+ They implement functionality that cannot be mapped directly
+ into a small inline
+ sequence of machine instructions. See also: Linker.
+
+ <p> Note #1: If you add, remove, or change the signature of
+ any of these methods you may need to change Entrypoints to match.
+
+ <p> Note #2: Code here must be carefully written to be gc-safe
+ while manipulating
+ stackframe and instruction addresses.
+
+ <p> Any time we are holding interior pointers to objects that
+ could be moved by a garbage
+ collection cycle we must either avoid passing through gc-sites
+ (by writing
+ straight line code with no "non-magic" method invocations) or we
+ must turn off the
+ collector (so that a gc request initiated by another thread will
+ not run until we're
+ done manipulating the bare pointers). Furthermore, while
+ the collector is turned off,
+ we must be careful not to make any allocation requests ("new").
+
+ <p> The interior pointers that we must worry about are:
+ <ul>
+   <li> "ip" values that point to interiors of "code" objects
+   <li> "fp" values that point to interior of "stack" objects
+ </ul></div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#allocationCountDownToGC">allocationCountDownToGC</a></strong></code>
+<div class="block">Number of allocations left before a GC is forced.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#jniCountDownToGC">jniCountDownToGC</a></strong></code>
+<div class="block">Number of c-to-java jni calls left before a GC is forced.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#traceAthrow">traceAthrow</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_ARRAY_BOUNDS">TRAP_ARRAY_BOUNDS</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_CHECKCAST">TRAP_CHECKCAST</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_DIVIDE_BY_ZERO">TRAP_DIVIDE_BY_ZERO</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_JNI_STACK">TRAP_JNI_STACK</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_MUST_IMPLEMENT">TRAP_MUST_IMPLEMENT</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_NULL_POINTER">TRAP_NULL_POINTER</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_REGENERATE">TRAP_REGENERATE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_STACK_OVERFLOW">TRAP_STACK_OVERFLOW</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_STACK_OVERFLOW_FATAL">TRAP_STACK_OVERFLOW_FATAL</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_STORE_CHECK">TRAP_STORE_CHECK</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#TRAP_UNKNOWN">TRAP_UNKNOWN</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a></h3>
+<code><a href="../../../org/jikesrvm/Constants.html#NOT_REACHED">NOT_REACHED</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_BITS">REFLECTION_FPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_MASK">REFLECTION_FPRS_MASK</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_BITS">REFLECTION_GPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_MASK">REFLECTION_GPRS_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.ThinLockConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_OFFSET">TL_DEDICATED_U16_OFFSET</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_SHIFT">TL_DEDICATED_U16_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_MASK">TL_LOCK_COUNT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_SHIFT">TL_LOCK_COUNT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_UNIT">TL_LOCK_COUNT_UNIT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_MASK">TL_LOCK_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_SHIFT">TL_LOCK_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_RC">TL_NUM_BITS_RC</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_STAT">TL_NUM_BITS_STAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_TID">TL_NUM_BITS_TID</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_BIASABLE">TL_STAT_BIASABLE</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_FAT">TL_STAT_FAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_MASK">TL_STAT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_SHIFT">TL_STAT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_THIN">TL_STAT_THIN</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_MASK">TL_THREAD_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_SHIFT">TL_THREAD_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_UNLOCK_MASK">TL_UNLOCK_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.TIBLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#IMT_METHOD_SLOTS">IMT_METHOD_SLOTS</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#NEEDS_DYNAMIC_LINK">NEEDS_DYNAMIC_LINK</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_ARRAY_ELEMENT_TIB_INDEX">TIB_ARRAY_ELEMENT_TIB_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_DOES_IMPLEMENT_INDEX">TIB_DOES_IMPLEMENT_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_SPECIALIZED_METHOD_INDEX">TIB_FIRST_SPECIALIZED_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_VIRTUAL_METHOD_INDEX">TIB_FIRST_VIRTUAL_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_INTERFACE_DISPATCH_TABLE_INDEX">TIB_INTERFACE_DISPATCH_TABLE_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_SUPERCLASS_IDS_INDEX">TIB_SUPERCLASS_IDS_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_TYPE_INDEX">TIB_TYPE_INDEX</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.HeapLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/HeapLayoutConstants.html#BAD_MAP_COMPRESSION">BAD_MAP_COMPRESSION</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_END">BOOT_IMAGE_CODE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_SIZE">BOOT_IMAGE_CODE_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_START">BOOT_IMAGE_CODE_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_END">BOOT_IMAGE_DATA_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_SIZE">BOOT_IMAGE_DATA_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_START">BOOT_IMAGE_DATA_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_END">BOOT_IMAGE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_END">BOOT_IMAGE_RMAP_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_START">BOOT_IMAGE_RMAP_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAX_BOOT_IMAGE_RMAP_SIZE">MAX_BOOT_IMAGE_RMAP_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAXIMUM_MAPPABLE">MAXIMUM_MAPPABLE</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.ia32.StackframeLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.ia32.<a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html" title="interface in org.jikesrvm.ia32">StackframeLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#BYTES_IN_STACKSLOT">BYTES_IN_STACKSLOT</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#FPU_STATE_SIZE">FPU_STATE_SIZE</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#INVISIBLE_METHOD_ID">INVISIBLE_METHOD_ID</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#LOG_BYTES_IN_STACKSLOT">LOG_BYTES_IN_STACKSLOT</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_BOOT">STACK_SIZE_BOOT</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_COLLECTOR">STACK_SIZE_COLLECTOR</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_DLOPEN">STACK_SIZE_DLOPEN</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_GCDISABLED">STACK_SIZE_GCDISABLED</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_GROW">STACK_SIZE_GROW</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_GUARD">STACK_SIZE_GUARD</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_JNINATIVE_GROW">STACK_SIZE_JNINATIVE_GROW</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_MAX">STACK_SIZE_MAX</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_NORMAL">STACK_SIZE_NORMAL</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACK_SIZE_SYSCALL">STACK_SIZE_SYSCALL</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_ALIGNMENT">STACKFRAME_ALIGNMENT</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_BODY_OFFSET">STACKFRAME_BODY_OFFSET</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_FRAME_POINTER_OFFSET">STACKFRAME_FRAME_POINTER_OFFSET</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_HEADER_SIZE">STACKFRAME_HEADER_SIZE</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_METHOD_ID_OFFSET">STACKFRAME_METHOD_ID_OFFSET</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_RETURN_ADDRESS_OFFSET">STACKFRAME_RETURN_ADDRESS_OFFSET</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#STACKFRAME_SENTINEL_FP">STACKFRAME_SENTINEL_FP</a>, <a href="../../../org/jikesrvm/ia32/StackframeLayoutConstants.html#XMM_STATE_SIZE">XMM_STATE_SIZE</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#RuntimeEntrypoints()">RuntimeEntrypoints</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#aastore(java.lang.Object[],%20int,%20java.lang.Object)">aastore</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[]&nbsp;arrayRef,
+              int&nbsp;index,
+              <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value)</code>
+<div class="block">Perform aastore bytecode</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#aastoreUninterruptible(java.lang.Object[],%20int,%20java.lang.Object)">aastoreUninterruptible</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[]&nbsp;arrayRef,
+                                            int&nbsp;index,
+                                            <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value)</code>
+<div class="block">Perform uninterruptible aastore bytecode</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#athrow(java.lang.Throwable)">athrow</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject)</code>
+<div class="block">Deliver a software exception to current java thread.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#buildMDAHelper(org.jikesrvm.classloader.RVMMethod,%20int[],%20int,%20org.jikesrvm.classloader.RVMArray)">buildMDAHelper</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                            int[]&nbsp;numElements,
+                            int&nbsp;dimIndex,
+                            <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#buildMultiDimensionalArray(int,%20int[],%20org.jikesrvm.classloader.RVMArray)">buildMultiDimensionalArray</a></strong>(int&nbsp;methodId,
+                                                    int[]&nbsp;numElements,
+                                                    <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</code>
+<div class="block">Build a multi-dimensional array.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#buildTwoDimensionalArray(int,%20int,%20int,%20org.jikesrvm.classloader.RVMArray)">buildTwoDimensionalArray</a></strong>(int&nbsp;methodId,
+                                                int&nbsp;dim0,
+                                                int&nbsp;dim1,
+                                                <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</code>
+<div class="block">Build a two-dimensional array.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#canForceGC()">canForceGC</a></strong>()</code>
+<div class="block">Return <code>true</code> if we are stress testing garbage collector and the system is in state where we
+ can force a garbage collection.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#checkAllocationCountDownToGC()">checkAllocationCountDownToGC</a></strong>()</code>
+<div class="block">Check to see if we are stress testing garbage collector and if another allocation should
+ trigger a GC then do so.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#checkcast(java.lang.Object,%20int)">checkcast</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                  int&nbsp;id)</code>
+<div class="block">Throw exception unless object is instance of target
+ class/array or implements target interface.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#checkJNICountDownToGC()">checkJNICountDownToGC</a></strong>()</code>
+<div class="block">Check to see if we are stress testing garbage collector and if another JNI call should
+ trigger a gc then do so.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#checkstore(java.lang.Object,%20java.lang.Object)">checkstore</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;array,
+                    <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;arrayElement)</code>
+<div class="block">Throw exception iff array assignment is illegal.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#clone(java.lang.Object)">clone</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>
+<div class="block">Clone a Scalar or Array Object.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#cloneArray(java.lang.Object,%20org.jikesrvm.classloader.RVMType)">cloneArray</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                    <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Clone an array</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#cloneClass(java.lang.Object,%20org.jikesrvm.classloader.RVMType)">cloneClass</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                    <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Clone an object implementing a class - check that the class is cloneable
+ (we make this a small method with just a test so that the inliner will
+ inline it and hopefully eliminate the instanceof test).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#cloneClass2(java.lang.Object,%20org.jikesrvm.classloader.RVMType)">cloneClass2</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                      <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)</code>
+<div class="block">Clone an object implementing a class - the actual clone</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#deliverException(java.lang.Throwable,%20org.jikesrvm.ArchitectureSpecific.Registers)">deliverException</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject,
+                                <a href="../../../org/jikesrvm/ArchitectureSpecific.Registers.html" title="class in org.jikesrvm">ArchitectureSpecific.Registers</a>&nbsp;exceptionRegisters)</code>
+<div class="block">Deliver an exception to current java thread.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#deliverHardwareException(int,%20int)">deliverHardwareException</a></strong>(int&nbsp;trapCode,
+                                                int&nbsp;trapInfo)</code>
+<div class="block">Deliver a hardware exception to current java thread.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#getObjectHashCode(java.lang.Object)">getObjectHashCode</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object)</code>
+<div class="block">Get an object's "hashcode" value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#handleUncaughtException(java.lang.Throwable)">handleUncaughtException</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#init()">init</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#initializeClassForDynamicLink(org.jikesrvm.classloader.RVMClass)">initializeClassForDynamicLink</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;cls)</code>
+<div class="block">Prepare a class for use prior to first allocation,
+ field access, or method invocation.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#instanceOf(java.lang.Object,%20int)">instanceOf</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                    int&nbsp;targetID)</code>
+<div class="block">Test if object is instance of target class/array or
+ implements target interface.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#isAssignableWith(org.jikesrvm.classloader.RVMType,%20org.jikesrvm.classloader.RVMType)">isAssignableWith</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;lhs,
+                                <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;rhs)</code>
+<div class="block">May a variable of type "lhs" be assigned a value of type "rhs"?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseAbstractMethodError()">raiseAbstractMethodError</a></strong>()</code>
+<div class="block">Create and throw a java.lang.AbstractMethodError.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseArithmeticException()">raiseArithmeticException</a></strong>()</code>
+<div class="block">Create and throw a java.lang.ArithmeticException.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseArrayIndexOutOfBoundsException()">raiseArrayIndexOutOfBoundsException</a></strong>()</code>
+<div class="block">Create and throw a java.lang.ArrayIndexOutOfBoundsException.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseArrayIndexOutOfBoundsException(int)">raiseArrayIndexOutOfBoundsException</a></strong>(int&nbsp;index)</code>
+<div class="block">Create and throw a java.lang.ArrayIndexOutOfBoundsException.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseArrayStoreException()">raiseArrayStoreException</a></strong>()</code>
+<div class="block">Create and throw a java.lang.ArrayStoreException.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseIllegalAccessError()">raiseIllegalAccessError</a></strong>()</code>
+<div class="block">Create and throw a java.lang.IllegalAccessError.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseNegativeArraySizeException()">raiseNegativeArraySizeException</a></strong>()</code>
+<div class="block">Helper function to actually throw the required exception.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#raiseNullPointerException()">raiseNullPointerException</a></strong>()</code>
+<div class="block">Create and throw a java.lang.NullPointerException.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#resolvedNewArray(int,%20int,%20int,%20org.jikesrvm.objectmodel.TIB,%20int,%20int,%20int,%20int)">resolvedNewArray</a></strong>(int&nbsp;numElements,
+                                int&nbsp;logElementSize,
+                                int&nbsp;headerSize,
+                                <a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;tib,
+                                int&nbsp;allocator,
+                                int&nbsp;align,
+                                int&nbsp;offset,
+                                int&nbsp;site)</code>
+<div class="block">Allocate something like "new int[cnt]" or "new Foo[cnt]".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#resolvedNewArray(int,%20org.jikesrvm.classloader.RVMArray)">resolvedNewArray</a></strong>(int&nbsp;numElements,
+                                <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;array)</code>
+<div class="block">Allocate something like "new Foo[]".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#resolvedNewArray(int,%20org.jikesrvm.classloader.RVMArray,%20int)">resolvedNewArray</a></strong>(int&nbsp;numElements,
+                                <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;array,
+                                int&nbsp;site)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#resolvedNewScalar(int,%20org.jikesrvm.objectmodel.TIB,%20boolean,%20int,%20int,%20int,%20int)">resolvedNewScalar</a></strong>(int&nbsp;size,
+                                  <a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;tib,
+                                  boolean&nbsp;hasFinalizer,
+                                  int&nbsp;allocator,
+                                  int&nbsp;align,
+                                  int&nbsp;offset,
+                                  int&nbsp;site)</code>
+<div class="block">Allocate something like "new Foo()".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#resolvedNewScalar(org.jikesrvm.classloader.RVMClass)">resolvedNewScalar</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;cls)</code>
+<div class="block">Allocate something like "new Foo()".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unexpectedAbstractMethodCall()">unexpectedAbstractMethodCall</a></strong>()</code>
+<div class="block">Report unexpected method call: abstract method (verification error).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unexpectedInterfaceMethodCall()">unexpectedInterfaceMethodCall</a></strong>()</code>
+<div class="block">Report unexpected method call: interface method
+ (virtual machine dispatching error, shouldn't happen).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unlockAndThrow(java.lang.Object,%20java.lang.Throwable)">unlockAndThrow</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;objToUnlock,
+                            <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;objToThrow)</code>
+<div class="block">Unlock an object and then deliver a software exception
+ to current java thread.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unresolvedNewArray(int,%20int,%20int)">unresolvedNewArray</a></strong>(int&nbsp;numElements,
+                                    int&nbsp;id,
+                                    int&nbsp;site)</code>
+<div class="block">Allocate something like "new Foo[]".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unresolvedNewScalar(int,%20int)">unresolvedNewScalar</a></strong>(int&nbsp;id,
+                                      int&nbsp;site)</code>
+<div class="block">Allocate something like "new Foo()".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unwindInvisibleStackFrame(org.jikesrvm.ArchitectureSpecific.Registers)">unwindInvisibleStackFrame</a></strong>(<a href="../../../org/jikesrvm/ArchitectureSpecific.Registers.html" title="class in org.jikesrvm">ArchitectureSpecific.Registers</a>&nbsp;registers)</code>
+<div class="block">Unwind stack frame for an <invisible method>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unwindNativeStackFrame(org.vmmagic.unboxed.Address)">unwindNativeStackFrame</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;currfp)</code>
+<div class="block">Skip over all frames below currfp with saved code pointers outside of heap
+ (C frames), stopping at the native frame immediately preceding the glue
+ frame which contains the method ID of the native method (this is necessary
+ to allow retrieving the return address of the glue frame).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/RuntimeEntrypoints.html#unwindNativeStackFrameForGC(org.vmmagic.unboxed.Address)">unwindNativeStackFrameForGC</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;currfp)</code>
+<div class="block">The current frame is expected to be one of the JNI functions
+ called from C,
+ below which is one or more native stack frames.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="traceAthrow">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>traceAthrow</h4>
+<pre>private static final&nbsp;boolean <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.81">traceAthrow</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.traceAthrow">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_UNKNOWN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_UNKNOWN</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.84">TRAP_UNKNOWN</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_UNKNOWN">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_NULL_POINTER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_NULL_POINTER</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.85">TRAP_NULL_POINTER</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_NULL_POINTER">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_ARRAY_BOUNDS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_ARRAY_BOUNDS</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.86">TRAP_ARRAY_BOUNDS</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_ARRAY_BOUNDS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_DIVIDE_BY_ZERO">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_DIVIDE_BY_ZERO</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.87">TRAP_DIVIDE_BY_ZERO</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_DIVIDE_BY_ZERO">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_STACK_OVERFLOW">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_STACK_OVERFLOW</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.88">TRAP_STACK_OVERFLOW</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_STACK_OVERFLOW">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_CHECKCAST">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_CHECKCAST</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.89">TRAP_CHECKCAST</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_CHECKCAST">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_REGENERATE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_REGENERATE</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.90">TRAP_REGENERATE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_REGENERATE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_JNI_STACK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_JNI_STACK</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.91">TRAP_JNI_STACK</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_JNI_STACK">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_MUST_IMPLEMENT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_MUST_IMPLEMENT</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.92">TRAP_MUST_IMPLEMENT</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_MUST_IMPLEMENT">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_STORE_CHECK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_STORE_CHECK</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.93">TRAP_STORE_CHECK</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_STORE_CHECK">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="TRAP_STACK_OVERFLOW_FATAL">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>TRAP_STACK_OVERFLOW_FATAL</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.94">TRAP_STACK_OVERFLOW_FATAL</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.jikesrvm.runtime.RuntimeEntrypoints.TRAP_STACK_OVERFLOW_FATAL">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="allocationCountDownToGC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocationCountDownToGC</h4>
+<pre>static&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1144">allocationCountDownToGC</a></pre>
+<div class="block">Number of allocations left before a GC is forced. Only used if VM.StressGCAllocationInterval is not 0.</div>
+</li>
+</ul>
+<a name="jniCountDownToGC">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>jniCountDownToGC</h4>
+<pre>static&nbsp;int <a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1149">jniCountDownToGC</a></pre>
+<div class="block">Number of c-to-java jni calls left before a GC is forced. Only used if VM.StressGCAllocationInterval is not 0.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="RuntimeEntrypoints()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>RuntimeEntrypoints</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.79">RuntimeEntrypoints</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="instanceOf(java.lang.Object, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>instanceOf</h4>
+<pre>static&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.109">instanceOf</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+                 int&nbsp;targetID)
+                   throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></pre>
+<div class="block">Test if object is instance of target class/array or
+ implements target interface.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - object to be tested</dd><dd><code>targetID</code> - type reference id corresponding to target
+                 class/array/interface</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true iff is object instance of target type?</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></code></dd></dl>
+</li>
+</ul>
+<a name="checkcast(java.lang.Object, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkcast</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.147">checkcast</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object,
+             int&nbsp;id)
+               throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang">ClassCastException</a>,
+                      <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></pre>
+<div class="block">Throw exception unless object is instance of target
+ class/array or implements target interface.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - object to be tested</dd><dd><code>id</code> - of type reference corresponding to target class/array/interface</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang">ClassCastException</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></code></dd></dl>
+</li>
+</ul>
+<a name="aastore(java.lang.Object[], int, java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>aastore</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.173">aastore</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[]&nbsp;arrayRef,
+           int&nbsp;index,
+           <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value)
+             throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayStoreException.html?is-external=true" title="class or interface in java.lang">ArrayStoreException</a>,
+                    <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayIndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">ArrayIndexOutOfBoundsException</a></pre>
+<div class="block">Perform aastore bytecode</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayStoreException.html?is-external=true" title="class or interface in java.lang">ArrayStoreException</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayIndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">ArrayIndexOutOfBoundsException</a></code></dd></dl>
+</li>
+</ul>
+<a name="aastoreUninterruptible(java.lang.Object[], int, java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>aastoreUninterruptible</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.188">aastoreUninterruptible</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[]&nbsp;arrayRef,
+                          int&nbsp;index,
+                          <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;value)</pre>
+<div class="block">Perform uninterruptible aastore bytecode</div>
+</li>
+</ul>
+<a name="checkstore(java.lang.Object, java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkstore</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.201">checkstore</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;array,
+              <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;arrayElement)
+                throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayStoreException.html?is-external=true" title="class or interface in java.lang">ArrayStoreException</a></pre>
+<div class="block">Throw exception iff array assignment is illegal.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ArrayStoreException.html?is-external=true" title="class or interface in java.lang">ArrayStoreException</a></code></dd></dl>
+</li>
+</ul>
+<a name="isAssignableWith(org.jikesrvm.classloader.RVMType, org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAssignableWith</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.238">isAssignableWith</a>(<a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;lhs,
+                       <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;rhs)</pre>
+<div class="block">May a variable of type "lhs" be assigned a value of type "rhs"?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>lhs</code> - type of variable</dd><dd><code>rhs</code> - type of value</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true  --> assignment is legal
+           false --> assignment is illegal
+ <strong>Assumption</strong>: caller has already tested "trivial" case
+ (exact type match)
+             so we need not repeat it here</dd></dl>
+</li>
+</ul>
+<a name="unresolvedNewScalar(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unresolvedNewScalar</h4>
+<pre>static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.260">unresolvedNewScalar</a>(int&nbsp;id,
+                         int&nbsp;site)
+                           throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a>,
+                                  <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></pre>
+<div class="block">Allocate something like "new Foo()".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - id of type reference of class to create.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object with header installed and all fields set to zero/null
+           (ready for initializer to be run on it)
+ See also: bytecode 0xbb ("new")</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd></dl>
+</li>
+</ul>
+<a name="resolvedNewScalar(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolvedNewScalar</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.290">resolvedNewScalar</a>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;cls)</pre>
+<div class="block">Allocate something like "new Foo()".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>cls</code> - RVMClass of array to create</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object with header installed and all fields set to zero/null
+           (ready for initializer to be run on it)
+ See also: bytecode 0xbb ("new")</dd></dl>
+</li>
+</ul>
+<a name="resolvedNewScalar(int, org.jikesrvm.objectmodel.TIB, boolean, int, int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolvedNewScalar</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.319">resolvedNewScalar</a>(int&nbsp;size,
+                       <a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;tib,
+                       boolean&nbsp;hasFinalizer,
+                       int&nbsp;allocator,
+                       int&nbsp;align,
+                       int&nbsp;offset,
+                       int&nbsp;site)
+                                throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></pre>
+<div class="block">Allocate something like "new Foo()".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>size</code> - size of object (including header), in bytes</dd><dd><code>tib</code> - type information block for object</dd><dd><code>hasFinalizer</code> - does this type have a finalizer?</dd><dd><code>allocator</code> - int that encodes which allocator should be used</dd><dd><code>align</code> - the alignment requested; must be a power of 2.</dd><dd><code>offset</code> - the offset at which the alignment is desired.</dd><dd><code>site</code> - the site id of the calling allocation site</dd>
+<dt><span class="strong">Returns:</span></dt><dd>object with header installed and all fields set to zero/null
+           (ready for initializer to be run on it)
+ See also: bytecode 0xbb ("new")</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd></dl>
+</li>
+</ul>
+<a name="unresolvedNewArray(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unresolvedNewArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.343">unresolvedNewArray</a>(int&nbsp;numElements,
+                        int&nbsp;id,
+                        int&nbsp;site)
+                                 throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a>,
+                                        <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                                        <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></pre>
+<div class="block">Allocate something like "new Foo[]".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>numElements</code> - number of array elements</dd><dd><code>id</code> - id of type reference of array to create.</dd><dd><code>site</code> - the site id of the calling allocation site</dd>
+<dt><span class="strong">Returns:</span></dt><dd>array with header installed and all fields set to zero/null
+ See also: bytecode 0xbc ("anewarray")</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NoClassDefFoundError.html?is-external=true" title="class or interface in java.lang">NoClassDefFoundError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></code></dd></dl>
+</li>
+</ul>
+<a name="resolvedNewArray(int, org.jikesrvm.classloader.RVMArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolvedNewArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.366">resolvedNewArray</a>(int&nbsp;numElements,
+                      <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;array)
+                               throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                                      <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></pre>
+<div class="block">Allocate something like "new Foo[]".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>numElements</code> - number of array elements</dd><dd><code>array</code> - RVMArray of array to create</dd>
+<dt><span class="strong">Returns:</span></dt><dd>array with header installed and all fields set to zero/null
+ See also: bytecode 0xbc ("anewarray")</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></code></dd></dl>
+</li>
+</ul>
+<a name="resolvedNewArray(int, org.jikesrvm.classloader.RVMArray, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolvedNewArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.371">resolvedNewArray</a>(int&nbsp;numElements,
+                      <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;array,
+                      int&nbsp;site)
+                               throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                                      <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></pre>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></code></dd></dl>
+</li>
+</ul>
+<a name="resolvedNewArray(int, int, int, org.jikesrvm.objectmodel.TIB, int, int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolvedNewArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.398">resolvedNewArray</a>(int&nbsp;numElements,
+                      int&nbsp;logElementSize,
+                      int&nbsp;headerSize,
+                      <a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;tib,
+                      int&nbsp;allocator,
+                      int&nbsp;align,
+                      int&nbsp;offset,
+                      int&nbsp;site)
+                               throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                                      <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></pre>
+<div class="block">Allocate something like "new int[cnt]" or "new Foo[cnt]".</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>numElements</code> - number of array elements</dd><dd><code>logElementSize</code> - size in bytes of an array element, log base 2.</dd><dd><code>headerSize</code> - size in bytes of array header</dd><dd><code>tib</code> - type information block for array object</dd><dd><code>allocator</code> - int that encodes which allocator should be used</dd><dd><code>align</code> - the alignment requested; must be a power of 2.</dd><dd><code>offset</code> - the offset at which the alignment is desired.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>array object with header installed and all elements set
+         to zero/null
+ See also: bytecode 0xbc ("newarray") and 0xbd ("anewarray")</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></code></dd></dl>
+</li>
+</ul>
+<a name="clone(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clone</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.429">clone</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)
+                    throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                           <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CloneNotSupportedException.html?is-external=true" title="class or interface in java.lang">CloneNotSupportedException</a></pre>
+<div class="block">Clone a Scalar or Array Object.
+ called from java/lang/Object.clone().
+ <p>
+ For simplicity, we just code this more or less in Java using
+ internal reflective operations and some magic.
+ This is inefficient for large scalar objects, but until that
+ is proven to be a  performance problem, we won't worry about it.
+ By keeping this in Java instead of dropping into Memory.copy,
+ we avoid having to add special case code to deal with write barriers,
+ and other such things.
+ <p>
+ This method calls specific cloning routines based on type to help
+ guide the inliner (which won't inline a single large method).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - the object to clone</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the cloned object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CloneNotSupportedException.html?is-external=true" title="class or interface in java.lang">CloneNotSupportedException</a></code></dd></dl>
+</li>
+</ul>
+<a name="cloneArray(java.lang.Object, org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cloneArray</h4>
+<pre>private static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.445">cloneArray</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)
+                          throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></pre>
+<div class="block">Clone an array</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - the array to clone</dd><dd><code>type</code> - the type information for the array</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the cloned object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd></dl>
+</li>
+</ul>
+<a name="cloneClass(java.lang.Object, org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cloneClass</h4>
+<pre>private static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.462">cloneClass</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)
+                          throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a>,
+                                 <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CloneNotSupportedException.html?is-external=true" title="class or interface in java.lang">CloneNotSupportedException</a></pre>
+<div class="block">Clone an object implementing a class - check that the class is cloneable
+ (we make this a small method with just a test so that the inliner will
+ inline it and hopefully eliminate the instanceof test).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - the object to clone</dd><dd><code>type</code> - the type information for the class</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the cloned object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CloneNotSupportedException.html?is-external=true" title="class or interface in java.lang">CloneNotSupportedException</a></code></dd></dl>
+</li>
+</ul>
+<a name="cloneClass2(java.lang.Object, org.jikesrvm.classloader.RVMType)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cloneClass2</h4>
+<pre>private static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.477">cloneClass2</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj,
+                 <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>&nbsp;type)
+                           throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></pre>
+<div class="block">Clone an object implementing a class - the actual clone</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>obj</code> - the object to clone</dd><dd><code>type</code> - the type information for the class</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the cloned object</dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/OutOfMemoryError.html?is-external=true" title="class or interface in java.lang">OutOfMemoryError</a></code></dd></dl>
+</li>
+</ul>
+<a name="raiseNegativeArraySizeException()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseNegativeArraySizeException</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.576">raiseNegativeArraySizeException</a>()
+                                             throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></pre>
+<div class="block">Helper function to actually throw the required exception.
+ Keep out of line to mitigate code space when quickNewArray is inlined.</div>
+<dl><dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/NegativeArraySizeException.html?is-external=true" title="class or interface in java.lang">NegativeArraySizeException</a></code></dd></dl>
+</li>
+</ul>
+<a name="getObjectHashCode(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getObjectHashCode</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.589">getObjectHashCode</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;object)</pre>
+<div class="block">Get an object's "hashcode" value.
+
+ Side effect: hash value is generated and stored into object's
+ status word.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>object's hashcode.</dd><dt><span class="strong">See Also:</span></dt><dd><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang"><code>Object.hashCode().</code></a></dd></dl>
+</li>
+</ul>
+<a name="initializeClassForDynamicLink(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initializeClassForDynamicLink</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.603">initializeClassForDynamicLink</a>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;cls)</pre>
+<div class="block">Prepare a class for use prior to first allocation,
+ field access, or method invocation.
+ Made public so that it is accessible from java.lang.reflect.*.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jikesrvm/classloader/MemberReference.html#needsDynamicLink(org.jikesrvm.classloader.RVMMethod)"><code>MemberReference.needsDynamicLink(org.jikesrvm.classloader.RVMMethod)</code></a></dd></dl>
+</li>
+</ul>
+<a name="unexpectedInterfaceMethodCall()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unexpectedInterfaceMethodCall</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.625">unexpectedInterfaceMethodCall</a>()</pre>
+<div class="block">Report unexpected method call: interface method
+ (virtual machine dispatching error, shouldn't happen).</div>
+</li>
+</ul>
+<a name="unexpectedAbstractMethodCall()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unexpectedAbstractMethodCall</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.633">unexpectedAbstractMethodCall</a>()</pre>
+<div class="block">Report unexpected method call: abstract method (verification error).</div>
+</li>
+</ul>
+<a name="athrow(java.lang.Throwable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>athrow</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.654">athrow</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject)</pre>
+<div class="block">Deliver a software exception to current java thread.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>exceptionObject</code> - exception object to deliver
+ (null --> deliver NullPointerException).
+ does not return
+ (stack is unwound and execution resumes in a catch block)
+
+ This method is public so that it can be invoked by java.lang.VMClass.</dd></dl>
+</li>
+</ul>
+<a name="deliverHardwareException(int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deliverHardwareException</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.691">deliverHardwareException</a>(int&nbsp;trapCode,
+                            int&nbsp;trapInfo)</pre>
+<div class="block">Deliver a hardware exception to current java thread.
+ <p>
+ Does not return.
+ (stack is unwound, starting at trap site, and
+           execution resumes in a catch block somewhere up the stack)
+     /or/  execution resumes at instruction following trap
+     (for TRAP_STACK_OVERFLOW)
+
+ <p> Note:     Control reaches here by the actions of an
+           external "C" signal handler
+           which saves the register state of the trap site into the
+           "exceptionRegisters" field of the current
+           Thread object.
+           The signal handler also inserts a <hardware trap> frame
+           onto the stack immediately above this frame, for use by
+           HardwareTrapGCMapIterator during garbage collection.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>trapCode</code> - code indicating kind of exception that was trapped
+ (see TRAP_xxx, above)</dd><dd><code>trapInfo</code> - array subscript (for array bounds trap, only)</dd></dl>
+</li>
+</ul>
+<a name="unlockAndThrow(java.lang.Object, java.lang.Throwable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unlockAndThrow</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.811">unlockAndThrow</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;objToUnlock,
+                  <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;objToThrow)</pre>
+<div class="block">Unlock an object and then deliver a software exception
+ to current java thread.
+ <p>
+ Does not return (stack is unwound and execution resumes in a catch block).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>objToUnlock</code> - object to unlock</dd><dd><code>objToThrow</code> - exception object to deliver
+ (<code>null</code> --> deliver NullPointerException).</dd></dl>
+</li>
+</ul>
+<a name="raiseArrayIndexOutOfBoundsException(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseArrayIndexOutOfBoundsException</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.823">raiseArrayIndexOutOfBoundsException</a>(int&nbsp;index)</pre>
+<div class="block">Create and throw a java.lang.ArrayIndexOutOfBoundsException.
+ Only used in some configurations where it is easier to make a call
+ then recover the array index from a trap instruction.</div>
+</li>
+</ul>
+<a name="raiseArrayIndexOutOfBoundsException()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseArrayIndexOutOfBoundsException</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.834">raiseArrayIndexOutOfBoundsException</a>()</pre>
+<div class="block">Create and throw a java.lang.ArrayIndexOutOfBoundsException.
+ Used (rarely) by the opt compiler when it has determined that
+ an array access will unconditionally raise an array bounds check
+ error, but it has lost track of exactly what the index is going to be.</div>
+</li>
+</ul>
+<a name="raiseNullPointerException()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseNullPointerException</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.849">raiseNullPointerException</a>()</pre>
+<div class="block">Create and throw a java.lang.NullPointerException.
+ Used in a few circumstances to reduce code space costs
+ of inlining (see java.lang.System.arraycopy()).  Could also
+ be used to raise a null pointer exception without going through
+ the hardware trap handler; currently this is only done when the
+ opt compiler has determined that an instruction will unconditionally
+ raise a null pointer exception.</div>
+</li>
+</ul>
+<a name="raiseArrayStoreException()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseArrayStoreException</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.859">raiseArrayStoreException</a>()</pre>
+<div class="block">Create and throw a java.lang.ArrayStoreException.
+ Used in a few circumstances to reduce code space costs
+ of inlining (see java.lang.System.arraycopy()).</div>
+</li>
+</ul>
+<a name="raiseArithmeticException()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseArithmeticException</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.872">raiseArithmeticException</a>()</pre>
+<div class="block">Create and throw a java.lang.ArithmeticException.
+ Used to raise an arithmetic exception without going through
+ the hardware trap handler; currently this is only done when the
+ opt compiler has determined that an instruction will unconditionally
+ raise an arithmetic exception.</div>
+</li>
+</ul>
+<a name="raiseAbstractMethodError()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseAbstractMethodError</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.882">raiseAbstractMethodError</a>()</pre>
+<div class="block">Create and throw a java.lang.AbstractMethodError.
+ Used to handle error cases in invokeinterface dispatching.</div>
+</li>
+</ul>
+<a name="raiseIllegalAccessError()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>raiseIllegalAccessError</h4>
+<pre>static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.892">raiseIllegalAccessError</a>()</pre>
+<div class="block">Create and throw a java.lang.IllegalAccessError.
+ Used to handle error cases in invokeinterface dispatching.</div>
+</li>
+</ul>
+<a name="init()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>init</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.900">init</a>()</pre>
+</li>
+</ul>
+<a name="buildMultiDimensionalArray(int, int[], org.jikesrvm.classloader.RVMArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildMultiDimensionalArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.922">buildMultiDimensionalArray</a>(int&nbsp;methodId,
+                                int[]&nbsp;numElements,
+                                <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</pre>
+<div class="block">Build a multi-dimensional array.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>methodId</code> - TODO document me</dd><dd><code>numElements</code> - number of elements to allocate for each dimension</dd><dd><code>arrayType</code> - type of array that will result</dd>
+<dt><span class="strong">Returns:</span></dt><dd>array object</dd></dl>
+</li>
+</ul>
+<a name="buildTwoDimensionalArray(int, int, int, org.jikesrvm.classloader.RVMArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildTwoDimensionalArray</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.936">buildTwoDimensionalArray</a>(int&nbsp;methodId,
+                              int&nbsp;dim0,
+                              int&nbsp;dim1,
+                              <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</pre>
+<div class="block">Build a two-dimensional array.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>methodId</code> - TODO document me</dd><dd><code>dim0</code> - the arraylength for arrays in dimension 0</dd><dd><code>dim1</code> - the arraylength for arrays in dimension 1</dd><dd><code>arrayType</code> - type of array that will result</dd>
+<dt><span class="strong">Returns:</span></dt><dd>array object</dd></dl>
+</li>
+</ul>
+<a name="buildMDAHelper(org.jikesrvm.classloader.RVMMethod, int[], int, org.jikesrvm.classloader.RVMArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildMDAHelper</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.966">buildMDAHelper</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;method,
+                    int[]&nbsp;numElements,
+                    int&nbsp;dimIndex,
+                    <a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader">RVMArray</a>&nbsp;arrayType)</pre>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>method</code> - Apparently unused (!)</dd><dd><code>numElements</code> - Number of elements to allocate for each dimension</dd><dd><code>dimIndex</code> - Current dimension to build</dd><dd><code>arrayType</code> - type of array that will result</dd></dl>
+</li>
+</ul>
+<a name="deliverException(java.lang.Throwable, org.jikesrvm.ArchitectureSpecific.Registers)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deliverException</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1009">deliverException</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject,
+                    <a href="../../../org/jikesrvm/ArchitectureSpecific.Registers.html" title="class in org.jikesrvm">ArchitectureSpecific.Registers</a>&nbsp;exceptionRegisters)</pre>
+<div class="block">Deliver an exception to current java thread.
+ <STRONG> Precondition: </STRONG> VM.disableGC has already been called.
+  <ol>
+   <li> exceptionRegisters may not match any reasonable stack
+          frame at this point.
+   <li> we're going to be playing with raw addresses (fp, ip).
+  </ol>
+ <p>
+ Does not return:
+ <ul>
+  <li> stack is unwound and execution resumes in a catch block
+  <li> <em> or </em> current thread is terminated if no catch block is found
+ </ul></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>exceptionObject</code> - exception object to deliver</dd><dd><code>exceptionRegisters</code> - register state corresponding to exception site</dd></dl>
+</li>
+</ul>
+<a name="handleUncaughtException(java.lang.Throwable)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>handleUncaughtException</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1070">handleUncaughtException</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;exceptionObject)</pre>
+</li>
+</ul>
+<a name="unwindNativeStackFrame(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unwindNativeStackFrame</h4>
+<pre>public static&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1084">unwindNativeStackFrame</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;currfp)</pre>
+<div class="block">Skip over all frames below currfp with saved code pointers outside of heap
+ (C frames), stopping at the native frame immediately preceding the glue
+ frame which contains the method ID of the native method (this is necessary
+ to allow retrieving the return address of the glue frame).</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>currfp</code> - The current frame is expected to be one of the JNI functions
+            called from C, below which is one or more native stack frames</dd></dl>
+</li>
+</ul>
+<a name="unwindNativeStackFrameForGC(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unwindNativeStackFrameForGC</h4>
+<pre>public static&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1121">unwindNativeStackFrameForGC</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;currfp)</pre>
+<div class="block">The current frame is expected to be one of the JNI functions
+ called from C,
+ below which is one or more native stack frames.
+ Skip over all frames below which do not contain any object
+ references.</div>
+</li>
+</ul>
+<a name="unwindInvisibleStackFrame(org.jikesrvm.ArchitectureSpecific.Registers)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unwindInvisibleStackFrame</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1137">unwindInvisibleStackFrame</a>(<a href="../../../org/jikesrvm/ArchitectureSpecific.Registers.html" title="class in org.jikesrvm">ArchitectureSpecific.Registers</a>&nbsp;registers)</pre>
+<div class="block">Unwind stack frame for an <invisible method>.
+ See also: ExceptionDeliverer.unwindStackFrame()
+ <p>
+ !!TODO: Could be a reflective method invoker frame.
+        Does it clobber any non-volatiles?
+        If so, how do we restore them?
+ (I don't think our current implementations of reflective method
+  invokers save/restore any nonvolatiles, so we're probably ok.
+  --dave 6/29/01</div>
+</li>
+</ul>
+<a name="checkJNICountDownToGC()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkJNICountDownToGC</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1156">checkJNICountDownToGC</a>()</pre>
+<div class="block">Check to see if we are stress testing garbage collector and if another JNI call should
+ trigger a gc then do so.</div>
+</li>
+</ul>
+<a name="checkAllocationCountDownToGC()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkAllocationCountDownToGC</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1172">checkAllocationCountDownToGC</a>()</pre>
+<div class="block">Check to see if we are stress testing garbage collector and if another allocation should
+ trigger a GC then do so.</div>
+</li>
+</ul>
+<a name="canForceGC()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>canForceGC</h4>
+<pre>private static&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/RuntimeEntrypoints.html#line.1187">canForceGC</a>()</pre>
+<div class="block">Return <code>true</code> if we are stress testing garbage collector and the system is in state where we
+ can force a garbage collection.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/RuntimeEntrypoints.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/ReflectionBase.html" title="class in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/StackBrowser.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/RuntimeEntrypoints.html" target="_top">Frames</a></li>
+<li><a href="RuntimeEntrypoints.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

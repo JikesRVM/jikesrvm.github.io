@@ -1,0 +1,1035 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>StackManager (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="StackManager (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/StackManager.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/RegisterRestrictions.html" title="class in org.jikesrvm.compilers.opt.regalloc.ia32"><span class="strong">Prev Class</span></a></li>
+<li>Next Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html" target="_top">Frames</a></li>
+<li><a href="StackManager.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_classes_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.GenericStackManager">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.compilers.opt.regalloc.ia32</div>
+<h2 title="Class StackManager" class="title">Class StackManager</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html" title="class in org.jikesrvm.compilers.opt.ir">org.jikesrvm.compilers.opt.ir.IRTools</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">org.jikesrvm.compilers.opt.regalloc.GenericStackManager</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.compilers.opt.regalloc.ia32.StackManager</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../../../org/jikesrvm/ArchitectureSpecificOpt.StackManager.html" title="class in org.jikesrvm">ArchitectureSpecificOpt.StackManager</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public abstract class <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.87">StackManager</a>
+extends <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></pre>
+<div class="block">Class to manage the allocation of the "compiler-specific" portion of
+ the stackframe.  This class holds only the architecture-specific
+ functions.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested_classes_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.GenericStackManager">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;org.jikesrvm.compilers.opt.regalloc.<a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.ScratchRegister.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager.ScratchRegister</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#ESPOffset">ESPOffset</a></strong></code>
+<div class="block">We allow the stack pointer to float from its normal position at the
+ bottom of the frame.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#FLOAT_ESP">FLOAT_ESP</a></strong></code>
+<div class="block">Should we allow the stack pointer to float in order to avoid scratch
+ registers in move instructions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#fsaveLocation">fsaveLocation</a></strong></code>
+<div class="block">A frame offset for 108 bytes of stack space to store the
+ floating point state in the SaveVolatile protocol.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.GenericStackManager">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.compilers.opt.regalloc.<a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocFrame">allocFrame</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#DEBUG">DEBUG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#frameSize">frameSize</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#ir">ir</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#nonVolatileFPRLocation">nonVolatileFPRLocation</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#nonVolatileGPRLocation">nonVolatileGPRLocation</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#pref">pref</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#restrict">restrict</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#saveVolatileFPRLocation">saveVolatileFPRLocation</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#saveVolatileGPRLocation">saveVolatileGPRLocation</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#scratchInUse">scratchInUse</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#scratchMap">scratchMap</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#spillPointer">spillPointer</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#VERBOSE">VERBOSE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#VERBOSE_DEBUG">VERBOSE_DEBUG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#WORDSIZE">WORDSIZE</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#StackManager()">StackManager</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#allocateNewSpillLocation(int)">allocateNewSpillLocation</a></strong>(int&nbsp;type)</code>
+<div class="block">Allocate a new spill location and grow the
+ frame size to reflect the new layout.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#canModifyEFLAGS(org.jikesrvm.compilers.opt.ir.Instruction)">canModifyEFLAGS</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#cleanUpAndInsertEpilogue()">cleanUpAndInsertEpilogue</a></strong>()</code>
+<div class="block">Clean up some junk that's left in the IR after register allocation,
+ and add epilogue code.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#computeNonVolatileArea()">computeNonVolatileArea</a></strong>()</code>
+<div class="block">Compute the number of stack words needed to hold nonvolatile
+ registers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#FPOffset2SPOffset(int)">FPOffset2SPOffset</a></strong>(int&nbsp;fpOffset)</code>
+<div class="block">PRECONDITION: The final frameSize is calculated before calling this
+ routine.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#getFrameFixedSize()">getFrameFixedSize</a></strong>()</code>
+<div class="block">Return the size of the fixed portion of the stack.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Operator.html" title="class in org.jikesrvm.compilers.opt.ir">Operator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#getMoveOperator(byte)">getMoveOperator</a></strong>(byte&nbsp;type)</code>
+<div class="block">Return the move operator for a type of value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static byte</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#getSizeOfType(byte)">getSizeOfType</a></strong>(byte&nbsp;type)</code>
+<div class="block">Return the size of a type of value, in bytes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#hasSymbolicRegister(org.jikesrvm.compilers.opt.ir.operand.MemoryOperand)">hasSymbolicRegister</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/operand/MemoryOperand.html" title="class in org.jikesrvm.compilers.opt.ir.operand">MemoryOperand</a>&nbsp;M)</code>
+<div class="block">Does a memory operand hold a symbolic register?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#initForArch(org.jikesrvm.compilers.opt.ir.IR)">initForArch</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</code>
+<div class="block">Initialize some architecture-specific state needed for register
+ allocation.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertBigFrameStackOverflowCheck(org.jikesrvm.compilers.opt.ir.Instruction)">insertBigFrameStackOverflowCheck</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;plg)</code>
+<div class="block">Insert an explicit stack overflow check in the prologue <em>before</em>
+ buying the stack frame.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertEpilogue(org.jikesrvm.compilers.opt.ir.Instruction)">insertEpilogue</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;ret)</code>
+<div class="block">Insert the epilogue before a particular return instruction.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertNormalPrologue()">insertNormalPrologue</a></strong>()</code>
+<div class="block">Insert the prologue for a normal method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertNormalStackOverflowCheck(org.jikesrvm.compilers.opt.ir.Instruction)">insertNormalStackOverflowCheck</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;plg)</code>
+<div class="block">Insert an explicit stack overflow check in the prologue <em>after</em>
+ buying the stack frame.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertSpillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertSpillBefore</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                                  <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                                  byte&nbsp;type,
+                                  int&nbsp;location)</code>
+<div class="block">Insert a spill of a physical register before instruction s.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#insertUnspillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertUnspillBefore</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                                      <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                                      byte&nbsp;type,
+                                      int&nbsp;location)</code>
+<div class="block">Insert a load of a physical register from a spill location before
+ instruction s.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#isScratchFreeMove(org.jikesrvm.compilers.opt.ir.Instruction)">isScratchFreeMove</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Is s a MOVE instruction that can be generated without resorting to
+ scratch registers?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#isSysCall(org.jikesrvm.compilers.opt.ir.Instruction)">isSysCall</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Is a particular instruction a system call?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#moveESPBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20int)">moveESPBefore</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                          int&nbsp;desiredOffset)</code>
+<div class="block">Before instruction s, insert code to adjust ESP so that it lies at a
+ particular offset from its usual location.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#mutateMoveToNop(org.jikesrvm.compilers.opt.ir.Instruction)">mutateMoveToNop</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Attempt to rewrite a move instruction to a NOP.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#needScratch(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">needScratch</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                      <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Given symbolic register r in instruction s, do we need to ensure that
+ r is in a scratch register is s (as opposed to a memory operand)</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#replaceOperandWithSpillLocation(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.operand.RegisterOperand)">replaceOperandWithSpillLocation</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                                                              <a href="../../../../../../org/jikesrvm/compilers/opt/ir/operand/RegisterOperand.html" title="class in org.jikesrvm.compilers.opt.ir.operand">RegisterOperand</a>&nbsp;symb)</code>
+<div class="block">In instruction s, replace all appearances of a symbolic register
+ operand with uses of the appropriate spill location, as cached by the
+ register allocator.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#restoreFloatingPointState(org.jikesrvm.compilers.opt.ir.Instruction)">restoreFloatingPointState</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code into the epilogue to restore the floating point state.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#restoreNonVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">restoreNonVolatiles</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code before a return instruction to restore the nonvolatile
+ registers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#restoreScratchRegistersBefore(org.jikesrvm.compilers.opt.ir.Instruction)">restoreScratchRegistersBefore</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Walk over the currently available scratch registers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#restoreVolatileRegisters(org.jikesrvm.compilers.opt.ir.Instruction)">restoreVolatileRegisters</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code before a return instruction to restore the volatile
+ and volatile registers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#rewriteMoveInstruction(org.jikesrvm.compilers.opt.ir.Instruction)">rewriteMoveInstruction</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</code>
+<div class="block">Rewrite a move instruction if it has 2 memory operands.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#rewriteStackLocations()">rewriteStackLocations</a></strong>()</code>
+<div class="block">Walk through the IR.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#saveFloatingPointState(org.jikesrvm.compilers.opt.ir.Instruction)">saveFloatingPointState</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code into the prologue to save the floating point state.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#saveNonVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">saveNonVolatiles</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code into the prologue to save any used non-volatile
+ registers.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#saveVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">saveVolatiles</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</code>
+<div class="block">Insert code into the prologue to save all volatile
+ registers.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.GenericStackManager">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.compilers.opt.regalloc.<a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#align(int,%20int)">align</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateNonVolatileRegister(org.jikesrvm.compilers.opt.ir.Register)">allocateNonVolatileRegister</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateOnStackFrame(int)">allocateOnStackFrame</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateParameterSpace(int)">allocateParameterSpace</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateSpaceForCaughtException()">allocateSpaceForCaughtException</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateSpaceForConversion()">allocateSpaceForConversion</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateSpaceForSysCall(int)">allocateSpaceForSysCall</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateVolatileRegister(org.jikesrvm.compilers.opt.ir.Register)">allocateVolatileRegister</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#computeRestrictions(org.jikesrvm.compilers.opt.ir.IR)">computeRestrictions</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#forceFrameAllocation()">forceFrameAllocation</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#frameIsRequired()">frameIsRequired</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getNonvolatileFPROffset(int)">getNonvolatileFPROffset</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getNonvolatileGPROffset(int)">getNonvolatileGPROffset</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getOffsetForSysCall()">getOffsetForSysCall</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getValueType(org.jikesrvm.compilers.opt.ir.Register)">getValueType</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#hasPrologueYieldpoint()">hasPrologueYieldpoint</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertPrologueAndEpilogue()">insertPrologueAndEpilogue</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertSpillAfter(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertSpillAfter</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertSpillCode()">insertSpillCode</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertSpillCode(org.jikesrvm.compilers.opt.regalloc.LinearScan.ActiveSet)">insertSpillCode</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertUnspillAfter(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertUnspillAfter</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#isDeadBefore(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">isDeadBefore</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#isLegal(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">isLegal</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#prepare(org.jikesrvm.compilers.opt.ir.IR)">prepare</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#reloadScratchRegisterBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.regalloc.GenericStackManager.ScratchRegister)">reloadScratchRegisterBefore</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#setFrameRequired()">setFrameRequired</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#unloadScratchRegisterBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.regalloc.GenericStackManager.ScratchRegister)">unloadScratchRegisterBefore</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.compilers.opt.ir.IRTools">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.compilers.opt.ir.<a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html" title="class in org.jikesrvm.compilers.opt.ir">IRTools</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#A(org.jikesrvm.compilers.opt.ir.Register)">A</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#AC(org.vmmagic.unboxed.Address)">AC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#AC(org.vmmagic.unboxed.Offset)">AC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#CPOS(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Instruction)">CPOS</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#CR(org.jikesrvm.compilers.opt.ir.Register)">CR</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#D(org.jikesrvm.compilers.opt.ir.Register)">D</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#DC(double)">DC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#defDoublesAsUse(org.jikesrvm.compilers.opt.ir.operand.Operand,%20org.jikesrvm.compilers.opt.ir.Instruction)">defDoublesAsUse</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#definedIn(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">definedIn</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#F(org.jikesrvm.compilers.opt.ir.Register)">F</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#FC(float)">FC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getCondMoveOp(org.jikesrvm.classloader.TypeReference)">getCondMoveOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getDefaultOperand(org.jikesrvm.classloader.TypeReference)">getDefaultOperand</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getLoadOp(org.jikesrvm.classloader.FieldReference,%20boolean)">getLoadOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getLoadOp(org.jikesrvm.classloader.TypeReference,%20boolean)">getLoadOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getMoveOp(org.jikesrvm.classloader.TypeReference)">getMoveOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getStoreOp(org.jikesrvm.classloader.FieldReference,%20boolean)">getStoreOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#getStoreOp(org.jikesrvm.classloader.TypeReference,%20boolean)">getStoreOp</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#I(org.jikesrvm.compilers.opt.ir.Register)">I</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#IC(int)">IC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#insertInstructionsAfter(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.BasicBlock)">insertInstructionsAfter</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#L(org.jikesrvm.compilers.opt.ir.Register)">L</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#LC(long)">LC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#makeBlockOnEdge(org.jikesrvm.compilers.opt.ir.BasicBlock,%20org.jikesrvm.compilers.opt.ir.BasicBlock,%20org.jikesrvm.compilers.opt.ir.IR)">makeBlockOnEdge</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#mayBeVolatileFieldLoad(org.jikesrvm.compilers.opt.ir.Instruction)">mayBeVolatileFieldLoad</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#moveInstruction(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Instruction)">moveInstruction</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#moveIntoRegister(org.jikesrvm.ArchitectureSpecificOpt.RegisterPool,%20org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.operand.Operand)">moveIntoRegister</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#moveIntoRegister(org.jikesrvm.classloader.TypeReference,%20org.jikesrvm.compilers.opt.ir.Operator,%20org.jikesrvm.ArchitectureSpecificOpt.RegisterPool,%20org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.operand.Operand)">moveIntoRegister</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#nonPEIGC(org.jikesrvm.compilers.opt.ir.Instruction)">nonPEIGC</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#TG()">TG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#usedIn(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">usedIn</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/IRTools.html#useDoublesAsDef(org.jikesrvm.compilers.opt.ir.operand.Operand,%20org.jikesrvm.compilers.opt.ir.Instruction)">useDoublesAsDef</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="fsaveLocation">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fsaveLocation</h4>
+<pre>private&nbsp;int <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.93">fsaveLocation</a></pre>
+<div class="block">A frame offset for 108 bytes of stack space to store the
+ floating point state in the SaveVolatile protocol.</div>
+</li>
+</ul>
+<a name="ESPOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ESPOffset</h4>
+<pre>private&nbsp;int <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.100">ESPOffset</a></pre>
+<div class="block">We allow the stack pointer to float from its normal position at the
+ bottom of the frame.  This field holds the 'current' offset of the
+ SP.</div>
+</li>
+</ul>
+<a name="FLOAT_ESP">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FLOAT_ESP</h4>
+<pre>private static&nbsp;boolean <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.107">FLOAT_ESP</a></pre>
+<div class="block">Should we allow the stack pointer to float in order to avoid scratch
+ registers in move instructions.  Note: as of Feb. 02, we think this
+ is a bad idea.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="StackManager()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>StackManager</h4>
+<pre>public&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.87">StackManager</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getFrameFixedSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFrameFixedSize</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.110">getFrameFixedSize</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getFrameFixedSize()">GenericStackManager</a></code></strong></div>
+<div class="block">Return the size of the fixed portion of the stack.
+ (in other words, the difference between the framepointer and
+ the stackpointer after the prologue of the method completes).</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#getFrameFixedSize()">getFrameFixedSize</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>size in bytes of the fixed portion of the stackframe</dd></dl>
+</li>
+</ul>
+<a name="getSizeOfType(byte)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSizeOfType</h4>
+<pre>private static&nbsp;byte&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.120">getSizeOfType</a>(byte&nbsp;type)</pre>
+<div class="block">Return the size of a type of value, in bytes.
+ NOTE: For the purpose of register allocation, an x87 FLOAT_VALUE is 64 bits!</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - one of INT_VALUE, FLOAT_VALUE, or DOUBLE_VALUE</dd></dl>
+</li>
+</ul>
+<a name="getMoveOperator(byte)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMoveOperator</h4>
+<pre>private static&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Operator.html" title="class in org.jikesrvm.compilers.opt.ir">Operator</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.139">getMoveOperator</a>(byte&nbsp;type)</pre>
+<div class="block">Return the move operator for a type of value.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - one of INT_VALUE, FLOAT_VALUE, or DOUBLE_VALUE</dd></dl>
+</li>
+</ul>
+<a name="allocateNewSpillLocation(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocateNewSpillLocation</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.155">allocateNewSpillLocation</a>(int&nbsp;type)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateNewSpillLocation(int)">GenericStackManager</a></code></strong></div>
+<div class="block">Allocate a new spill location and grow the
+ frame size to reflect the new layout.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#allocateNewSpillLocation(int)">allocateNewSpillLocation</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - the type to spill</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the spill location</dd></dl>
+</li>
+</ul>
+<a name="insertSpillBefore(org.jikesrvm.compilers.opt.ir.Instruction, org.jikesrvm.compilers.opt.ir.Register, byte, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertSpillBefore</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.167">insertSpillBefore</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                     <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                     byte&nbsp;type,
+                     int&nbsp;location)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertSpillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">GenericStackManager</a></code></strong></div>
+<div class="block">Insert a spill of a physical register before instruction s.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertSpillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertSpillBefore</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>s</code> - the instruction before which the spill should occur</dd><dd><code>r</code> - the register (should be physical) to spill</dd><dd><code>type</code> - one of INT_VALUE, FLOAT_VALUE, DOUBLE_VALUE, or
+                    CONDITION_VALUE</dd><dd><code>location</code> - the spill location</dd></dl>
+</li>
+</ul>
+<a name="insertUnspillBefore(org.jikesrvm.compilers.opt.ir.Instruction, org.jikesrvm.compilers.opt.ir.Register, byte, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertUnspillBefore</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.188">insertUnspillBefore</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                       <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                       byte&nbsp;type,
+                       int&nbsp;location)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertUnspillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">GenericStackManager</a></code></strong></div>
+<div class="block">Insert a load of a physical register from a spill location before
+ instruction s.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertUnspillBefore(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.Register,%20byte,%20int)">insertUnspillBefore</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>s</code> - the instruction before which the spill should occur</dd><dd><code>r</code> - the register (should be physical) to spill</dd><dd><code>type</code> - one of INT_VALUE, FLOAT_VALUE, DOUBLE_VALUE, or
+                    CONDITION_VALUE</dd><dd><code>location</code> - the spill location</dd></dl>
+</li>
+</ul>
+<a name="computeNonVolatileArea()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>computeNonVolatileArea</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.208">computeNonVolatileArea</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#computeNonVolatileArea()">GenericStackManager</a></code></strong></div>
+<div class="block">Compute the number of stack words needed to hold nonvolatile
+ registers.
+
+ Side effects:
+ <ul>
+ <li> updates the OptCompiler structure
+ <li> updates the <code>frameSize</code> field of this object
+ <li> updates the <code>frameRequired</code> field of this object
+ </ul></div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#computeNonVolatileArea()">computeNonVolatileArea</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="cleanUpAndInsertEpilogue()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cleanUpAndInsertEpilogue</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.290">cleanUpAndInsertEpilogue</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#cleanUpAndInsertEpilogue()">GenericStackManager</a></code></strong></div>
+<div class="block">Clean up some junk that's left in the IR after register allocation,
+ and add epilogue code.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#cleanUpAndInsertEpilogue()">cleanUpAndInsertEpilogue</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="insertNormalStackOverflowCheck(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertNormalStackOverflowCheck</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.334">insertNormalStackOverflowCheck</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;plg)</pre>
+<div class="block">Insert an explicit stack overflow check in the prologue <em>after</em>
+ buying the stack frame.<p>
+
+ SIDE EFFECT: mutates the plg into a trap instruction.  We need to
+ mutate so that the trap instruction is in the GC map data structures.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>plg</code> - the prologue instruction</dd></dl>
+</li>
+</ul>
+<a name="insertBigFrameStackOverflowCheck(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertBigFrameStackOverflowCheck</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.371">insertBigFrameStackOverflowCheck</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;plg)</pre>
+<div class="block">Insert an explicit stack overflow check in the prologue <em>before</em>
+ buying the stack frame.
+ SIDE EFFECT: mutates the plg into a trap instruction.  We need to
+ mutate so that the trap instruction is in the GC map data structures.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>plg</code> - the prologue instruction</dd></dl>
+</li>
+</ul>
+<a name="insertNormalPrologue()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertNormalPrologue</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.421">insertNormalPrologue</a>()</pre>
+<div class="block">Insert the prologue for a normal method.
+
+ Assume we are inserting the prologue for method B called from method
+ A.
+    <ul>
+    <li> Perform a stack overflow check.
+    <li> Store a back pointer to A's frame
+    <li> Store B's compiled method id
+    <li> Adjust frame pointer to point to B's frame
+    <li> Save any used non-volatile registers
+    </ul></div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#insertNormalPrologue()">insertNormalPrologue</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="saveNonVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>saveNonVolatiles</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.491">saveNonVolatiles</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code into the prologue to save any used non-volatile
+ registers.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the first instruction after the prologue.</dd></dl>
+</li>
+</ul>
+<a name="restoreNonVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>restoreNonVolatiles</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.511">restoreNonVolatiles</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code before a return instruction to restore the nonvolatile
+ registers.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the return instruction</dd></dl>
+</li>
+</ul>
+<a name="saveFloatingPointState(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>saveFloatingPointState</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.529">saveFloatingPointState</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code into the prologue to save the floating point state.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the first instruction after the prologue.</dd></dl>
+</li>
+</ul>
+<a name="restoreFloatingPointState(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>restoreFloatingPointState</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.549">restoreFloatingPointState</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code into the epilogue to restore the floating point state.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the return instruction after the epilogue.</dd></dl>
+</li>
+</ul>
+<a name="saveVolatiles(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>saveVolatiles</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.569">saveVolatiles</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code into the prologue to save all volatile
+ registers.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the first instruction after the prologue.</dd></dl>
+</li>
+</ul>
+<a name="restoreVolatileRegisters(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>restoreVolatileRegisters</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.588">restoreVolatileRegisters</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;inst)</pre>
+<div class="block">Insert code before a return instruction to restore the volatile
+ and volatile registers.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>inst</code> - the return instruction</dd></dl>
+</li>
+</ul>
+<a name="insertEpilogue(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>insertEpilogue</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.606">insertEpilogue</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;ret)</pre>
+<div class="block">Insert the epilogue before a particular return instruction.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ret</code> - the return instruction.</dd></dl>
+</li>
+</ul>
+<a name="replaceOperandWithSpillLocation(org.jikesrvm.compilers.opt.ir.Instruction, org.jikesrvm.compilers.opt.ir.operand.RegisterOperand)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceOperandWithSpillLocation</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.627">replaceOperandWithSpillLocation</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                                   <a href="../../../../../../org/jikesrvm/compilers/opt/ir/operand/RegisterOperand.html" title="class in org.jikesrvm.compilers.opt.ir.operand">RegisterOperand</a>&nbsp;symb)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#replaceOperandWithSpillLocation(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.operand.RegisterOperand)">GenericStackManager</a></code></strong></div>
+<div class="block">In instruction s, replace all appearances of a symbolic register
+ operand with uses of the appropriate spill location, as cached by the
+ register allocator.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#replaceOperandWithSpillLocation(org.jikesrvm.compilers.opt.ir.Instruction,%20org.jikesrvm.compilers.opt.ir.operand.RegisterOperand)">replaceOperandWithSpillLocation</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>s</code> - the instruction to mutate.</dd><dd><code>symb</code> - the symbolic register operand to replace</dd></dl>
+</li>
+</ul>
+<a name="hasSymbolicRegister(org.jikesrvm.compilers.opt.ir.operand.MemoryOperand)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasSymbolicRegister</h4>
+<pre>private&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.654">hasSymbolicRegister</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/operand/MemoryOperand.html" title="class in org.jikesrvm.compilers.opt.ir.operand">MemoryOperand</a>&nbsp;M)</pre>
+<div class="block">Does a memory operand hold a symbolic register?</div>
+</li>
+</ul>
+<a name="isScratchFreeMove(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isScratchFreeMove</h4>
+<pre>private&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.664">isScratchFreeMove</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block">Is s a MOVE instruction that can be generated without resorting to
+ scratch registers?</div>
+</li>
+</ul>
+<a name="needScratch(org.jikesrvm.compilers.opt.ir.Register, org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>needScratch</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.701">needScratch</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r,
+                  <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#needScratch(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">GenericStackManager</a></code></strong></div>
+<div class="block">Given symbolic register r in instruction s, do we need to ensure that
+ r is in a scratch register is s (as opposed to a memory operand)</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#needScratch(org.jikesrvm.compilers.opt.ir.Register,%20org.jikesrvm.compilers.opt.ir.Instruction)">needScratch</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="moveESPBefore(org.jikesrvm.compilers.opt.ir.Instruction, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>moveESPBefore</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.727">moveESPBefore</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s,
+                 int&nbsp;desiredOffset)</pre>
+<div class="block">Before instruction s, insert code to adjust ESP so that it lies at a
+ particular offset from its usual location.</div>
+</li>
+</ul>
+<a name="canModifyEFLAGS(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>canModifyEFLAGS</h4>
+<pre>private&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.747">canModifyEFLAGS</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+</li>
+</ul>
+<a name="mutateMoveToNop(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>mutateMoveToNop</h4>
+<pre>private&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.763">mutateMoveToNop</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block">Attempt to rewrite a move instruction to a NOP.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true iff the transformation applies</dd></dl>
+</li>
+</ul>
+<a name="rewriteMoveInstruction(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rewriteMoveInstruction</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.780">rewriteMoveInstruction</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block">Rewrite a move instruction if it has 2 memory operands.
+ One of the 2 memory operands must be a stack location operand.  Move
+ the SP to the appropriate location and use a push or pop instruction.</div>
+</li>
+</ul>
+<a name="rewriteStackLocations()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rewriteStackLocations</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.810">rewriteStackLocations</a>()</pre>
+<div class="block">Walk through the IR.  For each StackLocationOperand, replace the
+ operand with the appropriate MemoryOperand.</div>
+</li>
+</ul>
+<a name="FPOffset2SPOffset(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FPOffset2SPOffset</h4>
+<pre>private&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.911">FPOffset2SPOffset</a>(int&nbsp;fpOffset)</pre>
+<div class="block">PRECONDITION: The final frameSize is calculated before calling this
+ routine.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>fpOffset</code> - offset in bytes from the top of the stack frame</dd>
+<dt><span class="strong">Returns:</span></dt><dd>offset in bytes from the stack pointer.</dd></dl>
+</li>
+</ul>
+<a name="restoreScratchRegistersBefore(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>restoreScratchRegistersBefore</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.919">restoreScratchRegistersBefore</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#restoreScratchRegistersBefore(org.jikesrvm.compilers.opt.ir.Instruction)">GenericStackManager</a></code></strong></div>
+<div class="block">Walk over the currently available scratch registers.
+
+ <p>For any scratch register r which is def'ed by instruction s,
+ spill r before s and remove r from the pool of available scratch
+ registers.
+
+ <p>For any scratch register r which is used by instruction s,
+ restore r before s and remove r from the pool of available scratch
+ registers.
+
+ <p>For any scratch register r which has current contents symb, and
+ symb is spilled to location M, and s defs M: the old value of symb is
+ dead.  Mark this.
+
+ <p>Invalidate any scratch register assignments that are illegal in s.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#restoreScratchRegistersBefore(org.jikesrvm.compilers.opt.ir.Instruction)">restoreScratchRegistersBefore</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="initForArch(org.jikesrvm.compilers.opt.ir.IR)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initForArch</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.1003">initForArch</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/IR.html" title="class in org.jikesrvm.compilers.opt.ir">IR</a>&nbsp;ir)</pre>
+<div class="block">Initialize some architecture-specific state needed for register
+ allocation.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#initForArch(org.jikesrvm.compilers.opt.ir.IR)">initForArch</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isSysCall(org.jikesrvm.compilers.opt.ir.Instruction)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isSysCall</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html#line.1013">isSysCall</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Instruction.html" title="class in org.jikesrvm.compilers.opt.ir">Instruction</a>&nbsp;s)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#isSysCall(org.jikesrvm.compilers.opt.ir.Instruction)">GenericStackManager</a></code></strong></div>
+<div class="block">Is a particular instruction a system call?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html#isSysCall(org.jikesrvm.compilers.opt.ir.Instruction)">isSysCall</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/GenericStackManager.html" title="class in org.jikesrvm.compilers.opt.regalloc">GenericStackManager</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/StackManager.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/RegisterRestrictions.html" title="class in org.jikesrvm.compilers.opt.regalloc.ia32"><span class="strong">Prev Class</span></a></li>
+<li>Next Class</li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/jikesrvm/compilers/opt/regalloc/ia32/StackManager.html" target="_top">Frames</a></li>
+<li><a href="StackManager.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_classes_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.GenericStackManager">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

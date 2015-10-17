@@ -1,0 +1,422 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.controlflow;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.ir.Operators.GOTO;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.compilers.opt.ir.Operators.GUARD_MOVE;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.compilers.opt.ir.Operators.INT_IFCMP;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import java.util.Enumeration;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.DefUse;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.Goto;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.GuardResultCarrier;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.IREnumeration;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.IfCmp;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.IfCmp2;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.InlineGuard;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.ir.LookupSwitch;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.ir.Move;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.compilers.opt.ir.TableSwitch;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.compilers.opt.ir.operand.BranchOperand;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jikesrvm.compilers.opt.ir.operand.ConditionOperand;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.jikesrvm.compilers.opt.ir.operand.TrueGuardOperand;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * Simplify and canonicalize conditional branches with constant operands.<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * &lt;p&gt; This module performs no analysis, it simply attempts to<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * simplify any branching instructions of a basic block that have constant<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * operands. The intent is that analysis modules can call this<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * transformation engine, allowing us to share the<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * simplification code among multiple analysis modules.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>public abstract class BranchSimplifier {<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * Given a basic block, attempt to simplify any conditional branch<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * instructions with constant operands.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * The instruction will be mutated in place.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * The control flow graph will be updated, but the caller is responsible<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   * for calling BranchOptmizations after simplify has been called on<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   * all basic blocks in the IR to remove unreachable code.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   *<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   * @param bb the basic block to simplify<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * @return {@code true} if we do something, {@code false} otherwise.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  public static boolean simplify(BasicBlock bb, IR ir) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    boolean didSomething = false;<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    for (Enumeration&lt;Instruction&gt; branches = bb.enumerateBranchInstructions(); branches.hasMoreElements();) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>      Instruction s = branches.nextElement();<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      if (Goto.conforms(s)) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        // nothing to do, but a common case so test first<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      } else if (IfCmp.conforms(s)) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        if (processIfCmp(ir, bb, s)) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>          // hack. Just start over since Enumeration has changed.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>          branches = bb.enumerateBranchInstructions();<a name="line.73"></a>
+<span class="sourceLineNo">074</span>          bb.recomputeNormalOut(ir);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>          didSomething = true;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        }<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      } else if (IfCmp2.conforms(s)) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        if (processIfCmp2(ir, bb, s)) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>          // hack. Just start over since Enumeration has changed.<a name="line.79"></a>
+<span class="sourceLineNo">080</span>          branches = bb.enumerateBranchInstructions();<a name="line.80"></a>
+<span class="sourceLineNo">081</span>          bb.recomputeNormalOut(ir);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>          didSomething = true;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      } else if (LookupSwitch.conforms(s)) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        if (processLookupSwitch(ir, bb, s)) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>          // hack. Just start over since Enumeration has changed.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>          branches = bb.enumerateBranchInstructions();<a name="line.87"></a>
+<span class="sourceLineNo">088</span>          bb.recomputeNormalOut(ir);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>          didSomething = true;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      } else if (TableSwitch.conforms(s)) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        if (processTableSwitch(ir, bb, s)) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>          // hack. Just start over since Enumeration has changed.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>          branches = bb.enumerateBranchInstructions();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>          bb.recomputeNormalOut(ir);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>          didSomething = true;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>      } else if (InlineGuard.conforms(s)) {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        if (processInlineGuard(ir, bb, s)) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>          // hack. Just start over since Enumeration has changed.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>          branches = bb.enumerateBranchInstructions();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>          bb.recomputeNormalOut(ir);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>          didSomething = true;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    }<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    return didSomething;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>  /** Process IfCmp branch instruction */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  static boolean processIfCmp(IR ir, BasicBlock bb, Instruction s) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    RegisterOperand guard = IfCmp.getGuardResult(s);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    Operand val1 = IfCmp.getVal1(s);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    Operand val2 = IfCmp.getVal2(s);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      int cond = IfCmp.getCond(s).evaluate(val1, val2);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      if (cond != ConditionOperand.UNKNOWN) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        // constant fold<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        if (cond == ConditionOperand.TRUE) {  // branch taken<a name="line.119"></a>
+<span class="sourceLineNo">120</span>          insertTrueGuard(s, guard);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>          Goto.mutate(s, GOTO, IfCmp.getTarget(s));<a name="line.121"></a>
+<span class="sourceLineNo">122</span>          removeBranchesAfterGotos(bb);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        } else {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>          // branch not taken<a name="line.124"></a>
+<span class="sourceLineNo">125</span>          insertTrueGuard(s, guard);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>          s.remove();<a name="line.126"></a>
+<span class="sourceLineNo">127</span>        }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        return true;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    if (val1.isConstant() &amp;&amp; !val2.isConstant()) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      // Canonicalize by making second argument the constant<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      IfCmp.setVal1(s, val2);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      IfCmp.setVal2(s, val1);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      IfCmp.setCond(s, IfCmp.getCond(s).flipOperands());<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>    if (val2.isIntConstant()) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      // Tricks to get compare against zero.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      int value = ((IntConstantOperand) val2).value;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      ConditionOperand cond = IfCmp.getCond(s);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>      if (value == 1) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        if (cond.isLESS()) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>          IfCmp.setCond(s, ConditionOperand.LESS_EQUAL());<a name="line.144"></a>
+<span class="sourceLineNo">145</span>          IfCmp.setVal2(s, new IntConstantOperand(0));<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        } else if (cond.isGREATER_EQUAL()) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>          IfCmp.setCond(s, ConditionOperand.GREATER());<a name="line.147"></a>
+<span class="sourceLineNo">148</span>          IfCmp.setVal2(s, new IntConstantOperand(0));<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>      } else if (value == -1) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        if (cond.isGREATER()) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>          IfCmp.setCond(s, ConditionOperand.GREATER_EQUAL());<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          IfCmp.setVal2(s, new IntConstantOperand(0));<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        } else if (cond.isLESS_EQUAL()) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>          IfCmp.setCond(s, ConditionOperand.LESS());<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          IfCmp.setVal2(s, new IntConstantOperand(0));<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>      }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    return false;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>  /** Process IfCmp2 branch instruction */<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  static boolean processIfCmp2(IR ir, BasicBlock bb, Instruction s) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    RegisterOperand guard = IfCmp2.getGuardResult(s);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    Operand val1 = IfCmp2.getVal1(s);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    Operand val2 = IfCmp2.getVal2(s);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    int cond1 = IfCmp2.getCond1(s).evaluate(val1, val2);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    int cond2 = IfCmp2.getCond2(s).evaluate(val1, val2);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    if (cond1 == ConditionOperand.TRUE) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      // target 1 taken<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      insertTrueGuard(s, guard);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>      Goto.mutate(s, GOTO, IfCmp2.getTarget1(s));<a name="line.173"></a>
+<span class="sourceLineNo">174</span>      removeBranchesAfterGotos(bb);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    } else if ((cond1 == ConditionOperand.FALSE) &amp;&amp; (cond2 == ConditionOperand.TRUE)) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>      // target 2 taken<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      insertTrueGuard(s, guard);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      Goto.mutate(s, GOTO, IfCmp2.getTarget2(s));<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      removeBranchesAfterGotos(bb);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    } else if ((cond1 == ConditionOperand.FALSE) &amp;&amp; (cond2 == ConditionOperand.FALSE)) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      // not taken<a name="line.181"></a>
+<span class="sourceLineNo">182</span>      insertTrueGuard(s, guard);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      s.remove();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    } else if ((cond1 == ConditionOperand.FALSE) &amp;&amp; (cond2 == ConditionOperand.UNKNOWN)) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      // target 1 not taken, simplify test to ifcmp<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      IfCmp.mutate(s,<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                   INT_IFCMP,<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                   guard,<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                   val1,<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                   val2,<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                   IfCmp2.getCond2(s),<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                   IfCmp2.getTarget2(s),<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                   IfCmp2.getBranchProfile2(s));<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    } else if ((cond1 == ConditionOperand.UNKNOWN) &amp;&amp; (cond2 == ConditionOperand.FALSE)) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      // target 1 taken possibly, simplify test to ifcmp<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      IfCmp.mutate(s,<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                   INT_IFCMP,<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                   guard,<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                   val1,<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                   val2,<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                   IfCmp2.getCond1(s),<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                   IfCmp2.getTarget1(s),<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                   IfCmp2.getBranchProfile1(s));<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    } else if ((cond1 == ConditionOperand.UNKNOWN) &amp;&amp; (cond2 == ConditionOperand.TRUE)) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      // target 1 taken possibly, simplify first test to ifcmp and<a name="line.205"></a>
+<span class="sourceLineNo">206</span>      // insert goto after<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      s.insertAfter(Goto.create(GOTO, IfCmp2.getTarget2(s)));<a name="line.207"></a>
+<span class="sourceLineNo">208</span>      IfCmp.mutate(s,<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                   INT_IFCMP,<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                   guard,<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                   val1,<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                   val2,<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                   IfCmp2.getCond1(s),<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                   IfCmp2.getTarget1(s),<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                   IfCmp2.getBranchProfile1(s));<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      removeBranchesAfterGotos(bb);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    } else {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      if (val1.isConstant() &amp;&amp; !val2.isConstant()) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>        // Canonicalize by making second argument the constant<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        IfCmp2.setVal1(s, val2);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>        IfCmp2.setVal2(s, val1);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        IfCmp2.setCond1(s, IfCmp2.getCond1(s).flipOperands());<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        IfCmp2.setCond2(s, IfCmp2.getCond2(s).flipOperands());<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      }<a name="line.224"></a>
+<span class="sourceLineNo">225</span>      // we did no optimisation, return false<a name="line.225"></a>
+<span class="sourceLineNo">226</span>      return false;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    return true;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>  /** Process LookupSwitch branch instruction */<a name="line.231"></a>
+<span class="sourceLineNo">232</span>  static boolean processLookupSwitch(IR ir, BasicBlock bb, Instruction s) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    Operand val = LookupSwitch.getValue(s);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    int numMatches = LookupSwitch.getNumberOfMatches(s);<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    if (numMatches == 0) {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      // Can only goto default<a name="line.236"></a>
+<span class="sourceLineNo">237</span>      Goto.mutate(s, GOTO, LookupSwitch.getDefault(s));<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    } else if (val.isConstant()) {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>      // lookup value is constant<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      int value = ((IntConstantOperand) val).value;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      BranchOperand target = LookupSwitch.getDefault(s);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>      for (int i = 0; i &lt; numMatches; i++) {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        if (value == LookupSwitch.getMatch(s, i).value) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>          target = LookupSwitch.getTarget(s, i);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>          break;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>        }<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      }<a name="line.247"></a>
+<span class="sourceLineNo">248</span>      Goto.mutate(s, GOTO, target);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    } else if (numMatches == 1) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>      // only 1 match, simplify to ifcmp<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      BranchOperand defaultTarget = LookupSwitch.getDefault(s);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>      IfCmp.mutate(s,<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                   INT_IFCMP,<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                   ir.regpool.makeTempValidation(),<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                   val,<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                   LookupSwitch.getMatch(s, 0),<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                   ConditionOperand.EQUAL(),<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                   LookupSwitch.getTarget(s, 0),<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                   LookupSwitch.getBranchProfile(s, 0));<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      s.insertAfter(Goto.create(GOTO, defaultTarget));<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    } else {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>      // no optimisation, just continue<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      return false;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    return true;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>  }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>  /** Process TableSwitch branch instruction */<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  static boolean processTableSwitch(IR ir, BasicBlock bb, Instruction s) {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    Operand val = TableSwitch.getValue(s);<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    int low = TableSwitch.getLow(s).value;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    int high = TableSwitch.getHigh(s).value;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    if (val.isConstant()) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>      int value = ((IntConstantOperand) val).value;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      BranchOperand target = TableSwitch.getDefault(s);<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      if (value &gt;= low &amp;&amp; value &lt;= high) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        target = TableSwitch.getTarget(s, value - low);<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      Goto.mutate(s, GOTO, target);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    } else if (low == high) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      // only 1 match, simplify to ifcmp<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      BranchOperand defaultTarget = TableSwitch.getDefault(s);<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      IfCmp.mutate(s,<a name="line.283"></a>
+<span class="sourceLineNo">284</span>                   INT_IFCMP,<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                   ir.regpool.makeTempValidation(),<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                   val,<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                   new IntConstantOperand(low),<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                   ConditionOperand.EQUAL(),<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                   TableSwitch.getTarget(s, 0),<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                   TableSwitch.getBranchProfile(s, 0));<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      s.insertAfter(Goto.create(GOTO, defaultTarget));<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    } else {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>      // no optimisation, just continue<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      return false;<a name="line.294"></a>
+<span class="sourceLineNo">295</span>    }<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    return true;<a name="line.296"></a>
+<span class="sourceLineNo">297</span>  }<a name="line.297"></a>
+<span class="sourceLineNo">298</span><a name="line.298"></a>
+<span class="sourceLineNo">299</span>  /** Process InlineGuard branch instruction */<a name="line.299"></a>
+<span class="sourceLineNo">300</span>  static boolean processInlineGuard(IR ir, BasicBlock bb, Instruction s) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    Operand val = InlineGuard.getValue(s);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    if (val.isNullConstant()) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>      // branch not taken<a name="line.303"></a>
+<span class="sourceLineNo">304</span>      s.remove();<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      return true;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>    } else if (val.isObjectConstant()) {<a name="line.306"></a>
+<span class="sourceLineNo">307</span>      // TODO:<a name="line.307"></a>
+<span class="sourceLineNo">308</span>      // VM.sysWrite("TODO: should constant fold MethodIfCmp on ObjectConstant");<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    return false;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>  }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>  /**<a name="line.313"></a>
+<span class="sourceLineNo">314</span>   * To maintain IR integrity, remove any branches that are after the<a name="line.314"></a>
+<span class="sourceLineNo">315</span>   * first GOTO in the basic block.<a name="line.315"></a>
+<span class="sourceLineNo">316</span>   */<a name="line.316"></a>
+<span class="sourceLineNo">317</span>  private static void removeBranchesAfterGotos(BasicBlock bb) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    // identify the first GOTO instruction in the basic block<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    Instruction firstGoto = null;<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    Instruction end = bb.lastRealInstruction();<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    for (Enumeration&lt;Instruction&gt; branches = bb.enumerateBranchInstructions(); branches.hasMoreElements();) {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>      Instruction s = branches.nextElement();<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      if (Goto.conforms(s)) {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        firstGoto = s;<a name="line.324"></a>
+<span class="sourceLineNo">325</span>        break;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      }<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    }<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    // remove all instructions after the first GOTO instruction<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    if (firstGoto != null) {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>      Enumeration&lt;Instruction&gt; ie = IREnumeration.forwardIntraBlockIE(firstGoto, end);<a name="line.330"></a>
+<span class="sourceLineNo">331</span>      ie.nextElement();<a name="line.331"></a>
+<span class="sourceLineNo">332</span>      while (ie.hasMoreElements()) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        Instruction s = ie.nextElement();<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        if (GuardResultCarrier.conforms(s)) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>          insertTrueGuard(s, GuardResultCarrier.getGuardResult(s));<a name="line.335"></a>
+<span class="sourceLineNo">336</span>        }<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        s.remove();<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      }<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>  }<a name="line.340"></a>
+<span class="sourceLineNo">341</span><a name="line.341"></a>
+<span class="sourceLineNo">342</span>  private static void insertTrueGuard(Instruction inst, RegisterOperand guard) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    if (guard == null) return;  // Probably bad style but correct IR<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    Instruction trueGuard = Move.create(GUARD_MOVE, guard.copyD2D(), new TrueGuardOperand());<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    trueGuard.position = inst.position;<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    trueGuard.bcIndex = inst.bcIndex;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    inst.insertBefore(trueGuard);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    DefUse.updateDUForNewInstruction(trueGuard);<a name="line.348"></a>
+<span class="sourceLineNo">349</span>  }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>}<a name="line.350"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

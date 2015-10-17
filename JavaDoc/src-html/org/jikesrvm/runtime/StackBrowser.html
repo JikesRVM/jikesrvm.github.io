@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.runtime;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.ArchitectureSpecific;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.classloader.RVMClass;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.NoInline;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.vmmagic.unboxed.Address;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.vmmagic.unboxed.Offset;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> *  Use this class to explore the stack.  It is sometimes necessary to<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *  find out the current context class loader, and other things like that.<a name="line.27"></a>
+<span class="sourceLineNo">028</span> */<a name="line.28"></a>
+<span class="sourceLineNo">029</span>public final class StackBrowser implements ArchitectureSpecific.StackframeLayoutConstants {<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>  /** Method associated with current stack location */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  private RVMMethod currentMethod;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  /** Bytecode associated with current stack location */<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  private int currentBytecodeIndex;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>  /** The frame pointer for the current stack location */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  private Address currentFramePointer;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  /** The offset of the current instruction within its method */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  private Offset currentInstructionPointer;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  /** The current compiled method */<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  private CompiledMethod currentCompiledMethod;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  /** The current inline encoding index for opt compiled methods */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  private int currentInlineEncodingIndex;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  /** Initialise state of browser */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  @NoInline<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public void init() {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    currentFramePointer = Magic.getFramePointer();<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    upOneFrame();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * Browse up one frame<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * @param set should the state of the stack browser be effected?<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * @return do more frames exist?<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  private boolean upOneFrameInternal(boolean set) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    Address fp;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    if (currentMethod != null &amp;&amp; currentMethod.getDeclaringClass().hasBridgeFromNativeAnnotation()) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>      // Elide native frames<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      fp = RuntimeEntrypoints.unwindNativeStackFrame(currentFramePointer);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    } else {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        fp = currentFramePointer;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    Address prevFP = fp;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    Address newFP = Magic.getCallerFramePointer(fp);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    if (newFP.EQ(STACKFRAME_SENTINEL_FP)) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      return false;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    // getReturnAddress has to be put here, consider the case<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    // on ppc, when fp is the frame above SENTINEL FP<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    Address newIP = Magic.getReturnAddress(prevFP);<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    int cmid = Magic.getCompiledMethodID(newFP);<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    while (cmid == INVISIBLE_METHOD_ID) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      prevFP = newFP;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      newFP = Magic.getCallerFramePointer(newFP);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      if (newFP.EQ(STACKFRAME_SENTINEL_FP)) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        return false;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      newIP = Magic.getReturnAddress(prevFP);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      cmid = Magic.getCompiledMethodID(newFP);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    if (set) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      CompiledMethod cm = CompiledMethods.getCompiledMethod(cmid);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>      currentFramePointer = newFP;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      currentInstructionPointer = cm.getInstructionOffset(newIP);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      cm.set(this, currentInstructionPointer);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    return true;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>  /** Browse up one frame failing if we fall off the stack */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  private void upOneFrame() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    boolean ok = upOneFrameInternal(true);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    if (VM.VerifyAssertions) VM._assert(ok, "tried to browse off stack");<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /** Are there more stack frames? */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  public boolean hasMoreFrames() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    return upOneFrameInternal(false);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /** Browse up one frame eliding native frames */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  public void up() {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    if (!currentCompiledMethod.up(this)) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      upOneFrame();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>  /** Set the current bytecode index, called only by the appropriate compiled method code */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  public void setBytecodeIndex(int bytecodeIndex) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    currentBytecodeIndex = bytecodeIndex;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>  /** Set the current method, called only by the appropriate compiled method code */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  public void setMethod(RVMMethod method) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    currentMethod = method;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  /** Set the current compiled method, called only by the appropriate compiled method code */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  public void setCompiledMethod(CompiledMethod cm) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    currentCompiledMethod = cm;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  }<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>  /** Set the inline encoding for opt compiled methods only */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  public void setInlineEncodingIndex(int index) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    currentInlineEncodingIndex = index;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>  /** The bytecode index associated with the current stack frame */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  public int getBytecodeIndex() {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    return currentBytecodeIndex;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>  /** The method associated with the current stack frame */<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  public RVMMethod getMethod() {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>    return currentMethod;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>  }<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>  /** The compiled method associated with the current stack frame */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  public CompiledMethod getCompiledMethod() {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    return currentCompiledMethod;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>  /** The class of the method associated with the current stack frame */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  public RVMClass getCurrentClass() {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    return getMethod().getDeclaringClass();<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>  /** The class loader of the method associated with the current stack frame */<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  public ClassLoader getClassLoader() {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    return getCurrentClass().getClassLoader();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>  /** Get the inline encoding associated with the current stack location, called only by opt compiled methods */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  public int getInlineEncodingIndex() {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    return currentInlineEncodingIndex;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>}<a name="line.163"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

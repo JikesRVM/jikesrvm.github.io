@@ -1,0 +1,2093 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>MutatorContext (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="MutatorContext (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/MutatorContext.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/mmtk/plan/GCspyPlan.html" title="interface in org.mmtk.plan"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/mmtk/plan/ParallelCollector.html" title="class in org.mmtk.plan"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/mmtk/plan/MutatorContext.html" target="_top">Frames</a></li>
+<li><a href="MutatorContext.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.mmtk.plan</div>
+<h2 title="Class MutatorContext" class="title">Class MutatorContext</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.mmtk.plan.MutatorContext</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../org/mmtk/plan/nogc/NoGCMutator.html" title="class in org.mmtk.plan.nogc">NoGCMutator</a>, <a href="../../../org/mmtk/plan/SimpleMutator.html" title="class in org.mmtk.plan">SimpleMutator</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public abstract class <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.80">MutatorContext</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></pre>
+<div class="block">This class (and its sub-classes) implement <i>per-mutator thread</i>
+ behavior.  We assume <i>N</i> collector threads and <i>M</i>
+ mutator threads, where <i>N</i> is often equal to the number of
+ available processors, P (for P-way parallelism at GC-time), and
+ <i>M</i> may simply be the number of mutator (application) threads.
+ Both <i>N</i> and <i>M</i> are determined by the VM, not MMTk.  In
+ the case where a VM uses posix threads (pthreads) for each mutator
+ ("1:1" threading), <i>M</i> will typically be equal to the number of
+ mutator threads.  When a uses "green threads" or a hybrid threading
+ scheme (such as Jikes RVM), <i>M</i> will typically be equal to the
+ level of <i>true</i> parallelism (ie the number of underlying
+ kernel threads).<p>
+
+ MMTk assumes that the VM instantiates instances of MutatorContext
+ in thread local storage (TLS) for each thread participating in
+ collection.  Accesses to this state are therefore assumed to be
+ low-cost during mutator time.<p>
+
+ This class (and its children) is therefore used for unsynchronized
+ per-mutator operations such as <i>allocation</i> and <i>write barriers</i>.
+ The semantics and necessary state for these operations are therefore
+ specified in the GC-specific subclasses of this class.
+
+ MMTk explicitly separates thread-local (this class) and global
+ operations (@see Plan), so that syncrhonization is localized
+ and explicit, and thus hopefully minimized (@see Plan). Gloabl (Plan)
+ and per-thread (this class) state are also explicitly separated.
+ Operations in this class (and its children) are therefore strictly
+ local to each mutator thread, and synchronized operations always
+ happen via access to explicitly global classes such as Plan and its
+ children.  Therefore only <i>"fast path"</i> (unsynchronized)
+ allocation and barrier semantics are defined in MutatorContext and
+ its subclasses.  These call out to <i>"slow path"</i> (synchronize(d)
+ methods which have global state and are globally synchronized.  For
+ example, an allocation fast path may bump a pointer without any
+ syncrhonization (the "fast path") until a limit is reached, at which
+ point the "slow path" is called, and more memory is aquired from a
+ global resource.<p>
+
+ As the super-class of all per-mutator contexts, this class implements
+ basic per-mutator behavior common to all MMTk collectors, including
+ support for immortal and large object space allocation, as well as
+ empty stubs for write barriers (to be overridden by sub-classes as
+ needed).</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/mmtk/plan/CollectorContext.html" title="class in org.mmtk.plan"><code>CollectorContext</code></a>, 
+<a href="../../../org/mmtk/vm/ActivePlan.html" title="class in org.mmtk.vm"><code>ActivePlan</code></a>, 
+<a href="../../../org/mmtk/plan/Plan.html" title="class in org.mmtk.plan"><code>Plan</code></a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#id">id</a></strong></code>
+<div class="block">Unique mutator identifier</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/utility/alloc/BumpPointer.html" title="class in org.mmtk.utility.alloc">BumpPointer</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#immortal">immortal</a></strong></code>
+<div class="block">Per-mutator allocator into the immortal space</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/policy/LargeObjectLocal.html" title="class in org.mmtk.policy">LargeObjectLocal</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#lgcode">lgcode</a></strong></code>
+<div class="block">Per-mutator allocator into the large code space</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/utility/Log.html" title="class in org.mmtk.utility">Log</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#log">log</a></strong></code>
+<div class="block">Used for printing log information in a thread safe manner</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/policy/LargeObjectLocal.html" title="class in org.mmtk.policy">LargeObjectLocal</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#los">los</a></strong></code>
+<div class="block">Per-mutator allocator into the large object space</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/policy/MarkSweepLocal.html" title="class in org.mmtk.policy">MarkSweepLocal</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#nonmove">nonmove</a></strong></code>
+<div class="block">Per-mutator allocator into the non moving space</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/policy/MarkSweepLocal.html" title="class in org.mmtk.policy">MarkSweepLocal</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#smcode">smcode</a></strong></code>
+<div class="block">Per-mutator allocator into the small code space</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.mmtk.utility.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.mmtk.utility.<a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></h3>
+<code><a href="../../../org/mmtk/utility/Constants.html#ALIGNMENT_VALUE">ALIGNMENT_VALUE</a>, <a href="../../../org/mmtk/utility/Constants.html#ARRAY_ELEMENT">ARRAY_ELEMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_KBYTE">BYTES_IN_KBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_MBYTE">BYTES_IN_MBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#CARD_MASK">CARD_MASK</a>, <a href="../../../org/mmtk/utility/Constants.html#CARD_META_PAGES_PER_REGION">CARD_META_PAGES_PER_REGION</a>, <a href="../../../org/mmtk/utility/Constants.html#INSTANCE_FIELD">INSTANCE_FIELD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS_SPACE">LOG_BYTES_IN_ADDRESS_SPACE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_KBYTE">LOG_BYTES_IN_KBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_MBYTE">LOG_BYTES_IN_MBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_BYTES">LOG_CARD_BYTES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_GRAIN">LOG_CARD_GRAIN</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_BYTES">LOG_CARD_META_BYTES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_PAGES">LOG_CARD_META_PAGES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_SIZE">LOG_CARD_META_SIZE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_UNITS">LOG_CARD_UNITS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_MIN_ALIGNMENT">LOG_MIN_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_ALIGNMENT">MAX_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_BYTES_PADDING">MAX_BYTES_PADDING</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_INT">MAX_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#MIN_ALIGNMENT">MIN_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MIN_INT">MIN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#SUPPORT_CARD_SCANNING">SUPPORT_CARD_SCANNING</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#MutatorContext()">MutatorContext</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#addressBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">addressBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                              <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                              int&nbsp;bytes)</code>
+<div class="block">A number of Addresse's are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#addressRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">addressRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                      int&nbsp;mode)</code>
+<div class="block">Read an Address.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#addressTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">addressTryCompareAndSwap</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;old,
+                                                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;value,
+                                                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                                int&nbsp;mode)</code>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#addressWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">addressWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;value,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                        int&nbsp;mode)</code>
+<div class="block">Write an Address.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#alloc(int,%20int,%20int,%20int,%20int)">alloc</a></strong>(int&nbsp;bytes,
+          int&nbsp;align,
+          int&nbsp;offset,
+          int&nbsp;allocator,
+          int&nbsp;site)</code>
+<div class="block">Allocate memory for an object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#assertRemsetsFlushed()">assertRemsetsFlushed</a></strong>()</code>
+<div class="block">Assert that the remsets have been flushed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#booleanBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">booleanBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                              <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                              int&nbsp;bytes)</code>
+<div class="block">A number of booleans are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#booleanRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">booleanRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                      int&nbsp;mode)</code>
+<div class="block">Read a boolean.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#booleanWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20boolean,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">booleanWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                        boolean&nbsp;value,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                        int&nbsp;mode)</code>
+<div class="block">Write a boolean.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#byteBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">byteBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                        int&nbsp;bytes)</code>
+<div class="block">A number of bytes are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>byte</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#byteRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">byteRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</code>
+<div class="block">Read a byte.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#byteWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20byte,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">byteWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  byte&nbsp;value,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Write a byte.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#charBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">charBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                        int&nbsp;bytes)</code>
+<div class="block">A number of chars are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>char</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#charRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">charRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</code>
+<div class="block">Read a char.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#charWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20char,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">charWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  char&nbsp;value,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Write a char.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#checkAllocator(int,%20int,%20int)">checkAllocator</a></strong>(int&nbsp;bytes,
+                            int&nbsp;align,
+                            int&nbsp;allocator)</code>
+<div class="block">Run-time check of the allocator to use for a given allocation
+
+ At the moment this method assumes that allocators will use the simple
+ (worst) method of aligning to determine if the object is a large object
+ to ensure that no objects are larger than other allocators can handle.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>abstract void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#collectionPhase(short,%20boolean)">collectionPhase</a></strong>(short&nbsp;phaseId,
+                              boolean&nbsp;primary)</code>
+<div class="block">Perform a per-mutator collection phase.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#deinitMutator()">deinitMutator</a></strong>()</code>
+<div class="block">The mutator is about to be cleaned up, make sure all local data is returned.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#doubleBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">doubleBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                            <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                            int&nbsp;bytes)</code>
+<div class="block">A number of doubles are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>double</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#doubleRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">doubleRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                    int&nbsp;mode)</code>
+<div class="block">Read a double.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#doubleWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20double,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">doubleWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                      double&nbsp;value,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                      int&nbsp;mode)</code>
+<div class="block">Write a double.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#extentBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">extentBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                            <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                            int&nbsp;bytes)</code>
+<div class="block">A number of Extents are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#extentRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">extentRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                    int&nbsp;mode)</code>
+<div class="block">Read an Extent.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#extentWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Extent,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">extentWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                      <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;value,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                      int&nbsp;mode)</code>
+<div class="block">Write an Extent.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#floatBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">floatBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                          <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                          <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                          <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                          int&nbsp;bytes)</code>
+<div class="block">A number of floats are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>float</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#floatRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">floatRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Read a float.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#floatWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20float,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">floatWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                    float&nbsp;value,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                    int&nbsp;mode)</code>
+<div class="block">Write a float.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#flush()">flush</a></strong>()</code>
+<div class="block">Flush mutator context, in response to a requestMutatorFlush.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#flushRememberedSets()">flushRememberedSets</a></strong>()</code>
+<div class="block">Flush per-mutator remembered sets into the global remset pool.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#getAllocatorFromSpace(org.mmtk.policy.Space)">getAllocatorFromSpace</a></strong>(<a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space)</code>
+<div class="block">Return the allocator instance associated with a space
+ <code>space</code>, for this plan instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#getId()">getId</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/mmtk/utility/Log.html" title="class in org.mmtk.utility">Log</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#getLog()">getLog</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#initMutator(int)">initMutator</a></strong>(int&nbsp;id)</code>
+<div class="block">Notify that the mutator context is registered and ready to execute.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#intBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">intBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                      <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                      int&nbsp;bytes)</code>
+<div class="block">A number of ints are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#intRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">intRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+              <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+              int&nbsp;mode)</code>
+<div class="block">Read a int.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#intTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20int,%20int,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">intTryCompareAndSwap</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                        int&nbsp;old,
+                                        int&nbsp;value,
+                                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                        int&nbsp;mode)</code>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#intWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20int,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">intWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                int&nbsp;value,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</code>
+<div class="block">Write a int.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#javaLangReferenceReadBarrier(org.vmmagic.unboxed.ObjectReference)">javaLangReferenceReadBarrier</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;referent)</code>
+<div class="block">Read a reference type.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#longBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">longBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                        int&nbsp;bytes)</code>
+<div class="block">A number of longs are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#longRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">longRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</code>
+<div class="block">Read a long.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#longTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20long,%20long,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">longTryCompareAndSwap</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                          <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                          long&nbsp;old,
+                                          long&nbsp;value,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                          int&nbsp;mode)</code>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#longWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20long,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">longWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  long&nbsp;value,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Write a long.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">objectReferenceBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                                              <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                                              int&nbsp;bytes)</code>
+<div class="block">A number of references are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceNonHeapRead(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word)">objectReferenceNonHeapRead</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB)</code>
+<div class="block">Read an object reference.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceNonHeapWrite(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word)">objectReferenceNonHeapWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                                      <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;tgt,
+                                                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB)</code>
+<div class="block">A new reference is about to be created in a location that is not
+ a regular heap object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">objectReferenceRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                      int&nbsp;mode)</code>
+<div class="block">Read an object reference.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">objectReferenceTryCompareAndSwap</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                                                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                                                <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;old,
+                                                                <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;tgt,
+                                                                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                                                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                                                int&nbsp;mode)</code>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#objectReferenceWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">objectReferenceWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;value,
+                                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                        int&nbsp;mode)</code>
+<div class="block">Write an object reference.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#offsetBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">offsetBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                            <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                            <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                            int&nbsp;bytes)</code>
+<div class="block">A number of Offsets are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#offsetRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">offsetRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                    int&nbsp;mode)</code>
+<div class="block">Read an Offset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#offsetWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">offsetWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;value,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                      <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                      int&nbsp;mode)</code>
+<div class="block">Write an Offset.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#postAlloc(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.ObjectReference,%20int,%20int)">postAlloc</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;ref,
+                  <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;typeRef,
+                  int&nbsp;bytes,
+                  int&nbsp;allocator)</code>
+<div class="block">Perform post-allocation actions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#shortBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">shortBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                          <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                          <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                          <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                          int&nbsp;bytes)</code>
+<div class="block">A number of shorts are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>short</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#shortRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">shortRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Read a short.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#shortWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20short,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">shortWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                    short&nbsp;value,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                    <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                    int&nbsp;mode)</code>
+<div class="block">Write a short.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#wordBulkCopy(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Offset,%20int)">wordBulkCopy</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                        <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                        int&nbsp;bytes)</code>
+<div class="block">A number of Words are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#wordRead(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">wordRead</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</code>
+<div class="block">Read a Word.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#wordTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">wordTryCompareAndSwap</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                          <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;old,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;value,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                          int&nbsp;mode)</code>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/plan/MutatorContext.html#wordWrite(org.vmmagic.unboxed.ObjectReference,%20org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20org.vmmagic.unboxed.Word,%20int)">wordWrite</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;value,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</code>
+<div class="block">Write a Word.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="id">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>id</h4>
+<pre>private&nbsp;int <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.109">id</a></pre>
+<div class="block">Unique mutator identifier</div>
+</li>
+</ul>
+<a name="log">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>log</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/utility/Log.html" title="class in org.mmtk.utility">Log</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.112">log</a></pre>
+<div class="block">Used for printing log information in a thread safe manner</div>
+</li>
+</ul>
+<a name="immortal">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>immortal</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/utility/alloc/BumpPointer.html" title="class in org.mmtk.utility.alloc">BumpPointer</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.115">immortal</a></pre>
+<div class="block">Per-mutator allocator into the immortal space</div>
+</li>
+</ul>
+<a name="los">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>los</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/policy/LargeObjectLocal.html" title="class in org.mmtk.policy">LargeObjectLocal</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.118">los</a></pre>
+<div class="block">Per-mutator allocator into the large object space</div>
+</li>
+</ul>
+<a name="smcode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>smcode</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/policy/MarkSweepLocal.html" title="class in org.mmtk.policy">MarkSweepLocal</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.121">smcode</a></pre>
+<div class="block">Per-mutator allocator into the small code space</div>
+</li>
+</ul>
+<a name="lgcode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lgcode</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/policy/LargeObjectLocal.html" title="class in org.mmtk.policy">LargeObjectLocal</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.124">lgcode</a></pre>
+<div class="block">Per-mutator allocator into the large code space</div>
+</li>
+</ul>
+<a name="nonmove">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>nonmove</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/policy/MarkSweepLocal.html" title="class in org.mmtk.policy">MarkSweepLocal</a> <a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.127">nonmove</a></pre>
+<div class="block">Per-mutator allocator into the non moving space</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="MutatorContext()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MutatorContext</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.80">MutatorContext</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="initMutator(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initMutator</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.93">initMutator</a>(int&nbsp;id)</pre>
+<div class="block">Notify that the mutator context is registered and ready to execute. From
+ this point it will be included in iterations over mutators.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>id</code> - The id of this mutator context.</dd></dl>
+</li>
+</ul>
+<a name="deinitMutator()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deinitMutator</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.100">deinitMutator</a>()</pre>
+<div class="block">The mutator is about to be cleaned up, make sure all local data is returned.</div>
+</li>
+</ul>
+<a name="collectionPhase(short, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>collectionPhase</h4>
+<pre>public abstract&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.142">collectionPhase</a>(short&nbsp;phaseId,
+                   boolean&nbsp;primary)</pre>
+<div class="block">Perform a per-mutator collection phase.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>phaseId</code> - The unique phase identifier</dd><dd><code>primary</code> - Should this thread be used to execute any single-threaded
+ local operations?</dd></dl>
+</li>
+</ul>
+<a name="checkAllocator(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkAllocator</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.162">checkAllocator</a>(int&nbsp;bytes,
+                 int&nbsp;align,
+                 int&nbsp;allocator)</pre>
+<div class="block">Run-time check of the allocator to use for a given allocation<p>
+
+ At the moment this method assumes that allocators will use the simple
+ (worst) method of aligning to determine if the object is a large object
+ to ensure that no objects are larger than other allocators can handle.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The number of bytes to be allocated</dd><dd><code>align</code> - The requested alignment.</dd><dd><code>allocator</code> - The allocator statically assigned to this allocation</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The allocator dynamically assigned to this allocation</dd></dl>
+</li>
+</ul>
+<a name="alloc(int, int, int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alloc</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.194">alloc</a>(int&nbsp;bytes,
+            int&nbsp;align,
+            int&nbsp;offset,
+            int&nbsp;allocator,
+            int&nbsp;site)</pre>
+<div class="block">Allocate memory for an object.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The number of bytes required for the object.</dd><dd><code>align</code> - Required alignment for the object.</dd><dd><code>offset</code> - Offset associated with the alignment.</dd><dd><code>allocator</code> - The allocator associated with this request.</dd><dd><code>site</code> - Allocation site</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The low address of the allocated chunk.</dd></dl>
+</li>
+</ul>
+<a name="postAlloc(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.ObjectReference, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>postAlloc</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.217">postAlloc</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;ref,
+             <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;typeRef,
+             int&nbsp;bytes,
+             int&nbsp;allocator)</pre>
+<div class="block">Perform post-allocation actions.  For many allocators none are
+ required.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>ref</code> - The newly allocated object</dd><dd><code>typeRef</code> - the type reference for the instance being created</dd><dd><code>bytes</code> - The size of the space to be allocated (in bytes)</dd><dd><code>allocator</code> - The allocator number to be used for this allocation</dd></dl>
+</li>
+</ul>
+<a name="getAllocatorFromSpace(org.mmtk.policy.Space)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAllocatorFromSpace</h4>
+<pre>public&nbsp;<a href="../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.244">getAllocatorFromSpace</a>(<a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space)</pre>
+<div class="block">Return the allocator instance associated with a space
+ <code>space</code>, for this plan instance.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>space</code> - The space for which the allocator instance is desired.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The allocator instance associated with this plan instance
+ which is allocating into <code>space</code>, or <code>null</code>
+ if no appropriate allocator can be established.</dd></dl>
+</li>
+</ul>
+<a name="javaLangReferenceReadBarrier(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>javaLangReferenceReadBarrier</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.277">javaLangReferenceReadBarrier</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;referent)</pre>
+<div class="block">Read a reference type. In a concurrent collector this may
+ involve adding the referent to the marking queue.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>referent</code> - The referent being read.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The new referent.</dd></dl>
+</li>
+</ul>
+<a name="booleanWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, boolean, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>booleanWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.297">booleanWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                boolean&nbsp;value,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</pre>
+<div class="block">Write a boolean. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new boolean</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="booleanRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>booleanRead</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.316">booleanRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</pre>
+<div class="block">Read a boolean. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The boolean that was read.</dd></dl>
+</li>
+</ul>
+<a name="booleanBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>booleanBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.337">booleanBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                      <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                      int&nbsp;bytes)</pre>
+<div class="block">A number of booleans are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="byteWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, byte, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>byteWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.357">byteWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+             <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+             byte&nbsp;value,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+             int&nbsp;mode)</pre>
+<div class="block">Write a byte. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new byte</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="byteRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>byteRead</h4>
+<pre>public&nbsp;byte&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.376">byteRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+            int&nbsp;mode)</pre>
+<div class="block">Read a byte. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The byte that was read.</dd></dl>
+</li>
+</ul>
+<a name="byteBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>byteBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.397">byteBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                   <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                   int&nbsp;bytes)</pre>
+<div class="block">A number of bytes are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="charWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, char, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>charWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.417">charWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+             <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+             char&nbsp;value,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+             int&nbsp;mode)</pre>
+<div class="block">Write a char. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new char</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="charRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>charRead</h4>
+<pre>public&nbsp;char&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.436">charRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+            int&nbsp;mode)</pre>
+<div class="block">Read a char. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The char that was read.</dd></dl>
+</li>
+</ul>
+<a name="charBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>charBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.457">charBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                   <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                   int&nbsp;bytes)</pre>
+<div class="block">A number of chars are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="shortWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, short, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shortWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.477">shortWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+              <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+              short&nbsp;value,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+              int&nbsp;mode)</pre>
+<div class="block">Write a short. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new short</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="shortRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shortRead</h4>
+<pre>public&nbsp;short&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.496">shortRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+              <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+              int&nbsp;mode)</pre>
+<div class="block">Read a short. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The short that was read.</dd></dl>
+</li>
+</ul>
+<a name="shortBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shortBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.517">shortBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                    <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                    <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                    int&nbsp;bytes)</pre>
+<div class="block">A number of shorts are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="intWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, int, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.538">intWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+            int&nbsp;value,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+            int&nbsp;mode)</pre>
+<div class="block">Write a int. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new int</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="intRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intRead</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.557">intRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+          <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+          <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+          int&nbsp;mode)</pre>
+<div class="block">Read a int. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The int that was read.</dd></dl>
+</li>
+</ul>
+<a name="intBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.578">intBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                  <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                  <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                  int&nbsp;bytes)</pre>
+<div class="block">A number of ints are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="intTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, int, int, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>intTryCompareAndSwap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.601">intTryCompareAndSwap</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                           <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                           int&nbsp;old,
+                           int&nbsp;value,
+                           <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                           <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                           int&nbsp;mode)</pre>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the value will be stored</dd><dd><code>slot</code> - The address into which the value will be
+ stored.</dd><dd><code>old</code> - The old int to be swapped out</dd><dd><code>value</code> - The new int</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the swap was successful.</dd></dl>
+</li>
+</ul>
+<a name="longWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, long, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>longWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.621">longWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+             <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+             long&nbsp;value,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+             int&nbsp;mode)</pre>
+<div class="block">Write a long. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new long</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="longRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>longRead</h4>
+<pre>public&nbsp;long&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.640">longRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+            int&nbsp;mode)</pre>
+<div class="block">Read a long. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The long that was read.</dd></dl>
+</li>
+</ul>
+<a name="longBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>longBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.661">longBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                   <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                   int&nbsp;bytes)</pre>
+<div class="block">A number of longs are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="longTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, long, long, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>longTryCompareAndSwap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.684">longTryCompareAndSwap</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                            long&nbsp;old,
+                            long&nbsp;value,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                            int&nbsp;mode)</pre>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the value will be stored</dd><dd><code>slot</code> - The address into which the value will be
+ stored.</dd><dd><code>old</code> - The old long to be swapped out</dd><dd><code>value</code> - The new long</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the swap was successful.</dd></dl>
+</li>
+</ul>
+<a name="floatWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, float, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>floatWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.704">floatWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+              <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+              float&nbsp;value,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+              int&nbsp;mode)</pre>
+<div class="block">Write a float. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new float</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="floatRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>floatRead</h4>
+<pre>public&nbsp;float&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.723">floatRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+              <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+              <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+              int&nbsp;mode)</pre>
+<div class="block">Read a float. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The float that was read.</dd></dl>
+</li>
+</ul>
+<a name="floatBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>floatBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.744">floatBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                    <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                    <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                    <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                    int&nbsp;bytes)</pre>
+<div class="block">A number of floats are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="doubleWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, double, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>doubleWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.764">doubleWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+               double&nbsp;value,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+               int&nbsp;mode)</pre>
+<div class="block">Write a double. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new double</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="doubleRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>doubleRead</h4>
+<pre>public&nbsp;double&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.783">doubleRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</pre>
+<div class="block">Read a double. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The double that was read.</dd></dl>
+</li>
+</ul>
+<a name="doubleBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>doubleBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.804">doubleBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                     <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                     int&nbsp;bytes)</pre>
+<div class="block">A number of doubles are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="wordWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>wordWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.824">wordWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+             <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;value,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+             <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+             int&nbsp;mode)</pre>
+<div class="block">Write a Word. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new Word</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="wordRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>wordRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.843">wordRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+            int&nbsp;mode)</pre>
+<div class="block">Read a Word. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The Word that was read.</dd></dl>
+</li>
+</ul>
+<a name="wordBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>wordBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.864">wordBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                   <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                   <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                   int&nbsp;bytes)</pre>
+<div class="block">A number of Words are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="wordTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>wordTryCompareAndSwap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.887">wordTryCompareAndSwap</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                            <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;old,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;value,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                            <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                            int&nbsp;mode)</pre>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>old</code> - The old Word to be swapped out</dd><dd><code>value</code> - The new Word</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the swap was successful.</dd></dl>
+</li>
+</ul>
+<a name="addressWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addressWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.907">addressWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;value,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</pre>
+<div class="block">Write an Address. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the Word will be stored</dd><dd><code>slot</code> - The address into which the Word will be
+ stored.</dd><dd><code>value</code> - The value of the new Address</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="addressRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addressRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.926">addressRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                  int&nbsp;mode)</pre>
+<div class="block">Read an Address. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The Address that was read.</dd></dl>
+</li>
+</ul>
+<a name="addressBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addressBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.947">addressBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                      <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                      <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                      int&nbsp;bytes)</pre>
+<div class="block">A number of Addresse's are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="addressTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addressTryCompareAndSwap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.970">addressTryCompareAndSwap</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;old,
+                               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;value,
+                               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                               int&nbsp;mode)</pre>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value.
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the Address will be stored</dd><dd><code>slot</code> - The address into which the Address will be
+ stored.</dd><dd><code>old</code> - The old Address to be swapped out</dd><dd><code>value</code> - The new Address</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the swap was successful.</dd></dl>
+</li>
+</ul>
+<a name="extentWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Extent, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>extentWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.990">extentWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+               <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;value,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+               int&nbsp;mode)</pre>
+<div class="block">Write an Extent. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new Extent</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="extentRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>extentRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1009">extentRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</pre>
+<div class="block">Read an Extent. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The Extent that was read.</dd></dl>
+</li>
+</ul>
+<a name="extentBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>extentBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1030">extentBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                     <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                     int&nbsp;bytes)</pre>
+<div class="block">A number of Extents are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="offsetWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>offsetWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1050">offsetWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+               <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;value,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+               int&nbsp;mode)</pre>
+<div class="block">Write an Offset. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new Offset</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="offsetRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>offsetRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1069">offsetRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                int&nbsp;mode)</pre>
+<div class="block">Read an Offset. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The Offset that was read.</dd></dl>
+</li>
+</ul>
+<a name="offsetBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>offsetBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1090">offsetBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                     <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                     <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                     int&nbsp;bytes)</pre>
+<div class="block">A number of Offsets are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceWrite(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1110">objectReferenceWrite</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                        <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                        <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;value,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                        <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                        int&nbsp;mode)</pre>
+<div class="block">Write an object reference. Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>value</code> - The value of the new reference</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceRead(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1129">objectReferenceRead</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                  <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                  <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                  int&nbsp;mode)</pre>
+<div class="block">Read an object reference. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object reference holding the field being read.</dd><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd><dd><code>mode</code> - The context in which the load occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The reference that was read.</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceBulkCopy(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Offset, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceBulkCopy</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1150">objectReferenceBulkCopy</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;srcOffset,
+                              <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;dst,
+                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;dstOffset,
+                              int&nbsp;bytes)</pre>
+<div class="block">A number of references are about to be copied from object
+ <code>src</code> to object <code>dst</code> (as in an array
+ copy).  Thus, <code>dst</code> is the mutated object.  Take
+ appropriate write barrier actions.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The source array</dd><dd><code>srcOffset</code> - The starting source offset</dd><dd><code>dst</code> - The destination array</dd><dd><code>dstOffset</code> - The starting destination offset</dd><dd><code>bytes</code> - The number of bytes to be copied</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the update was performed by the barrier, false if
+ left to the caller (always false in this case).</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceNonHeapWrite(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceNonHeapWrite</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1170">objectReferenceNonHeapWrite</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                               <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;tgt,
+                               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                               <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB)</pre>
+<div class="block">A new reference is about to be created in a location that is not
+ a regular heap object.  Take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>tgt</code> - The target of the new reference</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceNonHeapRead(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceNonHeapRead</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1187">objectReferenceNonHeapRead</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                         <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                         <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB)</pre>
+<div class="block">Read an object reference. Take appropriate read barrier action, and
+ return the value that was read.<p> This is a <b>substituting<b>
+ barrier.  The call to this barrier takes the place of a load.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>slot</code> - The address of the slot being read.</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a load</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a load</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The reference that was read.</dd></dl>
+</li>
+</ul>
+<a name="objectReferenceTryCompareAndSwap(org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Address, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.ObjectReference, org.vmmagic.unboxed.Word, org.vmmagic.unboxed.Word, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectReferenceTryCompareAndSwap</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1211">objectReferenceTryCompareAndSwap</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;src,
+                                       <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;slot,
+                                       <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;old,
+                                       <a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;tgt,
+                                       <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataA,
+                                       <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;metaDataB,
+                                       int&nbsp;mode)</pre>
+<div class="block">Attempt to atomically exchange the value in the given slot
+ with the passed replacement value. If a new reference is
+ created, we must then take appropriate write barrier actions.<p>
+
+ <b>By default do nothing, override if appropriate.</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>src</code> - The object into which the new reference will be stored</dd><dd><code>slot</code> - The address into which the new reference will be
+ stored.</dd><dd><code>old</code> - The old reference to be swapped out</dd><dd><code>tgt</code> - The target of the new reference</dd><dd><code>metaDataA</code> - A value that assists the host VM in creating a store</dd><dd><code>metaDataB</code> - A value that assists the host VM in creating a store</dd><dd><code>mode</code> - The context in which the store occurred</dd>
+<dt><span class="strong">Returns:</span></dt><dd>True if the swap was successful.</dd></dl>
+</li>
+</ul>
+<a name="flush()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flush</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1222">flush</a>()</pre>
+<div class="block">Flush mutator context, in response to a requestMutatorFlush.
+ Also called by the default implementation of deinitMutator.</div>
+</li>
+</ul>
+<a name="flushRememberedSets()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flushRememberedSets</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1231">flushRememberedSets</a>()</pre>
+<div class="block">Flush per-mutator remembered sets into the global remset pool.</div>
+</li>
+</ul>
+<a name="assertRemsetsFlushed()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertRemsetsFlushed</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1243">assertRemsetsFlushed</a>()</pre>
+<div class="block">Assert that the remsets have been flushed.  This is critical to
+ correctness.  We need to maintain the invariant that remset entries
+ do not accrue during GC.  If the host JVM generates barrier entries
+ it is its own responsibility to ensure that they are flushed before
+ returning to MMTk.</div>
+</li>
+</ul>
+<a name="getLog()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLog</h4>
+<pre>public final&nbsp;<a href="../../../org/mmtk/utility/Log.html" title="class in org.mmtk.utility">Log</a>&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1254">getLog</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the <code>Log</code> instance for this mutator context.</dd></dl>
+</li>
+</ul>
+<a name="getId()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getId</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/plan/MutatorContext.html#line.1260">getId</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the unique identifier for this mutator context.</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/MutatorContext.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/mmtk/plan/GCspyPlan.html" title="interface in org.mmtk.plan"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/mmtk/plan/ParallelCollector.html" title="class in org.mmtk.plan"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/mmtk/plan/MutatorContext.html" target="_top">Frames</a></li>
+<li><a href="MutatorContext.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

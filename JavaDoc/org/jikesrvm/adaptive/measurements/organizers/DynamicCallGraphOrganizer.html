@@ -1,0 +1,483 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>DynamicCallGraphOrganizer (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="DynamicCallGraphOrganizer (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DynamicCallGraphOrganizer.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DecayOrganizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/MethodSampleOrganizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html" target="_top">Frames</a></li>
+<li><a href="DynamicCallGraphOrganizer.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.adaptive.measurements.organizers</div>
+<h2 title="Class DynamicCallGraphOrganizer" class="title">Class DynamicCallGraphOrganizer</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../org/jikesrvm/scheduler/SystemThread.html" title="class in org.jikesrvm.scheduler">org.jikesrvm.scheduler.SystemThread</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">org.jikesrvm.adaptive.measurements.organizers.Organizer</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.adaptive.measurements.organizers.DynamicCallGraphOrganizer</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.57">DynamicCallGraphOrganizer</a>
+extends <a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">Organizer</a></pre>
+<div class="block">An organizer to build a dynamic call graph from call graph edge
+ samples.
+ <p>
+ It communicates with an edge listener through a
+ integer array, denoted buffer.  When this organizer is woken up
+ via threshold reached, it processes the sequence of triples
+ that are contained in buffer.
+ <p>
+ After processing the buffer and updating the dynamic call graph,
+ it optionally notifies the AdaptiveInliningOrganizer who is responsible
+ for analyzing the dynamic call graph for the purposes of
+ feedback-directed inlining.
+ <p>
+ Note: Since this information is intended to drive feedback-directed inlining,
+       the organizer drops edges that are not relevant.  For example, one of
+       the methods is a native method, or the callee is a runtime service
+       routine and thus can't be inlined into its caller even if it is reported
+       as hot.  Thus, the call graph may not contain some hot edges since they
+       aren't viable inlining candidates. One may argue that this is not the right
+       design.  Perhaps instead the edges should be present for profiling purposes,
+       but not reported as inlining candidates to the
+ <p>
+ EXPECTATION: buffer is filled all the way up with triples.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#buffer">buffer</a></strong></code>
+<div class="block">buffer provides the communication channel between the edge listener
+ and the organizer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#bufferSize">bufferSize</a></strong></code>
+<div class="block">the buffer's size, i.e. length of <a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#buffer"><code>buffer</code></a></div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#DEBUG">DEBUG</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#numberOfBufferTriples">numberOfBufferTriples</a></strong></code>
+<div class="block">the maximum number of triples contained in buffer</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#thresholdReachedCount">thresholdReachedCount</a></strong></code>
+<div class="block">Countdown of times we have to have called thresholdReached before
+ we believe the call graph has enough samples that it is reasonable
+ to use it to guide profile-directed inlining.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.adaptive.measurements.organizers.Organizer">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.adaptive.measurements.organizers.<a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">Organizer</a></h3>
+<code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#listener">listener</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.scheduler.SystemThread">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.scheduler.<a href="../../../../../org/jikesrvm/scheduler/SystemThread.html" title="class in org.jikesrvm.scheduler">SystemThread</a></h3>
+<code><a href="../../../../../org/jikesrvm/scheduler/SystemThread.html#rvmThread">rvmThread</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#DynamicCallGraphOrganizer(org.jikesrvm.adaptive.measurements.listeners.EdgeListener)">DynamicCallGraphOrganizer</a></strong>(<a href="../../../../../org/jikesrvm/adaptive/measurements/listeners/EdgeListener.html" title="class in org.jikesrvm.adaptive.measurements.listeners">EdgeListener</a>&nbsp;edgeListener)</code>
+<div class="block">Constructs a new dynamic call graph organizer that will get its data from the given edge listener.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#initialize()">initialize</a></strong>()</code>
+<div class="block">Initialization: set up data structures and sampling objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#someDataAvailable()">someDataAvailable</a></strong>()</code>
+<div class="block">Checks if the dynamic call graph organizer has gathered and processed enough samples to support decisions.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#thresholdReached()">thresholdReached</a></strong>()</code>
+<div class="block">Process contents of buffer:
+    add call graph edges and increment their weights.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.adaptive.measurements.organizers.Organizer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.adaptive.measurements.organizers.<a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">Organizer</a></h3>
+<code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#activate()">activate</a>, <a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#report()">report</a>, <a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#run()">run</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.scheduler.SystemThread">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.scheduler.<a href="../../../../../org/jikesrvm/scheduler/SystemThread.html" title="class in org.jikesrvm.scheduler">SystemThread</a></h3>
+<code><a href="../../../../../org/jikesrvm/scheduler/SystemThread.html#getRVMThread()">getRVMThread</a>, <a href="../../../../../org/jikesrvm/scheduler/SystemThread.html#start()">start</a>, <a href="../../../../../org/jikesrvm/scheduler/SystemThread.html#stop(java.lang.Throwable)">stop</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEBUG">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEBUG</h4>
+<pre>private static final&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.59">DEBUG</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../constant-values.html#org.jikesrvm.adaptive.measurements.organizers.DynamicCallGraphOrganizer.DEBUG">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="buffer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buffer</h4>
+<pre>private&nbsp;int[] <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.71">buffer</a></pre>
+<div class="block">buffer provides the communication channel between the edge listener
+ and the organizer.<p>
+ The buffer contains an array of triples <code>&lt;callee, caller, address&gt;</code> where
+ the caller and callee are CompiledMethodID's, and address identifies
+ the call site.
+ The edge listener adds triples.
+ At some point the listener deregisters itself and notifies the organizer
+ by calling thresholdReached().</div>
+</li>
+</ul>
+<a name="bufferSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bufferSize</h4>
+<pre>private&nbsp;int <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.73">bufferSize</a></pre>
+<div class="block">the buffer's size, i.e. length of <a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#buffer"><code>buffer</code></a></div>
+</li>
+</ul>
+<a name="numberOfBufferTriples">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfBufferTriples</h4>
+<pre>private&nbsp;int <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.75">numberOfBufferTriples</a></pre>
+<div class="block">the maximum number of triples contained in buffer</div>
+</li>
+</ul>
+<a name="thresholdReachedCount">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>thresholdReachedCount</h4>
+<pre>private&nbsp;int <a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.84">thresholdReachedCount</a></pre>
+<div class="block">Countdown of times we have to have called thresholdReached before
+ we believe the call graph has enough samples that it is reasonable
+ to use it to guide profile-directed inlining.  When this value reaches 0,
+ we stop decrementing it and start letting other parts of the adaptive
+ system use the profile data.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="DynamicCallGraphOrganizer(org.jikesrvm.adaptive.measurements.listeners.EdgeListener)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DynamicCallGraphOrganizer</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.90">DynamicCallGraphOrganizer</a>(<a href="../../../../../org/jikesrvm/adaptive/measurements/listeners/EdgeListener.html" title="class in org.jikesrvm.adaptive.measurements.listeners">EdgeListener</a>&nbsp;edgeListener)</pre>
+<div class="block">Constructs a new dynamic call graph organizer that will get its data from the given edge listener.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>edgeListener</code> - the listener that provides data for this organizer</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="initialize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialize</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.102">initialize</a>()</pre>
+<div class="block">Initialization: set up data structures and sampling objects.
+ <p>
+ Uses either timer based sampling or counter based sampling,
+ depending on <a href="../../../../../org/jikesrvm/adaptive/controller/Controller.html#options"><code>Controller.options</code></a>.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#initialize()">initialize</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">Organizer</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="thresholdReached()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>thresholdReached</h4>
+<pre>void&nbsp;<a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.137">thresholdReached</a>()</pre>
+<div class="block">Process contents of buffer:
+    add call graph edges and increment their weights.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html#thresholdReached()">thresholdReached</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/Organizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers">Organizer</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="someDataAvailable()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>someDataAvailable</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html#line.255">someDataAvailable</a>()</pre>
+<div class="block">Checks if the dynamic call graph organizer has gathered and processed enough samples to support decisions.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if enough data is available, <code>false</code> otherwise</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DynamicCallGraphOrganizer.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/DecayOrganizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/adaptive/measurements/organizers/MethodSampleOrganizer.html" title="class in org.jikesrvm.adaptive.measurements.organizers"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/adaptive/measurements/organizers/DynamicCallGraphOrganizer.html" target="_top">Frames</a></li>
+<li><a href="DynamicCallGraphOrganizer.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

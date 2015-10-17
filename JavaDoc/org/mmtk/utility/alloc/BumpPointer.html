@@ -1,0 +1,1203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>BumpPointer (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BumpPointer (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BumpPointer.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/mmtk/utility/alloc/BlockAllocator.html" title="class in org.mmtk.utility.alloc"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/mmtk/utility/alloc/DumpLinearScan.html" title="class in org.mmtk.utility.alloc"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/mmtk/utility/alloc/BumpPointer.html" target="_top">Frames</a></li>
+<li><a href="BumpPointer.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.mmtk.utility.alloc</div>
+<h2 title="Class BumpPointer" class="title">Class BumpPointer</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">org.mmtk.utility.alloc.Allocator</a></li>
+<li>
+<ul class="inheritance">
+<li>org.mmtk.utility.alloc.BumpPointer</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../org/mmtk/policy/CopyLocal.html" title="class in org.mmtk.policy">CopyLocal</a>, <a href="../../../../org/mmtk/policy/ImmortalLocal.html" title="class in org.mmtk.policy">ImmortalLocal</a>, <a href="../../../../org/mmtk/policy/MarkCompactLocal.html" title="class in org.mmtk.policy">MarkCompactLocal</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public class <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.65">BumpPointer</a>
+extends <a href="../../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a>
+implements <a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></pre>
+<div class="block">This class implements a bump pointer allocator that allows linearly
+ scanning through the allocated objects. In order to achieve this in the
+ face of parallelism it maintains a header at a region (1 or more blocks)
+ granularity.<p>
+
+ Intra-block allocation is fast, requiring only a load, addition comparison
+ and store.  If a block boundary is encountered the allocator will
+ request more memory (virtual and actual).<p>
+
+ In the current implementation the scanned objects maintain affinity
+ with the thread that allocated the objects in the region. In the future
+ it is anticipated that subclasses should be allowed to choose to improve
+ load balancing during the parallel scan.<p>
+
+ Each region is laid out as follows:
+ <pre>
+
+  +-------------+-------------+-------------+---------------
+  | Region  End | Next Region |  Data  End  | Data -->
+ +-------------+-------------+-------------+---------------
+
+ </pre>
+
+ The minimum region size is 32768 bytes, so the 3 or 4 word overhead is
+ less than 0.05% of all space.<p>
+
+ An intended enhancement is to facilitate a reallocation operation
+ where a second cursor is maintained over earlier regions (and at the
+ limit a lower location in the same region). This would be accompianied
+ with an alternative slow path that would allow reuse of empty regions.<p>
+
+ This class relies on the supporting virtual machine implementing the
+ getNextObject and related operations.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#allowScanning">allowScanning</a></strong></code>
+<div class="block">linear scanning is permitted if true</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#BLOCK_MASK">BLOCK_MASK</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#BLOCK_SIZE">BLOCK_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#cursor">cursor</a></strong></code>
+<div class="block">insertion point</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#DATA_END_OFFSET">DATA_END_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#DATA_START_OFFSET">DATA_START_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#initialRegion">initialRegion</a></strong></code>
+<div class="block">first contiguous region</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#internalLimit">internalLimit</a></strong></code>
+<div class="block">current internal slow-path sentinel for bump pointer</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#limit">limit</a></strong></code>
+<div class="block">current external slow-path sentinel for bump pointer</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#LOG_BLOCK_SIZE">LOG_BLOCK_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#LOG_DEFAULT_STEP_SIZE">LOG_DEFAULT_STEP_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#MAX_DATA_START_OFFSET">MAX_DATA_START_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#MINIMUM_DATA_SIZE">MINIMUM_DATA_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#NEXT_REGION_OFFSET">NEXT_REGION_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#region">region</a></strong></code>
+<div class="block">current contiguous region</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#REGION_LIMIT_OFFSET">REGION_LIMIT_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES">SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#space">space</a></strong></code>
+<div class="block">space this bump pointer is associated with</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#STEP_SIZE">STEP_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#VERBOSE">VERBOSE</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.mmtk.utility.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.mmtk.utility.<a href="../../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></h3>
+<code><a href="../../../../org/mmtk/utility/Constants.html#ALIGNMENT_VALUE">ALIGNMENT_VALUE</a>, <a href="../../../../org/mmtk/utility/Constants.html#ARRAY_ELEMENT">ARRAY_ELEMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_KBYTE">BYTES_IN_KBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_MBYTE">BYTES_IN_MBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#CARD_MASK">CARD_MASK</a>, <a href="../../../../org/mmtk/utility/Constants.html#CARD_META_PAGES_PER_REGION">CARD_META_PAGES_PER_REGION</a>, <a href="../../../../org/mmtk/utility/Constants.html#INSTANCE_FIELD">INSTANCE_FIELD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS_SPACE">LOG_BYTES_IN_ADDRESS_SPACE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_KBYTE">LOG_BYTES_IN_KBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_MBYTE">LOG_BYTES_IN_MBYTE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_BYTES">LOG_CARD_BYTES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_GRAIN">LOG_CARD_GRAIN</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_BYTES">LOG_CARD_META_BYTES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_PAGES">LOG_CARD_META_PAGES</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_META_SIZE">LOG_CARD_META_SIZE</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_CARD_UNITS">LOG_CARD_UNITS</a>, <a href="../../../../org/mmtk/utility/Constants.html#LOG_MIN_ALIGNMENT">LOG_MIN_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_ALIGNMENT">MAX_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_BYTES_PADDING">MAX_BYTES_PADDING</a>, <a href="../../../../org/mmtk/utility/Constants.html#MAX_INT">MAX_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MIN_ALIGNMENT">MIN_ALIGNMENT</a>, <a href="../../../../org/mmtk/utility/Constants.html#MIN_INT">MIN_INT</a>, <a href="../../../../org/mmtk/utility/Constants.html#SUPPORT_CARD_SCANNING">SUPPORT_CARD_SCANNING</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#BumpPointer(org.mmtk.policy.Space,%20boolean)">BumpPointer</a></strong>(<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space,
+                      boolean&nbsp;allowScanning)</code>
+<div class="block">Constructor.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#alloc(int,%20int,%20int)">alloc</a></strong>(int&nbsp;bytes,
+          int&nbsp;align,
+          int&nbsp;offset)</code>
+<div class="block">Allocate space for a new object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#allocSlow(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20int,%20int)">allocSlow</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end,
+                  int&nbsp;align,
+                  int&nbsp;offset)</code>
+<div class="block">Internal allocation slow path.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#allocSlowOnce(int,%20int,%20int)">allocSlowOnce</a></strong>(int&nbsp;bytes,
+                          int&nbsp;align,
+                          int&nbsp;offset)</code>
+<div class="block">External allocation slow path (called by superclass when slow path is
+ actually taken.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#checkRegionMetadata(org.vmmagic.unboxed.Address)">checkRegionMetadata</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>
+<div class="block">Sanity check a region header</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#clearNextRegion(org.vmmagic.unboxed.Address)">clearNextRegion</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>
+<div class="block">Clear the next region pointer in the linked-list of regions</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#consumeNextRegion(org.vmmagic.unboxed.Address,%20int,%20int,%20int)">consumeNextRegion</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;nextRegion,
+                                  int&nbsp;bytes,
+                                  int&nbsp;align,
+                                  int&nbsp;offset)</code>
+<div class="block">A bump pointer chunk/region has been consumed but the contiguous region
+ is available, so consume it and then return the address of the start
+ of a memory region satisfying the outstanding allocation request.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#createCardAnchor(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20int)">createCardAnchor</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;card,
+                                <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                                int&nbsp;bytes)</code>
+<div class="block">Given an allocation which starts a new card, create a record of
+ where the start of the object is relative to the start of the
+ card.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#gcspyGatherData(org.mmtk.utility.gcspy.drivers.LinearSpaceDriver)">gcspyGatherData</a></strong>(<a href="../../../../org/mmtk/utility/gcspy/drivers/LinearSpaceDriver.html" title="class in org.mmtk.utility.gcspy.drivers">LinearSpaceDriver</a>&nbsp;driver)</code>
+<div class="block">Gather data for GCspy.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#gcspyGatherData(org.mmtk.utility.gcspy.drivers.LinearSpaceDriver,%20org.mmtk.policy.Space)">gcspyGatherData</a></strong>(<a href="../../../../org/mmtk/utility/gcspy/drivers/LinearSpaceDriver.html" title="class in org.mmtk.utility.gcspy.drivers">LinearSpaceDriver</a>&nbsp;driver,
+                              <a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;scanSpace)</code>
+<div class="block">Gather data for GCspy.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getCard(org.vmmagic.unboxed.Address)">getCard</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Return the start of the card corresponding to a given address.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getCardMetaData(org.vmmagic.unboxed.Address)">getCardMetaData</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;card)</code>
+<div class="block">Return the address of the metadata for a card, given the address of the card.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getCursor()">getCursor</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getDataEnd(org.vmmagic.unboxed.Address)">getDataEnd</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getDataStart(org.vmmagic.unboxed.Address)">getDataStart</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>
+<div class="block">The first offset in a region after the header</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getNextRegion(org.vmmagic.unboxed.Address)">getNextRegion</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>
+<div class="block">The next region in the linked-list of regions</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getRegionLimit(org.vmmagic.unboxed.Address)">getRegionLimit</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>
+<div class="block">Return the end address of the given region.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#getSpace()">getSpace</a></strong>()</code>
+<div class="block">Return the space this allocator is currently bound to.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#isRegionAligned(org.vmmagic.unboxed.Address)">isRegionAligned</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#linearScan(org.mmtk.utility.alloc.LinearScan)">linearScan</a></strong>(<a href="../../../../org/mmtk/utility/alloc/LinearScan.html" title="class in org.mmtk.utility.alloc">LinearScan</a>&nbsp;scanner)</code>
+<div class="block">Perform a linear scan through the objects allocated by this bump pointer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#maximumRegionSize()">maximumRegionSize</a></strong>()</code>
+<div class="block">Maximum size of a single region.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#rebind(org.mmtk.policy.Space)">rebind</a></strong>(<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space)</code>
+<div class="block">Re-associate this bump pointer with a different space.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#reset()">reset</a></strong>()</code>
+<div class="block">Reset the allocator.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#reusePages(int)">reusePages</a></strong>(int&nbsp;pages)</code>
+<div class="block">Some pages are about to be re-used to satisfy a slow path request.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#scanRegion(org.mmtk.utility.alloc.LinearScan,%20org.vmmagic.unboxed.Address)">scanRegion</a></strong>(<a href="../../../../org/mmtk/utility/alloc/LinearScan.html" title="class in org.mmtk.utility.alloc">LinearScan</a>&nbsp;scanner,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start)</code>
+<div class="block">Perform a linear scan through a single contiguous region</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#setDataEnd(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">setDataEnd</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;endAddress)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#setNextRegion(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">setNextRegion</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                          <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;nextRegion)</code>
+<div class="block">Set the next region in the linked-list of regions</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#setRegionLimit(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">setRegionLimit</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                            <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;limit)</code>
+<div class="block">Store the limit value at the end of the region.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#show()">show</a></strong>()</code>
+<div class="block">Print out the status of the allocator (for debugging)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#updateLimit(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address,%20int)">updateLimit</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;newLimit,
+                      <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                      int&nbsp;bytes)</code>
+<div class="block">Update the limit pointer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../org/mmtk/utility/alloc/BumpPointer.html#updateMetaData(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Extent,%20int)">updateMetaData</a></strong>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                            <a href="../../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;size,
+                            int&nbsp;bytes)</code>
+<div class="block">Update the metadata to reflect the addition of a new region.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.mmtk.utility.alloc.Allocator">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.mmtk.utility.alloc.<a href="../../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a></h3>
+<code><a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocation(org.vmmagic.unboxed.Address,%20int,%20int)">alignAllocation</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocation(org.vmmagic.unboxed.Address,%20int,%20int,%20int,%20boolean)">alignAllocation</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#alignAllocationNoFill(org.vmmagic.unboxed.Address,%20int,%20int)">alignAllocationNoFill</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlow(int,%20int,%20int)">allocSlow</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlowInline(int,%20int,%20int)">allocSlowInline</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#determineCollectionAttempts()">determineCollectionAttempts</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#fillAlignmentGap(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">fillAlignmentGap</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#getMaximumAlignedSize(int,%20int)">getMaximumAlignedSize</a>, <a href="../../../../org/mmtk/utility/alloc/Allocator.html#getMaximumAlignedSize(int,%20int,%20int)">getMaximumAlignedSize</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="LOG_DEFAULT_STEP_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LOG_DEFAULT_STEP_SIZE</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.78">LOG_DEFAULT_STEP_SIZE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.mmtk.utility.alloc.BumpPointer.LOG_DEFAULT_STEP_SIZE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="STEP_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>STEP_SIZE</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.79">STEP_SIZE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.mmtk.utility.alloc.BumpPointer.STEP_SIZE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="LOG_BLOCK_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LOG_BLOCK_SIZE</h4>
+<pre>protected static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.80">LOG_BLOCK_SIZE</a></pre>
+</li>
+</ul>
+<a name="BLOCK_MASK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>BLOCK_MASK</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.81">BLOCK_MASK</a></pre>
+</li>
+</ul>
+<a name="BLOCK_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>BLOCK_SIZE</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.82">BLOCK_SIZE</a></pre>
+</li>
+</ul>
+<a name="REGION_LIMIT_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>REGION_LIMIT_OFFSET</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.86">REGION_LIMIT_OFFSET</a></pre>
+</li>
+</ul>
+<a name="NEXT_REGION_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NEXT_REGION_OFFSET</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.87">NEXT_REGION_OFFSET</a></pre>
+</li>
+</ul>
+<a name="DATA_END_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATA_END_OFFSET</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.88">DATA_END_OFFSET</a></pre>
+</li>
+</ul>
+<a name="DATA_START_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DATA_START_OFFSET</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.91">DATA_START_OFFSET</a></pre>
+</li>
+</ul>
+<a name="MAX_DATA_START_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_DATA_START_OFFSET</h4>
+<pre>protected static final&nbsp;<a href="../../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.94">MAX_DATA_START_OFFSET</a></pre>
+</li>
+</ul>
+<a name="MINIMUM_DATA_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MINIMUM_DATA_SIZE</h4>
+<pre>public static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.98">MINIMUM_DATA_SIZE</a></pre>
+</li>
+</ul>
+<a name="SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES</h4>
+<pre>private static final&nbsp;int <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.100">SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.mmtk.utility.alloc.BumpPointer.SIZE_OF_TWO_X86_CACHE_LINES_IN_BYTES">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="VERBOSE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VERBOSE</h4>
+<pre>private static final&nbsp;boolean <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.102">VERBOSE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../constant-values.html#org.mmtk.utility.alloc.BumpPointer.VERBOSE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="cursor">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cursor</h4>
+<pre>protected&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.110">cursor</a></pre>
+<div class="block">insertion point</div>
+</li>
+</ul>
+<a name="internalLimit">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>internalLimit</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.112">internalLimit</a></pre>
+<div class="block">current internal slow-path sentinel for bump pointer</div>
+</li>
+</ul>
+<a name="limit">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>limit</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.114">limit</a></pre>
+<div class="block">current external slow-path sentinel for bump pointer</div>
+</li>
+</ul>
+<a name="space">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>space</h4>
+<pre>protected&nbsp;<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.116">space</a></pre>
+<div class="block">space this bump pointer is associated with</div>
+</li>
+</ul>
+<a name="initialRegion">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialRegion</h4>
+<pre>protected&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.118">initialRegion</a></pre>
+<div class="block">first contiguous region</div>
+</li>
+</ul>
+<a name="allowScanning">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowScanning</h4>
+<pre>protected final&nbsp;boolean <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.120">allowScanning</a></pre>
+<div class="block">linear scanning is permitted if true</div>
+</li>
+</ul>
+<a name="region">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>region</h4>
+<pre>protected&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.122">region</a></pre>
+<div class="block">current contiguous region</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="BumpPointer(org.mmtk.policy.Space, boolean)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>BumpPointer</h4>
+<pre>protected&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.131">BumpPointer</a>(<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space,
+           boolean&nbsp;allowScanning)</pre>
+<div class="block">Constructor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>space</code> - The space to bump point into.</dd><dd><code>allowScanning</code> - Allow linear scanning of this region of memory.</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="reset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.141">reset</a>()</pre>
+<div class="block">Reset the allocator. Note that this does not reset the space.
+ This is must be done by the caller.</div>
+</li>
+</ul>
+<a name="rebind(org.mmtk.policy.Space)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rebind</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.156">rebind</a>(<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;space)</pre>
+<div class="block">Re-associate this bump pointer with a different space. Also
+ reset the bump pointer so that it will use the new space
+ on the next call to <code>alloc</code>.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>space</code> - The space to associate the bump pointer with.</dd></dl>
+</li>
+</ul>
+<a name="alloc(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alloc</h4>
+<pre>public final&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.172">alloc</a>(int&nbsp;bytes,
+            int&nbsp;align,
+            int&nbsp;offset)</pre>
+<div class="block">Allocate space for a new object.  This is frequently executed code and
+ the coding is deliberately sensitive to the optimizing compiler.
+ After changing this, always check the IR/MC that is generated.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The number of bytes allocated</dd><dd><code>align</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the first byte of the allocated region</dd></dl>
+</li>
+</ul>
+<a name="allocSlow(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocSlow</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.196">allocSlow</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;end,
+                int&nbsp;align,
+                int&nbsp;offset)</pre>
+<div class="block">Internal allocation slow path.  This is called whenever the bump
+ pointer reaches the internal limit.  The code is forced out of
+ line.  If required we perform an external slow path take, which
+ we inline into this method since this is already out of line.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>start</code> - The start address for the pending allocation</dd><dd><code>end</code> - The end address for the pending allocation</dd><dd><code>align</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the first byte of the allocated region</dd></dl>
+</li>
+</ul>
+<a name="createCardAnchor(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createCardAnchor</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.229">createCardAnchor</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;card,
+                    <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                    int&nbsp;bytes)</pre>
+<div class="block">Given an allocation which starts a new card, create a record of
+ where the start of the object is relative to the start of the
+ card.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>card</code> - An address that lies within the card to be marked</dd><dd><code>start</code> - The address of an object which creates a new card.</dd><dd><code>bytes</code> - The size of the pending allocation in bytes (used for debugging)</dd></dl>
+</li>
+</ul>
+<a name="getCard(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCard</h4>
+<pre>private static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.250">getCard</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Return the start of the card corresponding to a given address.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address for which the card start is required</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The start of the card containing the address</dd></dl>
+</li>
+</ul>
+<a name="getCardMetaData(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCardMetaData</h4>
+<pre>private static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.259">getCardMetaData</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;card)</pre>
+<div class="block">Return the address of the metadata for a card, given the address of the card.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>card</code> - The address of some card</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the metadata associated with that card</dd></dl>
+</li>
+</ul>
+<a name="allocSlowOnce(int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocSlowOnce</h4>
+<pre>protected final&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.278">allocSlowOnce</a>(int&nbsp;bytes,
+                    int&nbsp;align,
+                    int&nbsp;offset)</pre>
+<div class="block">External allocation slow path (called by superclass when slow path is
+ actually taken.  This is necessary (rather than a direct call
+ from the fast path) because of the possibility of a thread switch
+ and corresponding re-association of bump pointers to kernel
+ threads.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/mmtk/utility/alloc/Allocator.html#allocSlowOnce(int,%20int,%20int)">allocSlowOnce</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The number of bytes allocated</dd><dd><code>offset</code> - The offset from the alignment</dd><dd><code>align</code> - The requested alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the first byte of the allocated region or
+ zero on failure</dd></dl>
+</li>
+</ul>
+<a name="updateLimit(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateLimit</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.316">updateLimit</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;newLimit,
+               <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+               int&nbsp;bytes)</pre>
+<div class="block">Update the limit pointer.  As a side effect update the internal limit
+ pointer appropriately.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>newLimit</code> - The new value for the limit pointer</dd><dd><code>start</code> - The start of the region to be allocated into</dd><dd><code>bytes</code> - The size of the pending allocation (if any).</dd></dl>
+</li>
+</ul>
+<a name="consumeNextRegion(org.vmmagic.unboxed.Address, int, int, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>consumeNextRegion</h4>
+<pre>private&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.342">consumeNextRegion</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;nextRegion,
+                        int&nbsp;bytes,
+                        int&nbsp;align,
+                        int&nbsp;offset)</pre>
+<div class="block">A bump pointer chunk/region has been consumed but the contiguous region
+ is available, so consume it and then return the address of the start
+ of a memory region satisfying the outstanding allocation request.  This
+ is relevant when re-using memory, as in a mark-compact collector.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>nextRegion</code> - The region to be consumed</dd><dd><code>bytes</code> - The number of bytes allocated</dd><dd><code>align</code> - The requested alignment</dd><dd><code>offset</code> - The offset from the alignment</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the first byte of the allocated region or
+ zero on failure</dd></dl>
+</li>
+</ul>
+<a name="getDataStart(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDataStart</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.367">getDataStart</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<div class="block">The first offset in a region after the header</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The lowest address at which data can be stored</dd></dl>
+</li>
+</ul>
+<a name="getNextRegion(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNextRegion</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.378">getNextRegion</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<div class="block">The next region in the linked-list of regions</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The next region in the list</dd></dl>
+</li>
+</ul>
+<a name="setNextRegion(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNextRegion</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.390">setNextRegion</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                 <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;nextRegion)</pre>
+<div class="block">Set the next region in the linked-list of regions</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region</dd><dd><code>nextRegion</code> - the next region in the list</dd></dl>
+</li>
+</ul>
+<a name="clearNextRegion(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearNextRegion</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.401">clearNextRegion</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<div class="block">Clear the next region pointer in the linked-list of regions</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region</dd></dl>
+</li>
+</ul>
+<a name="getDataEnd(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDataEnd</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.411">getDataEnd</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The bump-pointer region</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The DATA_END address from the region header</dd></dl>
+</li>
+</ul>
+<a name="setDataEnd(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDataEnd</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.420">setDataEnd</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+              <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;endAddress)</pre>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The bump-pointer region</dd><dd><code>endAddress</code> - The new DATA_END address from the region header</dd></dl>
+</li>
+</ul>
+<a name="getRegionLimit(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRegionLimit</h4>
+<pre>public static&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.437">getRegionLimit</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<div class="block">Return the end address of the given region.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the allocation limit of the region.</dd></dl>
+</li>
+</ul>
+<a name="setRegionLimit(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setRegionLimit</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.445">setRegionLimit</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region,
+                  <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;limit)</pre>
+<div class="block">Store the limit value at the end of the region.</div>
+</li>
+</ul>
+<a name="isRegionAligned(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isRegionAligned</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.454">isRegionAligned</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - The region.</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the address is region-aligned</dd></dl>
+</li>
+</ul>
+<a name="checkRegionMetadata(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkRegionMetadata</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.463">checkRegionMetadata</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;region)</pre>
+<div class="block">Sanity check a region header</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>region</code> - Region to check</dd></dl>
+</li>
+</ul>
+<a name="updateMetaData(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Extent, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateMetaData</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.488">updateMetaData</a>(<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start,
+                  <a href="../../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;size,
+                  int&nbsp;bytes)</pre>
+<div class="block">Update the metadata to reflect the addition of a new region.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>start</code> - The start of the new region</dd><dd><code>size</code> - The size of the new region (rounded up to block-alignment)</dd></dl>
+</li>
+</ul>
+<a name="gcspyGatherData(org.mmtk.utility.gcspy.drivers.LinearSpaceDriver)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyGatherData</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.513">gcspyGatherData</a>(<a href="../../../../org/mmtk/utility/gcspy/drivers/LinearSpaceDriver.html" title="class in org.mmtk.utility.gcspy.drivers">LinearSpaceDriver</a>&nbsp;driver)</pre>
+<div class="block">Gather data for GCspy. <p>
+ This method calls the drivers linear scanner to scan through
+ the objects allocated by this bump pointer.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>driver</code> - The GCspy driver for this space.</dd></dl>
+</li>
+</ul>
+<a name="gcspyGatherData(org.mmtk.utility.gcspy.drivers.LinearSpaceDriver, org.mmtk.policy.Space)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>gcspyGatherData</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.527">gcspyGatherData</a>(<a href="../../../../org/mmtk/utility/gcspy/drivers/LinearSpaceDriver.html" title="class in org.mmtk.utility.gcspy.drivers">LinearSpaceDriver</a>&nbsp;driver,
+                   <a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;scanSpace)</pre>
+<div class="block">Gather data for GCspy. <p>
+ This method calls the drivers linear scanner to scan through
+ the objects allocated by this bump pointer.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>driver</code> - The GCspy driver for this space.</dd><dd><code>scanSpace</code> - The space to scan</dd></dl>
+</li>
+</ul>
+<a name="linearScan(org.mmtk.utility.alloc.LinearScan)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>linearScan</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.551">linearScan</a>(<a href="../../../../org/mmtk/utility/alloc/LinearScan.html" title="class in org.mmtk.utility.alloc">LinearScan</a>&nbsp;scanner)</pre>
+<div class="block">Perform a linear scan through the objects allocated by this bump pointer.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>scanner</code> - The scan object to delegate scanning to.</dd></dl>
+</li>
+</ul>
+<a name="scanRegion(org.mmtk.utility.alloc.LinearScan, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scanRegion</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.571">scanRegion</a>(<a href="../../../../org/mmtk/utility/alloc/LinearScan.html" title="class in org.mmtk.utility.alloc">LinearScan</a>&nbsp;scanner,
+              <a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;start)</pre>
+<div class="block">Perform a linear scan through a single contiguous region</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>scanner</code> - The scan object to delegate to.</dd><dd><code>start</code> - The start of this region</dd></dl>
+</li>
+</ul>
+<a name="reusePages(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reusePages</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.607">reusePages</a>(int&nbsp;pages)</pre>
+<div class="block">Some pages are about to be re-used to satisfy a slow path request.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>pages</code> - The number of pages.</dd></dl>
+</li>
+</ul>
+<a name="maximumRegionSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maximumRegionSize</h4>
+<pre>protected&nbsp;<a href="../../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.616">maximumRegionSize</a>()</pre>
+<div class="block">Maximum size of a single region. Important for children that implement
+ load balancing or increments based on region size.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the maximum region size</dd></dl>
+</li>
+</ul>
+<a name="getCursor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCursor</h4>
+<pre>public final&nbsp;<a href="../../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.619">getCursor</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the current cursor value</dd></dl>
+</li>
+</ul>
+<a name="getSpace()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSpace</h4>
+<pre>public final&nbsp;<a href="../../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.622">getSpace</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../org/mmtk/utility/alloc/Allocator.html#getSpace()">Allocator</a></code></strong></div>
+<div class="block">Return the space this allocator is currently bound to.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../org/mmtk/utility/alloc/Allocator.html#getSpace()">getSpace</a></code>&nbsp;in class&nbsp;<code><a href="../../../../org/mmtk/utility/alloc/Allocator.html" title="class in org.mmtk.utility.alloc">Allocator</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the space associated with this bump pointer</dd></dl>
+</li>
+</ul>
+<a name="show()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>show</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../src-html/org/mmtk/utility/alloc/BumpPointer.html#line.627">show</a>()</pre>
+<div class="block">Print out the status of the allocator (for debugging)</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/BumpPointer.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../org/mmtk/utility/alloc/BlockAllocator.html" title="class in org.mmtk.utility.alloc"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../org/mmtk/utility/alloc/DumpLinearScan.html" title="class in org.mmtk.utility.alloc"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../index.html?org/mmtk/utility/alloc/BumpPointer.html" target="_top">Frames</a></li>
+<li><a href="BumpPointer.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

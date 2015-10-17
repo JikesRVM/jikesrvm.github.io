@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.adaptive.recompilation;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.adaptive.controller.ControllerPlan;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.adaptive.controller.RecompilationStrategy;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.adaptive.recompilation.instrumentation.AOSInstrumentationPlan;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.baseline.BaselineCompiler;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.driver.CompilationPlan;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.driver.OptimizationPlanElement;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.driver.OptimizationPlanner;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.Magic;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * Runtime system support for using invocation counters in baseline<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * compiled code to select methods for optimizing recompilation<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * by the adaptive system.  Bypasses the normal controller logic:<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * If an invocation counter trips, then the method is enqueued for<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * recompilation at a default optimization level.<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public final class InvocationCounts {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>  private static int[] counts;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  private static boolean[] processed;<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>  public static synchronized void allocateCounter(int id) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    if (counts == null) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>      counts = new int[id + 500];<a name="line.44"></a>
+<span class="sourceLineNo">045</span>      processed = new boolean[counts.length];<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    if (id &gt;= counts.length) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>      int newSize = counts.length * 2;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>      if (newSize &lt;= id) newSize = id + 500;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>      int[] tmp = new int[newSize];<a name="line.50"></a>
+<span class="sourceLineNo">051</span>      System.arraycopy(counts, 0, tmp, 0, counts.length);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>      boolean[] tmp2 = new boolean[newSize];<a name="line.52"></a>
+<span class="sourceLineNo">053</span>      System.arraycopy(processed, 0, tmp2, 0, processed.length);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      Magic.sync();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>      counts = tmp;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      processed = tmp2;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    counts[id] = Controller.options.INVOCATION_COUNT_THRESHOLD;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * Called from baseline compiled code when a method's invocation counter<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * becomes negative and thus must be handled<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  static synchronized void counterTripped(int id) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    counts[id] = 0x7fffffff; // set counter to max int to avoid lots of redundant calls.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    if (processed[id]) return;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    processed[id] = true;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    CompiledMethod cm = CompiledMethods.getCompiledMethod(id);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    if (cm == null) return;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    if (VM.VerifyAssertions) VM._assert(cm.getCompilerType() == CompiledMethod.BASELINE);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    NormalMethod m = (NormalMethod) cm.getMethod();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    CompilationPlan compPlan = new CompilationPlan(m, _optPlan, null, _options);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    ControllerPlan cp =<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        new ControllerPlan(compPlan, Controller.controllerClock, id, 2.0, 2.0, 2.0); // 2.0 is a bogus number....<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    cp.execute();<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * Create the compilation plan according to the default set<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * of {@literal &lt;optimization plan, options&gt;} pairs<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  public static CompilationPlan createCompilationPlan(NormalMethod method) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    return new CompilationPlan(method, _optPlan, null, _options);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  public static CompilationPlan createCompilationPlan(NormalMethod method, AOSInstrumentationPlan instPlan) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    return new CompilationPlan(method, _optPlan, instPlan, _options);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   *  Initialize the recompilation strategy.&lt;p&gt;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   *<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   *  Note: This uses the command line options to set up the<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   *  optimization plans, so this must be run after the command line<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   *  options are available.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  public static void init() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    createOptimizationPlan();<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    BaselineCompiler.options.INVOCATION_COUNTERS = true;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>  private static OptimizationPlanElement[] _optPlan;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  private static OptOptions _options;<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * Create the default set of &lt;optimization plan, options&gt; pairs<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * Process optimizing compiler command line options.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   */<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  static void createOptimizationPlan() {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    _options = new OptOptions();<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    int optLevel = Controller.options.INVOCATION_COUNT_OPT_LEVEL;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    String[] optCompilerOptions = Controller.getOptCompilerOptions();<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    _options.setOptLevel(optLevel);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    RecompilationStrategy.processCommandLineOptions(_options, optLevel, optLevel, optCompilerOptions);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    _optPlan = OptimizationPlanner.createOptimizationPlan(_options);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>}<a name="line.120"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,2976 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>RVMClass (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="RVMClass (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/RVMClass.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/classloader/RVMClassLoader.html" title="class in org.jikesrvm.classloader"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/classloader/RVMClass.html" target="_top">Frames</a></li>
+<li><a href="RVMClass.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.classloader</div>
+<h2 title="Class RVMClass" class="title">Class RVMClass</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.AnnotatedElement</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">org.jikesrvm.classloader.RVMType</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.classloader.RVMClass</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/reflect/AnnotatedElement.html?is-external=true" title="class or interface in java.lang.reflect">AnnotatedElement</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a>, <a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a>, <a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public final class <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.51">RVMClass</a>
+extends <a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a>
+implements <a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a></pre>
+<div class="block">Description of a java "class" type.<p>
+
+ This description is read from a ".class" file as classes/field/methods
+ referenced by the running program need to be bound in to the running image.</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader"><code>RVMType</code></a>, 
+<a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader"><code>RVMArray</code></a>, 
+<a href="../../../org/jikesrvm/classloader/Primitive.html" title="class in org.jikesrvm.classloader"><code>Primitive</code></a>, 
+<a href="../../../org/jikesrvm/classloader/UnboxedType.html" title="class in org.jikesrvm.classloader"><code>UnboxedType</code></a></dd></dl>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#acyclic">acyclic</a></strong></code>
+<div class="block">Reference Count GC: is this type acyclic?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#alignment">alignment</a></strong></code>
+<div class="block">The desired alignment for instances of this type.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#annotations">annotations</a></strong></code>
+<div class="block">Cached set of inherited and declared annotations.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#classInitializerMethod">classInitializerMethod</a></strong></code>
+<div class="block">Class initializer method, null if no method or if class is
+ initialized (ie class initializer method has been run)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#classLoadingDisabled">classLoadingDisabled</a></strong></code>
+<div class="block">Flag for closed world testing</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/jikesrvm/classloader/ClassLoadingListener.html" title="interface in org.jikesrvm.classloader">ClassLoadingListener</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#classLoadListener">classLoadListener</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#constantPool">constantPool</a></strong></code>
+<div class="block">The constant pool holds constants used by the class and the Java
+ bytecodes in the methods associated with this class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#constructorMethods">constructorMethods</a></strong></code>
+<div class="block">constructor methods of class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaredClasses">declaredClasses</a></strong></code>
+<div class="block">Declared inner classes, may be null</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaredFields">declaredFields</a></strong></code>
+<div class="block">Fields of this class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaredInterfaces">declaredInterfaces</a></strong></code>
+<div class="block">Interfaces supported by this class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaredMethods">declaredMethods</a></strong></code>
+<div class="block">Methods of this class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaringClass">declaringClass</a></strong></code>
+<div class="block">The outer class, or null if this is not a inner/nested class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#desiredAssertionStatus">desiredAssertionStatus</a></strong></code>
+<div class="block">Are assertions enabled on this class?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#enclosingClass">enclosingClass</a></strong></code>
+<div class="block">The enclosing class if this is a local class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#enclosingMethod">enclosingMethod</a></strong></code>
+<div class="block">The enclosing method if this is a local class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#fieldLayoutContext">fieldLayoutContext</a></strong></code>
+<div class="block">A field layout helper - used to keep context regarding field layouts.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#hasFinalizer">hasFinalizer</a></strong></code>
+<div class="block">Do objects of this class have a finalizer method?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/objectmodel/IMT.html" title="class in org.jikesrvm.objectmodel">IMT</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#imt">imt</a></strong></code>
+<div class="block">The imt for this class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#inBootImage">inBootImage</a></strong></code>
+<div class="block">Is this class type in the bootimage?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#instanceFields">instanceFields</a></strong></code>
+<div class="block">fields distinct for each instance of class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#instanceSize">instanceSize</a></strong></code>
+<div class="block">Total size of per-instance data, in bytes</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#interfaceCount">interfaceCount</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#interfaceCountLock">interfaceCountLock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#interfaceId">interfaceId</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#interfaces">interfaces</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private short</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#modifiers">modifiers</a></strong></code>
+<div class="block"><a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader"><code>ClassLoaderConstants</code></a></div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#noIMTConflictMap">noIMTConflictMap</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#objectCache">objectCache</a></strong></code>
+<div class="block">Set of objects that are cached here to ensure they are not collected by GC</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#signature">signature</a></strong></code>
+<div class="block">The signature is a string representing the generic type for this
+ class declaration, may be null</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#sourceName">sourceName</a></strong></code>
+<div class="block">Name of file .class file was compiled from, may be null</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private byte</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#state">state</a></strong></code>
+<div class="block">current class-loading stage (loaded, resolved, instantiated,
+ initializing or initialized)</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#staticFields">staticFields</a></strong></code>
+<div class="block">fields shared by all instances of class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#staticMethods">staticMethods</a></strong></code>
+<div class="block">static methods of class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#subClasses">subClasses</a></strong></code>
+<div class="block">Non-final list of sub-classes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#superClass">superClass</a></strong></code>
+<div class="block">Super class of this class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#thinLockOffset">thinLockOffset</a></strong></code>
+<div class="block">At what offset is the thin lock word to be found in instances of
+ objects of this type?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#typeInformationBlock">typeInformationBlock</a></strong></code>
+<div class="block">type and virtual method dispatch table for class</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#virtualMethods">virtualMethods</a></strong></code>
+<div class="block">virtual methods of class</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.RVMType">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMType.html#AddressArrayType">AddressArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#AddressType">AddressType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#BooleanType">BooleanType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ByteType">ByteType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#CharType">CharType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#CodeArrayType">CodeArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#CodeType">CodeType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#depth">depth</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#dimension">dimension</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#doesImplement">doesImplement</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#DoubleType">DoubleType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#emptyVMClass">emptyVMClass</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#emptyVMField">emptyVMField</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#emptyVMMethod">emptyVMMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ExtentArrayType">ExtentArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ExtentType">ExtentType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#FloatType">FloatType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#FunctionTableType">FunctionTableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#id">id</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#IMTType">IMTType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#IntType">IntType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ITableArrayType">ITableArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ITableType">ITableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaIoSerializableType">JavaIoSerializableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangClassType">JavaLangClassType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangCloneableType">JavaLangCloneableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangObjectArrayType">JavaLangObjectArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangObjectType">JavaLangObjectType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangRefReferenceReferenceField">JavaLangRefReferenceReferenceField</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangRefReferenceType">JavaLangRefReferenceType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangStringType">JavaLangStringType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#JavaLangThrowableType">JavaLangThrowableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#LinkageTripletTableType">LinkageTripletTableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#LongType">LongType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#MagicType">MagicType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#NOREFS_OFFSET_ARRAY">NOREFS_OFFSET_ARRAY</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ObjectReferenceArrayType">ObjectReferenceArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ObjectReferenceType">ObjectReferenceType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#OffsetArrayType">OffsetArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#OffsetType">OffsetType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#REFARRAY_OFFSET_ARRAY">REFARRAY_OFFSET_ARRAY</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#referenceOffsets">referenceOffsets</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#ShortType">ShortType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#superclassIds">superclassIds</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#tibOffset">tibOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#TIBType">TIBType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#typeRef">typeRef</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#VoidType">VoidType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#WordArrayType">WordArrayType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#WordType">WordType</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.AnnotatedElement">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">AnnotatedElement</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#declaredAnnotationDatas">declaredAnnotationDatas</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/Constants.html" title="interface in org.jikesrvm">Constants</a></h3>
+<code><a href="../../../org/jikesrvm/Constants.html#NOT_REACHED">NOT_REACHED</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_BITS">REFLECTION_FPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_FPRS_MASK">REFLECTION_FPRS_MASK</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_BITS">REFLECTION_GPRS_BITS</a>, <a href="../../../org/jikesrvm/Constants.html#REFLECTION_GPRS_MASK">REFLECTION_GPRS_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.ThinLockConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html" title="interface in org.jikesrvm.objectmodel">ThinLockConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_OFFSET">TL_DEDICATED_U16_OFFSET</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_DEDICATED_U16_SHIFT">TL_DEDICATED_U16_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_MASK">TL_LOCK_COUNT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_SHIFT">TL_LOCK_COUNT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_COUNT_UNIT">TL_LOCK_COUNT_UNIT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_MASK">TL_LOCK_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_LOCK_ID_SHIFT">TL_LOCK_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_RC">TL_NUM_BITS_RC</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_STAT">TL_NUM_BITS_STAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_NUM_BITS_TID">TL_NUM_BITS_TID</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_BIASABLE">TL_STAT_BIASABLE</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_FAT">TL_STAT_FAT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_MASK">TL_STAT_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_SHIFT">TL_STAT_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_STAT_THIN">TL_STAT_THIN</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_MASK">TL_THREAD_ID_MASK</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_THREAD_ID_SHIFT">TL_THREAD_ID_SHIFT</a>, <a href="../../../org/jikesrvm/objectmodel/ThinLockConstants.html#TL_UNLOCK_MASK">TL_UNLOCK_MASK</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.SizeConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/SizeConstants.html" title="interface in org.jikesrvm">SizeConstants</a></h3>
+<code><a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BOOLEAN">BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_DOUBLE">BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_EXTENT">BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_FLOAT">BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_LONG">BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_OFFSET">BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BOOLEAN">BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_DOUBLE">BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_EXTENT">BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_FLOAT">BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_LONG">BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_OFFSET">BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BOOLEAN">LOG_BITS_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_DOUBLE">LOG_BITS_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_EXTENT">LOG_BITS_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_FLOAT">LOG_BITS_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_LONG">LOG_BITS_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_OFFSET">LOG_BITS_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BOOLEAN">LOG_BYTES_IN_BOOLEAN</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_DOUBLE">LOG_BYTES_IN_DOUBLE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_EXTENT">LOG_BYTES_IN_EXTENT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_FLOAT">LOG_BYTES_IN_FLOAT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_LONG">LOG_BYTES_IN_LONG</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_OFFSET">LOG_BYTES_IN_OFFSET</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/jikesrvm/SizeConstants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.objectmodel.TIBLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.objectmodel.<a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html" title="interface in org.jikesrvm.objectmodel">TIBLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#IMT_METHOD_SLOTS">IMT_METHOD_SLOTS</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#NEEDS_DYNAMIC_LINK">NEEDS_DYNAMIC_LINK</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_ARRAY_ELEMENT_TIB_INDEX">TIB_ARRAY_ELEMENT_TIB_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_DOES_IMPLEMENT_INDEX">TIB_DOES_IMPLEMENT_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_SPECIALIZED_METHOD_INDEX">TIB_FIRST_SPECIALIZED_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_FIRST_VIRTUAL_METHOD_INDEX">TIB_FIRST_VIRTUAL_METHOD_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_INTERFACE_DISPATCH_TABLE_INDEX">TIB_INTERFACE_DISPATCH_TABLE_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_SUPERCLASS_IDS_INDEX">TIB_SUPERCLASS_IDS_INDEX</a>, <a href="../../../org/jikesrvm/objectmodel/TIBLayoutConstants.html#TIB_TYPE_INDEX">TIB_TYPE_INDEX</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.HeapLayoutConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.<a href="../../../org/jikesrvm/HeapLayoutConstants.html" title="interface in org.jikesrvm">HeapLayoutConstants</a></h3>
+<code><a href="../../../org/jikesrvm/HeapLayoutConstants.html#BAD_MAP_COMPRESSION">BAD_MAP_COMPRESSION</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_END">BOOT_IMAGE_CODE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_SIZE">BOOT_IMAGE_CODE_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_CODE_START">BOOT_IMAGE_CODE_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_END">BOOT_IMAGE_DATA_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_SIZE">BOOT_IMAGE_DATA_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_DATA_START">BOOT_IMAGE_DATA_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_END">BOOT_IMAGE_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_END">BOOT_IMAGE_RMAP_END</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#BOOT_IMAGE_RMAP_START">BOOT_IMAGE_RMAP_START</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAX_BOOT_IMAGE_RMAP_SIZE">MAX_BOOT_IMAGE_RMAP_SIZE</a>, <a href="../../../org/jikesrvm/HeapLayoutConstants.html#MAXIMUM_MAPPABLE">MAXIMUM_MAPPABLE</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.classloader.ClassLoaderConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader">ClassLoaderConstants</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ABSTRACT">ACC_ABSTRACT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ANNOTATION">ACC_ANNOTATION</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_ENUM">ACC_ENUM</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_FINAL">ACC_FINAL</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_INTERFACE">ACC_INTERFACE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_NATIVE">ACC_NATIVE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PRIVATE">ACC_PRIVATE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PROTECTED">ACC_PROTECTED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_PUBLIC">ACC_PUBLIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STATIC">ACC_STATIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_STRICT">ACC_STRICT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SUPER">ACC_SUPER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNCHRONIZED">ACC_SYNCHRONIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_SYNTHETIC">ACC_SYNTHETIC</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_TRANSIENT">ACC_TRANSIENT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ACC_VOLATILE">ACC_VOLATILE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_CLASSES">APPLICABLE_TO_CLASSES</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_FIELDS">APPLICABLE_TO_FIELDS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#APPLICABLE_TO_METHODS">APPLICABLE_TO_METHODS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ArrayTypeCode">ArrayTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BooleanTypeCode">BooleanTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#BRIDGE">BRIDGE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ByteTypeCode">ByteTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CharTypeCode">CharTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZED">CLASS_INITIALIZED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZER_FAILED">CLASS_INITIALIZER_FAILED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INITIALIZING">CLASS_INITIALIZING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_INSTANTIATED">CLASS_INSTANTIATED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_LOADED">CLASS_LOADED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_RESOLVED">CLASS_RESOLVED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CLASS_VACANT">CLASS_VACANT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ClassTypeCode">ClassTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_CLASS">CP_CLASS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_DOUBLE">CP_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_FLOAT">CP_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_INT">CP_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_LONG">CP_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_MEMBER">CP_MEMBER</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_STRING">CP_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_UTF">CP_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#DoubleTypeCode">DoubleTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#FloatTypeCode">FloatTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#IntTypeCode">IntTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#LongTypeCode">LongTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#ShortTypeCode">ShortTypeCode</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_DOUBLE">TAG_DOUBLE</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FIELDREF">TAG_FIELDREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_FLOAT">TAG_FLOAT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INT">TAG_INT</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_INTERFACE_METHODREF">TAG_INTERFACE_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_LONG">TAG_LONG</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_MEMBERNAME_AND_DESCRIPTOR">TAG_MEMBERNAME_AND_DESCRIPTOR</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_METHODREF">TAG_METHODREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_STRING">TAG_STRING</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_TYPEREF">TAG_TYPEREF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UNUSED">TAG_UNUSED</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#TAG_UTF">TAG_UTF</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VARARGS">VARARGS</a>, <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#VoidTypeCode">VoidTypeCode</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#RVMClass(org.jikesrvm.classloader.TypeReference,%20int[],%20short,%20org.jikesrvm.classloader.RVMClass,%20org.jikesrvm.classloader.RVMClass[],%20org.jikesrvm.classloader.RVMField[],%20org.jikesrvm.classloader.RVMMethod[],%20org.jikesrvm.classloader.TypeReference[],%20org.jikesrvm.classloader.TypeReference,%20org.jikesrvm.classloader.TypeReference,%20org.jikesrvm.classloader.MethodReference,%20org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.RVMMethod,%20org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.RVMAnnotation[])">RVMClass</a></strong>(<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;typeRef,
+                int[]&nbsp;constantPool,
+                short&nbsp;modifiers,
+                <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;superClass,
+                <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]&nbsp;declaredInterfaces,
+                <a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]&nbsp;declaredFields,
+                <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;declaredMethods,
+                <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;declaredClasses,
+                <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;declaringClass,
+                <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;enclosingClass,
+                <a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a>&nbsp;enclosingMethod,
+                <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;sourceName,
+                <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;classInitializerMethod,
+                <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;signature,
+                <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[]&nbsp;annotations)</code>
+<div class="block">Construct a class from its constituent loaded parts</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#addCachedObject(java.lang.Object)">addCachedObject</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</code>
+<div class="block">Add the given cached object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#addSubClass(org.jikesrvm.classloader.RVMClass)">addSubClass</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;sub)</code>
+<div class="block">Add to list of classes that derive from this one.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#allBootImageTypesResolved()">allBootImageTypesResolved</a></strong>()</code>
+<div class="block">This method is only called by the bootimage writer.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#assignInterfaceId()">assignInterfaceId</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#createReflectionClass(org.jikesrvm.classloader.RVMMethod)">createReflectionClass</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;methodToCall)</code>
+<div class="block">Create a synthetic class that extends ReflectionBase and invokes the given method</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#declaresFinalInstanceField()">declaresFinalInstanceField</a></strong>()</code>
+<div class="block">Does this class directly define a final instance field (has implications for JMM).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findDeclaredField(org.jikesrvm.classloader.Atom)">findDeclaredField</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldName)</code>
+<div class="block">Find description of a field of this class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findDeclaredField(org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.Atom)">findDeclaredField</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldName,
+                                  <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldDescriptor)</code>
+<div class="block">Find description of a field of this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findDeclaredMethod(org.jikesrvm.classloader.Atom)">findDeclaredMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodName)</code>
+<div class="block">Find the first description of a method of this class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findDeclaredMethod(org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.Atom)">findDeclaredMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodName,
+                                    <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodDescriptor)</code>
+<div class="block">Find description of a method of this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findInitializerMethod(org.jikesrvm.classloader.Atom)">findInitializerMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberDescriptor)</code>
+<div class="block">Find specified initializer method description.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findMainMethod()">findMainMethod</a></strong>()</code>
+<div class="block">Find description of "public static void main(String[])"
+ method of this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#findStaticMethod(org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.Atom)">findStaticMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberName,
+                                <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberDescriptor)</code>
+<div class="block">Find specified static method description.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getAlignment()">getAlignment</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getAllImplementedInterfaces()">getAllImplementedInterfaces</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getAnnotationsInternal()">getAnnotationsInternal</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getClassFromStackFrame(int)">getClassFromStackFrame</a></strong>(int&nbsp;skip)</code>
+<div class="block">Used for accessibility checks in reflection code.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getClassInitializerMethod()">getClassInitializerMethod</a></strong>()</code>
+<div class="block">Static initializer method for this class (<code>null</code> -> no static initializer
+  or initializer already been run).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getClassLoaderFromStackFrame(int)">getClassLoaderFromStackFrame</a></strong>(int&nbsp;skip)</code>
+<div class="block">Support for user-written class loaders:
+ It's required to find the classloader of the class
+ whose method requires another class to be loaded;
+ the initiating loader of the required class is the
+ defining loader of the requiring class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getConstructorMethods()">getConstructorMethods</a></strong>()</code>
+<div class="block">Constructors (<init>) methods of this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDeclaredClasses()">getDeclaredClasses</a></strong>()</code>
+<div class="block">Declared inner and static member classes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDeclaredFields()">getDeclaredFields</a></strong>()</code>
+<div class="block">Fields defined directly by this class (i.e. not including superclasses).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDeclaredInterfaces()">getDeclaredInterfaces</a></strong>()</code>
+<div class="block">Interfaces implemented directly by this class
+ (ie. not including superclasses).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDeclaredMethods()">getDeclaredMethods</a></strong>()</code>
+<div class="block">Methods defined directly by this class (i.e. not including superclasses).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDeclaringClass()">getDeclaringClass</a></strong>()</code>
+<div class="block">Class that declared this class, or null if this is not an
+ inner/nested class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDesiredAssertionStatus()">getDesiredAssertionStatus</a></strong>()</code>
+<div class="block">Should assertions be enabled on this type?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDimensionality()">getDimensionality</a></strong>()</code>
+<div class="block">Number of [ in descriptor for arrays; -1 for primitives; 0 for
+ classes</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDoesImplementBitMask()">getDoesImplementBitMask</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getDoesImplementIndex()">getDoesImplementIndex</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getEnclosingClass()">getEnclosingClass</a></strong>()</code>
+<div class="block">Class that immediately encloses this class, or null if this is not an
+ inner/nested class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getFieldLayoutContext()">getFieldLayoutContext</a></strong>()</code>
+<div class="block">Set object representing available holes in the field layout</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/FieldReference.html" title="class in org.jikesrvm.classloader">FieldReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getFieldRef(int)">getFieldRef</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get contents of a "fieldRef" constant pool entry.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getInstanceFields()">getInstanceFields</a></strong>()</code>
+<div class="block">Non-static fields of this class (composed with supertypes, if any).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getInstanceSize()">getInstanceSize</a></strong>()</code>
+<div class="block">Total size, in bytes, of an instance of this class
+ (including object header).</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getInstanceSizeInternal()">getInstanceSizeInternal</a></strong>()</code>
+<div class="block">Total size, in bytes, of an instance of this class (including
+ object header).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getInterface(int)">getInterface</a></strong>(int&nbsp;id)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getInterfaceId()">getInterfaceId</a></strong>()</code>
+<div class="block">Classes used as Interfaces get assigned an interface id.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>byte</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getLiteralDescription(int)">getLiteralDescription</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get description of a literal constant.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getLiteralOffset(int)">getLiteralOffset</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get offset of a literal constant, in bytes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getMemoryBytes()">getMemoryBytes</a></strong>()</code>
+<div class="block">Number of bytes in memory required to represent the type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getMethodRef(int)">getMethodRef</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get contents of a "methodRef" constant pool entry.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getModifiers()">getModifiers</a></strong>()</code>
+<div class="block">Get the modifiers associated with this class <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader"><code>ClassLoaderConstants</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getNumberOfNonFinalReferences()">getNumberOfNonFinalReferences</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getPackageName()">getPackageName</a></strong>()</code>
+<div class="block">Package name - something like "java.lang".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getSignature()">getSignature</a></strong>()</code>
+<div class="block">Generic type information for class</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getSourceName()">getSourceName</a></strong>()</code>
+<div class="block">Name of source file from which class was compiled -
+ something like "c:\java\src\java\lang\Object.java".</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getStackWords()">getStackWords</a></strong>()</code>
+<div class="block">Space required when this type is stored on the stack
+ (or as a field), in words.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getStaticFields()">getStaticFields</a></strong>()</code>
+<div class="block">Static fields of this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getStaticMethods()">getStaticMethods</a></strong>()</code>
+<div class="block">Statically dispatched methods of this class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getSubClasses()">getSubClasses</a></strong>()</code>
+<div class="block">Currently loaded classes that "extend" this class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getSuperClass()">getSuperClass</a></strong>()</code>
+<div class="block">Superclass of this class (<code>null</code> means "no superclass",
+ i.e. class is "java/lang/Object").</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getThinLockOffset()">getThinLockOffset</a></strong>()</code>
+<div class="block">Get the offset in instances of this type assigned to the thin lock word.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getTypeDepth()">getTypeDepth</a></strong>()</code>
+<div class="block">Get number of superclasses to Object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getTypeInformationBlock()">getTypeInformationBlock</a></strong>()</code>
+<div class="block">Runtime type information for this class type.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getTypeRef(int)">getTypeRef</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get contents of a "typeRef" constant pool entry.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getUtf(int)">getUtf</a></strong>(int&nbsp;constantPoolIndex)</code>
+<div class="block">Get contents of a "utf" constant pool entry.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#getVirtualMethods()">getVirtualMethods</a></strong>()</code>
+<div class="block">Virtually dispatched methods of this class
+ (composed with supertypes, if any).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#hasBridgeFromNativeAnnotation()">hasBridgeFromNativeAnnotation</a></strong>()</code>
+<div class="block">The methods of this class are only called from native code,
+ they are compiled with
+ a special prolog to interface with the native stack frame.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#hasDynamicBridgeAnnotation()">hasDynamicBridgeAnnotation</a></strong>()</code>
+<div class="block">Should the methods of this class be compiled with special
+ register save/restore logic?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#hasFinalizer()">hasFinalizer</a></strong>()</code>
+<div class="block">Does this class override java.lang.Object.finalize()?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#hasSaveVolatileAnnotation()">hasSaveVolatileAnnotation</a></strong>()</code>
+<div class="block">Should the methods of this class save incoming registers ?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#initialize()">initialize</a></strong>()</code>
+<div class="block">Cause initialization to take place.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#instantiate()">instantiate</a></strong>()</code>
+<div class="block">Cause instantiation to take place.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isAbstract()">isAbstract</a></strong>()</code>
+<div class="block">Non-instantiable?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isAcyclicReference()">isAcyclicReference</a></strong>()</code>
+<div class="block">Reference Count GC: Is a reference of this type contained in
+ another object inherently acyclic (without cycles)?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isAnnotation()">isAnnotation</a></strong>()</code>
+<div class="block">Annotation type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isAnonymousClass()">isAnonymousClass</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isArrayType()">isArrayType</a></strong>()</code>
+<div class="block">Is this an instance of RVMArray?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isClassType()">isClassType</a></strong>()</code>
+<div class="block">Is this is an instance of RVMClass?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isEnum()">isEnum</a></strong>()</code>
+<div class="block">Is enumeration?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isFinal()">isFinal</a></strong>()</code>
+<div class="block">Non-subclassable?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isInBootImage()">isInBootImage</a></strong>()</code>
+<div class="block">Is this class part of the virtual machine's boot image?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isInitialized()">isInitialized</a></strong>()</code>
+<div class="block">Initialization status.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isInstantiated()">isInstantiated</a></strong>()</code>
+<div class="block">Instantiation status.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isInterface()">isInterface</a></strong>()</code>
+<div class="block">An "interface" description rather than a "class" description?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isLocalClass()">isLocalClass</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isMemberClass()">isMemberClass</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isPrimitiveType()">isPrimitiveType</a></strong>()</code>
+<div class="block">Is this a primitive type?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isPublic()">isPublic</a></strong>()</code>
+<div class="block">Usable from other packages?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isReferenceType()">isReferenceType</a></strong>()</code>
+<div class="block">Is this a reference type?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isResolved()">isResolved</a></strong>()</code>
+<div class="block">Resolution status.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isSpecial()">isSpecial</a></strong>()</code>
+<div class="block">Use new-style "invokespecial" semantics for method calls in this class?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isSynthetic()">isSynthetic</a></strong>()</code>
+<div class="block">Not present in source code file?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isThrowable()">isThrowable</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#isUnboxedType()">isUnboxedType</a></strong>()</code>
+<div class="block">Is this an unboxed type?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#makeFieldTraced(org.jikesrvm.classloader.RVMField)">makeFieldTraced</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field)</code>
+<div class="block">Make the passed field a traced field by garbage collection.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#markAsBootImageClass()">markAsBootImageClass</a></strong>()</code>
+<div class="block">Only intended to be used by the BootImageWriter</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#markFinalFieldsAsLiterals()">markFinalFieldsAsLiterals</a></strong>()</code>
+<div class="block">Mark final fields as being available as literals</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#publishResolved(org.jikesrvm.objectmodel.TIB,%20short[],%20int[])">publishResolved</a></strong>(<a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;allocatedTib,
+                              short[]&nbsp;superclassIds,
+                              int[]&nbsp;doesImplement)</code>
+<div class="block">Atomically initialize the important parts of the TIB and let the world know this type is
+ resolved.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#resolve()">resolve</a></strong>()</code>
+<div class="block">Cause resolution to take place.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#resolveNativeMethods()">resolveNativeMethods</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#resolveNativeMethodsInternal(org.jikesrvm.classloader.RVMMethod[])">resolveNativeMethodsInternal</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;methods)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setAlignment(int)">setAlignment</a></strong>(int&nbsp;align)</code>
+<div class="block">Set the alignment for instances of this class type</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setAllFinalStaticJTOCEntries()">setAllFinalStaticJTOCEntries</a></strong>()</code>
+<div class="block">Copy the values of all static final fields into
+ the JTOC.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setFieldLayoutContext(org.jikesrvm.objectmodel.FieldLayoutContext)">setFieldLayoutContext</a></strong>(<a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a>&nbsp;newLayout)</code>
+<div class="block">Set object representing available holes in the field layout</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setFinalStaticJTOCEntry(org.jikesrvm.classloader.RVMField,%20org.vmmagic.unboxed.Offset)">setFinalStaticJTOCEntry</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field,
+                                              <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;fieldOffset)</code>
+<div class="block">Insert the value of a final static field into the JTOC</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setIMT(org.jikesrvm.objectmodel.IMT)">setIMT</a></strong>(<a href="../../../org/jikesrvm/objectmodel/IMT.html" title="class in org.jikesrvm.objectmodel">IMT</a>&nbsp;imt)</code>
+<div class="block">Set the imt object.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setInstanceSizeInternal(int)">setInstanceSizeInternal</a></strong>(int&nbsp;size)</code>
+<div class="block">Set the size of the instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setResolvedMembers()">setResolvedMembers</a></strong>()</code>
+<div class="block">Set the resolvedMember in all declared members.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#setThinLockOffset(org.vmmagic.unboxed.Offset)">setThinLockOffset</a></strong>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;offset)</code>
+<div class="block">Set the thin lock offset for instances of this type.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#toString()">toString</a></strong>()</code>
+<div class="block">Name - something like "java.lang.String".</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#unregisterNativeMethods()">unregisterNativeMethods</a></strong>()</code>
+<div class="block">Unregisters all native methods</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#updateJTOCEntry(org.jikesrvm.classloader.RVMMethod)">updateJTOCEntry</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>
+<div class="block">Update the JTOC slot for the given static method to point to
+ the current compiled code for the given method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#updateMethod(org.jikesrvm.classloader.RVMMethod)">updateMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>
+<div class="block">Given a method declared by this class, update all
+ dispatching tables to refer to the current compiled
+ code for the method.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#updateTIBEntry(org.jikesrvm.classloader.RVMMethod)">updateTIBEntry</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>
+<div class="block">Update this class's TIB entry for the given method to point to
+ the current compiled code for the given method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/classloader/RVMClass.html#updateVirtualMethod(org.jikesrvm.classloader.RVMMethod)">updateVirtualMethod</a></strong>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</code>
+<div class="block">Update the TIB entry's for all classes that inherit the given method
+ to point to the current compiled code for the given method.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.RVMType">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/RVMType.html#asArray()">asArray</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#asClass()">asClass</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#asPrimitive()">asPrimitive</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#asUnboxedType()">asUnboxedType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#createClassForType(org.jikesrvm.classloader.RVMType,%20org.jikesrvm.classloader.TypeReference)">createClassForType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#findVirtualMethod(org.jikesrvm.classloader.Atom,%20org.jikesrvm.classloader.Atom)">findVirtualMethod</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getArrayTypeForElementType()">getArrayTypeForElementType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getClassForType()">getClassForType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getClassLoader()">getClassLoader</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getDescriptor()">getDescriptor</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getDoesImplement()">getDoesImplement</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getId()">getId</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getMMAllocator()">getMMAllocator</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getReferenceOffsets()">getReferenceOffsets</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getResolvedClassForType()">getResolvedClassForType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getSuperclassIds()">getSuperclassIds</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getTIBMethodAtSlot(int)">getTIBMethodAtSlot</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getTibOffset()">getTibOffset</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getType(int)">getType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#getTypeRef()">getTypeRef</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#hashCode()">hashCode</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isAssignableFrom(org.jikesrvm.classloader.RVMType)">isAssignableFrom</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isBooleanType()">isBooleanType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isByteType()">isByteType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isCharType()">isCharType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isDoubleType()">isDoubleType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isFloatType()">isFloatType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isIntLikeType()">isIntLikeType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isIntType()">isIntType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isJavaLangObjectType()">isJavaLangObjectType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isJavaLangStringType()">isJavaLangStringType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isJavaLangThrowableType()">isJavaLangThrowableType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isLongType()">isLongType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isNonMoving()">isNonMoving</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isShortType()">isShortType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#isVoidType()">isVoidType</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#numTypes()">numTypes</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#setMMAllocator(int)">setMMAllocator</a>, <a href="../../../org/jikesrvm/classloader/RVMType.html#setSpecializedMethod(int,%20org.jikesrvm.ArchitectureSpecific.CodeArray)">setSpecializedMethod</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.classloader.AnnotatedElement">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.classloader.<a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">AnnotatedElement</a></h3>
+<code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotation(java.lang.Class)">getAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotations()">getAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getDeclaredAnnotations()">getDeclaredAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getDeclaredAnnotationsInternal()">getDeclaredAnnotationsInternal</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasAnnotations()">hasAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasBaselineNoRegistersAnnotation()">hasBaselineNoRegistersAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasBaselineSaveLSRegistersAnnotation()">hasBaselineSaveLSRegistersAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasInlineAnnotation()">hasInlineAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasInterruptibleAnnotation()">hasInterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasLogicallyUninterruptibleAnnotation()">hasLogicallyUninterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoBoundsCheckAnnotation()">hasNoBoundsCheckAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoCheckStoreAnnotation()">hasNoCheckStoreAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoEscapesAnnotation()">hasNoEscapesAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoInlineAnnotation()">hasNoInlineAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNonMovingAllocationAnnotation()">hasNonMovingAllocationAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNonMovingAnnotation()">hasNonMovingAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoNullCheckAnnotation()">hasNoNullCheckAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasNoOptCompileAnnotation()">hasNoOptCompileAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasPreemptibleAnnotation()">hasPreemptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasPureAnnotation()">hasPureAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasRuntimeFinalAnnotation()">hasRuntimeFinalAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasRuntimePureAnnotation()">hasRuntimePureAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUninterruptibleAnnotation()">hasUninterruptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUninterruptibleNoWarnAnnotation()">hasUninterruptibleNoWarnAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUnpreemptibleAnnotation()">hasUnpreemptibleAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUnpreemptibleNoWarnAnnotation()">hasUnpreemptibleNoWarnAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#hasUntracedAnnotation()">hasUntracedAnnotation</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#isAnnotationDeclared(org.jikesrvm.classloader.TypeReference)">isAnnotationDeclared</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#isAnnotationPresent(java.lang.Class)">isAnnotationPresent</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#readAnnotations(int[],%20java.io.DataInputStream,%20java.lang.ClassLoader)">readAnnotations</a>, <a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#toAnnotations(java.lang.Object)">toAnnotations</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="classLoadingDisabled">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classLoadingDisabled</h4>
+<pre>public static&nbsp;boolean <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.54">classLoadingDisabled</a></pre>
+<div class="block">Flag for closed world testing</div>
+</li>
+</ul>
+<a name="constantPool">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>constantPool</h4>
+<pre>private final&nbsp;int[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.74">constantPool</a></pre>
+<div class="block">The constant pool holds constants used by the class and the Java
+ bytecodes in the methods associated with this class. This
+ constant pool isn't that from the class file, instead it has been
+ processed during class loading (see <a href="../../../org/jikesrvm/classloader/ClassFileReader.html#readClass(org.jikesrvm.classloader.TypeReference,%20java.io.DataInputStream)"><code>ClassFileReader.readClass(org.jikesrvm.classloader.TypeReference, java.io.DataInputStream)</code></a>). The loaded
+ class' constant pool has 3 bits of type information (such as
+ (see <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html#CP_INT"><code>ClassLoaderConstants.CP_INT</code></a>)), the rest of the int holds data as follows:
+
+ <ul>
+ <li>utf: value is a UTF atom identifier</li>
+ <li>int, long, float, double, string: value is an offset in the
+     JTOC</li>
+ <li>member: value is a member reference identifier</li>
+ <li>class: value is a type reference identifier. NB this means
+     that class literal bytecodes must first convert the identifier
+     in to a JTOC offset.</li>
+ </ul></div>
+</li>
+</ul>
+<a name="modifiers">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>modifiers</h4>
+<pre>private final&nbsp;short <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.76">modifiers</a></pre>
+<div class="block"><a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader"><code>ClassLoaderConstants</code></a></div>
+</li>
+</ul>
+<a name="superClass">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>superClass</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.78">superClass</a></pre>
+<div class="block">Super class of this class</div>
+</li>
+</ul>
+<a name="subClasses">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>subClasses</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.83">subClasses</a></pre>
+<div class="block">Non-final list of sub-classes. Classes added as sub-classes are
+ loaded.</div>
+</li>
+</ul>
+<a name="declaredInterfaces">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaredInterfaces</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.85">declaredInterfaces</a></pre>
+<div class="block">Interfaces supported by this class</div>
+</li>
+</ul>
+<a name="declaredFields">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaredFields</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.87">declaredFields</a></pre>
+<div class="block">Fields of this class</div>
+</li>
+</ul>
+<a name="declaredMethods">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaredMethods</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.89">declaredMethods</a></pre>
+<div class="block">Methods of this class</div>
+</li>
+</ul>
+<a name="declaredClasses">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaredClasses</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.91">declaredClasses</a></pre>
+<div class="block">Declared inner classes, may be null</div>
+</li>
+</ul>
+<a name="declaringClass">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaringClass</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.93">declaringClass</a></pre>
+<div class="block">The outer class, or null if this is not a inner/nested class</div>
+</li>
+</ul>
+<a name="enclosingClass">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enclosingClass</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.95">enclosingClass</a></pre>
+<div class="block">The enclosing class if this is a local class</div>
+</li>
+</ul>
+<a name="enclosingMethod">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enclosingMethod</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.97">enclosingMethod</a></pre>
+<div class="block">The enclosing method if this is a local class</div>
+</li>
+</ul>
+<a name="sourceName">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sourceName</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.99">sourceName</a></pre>
+<div class="block">Name of file .class file was compiled from, may be null</div>
+</li>
+</ul>
+<a name="signature">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>signature</h4>
+<pre>private final&nbsp;<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.104">signature</a></pre>
+<div class="block">The signature is a string representing the generic type for this
+ class declaration, may be null</div>
+</li>
+</ul>
+<a name="classInitializerMethod">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classInitializerMethod</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.109">classInitializerMethod</a></pre>
+<div class="block">Class initializer method, null if no method or if class is
+ initialized (ie class initializer method has been run)</div>
+</li>
+</ul>
+<a name="state">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>state</h4>
+<pre>private&nbsp;byte <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.115">state</a></pre>
+<div class="block">current class-loading stage (loaded, resolved, instantiated,
+ initializing or initialized)</div>
+</li>
+</ul>
+<a name="staticFields">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>staticFields</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.124">staticFields</a></pre>
+<div class="block">fields shared by all instances of class</div>
+</li>
+</ul>
+<a name="instanceFields">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>instanceFields</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.127">instanceFields</a></pre>
+<div class="block">fields distinct for each instance of class</div>
+</li>
+</ul>
+<a name="instanceSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>instanceSize</h4>
+<pre>private&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.130">instanceSize</a></pre>
+<div class="block">Total size of per-instance data, in bytes</div>
+</li>
+</ul>
+<a name="alignment">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignment</h4>
+<pre>private&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.133">alignment</a></pre>
+<div class="block">The desired alignment for instances of this type.</div>
+</li>
+</ul>
+<a name="fieldLayoutContext">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fieldLayoutContext</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.139">fieldLayoutContext</a></pre>
+<div class="block">A field layout helper - used to keep context regarding field layouts.
+ Managed by the field layout objects in the ObjectModel.</div>
+</li>
+</ul>
+<a name="staticMethods">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>staticMethods</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.144">staticMethods</a></pre>
+<div class="block">static methods of class</div>
+</li>
+</ul>
+<a name="constructorMethods">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>constructorMethods</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.147">constructorMethods</a></pre>
+<div class="block">constructor methods of class</div>
+</li>
+</ul>
+<a name="virtualMethods">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>virtualMethods</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.150">virtualMethods</a></pre>
+<div class="block">virtual methods of class</div>
+</li>
+</ul>
+<a name="hasFinalizer">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasFinalizer</h4>
+<pre>private&nbsp;boolean <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.155">hasFinalizer</a></pre>
+<div class="block">Do objects of this class have a finalizer method?</div>
+</li>
+</ul>
+<a name="typeInformationBlock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>typeInformationBlock</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.158">typeInformationBlock</a></pre>
+<div class="block">type and virtual method dispatch table for class</div>
+</li>
+</ul>
+<a name="inBootImage">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>inBootImage</h4>
+<pre>private&nbsp;boolean <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.167">inBootImage</a></pre>
+<div class="block">Is this class type in the bootimage? Types in the boot image can
+ be initialized prior to execution (therefore removing runtime
+ resolution).</div>
+</li>
+</ul>
+<a name="thinLockOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>thinLockOffset</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.174">thinLockOffset</a></pre>
+<div class="block">At what offset is the thin lock word to be found in instances of
+ objects of this type?  A value of -1 indicates that the instances of
+ this type do not have inline thin locks.</div>
+</li>
+</ul>
+<a name="acyclic">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>acyclic</h4>
+<pre>private&nbsp;boolean <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.177">acyclic</a></pre>
+<div class="block">Reference Count GC: is this type acyclic?</div>
+</li>
+</ul>
+<a name="annotations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>annotations</h4>
+<pre>private&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.180">annotations</a></pre>
+<div class="block">Cached set of inherited and declared annotations.</div>
+</li>
+</ul>
+<a name="objectCache">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>objectCache</h4>
+<pre>private&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.183">objectCache</a></pre>
+<div class="block">Set of objects that are cached here to ensure they are not collected by GC</div>
+</li>
+</ul>
+<a name="imt">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>imt</h4>
+<pre>private&nbsp;<a href="../../../org/jikesrvm/objectmodel/IMT.html" title="class in org.jikesrvm.objectmodel">IMT</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.187">imt</a></pre>
+<div class="block">The imt for this class</div>
+</li>
+</ul>
+<a name="desiredAssertionStatus">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>desiredAssertionStatus</h4>
+<pre>private final&nbsp;boolean <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.193">desiredAssertionStatus</a></pre>
+<div class="block">Are assertions enabled on this class?</div>
+</li>
+</ul>
+<a name="classLoadListener">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>classLoadListener</h4>
+<pre>public static final&nbsp;<a href="../../../org/jikesrvm/classloader/ClassLoadingListener.html" title="interface in org.jikesrvm.classloader">ClassLoadingListener</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1659">classLoadListener</a></pre>
+</li>
+</ul>
+<a name="interfaceCountLock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>interfaceCountLock</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a> <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1732">interfaceCountLock</a></pre>
+</li>
+</ul>
+<a name="interfaceCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>interfaceCount</h4>
+<pre>private static&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1733">interfaceCount</a></pre>
+</li>
+</ul>
+<a name="interfaces">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>interfaces</h4>
+<pre>private static&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1734">interfaces</a></pre>
+</li>
+</ul>
+<a name="interfaceId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>interfaceId</h4>
+<pre>private&nbsp;int <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1735">interfaceId</a></pre>
+</li>
+</ul>
+<a name="noIMTConflictMap">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>noIMTConflictMap</h4>
+<pre><a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[] <a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1736">noIMTConflictMap</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="RVMClass(org.jikesrvm.classloader.TypeReference, int[], short, org.jikesrvm.classloader.RVMClass, org.jikesrvm.classloader.RVMClass[], org.jikesrvm.classloader.RVMField[], org.jikesrvm.classloader.RVMMethod[], org.jikesrvm.classloader.TypeReference[], org.jikesrvm.classloader.TypeReference, org.jikesrvm.classloader.TypeReference, org.jikesrvm.classloader.MethodReference, org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.RVMMethod, org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.RVMAnnotation[])">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>RVMClass</h4>
+<pre><a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.975">RVMClass</a>(<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;typeRef,
+        int[]&nbsp;constantPool,
+        short&nbsp;modifiers,
+        <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;superClass,
+        <a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]&nbsp;declaredInterfaces,
+        <a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]&nbsp;declaredFields,
+        <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;declaredMethods,
+        <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;declaredClasses,
+        <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;declaringClass,
+        <a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;enclosingClass,
+        <a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a>&nbsp;enclosingMethod,
+        <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;sourceName,
+        <a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;classInitializerMethod,
+        <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;signature,
+        <a href="../../../org/jikesrvm/classloader/RVMAnnotation.html" title="class in org.jikesrvm.classloader">RVMAnnotation</a>[]&nbsp;annotations)</pre>
+<div class="block">Construct a class from its constituent loaded parts</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>typeRef</code> - the type reference that was resolved to this class</dd><dd><code>constantPool</code> - array of ints encoding constant value</dd><dd><code>modifiers</code> - <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader"><code>ClassLoaderConstants</code></a></dd><dd><code>superClass</code> - parent of this class</dd><dd><code>declaredInterfaces</code> - array of interfaces this class implements</dd><dd><code>declaredFields</code> - fields of the class</dd><dd><code>declaredMethods</code> - methods of the class</dd><dd><code>declaredClasses</code> - declared inner classes</dd><dd><code>declaringClass</code> - outer class if an inner class</dd><dd><code>sourceName</code> - source file name</dd><dd><code>classInitializerMethod</code> - handle to class initializer method</dd><dd><code>signature</code> - the generic type name for this class</dd><dd><code>annotations</code> - array of runtime visible annotations</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.202">toString</a>()</pre>
+<div class="block">Name - something like "java.lang.String".</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getPackageName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPackageName</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.210">getPackageName</a>()</pre>
+<div class="block">Package name - something like "java.lang".</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>package name or the empty string if the class is a member of the unnamed package</dd></dl>
+</li>
+</ul>
+<a name="getStackWords()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getStackWords</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.222">getStackWords</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#getStackWords()">RVMType</a></code></strong></div>
+<div class="block">Space required when this type is stored on the stack
+ (or as a field), in words.
+ Ie. 0, 1, or 2 words:
+ <ul>
+ <li> reference types (classes and arrays) require 1 word
+ <li> void types require 0 words
+ <li> long and double types require 2 words
+ <li> all other primitive types require 1 word
+ </ul></div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getStackWords()">getStackWords</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>1</dd></dl>
+</li>
+</ul>
+<a name="getMemoryBytes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMemoryBytes</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.229">getMemoryBytes</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#getMemoryBytes()">RVMType</a></code></strong></div>
+<div class="block">Number of bytes in memory required to represent the type</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getMemoryBytes()">getMemoryBytes</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isInterface()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInterface</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.237">isInterface</a>()</pre>
+<div class="block">An "interface" description rather than a "class" description?</div>
+</li>
+</ul>
+<a name="isPublic()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPublic</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.245">isPublic</a>()</pre>
+<div class="block">Usable from other packages?</div>
+</li>
+</ul>
+<a name="isFinal()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isFinal</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.253">isFinal</a>()</pre>
+<div class="block">Non-subclassable?</div>
+</li>
+</ul>
+<a name="isAbstract()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAbstract</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.261">isAbstract</a>()</pre>
+<div class="block">Non-instantiable?</div>
+</li>
+</ul>
+<a name="isSpecial()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSpecial</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.269">isSpecial</a>()</pre>
+<div class="block">Use new-style "invokespecial" semantics for method calls in this class?</div>
+</li>
+</ul>
+<a name="isSynthetic()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSynthetic</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.276">isSynthetic</a>()</pre>
+<div class="block">Not present in source code file?</div>
+</li>
+</ul>
+<a name="isEnum()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isEnum</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.283">isEnum</a>()</pre>
+<div class="block">Is enumeration?</div>
+</li>
+</ul>
+<a name="isAnnotation()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAnnotation</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.290">isAnnotation</a>()</pre>
+<div class="block">Annotation type</div>
+</li>
+</ul>
+<a name="isAnonymousClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAnonymousClass</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.297">isAnonymousClass</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>true if this is a representation of an anonymous class</dd></dl>
+</li>
+</ul>
+<a name="isLocalClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLocalClass</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.309">isLocalClass</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if this is a representation of a local class, ie
+ local to a block of code.</dd></dl>
+</li>
+</ul>
+<a name="isMemberClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isMemberClass</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.316">isMemberClass</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if this is a representation of a member class</dd></dl>
+</li>
+</ul>
+<a name="isThrowable()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isThrowable</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.322">isThrowable</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd><code>true</code> if this an object of this class could be assigned to Throwable</dd></dl>
+</li>
+</ul>
+<a name="getModifiers()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getModifiers</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.330">getModifiers</a>()</pre>
+<div class="block">Get the modifiers associated with this class <a href="../../../org/jikesrvm/classloader/ClassLoaderConstants.html" title="interface in org.jikesrvm.classloader"><code>ClassLoaderConstants</code></a>.</div>
+</li>
+</ul>
+<a name="getSignature()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSignature</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.337">getSignature</a>()</pre>
+<div class="block">Generic type information for class</div>
+</li>
+</ul>
+<a name="getSourceName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSourceName</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.346">getSourceName</a>()</pre>
+<div class="block">Name of source file from which class was compiled -
+ something like "c:\java\src\java\lang\Object.java".
+ (<code>null</code> --> "unknown - wasn't recorded by compiler").</div>
+</li>
+</ul>
+<a name="getSuperClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSuperClass</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.355">getSuperClass</a>()</pre>
+<div class="block">Superclass of this class (<code>null</code> means "no superclass",
+ i.e. class is "java/lang/Object").</div>
+</li>
+</ul>
+<a name="getSubClasses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSubClasses</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.363">getSubClasses</a>()</pre>
+<div class="block">Currently loaded classes that "extend" this class.</div>
+</li>
+</ul>
+<a name="getDeclaredInterfaces()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeclaredInterfaces</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.372">getDeclaredInterfaces</a>()</pre>
+<div class="block">Interfaces implemented directly by this class
+ (ie. not including superclasses).</div>
+</li>
+</ul>
+<a name="getDeclaredFields()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeclaredFields</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.380">getDeclaredFields</a>()</pre>
+<div class="block">Fields defined directly by this class (i.e. not including superclasses).</div>
+</li>
+</ul>
+<a name="declaresFinalInstanceField()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>declaresFinalInstanceField</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.387">declaresFinalInstanceField</a>()</pre>
+<div class="block">Does this class directly define a final instance field (has implications for JMM).</div>
+</li>
+</ul>
+<a name="getDeclaredMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeclaredMethods</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.398">getDeclaredMethods</a>()</pre>
+<div class="block">Methods defined directly by this class (i.e. not including superclasses).</div>
+</li>
+</ul>
+<a name="getDeclaredClasses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeclaredClasses</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.405">getDeclaredClasses</a>()</pre>
+<div class="block">Declared inner and static member classes.</div>
+</li>
+</ul>
+<a name="getDeclaringClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDeclaringClass</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.413">getDeclaringClass</a>()</pre>
+<div class="block">Class that declared this class, or null if this is not an
+ inner/nested class.</div>
+</li>
+</ul>
+<a name="getEnclosingClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEnclosingClass</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.421">getEnclosingClass</a>()</pre>
+<div class="block">Class that immediately encloses this class, or null if this is not an
+ inner/nested class.</div>
+</li>
+</ul>
+<a name="setResolvedMembers()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setResolvedMembers</h4>
+<pre>void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.428">setResolvedMembers</a>()</pre>
+<div class="block">Set the resolvedMember in all declared members.</div>
+</li>
+</ul>
+<a name="getClassInitializerMethod()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getClassInitializerMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.452">getClassInitializerMethod</a>()</pre>
+<div class="block">Static initializer method for this class (<code>null</code> -> no static initializer
+  or initializer already been run).</div>
+</li>
+</ul>
+<a name="getAnnotationsInternal()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAnnotationsInternal</h4>
+<pre><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/annotation/Annotation.html?is-external=true" title="class or interface in java.lang.annotation">Annotation</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.457">getAnnotationsInternal</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html#getAnnotationsInternal()">getAnnotationsInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/AnnotatedElement.html" title="class in org.jikesrvm.classloader">AnnotatedElement</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="findDeclaredField(org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findDeclaredField</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.500">findDeclaredField</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldName,
+                         <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldDescriptor)</pre>
+<div class="block">Find description of a field of this class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>fieldName</code> - field name - something like "foo"</dd><dd><code>fieldDescriptor</code> - field descriptor - something like "I"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>description (<code>null</code> --> not found)</dd></dl>
+</li>
+</ul>
+<a name="findDeclaredField(org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findDeclaredField</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.514">findDeclaredField</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;fieldName)</pre>
+<div class="block">Find description of a field of this class. NB. ignores descriptor.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>fieldName</code> - field name - something like "foo"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>description (<code>null</code> --> not found)</dd></dl>
+</li>
+</ul>
+<a name="findDeclaredMethod(org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findDeclaredMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.529">findDeclaredMethod</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodName,
+                           <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodDescriptor)</pre>
+<div class="block">Find description of a method of this class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>methodName</code> - method name - something like "foo"</dd><dd><code>methodDescriptor</code> - method descriptor - something like "()I"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>description (null --> not found)</dd></dl>
+</li>
+</ul>
+<a name="findDeclaredMethod(org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findDeclaredMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.543">findDeclaredMethod</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;methodName)</pre>
+<div class="block">Find the first description of a method of this class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>methodName</code> - method name - something like "foo"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>description (null --> not found)</dd></dl>
+</li>
+</ul>
+<a name="findMainMethod()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findMainMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.557">findMainMethod</a>()</pre>
+<div class="block">Find description of "public static void main(String[])"
+ method of this class.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>description (<code>null</code> --> not found)</dd></dl>
+</li>
+</ul>
+<a name="addCachedObject(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addCachedObject</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.572">addCachedObject</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</pre>
+<div class="block">Add the given cached object.</div>
+</li>
+</ul>
+<a name="setIMT(org.jikesrvm.objectmodel.IMT)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setIMT</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.589">setIMT</a>(<a href="../../../org/jikesrvm/objectmodel/IMT.html" title="class in org.jikesrvm.objectmodel">IMT</a>&nbsp;imt)</pre>
+<div class="block">Set the imt object.</div>
+</li>
+</ul>
+<a name="getLiteralOffset(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLiteralOffset</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.605">getLiteralOffset</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get offset of a literal constant, in bytes.
+ Offset is with respect to virtual machine's "table of contents" (HTOC).</div>
+</li>
+</ul>
+<a name="getLiteralDescription(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLiteralDescription</h4>
+<pre>public&nbsp;byte&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.612">getLiteralDescription</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get description of a literal constant.</div>
+</li>
+</ul>
+<a name="getTypeRef(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTypeRef</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/TypeReference.html" title="class in org.jikesrvm.classloader">TypeReference</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.623">getTypeRef</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get contents of a "typeRef" constant pool entry.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>type that was referenced</dd></dl>
+</li>
+</ul>
+<a name="getMethodRef(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMethodRef</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/MethodReference.html" title="class in org.jikesrvm.classloader">MethodReference</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.631">getMethodRef</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get contents of a "methodRef" constant pool entry.</div>
+</li>
+</ul>
+<a name="getFieldRef(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFieldRef</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/FieldReference.html" title="class in org.jikesrvm.classloader">FieldReference</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.639">getFieldRef</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get contents of a "fieldRef" constant pool entry.</div>
+</li>
+</ul>
+<a name="getUtf(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUtf</h4>
+<pre><a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.649">getUtf</a>(int&nbsp;constantPoolIndex)</pre>
+<div class="block">Get contents of a "utf" constant pool entry.</div>
+</li>
+</ul>
+<a name="hasDynamicBridgeAnnotation()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasDynamicBridgeAnnotation</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.661">hasDynamicBridgeAnnotation</a>()</pre>
+<div class="block">Should the methods of this class be compiled with special
+ register save/restore logic?</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/vmmagic/pragma/DynamicBridge.html" title="annotation in org.vmmagic.pragma"><code>DynamicBridge</code></a></dd></dl>
+</li>
+</ul>
+<a name="hasBridgeFromNativeAnnotation()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasBridgeFromNativeAnnotation</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.671">hasBridgeFromNativeAnnotation</a>()</pre>
+<div class="block">The methods of this class are only called from native code,
+ they are compiled with
+ a special prolog to interface with the native stack frame.</div>
+</li>
+</ul>
+<a name="hasSaveVolatileAnnotation()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasSaveVolatileAnnotation</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.679">hasSaveVolatileAnnotation</a>()</pre>
+<div class="block">Should the methods of this class save incoming registers ?</div>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../org/vmmagic/pragma/SaveVolatile.html" title="annotation in org.vmmagic.pragma"><code>SaveVolatile</code></a></dd></dl>
+</li>
+</ul>
+<a name="hasFinalizer()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>hasFinalizer</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.693">hasFinalizer</a>()</pre>
+<div class="block">Does this class override java.lang.Object.finalize()?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#hasFinalizer()">hasFinalizer</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getStaticFields()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getStaticFields</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.704">getStaticFields</a>()</pre>
+<div class="block">Static fields of this class.
+ Values in these fields are shared by all class instances.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getStaticFields()">getStaticFields</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getInstanceFields()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInstanceFields</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.715">getInstanceFields</a>()</pre>
+<div class="block">Non-static fields of this class (composed with supertypes, if any).
+ Values in these fields are distinct for each class instance.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getInstanceFields()">getInstanceFields</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getStaticMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getStaticMethods</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.725">getStaticMethods</a>()</pre>
+<div class="block">Statically dispatched methods of this class.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getStaticMethods()">getStaticMethods</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getConstructorMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getConstructorMethods</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.734">getConstructorMethods</a>()</pre>
+<div class="block">Constructors (<init>) methods of this class.</div>
+</li>
+</ul>
+<a name="getVirtualMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVirtualMethods</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.745">getVirtualMethods</a>()</pre>
+<div class="block">Virtually dispatched methods of this class
+ (composed with supertypes, if any).</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getVirtualMethods()">getVirtualMethods</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getAllImplementedInterfaces()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAllImplementedInterfaces</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>[]&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.756">getAllImplementedInterfaces</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>All of the interfaces implemented by this class either
+ directly or by inheritance from superclass and superinterfaces
+ recursively.</dd></dl>
+</li>
+</ul>
+<a name="getInstanceSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInstanceSize</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.787">getInstanceSize</a>()</pre>
+<div class="block">Total size, in bytes, of an instance of this class
+ (including object header).</div>
+</li>
+</ul>
+<a name="getInstanceSizeInternal()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInstanceSizeInternal</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.797">getInstanceSizeInternal</a>()</pre>
+<div class="block">Total size, in bytes, of an instance of this class (including
+ object header). Doesn't perform any verification.</div>
+</li>
+</ul>
+<a name="setInstanceSizeInternal(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInstanceSizeInternal</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.807">setInstanceSizeInternal</a>(int&nbsp;size)</pre>
+<div class="block">Set the size of the instance. Only meant to be called from
+ ObjectModel et al. must be called when lock on class object
+ is already held (ie from resolve).</div>
+</li>
+</ul>
+<a name="getNumberOfNonFinalReferences()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfNonFinalReferences</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.814">getNumberOfNonFinalReferences</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>number of fields that are non-final</dd></dl>
+</li>
+</ul>
+<a name="getFieldLayoutContext()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFieldLayoutContext</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.827">getFieldLayoutContext</a>()</pre>
+<div class="block">Set object representing available holes in the field layout</div>
+</li>
+</ul>
+<a name="setFieldLayoutContext(org.jikesrvm.objectmodel.FieldLayoutContext)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFieldLayoutContext</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.834">setFieldLayoutContext</a>(<a href="../../../org/jikesrvm/objectmodel/FieldLayoutContext.html" title="class in org.jikesrvm.objectmodel">FieldLayoutContext</a>&nbsp;newLayout)</pre>
+<div class="block">Set object representing available holes in the field layout</div>
+</li>
+</ul>
+<a name="getAlignment()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAlignment</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.842">getAlignment</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>alignment for instances of this class type</dd></dl>
+</li>
+</ul>
+<a name="setAlignment(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAlignment</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.853">setAlignment</a>(int&nbsp;align)</pre>
+<div class="block">Set the alignment for instances of this class type</div>
+</li>
+</ul>
+<a name="findStaticMethod(org.jikesrvm.classloader.Atom, org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findStaticMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.867">findStaticMethod</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberName,
+                         <a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberDescriptor)</pre>
+<div class="block">Find specified static method description.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>memberName</code> - method name - something like "foo"</dd><dd><code>memberDescriptor</code> - method descriptor - something like "I" or "()I"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>method description (null --> not found)</dd></dl>
+</li>
+</ul>
+<a name="findInitializerMethod(org.jikesrvm.classloader.Atom)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>findInitializerMethod</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.883">findInitializerMethod</a>(<a href="../../../org/jikesrvm/classloader/Atom.html" title="class in org.jikesrvm.classloader">Atom</a>&nbsp;memberDescriptor)</pre>
+<div class="block">Find specified initializer method description.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>memberDescriptor</code> - init method descriptor - something like "(I)V"</dd>
+<dt><span class="strong">Returns:</span></dt><dd>method description (null --> not found)</dd></dl>
+</li>
+</ul>
+<a name="getTypeInformationBlock()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTypeInformationBlock</h4>
+<pre>public&nbsp;<a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.898">getTypeInformationBlock</a>()</pre>
+<div class="block">Runtime type information for this class type.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getTypeInformationBlock()">getTypeInformationBlock</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getClassLoaderFromStackFrame(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getClassLoaderFromStackFrame</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ClassLoader.html?is-external=true" title="class or interface in java.lang">ClassLoader</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.918">getClassLoaderFromStackFrame</a>(int&nbsp;skip)</pre>
+<div class="block">Support for user-written class loaders:
+ It's required to find the classloader of the class
+ whose method requires another class to be loaded;
+ the initiating loader of the required class is the
+ defining loader of the requiring class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>skip</code> - specifies the number of frames back from the
+             caller to the method whose class's loader is required</dd></dl>
+</li>
+</ul>
+<a name="getClassFromStackFrame(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getClassFromStackFrame</h4>
+<pre>public static&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.935">getClassFromStackFrame</a>(int&nbsp;skip)</pre>
+<div class="block">Used for accessibility checks in reflection code.
+ Find the class of the method that corresponds to the requested frame.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>skip</code> - Specifies the number of frames back from the
+               caller to the method whose class is required</dd></dl>
+</li>
+</ul>
+<a name="getDesiredAssertionStatus()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDesiredAssertionStatus</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.950">getDesiredAssertionStatus</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#getDesiredAssertionStatus()">RVMType</a></code></strong></div>
+<div class="block">Should assertions be enabled on this type?</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getDesiredAssertionStatus()">getDesiredAssertionStatus</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>whether or not assertions should be enabled</dd></dl>
+</li>
+</ul>
+<a name="resolve()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolve</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1032">resolve</a>()</pre>
+<div class="block">Cause resolution to take place.
+ This will cause slots to be allocated in the JTOC. Space in the JTOC is allocated for static fields,
+ static methods and constructors. Moreover, this method  generates size
+ and offset information for members of this class.<p>
+
+ Side effects: superclasses and superinterfaces are resolved.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#resolve()">resolve</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="publishResolved(org.jikesrvm.objectmodel.TIB, short[], int[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>publishResolved</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1338">publishResolved</a>(<a href="../../../org/jikesrvm/objectmodel/TIB.html" title="class in org.jikesrvm.objectmodel">TIB</a>&nbsp;allocatedTib,
+                   short[]&nbsp;superclassIds,
+                   int[]&nbsp;doesImplement)</pre>
+<div class="block">Atomically initialize the important parts of the TIB and let the world know this type is
+ resolved.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>allocatedTib</code> - The TIB that has been allocated for this type</dd><dd><code>superclassIds</code> - The calculated superclass ids array</dd><dd><code>doesImplement</code> - The calculated does implement array</dd></dl>
+</li>
+</ul>
+<a name="allBootImageTypesResolved()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allBootImageTypesResolved</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1348">allBootImageTypesResolved</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#allBootImageTypesResolved()">RVMType</a></code></strong></div>
+<div class="block">This method is only called by the bootimage writer.
+ It is called after <a href="../../../org/jikesrvm/classloader/RVMType.html#resolve()"><code>RVMType.resolve()</code></a> has been called on all
+ bootimage types but before <a href="../../../org/jikesrvm/classloader/RVMType.html#instantiate()"><code>RVMType.instantiate()</code></a> has been called
+ on any bootimage type.
+ This provides a hook to compute various summaries that cannot be computed before types
+ are resolved.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#allBootImageTypesResolved()">allBootImageTypesResolved</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isAcyclicReference()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAcyclicReference</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1364">isAcyclicReference</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isAcyclicReference()">RVMType</a></code></strong></div>
+<div class="block">Reference Count GC: Is a reference of this type contained in
+ another object inherently acyclic (without cycles)?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isAcyclicReference()">isAcyclicReference</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the class is acyclic and
+ final (otherwise the reference could be to a subsequently loaded
+ cyclic subclass)</dd></dl>
+</li>
+</ul>
+<a name="setFinalStaticJTOCEntry(org.jikesrvm.classloader.RVMField, org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFinalStaticJTOCEntry</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1371">setFinalStaticJTOCEntry</a>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field,
+                           <a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;fieldOffset)</pre>
+<div class="block">Insert the value of a final static field into the JTOC</div>
+</li>
+</ul>
+<a name="instantiate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>instantiate</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1402">instantiate</a>()</pre>
+<div class="block">Cause instantiation to take place.
+ This will cause the class's methods to be compiled and slots in the
+ JTOC to be filled-in. The TIB will also be built.<p>
+
+ Side effects: superclasses are instantiated.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#instantiate()">instantiate</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="makeFieldTraced(org.jikesrvm.classloader.RVMField)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>makeFieldTraced</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1479">makeFieldTraced</a>(<a href="../../../org/jikesrvm/classloader/RVMField.html" title="class in org.jikesrvm.classloader">RVMField</a>&nbsp;field)</pre>
+<div class="block">Make the passed field a traced field by garbage collection. Also affects all
+ subclasses.</div>
+</li>
+</ul>
+<a name="initialize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initialize</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1506">initialize</a>()
+                throws <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ExceptionInInitializerError.html?is-external=true" title="class or interface in java.lang">ExceptionInInitializerError</a></pre>
+<div class="block">Cause initialization to take place.
+ This will cause the class's <code>&lt;clinit&gt;</code> method to be executed.<p>
+
+ Side effects: superclasses are initialized, static fields receive
+ initial values.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#initialize()">initialize</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Throws:</span></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/ExceptionInInitializerError.html?is-external=true" title="class or interface in java.lang">ExceptionInInitializerError</a></code></dd></dl>
+</li>
+</ul>
+<a name="markFinalFieldsAsLiterals()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>markFinalFieldsAsLiterals</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1583">markFinalFieldsAsLiterals</a>()</pre>
+<div class="block">Mark final fields as being available as literals</div>
+</li>
+</ul>
+<a name="setAllFinalStaticJTOCEntries()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllFinalStaticJTOCEntries</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1601">setAllFinalStaticJTOCEntries</a>()</pre>
+<div class="block">Copy the values of all static final fields into
+ the JTOC.  Note: This method should only be run AFTER
+ the class initializer has run.</div>
+</li>
+</ul>
+<a name="resolveNativeMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolveNativeMethods</h4>
+<pre>void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1610">resolveNativeMethods</a>()</pre>
+</li>
+</ul>
+<a name="resolveNativeMethodsInternal(org.jikesrvm.classloader.RVMMethod[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resolveNativeMethodsInternal</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1616">resolveNativeMethodsInternal</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>[]&nbsp;methods)</pre>
+</li>
+</ul>
+<a name="unregisterNativeMethods()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unregisterNativeMethods</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1627">unregisterNativeMethods</a>()</pre>
+<div class="block">Unregisters all native methods</div>
+</li>
+</ul>
+<a name="addSubClass(org.jikesrvm.classloader.RVMClass)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addSubClass</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1641">addSubClass</a>(<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;sub)</pre>
+<div class="block">Add to list of classes that derive from this one.</div>
+</li>
+</ul>
+<a name="updateMethod(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateMethod</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1667">updateMethod</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+<div class="block">Given a method declared by this class, update all
+ dispatching tables to refer to the current compiled
+ code for the method.</div>
+</li>
+</ul>
+<a name="updateJTOCEntry(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateJTOCEntry</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1686">updateJTOCEntry</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+<div class="block">Update the JTOC slot for the given static method to point to
+ the current compiled code for the given method.
+ NOTE: This method is intentionally not synchronized to avoid deadlocks.
+       We instead rely on the fact that we are always updating the JTOC with
+       the most recent instructions for the method.</div>
+</li>
+</ul>
+<a name="updateTIBEntry(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateTIBEntry</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1700">updateTIBEntry</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+<div class="block">Update this class's TIB entry for the given method to point to
+ the current compiled code for the given method.<p>
+ NOTE: This method is intentionally not synchronized to avoid deadlocks.
+       We instead rely on the fact that we are always updating the JTOC with
+       the most recent instructions for the method.</div>
+</li>
+</ul>
+<a name="updateVirtualMethod(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateVirtualMethod</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1716">updateVirtualMethod</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;m)</pre>
+<div class="block">Update the TIB entry's for all classes that inherit the given method
+ to point to the current compiled code for the given method.<p>
+ NOTE: This method is intentionally not synchronized to avoid deadlocks.
+       We instead rely on the fact that we are always updating the JTOC with
+       the most recent instructions for the method.</div>
+</li>
+</ul>
+<a name="getInterfaceId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInterfaceId</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1743">getInterfaceId</a>()</pre>
+<div class="block">Classes used as Interfaces get assigned an interface id.
+   If the class is not an interface, attempting to use this
+   id will cause an IncompatibleClassChangeError to be thrown</div>
+</li>
+</ul>
+<a name="getDoesImplementIndex()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDoesImplementIndex</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1750">getDoesImplementIndex</a>()</pre>
+</li>
+</ul>
+<a name="getDoesImplementBitMask()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDoesImplementBitMask</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1754">getDoesImplementBitMask</a>()</pre>
+</li>
+</ul>
+<a name="getInterface(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInterface</h4>
+<pre>public static&nbsp;<a href="../../../org/jikesrvm/classloader/RVMClass.html" title="class in org.jikesrvm.classloader">RVMClass</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1758">getInterface</a>(int&nbsp;id)</pre>
+</li>
+</ul>
+<a name="assignInterfaceId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assignInterfaceId</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1762">assignInterfaceId</a>()</pre>
+</li>
+</ul>
+<a name="getDimensionality()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDimensionality</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1792">getDimensionality</a>()</pre>
+<div class="block">Number of [ in descriptor for arrays; -1 for primitives; 0 for
+ classes</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getDimensionality()">getDimensionality</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>0</dd></dl>
+</li>
+</ul>
+<a name="isResolved()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isResolved</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1798">isResolved</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isResolved()">RVMType</a></code></strong></div>
+<div class="block">Resolution status.<p>
+ If the class/array has been "resolved", then size and offset information is
+ available by which the compiler can generate code to access this
+ class/array's
+ fields/methods via direct loads/stores/calls (rather than generating
+ code to access fields/methods symbolically, via dynamic linking stubs).<p>
+ Primitives are always treated as "resolved".</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isResolved()">isResolved</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isInstantiated()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInstantiated</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1804">isInstantiated</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInstantiated()">RVMType</a></code></strong></div>
+<div class="block">Instantiation status.<p>
+ If the class/array has been "instantiated",
+ then all its methods have been compiled
+ and its type information block has been placed in the JTOC.<p>
+ Primitives are always treated as "instantiated".</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInstantiated()">isInstantiated</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isInitialized()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInitialized</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1810">isInitialized</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInitialized()">RVMType</a></code></strong></div>
+<div class="block">Initialization status.<p>
+ If the class has been "initialized",
+ then its <code>&lt;clinit&gt;</code> method has been executed.
+ Arrays have no <code>&lt;clinit&gt;</code> methods so they become
+ "initialized" immediately upon "instantiation".<p>
+ Primitives are always treated as "initialized".</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInitialized()">isInitialized</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="markAsBootImageClass()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>markAsBootImageClass</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1815">markAsBootImageClass</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#markAsBootImageClass()">RVMType</a></code></strong></div>
+<div class="block">Only intended to be used by the BootImageWriter</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#markAsBootImageClass()">markAsBootImageClass</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isInBootImage()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInBootImage</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1821">isInBootImage</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInBootImage()">RVMType</a></code></strong></div>
+<div class="block">Is this class part of the virtual machine's boot image?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isInBootImage()">isInBootImage</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getThinLockOffset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getThinLockOffset</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1831">getThinLockOffset</a>()</pre>
+<div class="block">Get the offset in instances of this type assigned to the thin lock word.
+ Is only known after class has been resolved.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getThinLockOffset()">getThinLockOffset</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="setThinLockOffset(org.vmmagic.unboxed.Offset)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setThinLockOffset</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1841">setThinLockOffset</a>(<a href="../../../org/vmmagic/unboxed/Offset.html" title="class in org.vmmagic.unboxed">Offset</a>&nbsp;offset)</pre>
+<div class="block">Set the thin lock offset for instances of this type. Can be called at most once.
+ and is invoked from ObjectModel.allocateThinLock (in object models which
+ do not allocate thin locks for all scalar object types).</div>
+</li>
+</ul>
+<a name="getTypeDepth()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTypeDepth</h4>
+<pre>public&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1853">getTypeDepth</a>()</pre>
+<div class="block">Get number of superclasses to Object.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#getTypeDepth()">getTypeDepth</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="isClassType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isClassType</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1863">isClassType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isClassType()">RVMType</a></code></strong></div>
+<div class="block">Is this is an instance of RVMClass?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isClassType()">isClassType</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code></dd></dl>
+</li>
+</ul>
+<a name="isArrayType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isArrayType</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1873">isArrayType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isArrayType()">RVMType</a></code></strong></div>
+<div class="block">Is this an instance of RVMArray?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isArrayType()">isArrayType</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>false</code></dd></dl>
+</li>
+</ul>
+<a name="isPrimitiveType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isPrimitiveType</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1883">isPrimitiveType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isPrimitiveType()">RVMType</a></code></strong></div>
+<div class="block">Is this a primitive type?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isPrimitiveType()">isPrimitiveType</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>false</code></dd></dl>
+</li>
+</ul>
+<a name="isReferenceType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isReferenceType</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1893">isReferenceType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isReferenceType()">RVMType</a></code></strong></div>
+<div class="block">Is this a reference type?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isReferenceType()">isReferenceType</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code></dd></dl>
+</li>
+</ul>
+<a name="isUnboxedType()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isUnboxedType</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1903">isUnboxedType</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html#isUnboxedType()">RVMType</a></code></strong></div>
+<div class="block">Is this an unboxed type?</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../org/jikesrvm/classloader/RVMType.html#isUnboxedType()">isUnboxedType</a></code>&nbsp;in class&nbsp;<code><a href="../../../org/jikesrvm/classloader/RVMType.html" title="class in org.jikesrvm.classloader">RVMType</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>false</code></dd></dl>
+</li>
+</ul>
+<a name="createReflectionClass(org.jikesrvm.classloader.RVMMethod)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>createReflectionClass</h4>
+<pre>static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</a>&lt;?&gt;&nbsp;<a href="../../../src-html/org/jikesrvm/classloader/RVMClass.html#line.1912">createReflectionClass</a>(<a href="../../../org/jikesrvm/classloader/RVMMethod.html" title="class in org.jikesrvm.classloader">RVMMethod</a>&nbsp;methodToCall)</pre>
+<div class="block">Create a synthetic class that extends ReflectionBase and invokes the given method</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>methodToCall</code> - the method we wish to call reflectively</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the synthetic class</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/RVMClass.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/classloader/RVMArray.html" title="class in org.jikesrvm.classloader"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/classloader/RVMClassLoader.html" title="class in org.jikesrvm.classloader"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/classloader/RVMClass.html" target="_top">Frames</a></li>
+<li><a href="RVMClass.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

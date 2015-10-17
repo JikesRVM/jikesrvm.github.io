@@ -1,0 +1,950 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>SpaceEffGraph (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="SpaceEffGraph (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SpaceEffGraph.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.NodeEnumeration.html" title="class in org.jikesrvm.compilers.opt.util"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/util/SpaceEffGraph.html" target="_top">Frames</a></li>
+<li><a href="SpaceEffGraph.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.compilers.opt.util</div>
+<h2 title="Class SpaceEffGraph" class="title">Class SpaceEffGraph</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.compilers.opt.util.SpaceEffGraph</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../../org/jikesrvm/compilers/opt/regalloc/CoalesceGraph.html" title="class in org.jikesrvm.compilers.opt.regalloc">CoalesceGraph</a>, <a href="../../../../../org/jikesrvm/compilers/opt/ir/ControlFlowGraph.html" title="class in org.jikesrvm.compilers.opt.ir">ControlFlowGraph</a>, <a href="../../../../../org/jikesrvm/compilers/opt/depgraph/DepGraph.html" title="class in org.jikesrvm.compilers.opt.depgraph">DepGraph</a>, <a href="../../../../../org/jikesrvm/compilers/opt/controlflow/LSTGraph.html" title="class in org.jikesrvm.compilers.opt.controlflow">LSTGraph</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public class <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.26">SpaceEffGraph</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a>, <a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></pre>
+<div class="block">SpaceEffGraph package implements a generic directed graph that can
+ be a multigraph. It uses Lists to model nodes and edges information.<p>
+
+ SpaceEffGraph is a generic graph.  Extend to implement specific
+ graph types.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.NodeEnumeration.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraph.NodeEnumeration</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#_firstNode">_firstNode</a></strong></code>
+<div class="block">First node</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#_lastNode">_lastNode</a></strong></code>
+<div class="block">Last node</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeListHeader.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeListHeader</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#_rootNodes">_rootNodes</a></strong></code>
+<div class="block">Nodes with no predecessors</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeListHeader.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeListHeader</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#_topSortNodes">_topSortNodes</a></strong></code>
+<div class="block">Topological sort order</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#backwardTopSorted">backwardTopSorted</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#forwardTopSorted">forwardTopSorted</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#numberOfNodes">numberOfNodes</a></strong></code>
+<div class="block">Number of nodes</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#SpaceEffGraph()">SpaceEffGraph</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addGraphEdge(org.jikesrvm.compilers.opt.util.GraphNode,%20org.jikesrvm.compilers.opt.util.GraphNode)">addGraphEdge</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;from,
+                        <a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;to)</code>
+<div class="block">Add an edge to the graph.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addGraphEdge(org.jikesrvm.compilers.opt.util.SpaceEffGraphEdge)">addGraphEdge</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphEdge.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphEdge</a>&nbsp;e)</code>
+<div class="block">Add an edge to the graph.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addGraphNode(org.jikesrvm.compilers.opt.util.GraphNode)">addGraphNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;inode)</code>
+<div class="block">Add a new graph node to the graph.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addRootNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">addRootNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;root)</code>
+<div class="block">Add a root node to the graph.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addTopSortNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">addTopSortNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#allocateNodeNumber()">allocateNodeNumber</a></strong>()</code>
+<div class="block">Get the next node number</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SortedGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#buildRevTopSort()">buildRevTopSort</a></strong>()</code>
+<div class="block">Build a reverse topological sort of this graph</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#buildTopSort()">buildTopSort</a></strong>()</code>
+<div class="block">Build a topological sort of this graph</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#clearDFS()">clearDFS</a></strong>()</code>
+<div class="block">Clear the DFS flags.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#compactNodeNumbering()">compactNodeNumbering</a></strong>()</code>
+<div class="block">Renumber the nodes densely from 0...numberOfNodes-1.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#dfs(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">dfs</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#enumerateNodes()">enumerateNodes</a></strong>()</code>
+<div class="block">Enumerate the nodes in no particular order</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#firstNode()">firstNode</a></strong>()</code>
+<div class="block">Get the list of nodes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#initTopSort()">initTopSort</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#isTopSorted(boolean)">isTopSorted</a></strong>(boolean&nbsp;forward)</code>
+<div class="block">Return true if no resetTopSorted(forward) has been executed
+ since the last setTopSorted(forward) has been executed</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#lastNode()">lastNode</a></strong>()</code>
+<div class="block">Get the end of the list of nodes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#numberOfNodes()">numberOfNodes</a></strong>()</code>
+<div class="block">Find out how many nodes are in the graph</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#print(java.util.Enumeration)">print</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&gt;&nbsp;e)</code>
+<div class="block">Print, to System.out, the basic blocks in the order given in
+ the supplied enumeration.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#printDepthFirst()">printDepthFirst</a></strong>()</code>
+<div class="block">Print, to System.out, the basic blocks in depth first order.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#removeGraphNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">removeGraphNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</code>
+<div class="block">Remove a node from the graph.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#resetTopSorted()">resetTopSorted</a></strong>()</code>
+<div class="block">Should have a side effect such that isTopSorted(forward)
+ returns the correct value.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeList.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeList</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#rootNodes()">rootNodes</a></strong>()</code>
+<div class="block">Get the list of root nodes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#setFirstNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">setFirstNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;firstNode)</code>
+<div class="block">Reset the list of nodes of the graph.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#setLastNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">setLastNode</a></strong>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;lastNode)</code>
+<div class="block">Reset the list of nodes of the graph.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#setNumberOfNodes(int)">setNumberOfNodes</a></strong>(int&nbsp;n)</code>
+<div class="block">Set number of nodes</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#setTopSorted(boolean)">setTopSorted</a></strong>(boolean&nbsp;forward)</code>
+<div class="block">Should have a side effect such that isTopSorted(forward)
+ returns the correct value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SortedGraphNode</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#startNode(boolean)">startNode</a></strong>(boolean&nbsp;forward)</code>
+<div class="block">Return the start node if forward = true for forward topsort,
+ and return the end node if forward = false for backward topsort.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#topSort()">topSort</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeList.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeList</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#topSortOrder()">topSortOrder</a></strong>()</code>
+<div class="block">Get the topological order of nodes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#toString()">toString</a></strong>()</code>
+<div class="block">Return a string representation of this graph.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="_firstNode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_firstNode</h4>
+<pre>protected&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.30">_firstNode</a></pre>
+<div class="block">First node</div>
+</li>
+</ul>
+<a name="_lastNode">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_lastNode</h4>
+<pre>protected&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.34">_lastNode</a></pre>
+<div class="block">Last node</div>
+</li>
+</ul>
+<a name="_rootNodes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_rootNodes</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeListHeader.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeListHeader</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.38">_rootNodes</a></pre>
+<div class="block">Nodes with no predecessors</div>
+</li>
+</ul>
+<a name="_topSortNodes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>_topSortNodes</h4>
+<pre>private&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeListHeader.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeListHeader</a> <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.42">_topSortNodes</a></pre>
+<div class="block">Topological sort order</div>
+</li>
+</ul>
+<a name="numberOfNodes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfNodes</h4>
+<pre>protected&nbsp;int <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.47">numberOfNodes</a></pre>
+<div class="block">Number of nodes</div>
+</li>
+</ul>
+<a name="forwardTopSorted">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>forwardTopSorted</h4>
+<pre>public&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.121">forwardTopSorted</a></pre>
+</li>
+</ul>
+<a name="backwardTopSorted">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>backwardTopSorted</h4>
+<pre>public&nbsp;boolean <a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.121">backwardTopSorted</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="SpaceEffGraph()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SpaceEffGraph</h4>
+<pre>public&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.26">SpaceEffGraph</a>()</pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="numberOfNodes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numberOfNodes</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.50">numberOfNodes</a>()</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#numberOfNodes()">Graph</a></code></strong></div>
+<div class="block">Find out how many nodes are in the graph</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#numberOfNodes()">numberOfNodes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a></code></dd>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#numberOfNodes()">numberOfNodes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the number of nodes in the graph</dd></dl>
+</li>
+</ul>
+<a name="setNumberOfNodes(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNumberOfNodes</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.56">setNumberOfNodes</a>(int&nbsp;n)</pre>
+<div class="block">Set number of nodes</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>n</code> - new number of nodes</dd></dl>
+</li>
+</ul>
+<a name="allocateNodeNumber()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allocateNodeNumber</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.62">allocateNodeNumber</a>()</pre>
+<div class="block">Get the next node number</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the node number</dd></dl>
+</li>
+</ul>
+<a name="compactNodeNumbering()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>compactNodeNumbering</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.68">compactNodeNumbering</a>()</pre>
+<div class="block">Renumber the nodes densely from 0...numberOfNodes-1.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#compactNodeNumbering()">compactNodeNumbering</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateNodes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateNodes</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&gt;&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.80">enumerateNodes</a>()</pre>
+<div class="block">Enumerate the nodes in no particular order</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#enumerateNodes()">enumerateNodes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>an enumeration of all nodes in the graph</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util"><code>GraphNode</code></a></dd></dl>
+</li>
+</ul>
+<a name="startNode(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>startNode</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SortedGraphNode</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.89">startNode</a>(boolean&nbsp;forward)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#startNode(boolean)">TopSortInterface</a></code></strong></div>
+<div class="block">Return the start node if forward = true for forward topsort,
+ and return the end node if forward = false for backward topsort.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#startNode(boolean)">startNode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>forward</code> - whether we are viewing the graph in the forward direction</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the start node if forward = true for forward topsort,
+         the end node if forward = false for backward topsort.</dd></dl>
+</li>
+</ul>
+<a name="isTopSorted(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isTopSorted</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.98">isTopSorted</a>(boolean&nbsp;forward)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#isTopSorted(boolean)">TopSortInterface</a></code></strong></div>
+<div class="block">Return true if no resetTopSorted(forward) has been executed
+ since the last setTopSorted(forward) has been executed</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#isTopSorted(boolean)">isTopSorted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>forward</code> - whether we are viewing the graph in the forward direction</dd>
+<dt><span class="strong">Returns:</span></dt><dd>true if no resetTopSorted(forward) has been executed
+ since the last setTopSorted(forward) has been executed</dd></dl>
+</li>
+</ul>
+<a name="setTopSorted(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTopSorted</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.107">setTopSorted</a>(boolean&nbsp;forward)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#setTopSorted(boolean)">TopSortInterface</a></code></strong></div>
+<div class="block">Should have a side effect such that isTopSorted(forward)
+ returns the correct value.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#setTopSorted(boolean)">setTopSorted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>forward</code> - whether we are viewing the graph in the forward direction</dd></dl>
+</li>
+</ul>
+<a name="resetTopSorted()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>resetTopSorted</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.116">resetTopSorted</a>()</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#resetTopSorted()">TopSortInterface</a></code></strong></div>
+<div class="block">Should have a side effect such that isTopSorted(forward)
+ returns the correct value.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html#resetTopSorted()">resetTopSorted</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/TopSortInterface.html" title="interface in org.jikesrvm.compilers.opt.util">TopSortInterface</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="addGraphNode(org.jikesrvm.compilers.opt.util.GraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addGraphNode</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.131">addGraphNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;inode)</pre>
+<div class="block"><strong>Description copied from interface:&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#addGraphNode(org.jikesrvm.compilers.opt.util.GraphNode)">Graph</a></code></strong></div>
+<div class="block">Add a new graph node to the graph.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#addGraphNode(org.jikesrvm.compilers.opt.util.GraphNode)">addGraphNode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>inode</code> - node to add</dd></dl>
+</li>
+</ul>
+<a name="removeGraphNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeGraphNode</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.148">removeGraphNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</pre>
+<div class="block">Remove a node from the graph.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>node</code> - node to remove</dd></dl>
+</li>
+</ul>
+<a name="addGraphEdge(org.jikesrvm.compilers.opt.util.GraphNode, org.jikesrvm.compilers.opt.util.GraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addGraphEdge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.169">addGraphEdge</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;from,
+                <a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&nbsp;to)</pre>
+<div class="block">Add an edge to the graph.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html#addGraphEdge(org.jikesrvm.compilers.opt.util.GraphNode,%20org.jikesrvm.compilers.opt.util.GraphNode)">addGraphEdge</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../org/jikesrvm/compilers/opt/util/Graph.html" title="interface in org.jikesrvm.compilers.opt.util">Graph</a></code></dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>from</code> - start node</dd><dd><code>to</code> - end node</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addGraphEdge(org.jikesrvm.compilers.opt.util.SpaceEffGraphEdge)"><code>addGraphEdge(SpaceEffGraphEdge)</code></a></dd></dl>
+</li>
+</ul>
+<a name="addGraphEdge(org.jikesrvm.compilers.opt.util.SpaceEffGraphEdge)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addGraphEdge</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.178">addGraphEdge</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphEdge.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphEdge</a>&nbsp;e)</pre>
+<div class="block">Add an edge to the graph.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - edge to insert</dd><dt><span class="strong">See Also:</span></dt><dd><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#addGraphEdge(org.jikesrvm.compilers.opt.util.GraphNode,%20org.jikesrvm.compilers.opt.util.GraphNode)"><code>addGraphEdge(GraphNode,GraphNode)</code></a></dd></dl>
+</li>
+</ul>
+<a name="setFirstNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFirstNode</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.188">setFirstNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;firstNode)</pre>
+<div class="block">Reset the list of nodes of the graph.
+ WARNING!!!  Use with caution if you know what you are doing.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>firstNode</code> - new value of the node list</dd></dl>
+</li>
+</ul>
+<a name="setLastNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLastNode</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.197">setLastNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;lastNode)</pre>
+<div class="block">Reset the list of nodes of the graph.
+ WARNING!!!  Use with caution if you know what you are doing.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>lastNode</code> - new value of the node list</dd></dl>
+</li>
+</ul>
+<a name="firstNode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>firstNode</h4>
+<pre>public final&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.204">firstNode</a>()</pre>
+<div class="block">Get the list of nodes.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>list of nodes</dd></dl>
+</li>
+</ul>
+<a name="lastNode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lastNode</h4>
+<pre>public final&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.212">lastNode</a>()</pre>
+<div class="block">Get the end of the list of nodes.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>end of the list of nodes</dd></dl>
+</li>
+</ul>
+<a name="addRootNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addRootNode</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.220">addRootNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;root)</pre>
+<div class="block">Add a root node to the graph.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>root</code> - a node to add</dd></dl>
+</li>
+</ul>
+<a name="rootNodes()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rootNodes</h4>
+<pre>public final&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeList.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeList</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.232">rootNodes</a>()</pre>
+<div class="block">Get the list of root nodes.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>list of root nodes</dd></dl>
+</li>
+</ul>
+<a name="topSortOrder()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>topSortOrder</h4>
+<pre>public final&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNodeList.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNodeList</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.240">topSortOrder</a>()</pre>
+<div class="block">Get the topological order of nodes.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>topological order of nodes</dd></dl>
+</li>
+</ul>
+<a name="clearDFS()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearDFS</h4>
+<pre>public final&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.247">clearDFS</a>()</pre>
+<div class="block">Clear the DFS flags.</div>
+</li>
+</ul>
+<a name="buildTopSort()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildTopSort</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.256">buildTopSort</a>()</pre>
+<div class="block">Build a topological sort of this graph</div>
+</li>
+</ul>
+<a name="buildRevTopSort()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildRevTopSort</h4>
+<pre>public&nbsp;<a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SortedGraphNode</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.268">buildRevTopSort</a>()</pre>
+<div class="block">Build a reverse topological sort of this graph</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a node if we build a new order, null if we reused the old</dd></dl>
+</li>
+</ul>
+<a name="initTopSort()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initTopSort</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.282">initTopSort</a>()</pre>
+</li>
+</ul>
+<a name="addTopSortNode(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addTopSortNode</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.286">addTopSortNode</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</pre>
+</li>
+</ul>
+<a name="topSort()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>topSort</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.290">topSort</a>()</pre>
+</li>
+</ul>
+<a name="dfs(org.jikesrvm.compilers.opt.util.SpaceEffGraphNode)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dfs</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.302">dfs</a>(<a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraphNode.html" title="class in org.jikesrvm.compilers.opt.util">SpaceEffGraphNode</a>&nbsp;node)</pre>
+</li>
+</ul>
+<a name="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.328">toString</a>()</pre>
+<div class="block">Return a string representation of this graph.</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>a string representation of the graph</dd></dl>
+</li>
+</ul>
+<a name="printDepthFirst()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>printDepthFirst</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.385">printDepthFirst</a>()</pre>
+<div class="block">Print, to System.out, the basic blocks in depth first order.</div>
+</li>
+</ul>
+<a name="print(java.util.Enumeration)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>print</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../../../src-html/org/jikesrvm/compilers/opt/util/SpaceEffGraph.html#line.394">print</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../org/jikesrvm/compilers/opt/util/GraphNode.html" title="interface in org.jikesrvm.compilers.opt.util">GraphNode</a>&gt;&nbsp;e)</pre>
+<div class="block">Print, to System.out, the basic blocks in the order given in
+ the supplied enumeration.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>e</code> - enumeration order to print blocks</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SpaceEffGraph.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../org/jikesrvm/compilers/opt/util/SortedGraphNode.html" title="class in org.jikesrvm.compilers.opt.util"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../org/jikesrvm/compilers/opt/util/SpaceEffGraph.NodeEnumeration.html" title="class in org.jikesrvm.compilers.opt.util"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../index.html?org/jikesrvm/compilers/opt/util/SpaceEffGraph.html" target="_top">Frames</a></li>
+<li><a href="SpaceEffGraph.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

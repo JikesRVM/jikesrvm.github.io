@@ -1,0 +1,577 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>DynamicLibrary (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="DynamicLibrary (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DynamicLibrary.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/BootRecord.html" title="class in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/DynamicLibrary.html" target="_top">Frames</a></li>
+<li><a href="DynamicLibrary.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.runtime</div>
+<h2 title="Class DynamicLibrary" class="title">Class DynamicLibrary</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.runtime.DynamicLibrary</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<br>
+<pre>public final class <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.27">DynamicLibrary</a>
+extends <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+<div class="block">Interface to the dynamic libraries of our underlying operating system.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/jikesrvm/util/ImmutableEntryHashMapRVM.html" title="class in org.jikesrvm.util">ImmutableEntryHashMapRVM</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jikesrvm/runtime/DynamicLibrary.html" title="class in org.jikesrvm.runtime">DynamicLibrary</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#dynamicLibraries">dynamicLibraries</a></strong></code>
+<div class="block">Currently loaded dynamic libraries.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#jniOnLoad">jniOnLoad</a></strong></code>
+<div class="block">Address of JNI_OnLoad method</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#jniOnUnload">jniOnUnload</a></strong></code>
+<div class="block">Address of JNI_OnUnLoad</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#libHandler">libHandler</a></strong></code>
+<div class="block">Value returned from dlopen</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#libName">libName</a></strong></code>
+<div class="block">The name of the library</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private </code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#DynamicLibrary(java.lang.String)">DynamicLibrary</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;libraryName)</code>
+<div class="block">Load a dynamic library and maintain it in this object.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#boot()">boot</a></strong>()</code>
+<div class="block">Add symbol for the boot image runner to find symbols within it.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#callOnLoad()">callOnLoad</a></strong>()</code>
+<div class="block">Called after we've successfully loaded the shared library</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#checkJNIVersion(int)">checkJNIVersion</a></strong>(int&nbsp;version)</code>
+<div class="block">Check JNI version is &le; 1.4 and if not throw an
+ UnsatisfiedLinkError</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#clean()">clean</a></strong>()</code>
+<div class="block">Tell the operating system to remove the dynamic library from the
+ system space.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#getJNI_OnLoad()">getJNI_OnLoad</a></strong>()</code>
+<div class="block">Get the unique JNI_OnLoad symbol associated with this library</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#getJNI_OnUnload()">getJNI_OnUnload</a></strong>()</code>
+<div class="block">Get the unique JNI_OnUnload symbol associated with this library</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#getLibName()">getLibName</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#getSymbol(java.lang.String)">getSymbol</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;symbolName)</code>
+<div class="block">look up this dynamic library for a symbol</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#load(java.lang.String)">load</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;libname)</code>
+<div class="block">Load a dynamic library</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#resolveSymbol(java.lang.String)">resolveSymbol</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;symbol)</code>
+<div class="block">Resolve a symbol to an address in a currently loaded dynamic library.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#runJNI_OnLoad(org.vmmagic.unboxed.Address)">runJNI_OnLoad</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;JNI_OnLoadAddress)</code>
+<div class="block">Method call to run the onload method.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#toString()">toString</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/jikesrvm/runtime/DynamicLibrary.html#unload()">unload</a></strong>()</code>
+<div class="block">unload a dynamic library</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="dynamicLibraries">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dynamicLibraries</h4>
+<pre>private static final&nbsp;<a href="../../../org/jikesrvm/util/ImmutableEntryHashMapRVM.html" title="class in org.jikesrvm.util">ImmutableEntryHashMapRVM</a>&lt;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="../../../org/jikesrvm/runtime/DynamicLibrary.html" title="class in org.jikesrvm.runtime">DynamicLibrary</a>&gt; <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.32">dynamicLibraries</a></pre>
+<div class="block">Currently loaded dynamic libraries.</div>
+</li>
+</ul>
+<a name="libName">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>libName</h4>
+<pre>private final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a> <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.45">libName</a></pre>
+<div class="block">The name of the library</div>
+</li>
+</ul>
+<a name="libHandler">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>libHandler</h4>
+<pre>private final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.50">libHandler</a></pre>
+<div class="block">Value returned from dlopen</div>
+</li>
+</ul>
+<a name="jniOnLoad">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>jniOnLoad</h4>
+<pre>private final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.55">jniOnLoad</a></pre>
+<div class="block">Address of JNI_OnLoad method</div>
+</li>
+</ul>
+<a name="jniOnUnload">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>jniOnUnload</h4>
+<pre>private final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a> <a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.60">jniOnUnload</a></pre>
+<div class="block">Address of JNI_OnUnLoad</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="DynamicLibrary(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DynamicLibrary</h4>
+<pre>private&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.66">DynamicLibrary</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;libraryName)</pre>
+<div class="block">Load a dynamic library and maintain it in this object.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>libraryName</code> - library name</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="boot()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>boot</h4>
+<pre>public static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.38">boot</a>()</pre>
+<div class="block">Add symbol for the boot image runner to find symbols within it.</div>
+</li>
+</ul>
+<a name="getJNI_OnLoad()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getJNI_OnLoad</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.111">getJNI_OnLoad</a>()</pre>
+<div class="block">Get the unique JNI_OnLoad symbol associated with this library</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>JNI_OnLoad address or zero if not present</dd></dl>
+</li>
+</ul>
+<a name="getJNI_OnUnload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getJNI_OnUnload</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.127">getJNI_OnUnload</a>()</pre>
+<div class="block">Get the unique JNI_OnUnload symbol associated with this library</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>JNI_OnUnload address or zero if not present</dd></dl>
+</li>
+</ul>
+<a name="callOnLoad()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>callOnLoad</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.142">callOnLoad</a>()</pre>
+<div class="block">Called after we've successfully loaded the shared library</div>
+</li>
+</ul>
+<a name="runJNI_OnLoad(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>runJNI_OnLoad</h4>
+<pre>private static&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.159">runJNI_OnLoad</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;JNI_OnLoadAddress)</pre>
+<div class="block">Method call to run the onload method. Performed as a native
+ method as the JNI_OnLoad method may contain JNI calls and we need
+ the RVMThread of the JNIEnv to be correctly populated (this
+ wouldn't happen with a SysCall)</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>JNI_OnLoadAddress</code> - address of JNI_OnLoad function</dd>
+<dt><span class="strong">Returns:</span></dt><dd>the JNI version returned by the JNI_OnLoad function</dd></dl>
+</li>
+</ul>
+<a name="checkJNIVersion(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>checkJNIVersion</h4>
+<pre>private static&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.166">checkJNIVersion</a>(int&nbsp;version)</pre>
+<div class="block">Check JNI version is &le; 1.4 and if not throw an
+ UnsatisfiedLinkError</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>version</code> - to check</dd></dl>
+</li>
+</ul>
+<a name="getLibName()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLibName</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.177">getLibName</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the true name of the dynamic library</dd></dl>
+</li>
+</ul>
+<a name="getSymbol(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSymbol</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.186">getSymbol</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;symbolName)</pre>
+<div class="block">look up this dynamic library for a symbol</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>symbolName</code> - symbol name</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The <code>Address</code> of the symbol system handler
+ (actually an address to an AixLinkage triplet).
+           (-1: not found or couldn't be created)</dd></dl>
+</li>
+</ul>
+<a name="unload()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unload</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.197">unload</a>()</pre>
+<div class="block">unload a dynamic library</div>
+</li>
+</ul>
+<a name="clean()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clean</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.205">clean</a>()</pre>
+<div class="block">Tell the operating system to remove the dynamic library from the
+ system space.</div>
+</li>
+</ul>
+<a name="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.210">toString</a>()</pre>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="load(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>load</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.219">load</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;libname)</pre>
+<div class="block">Load a dynamic library</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>libname</code> - the name of the library to load.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>0 on failure, 1 on success</dd></dl>
+</li>
+</ul>
+<a name="resolveSymbol(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>resolveSymbol</h4>
+<pre>public static&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/jikesrvm/runtime/DynamicLibrary.html#line.235">resolveSymbol</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;symbol)</pre>
+<div class="block">Resolve a symbol to an address in a currently loaded dynamic library.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the address of the symbol of Address.zero() if it cannot be resolved</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/DynamicLibrary.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/jikesrvm/runtime/BootRecord.html" title="class in org.jikesrvm.runtime"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/jikesrvm/runtime/DynamicLink.html" title="class in org.jikesrvm.runtime"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/jikesrvm/runtime/DynamicLibrary.html" target="_top">Frames</a></li>
+<li><a href="DynamicLibrary.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.mmtk.vm.gcspy;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.utility.Log;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.utility.gcspy.Color;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.utility.gcspy.GCspy;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.utility.gcspy.StreamConstants;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.mmtk.utility.gcspy.drivers.AbstractDriver;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.mmtk.vm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.*;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Set up a GCspy Stream with data type BYTE_TYPE<a name="line.24"></a>
+<span class="sourceLineNo">025</span> */<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>@Uninterruptible public abstract class ByteStream extends Stream {<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>  /****************************************************************************<a name="line.29"></a>
+<span class="sourceLineNo">030</span>   *<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   * Instance variables<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  private byte[] data;          // The stream data<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  private byte defaultValue;    // The default value for the data items<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>  /****************************************************************************<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   *<a name="line.38"></a>
+<span class="sourceLineNo">039</span>   * Initialization<a name="line.39"></a>
+<span class="sourceLineNo">040</span>   */<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>  /**<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   * Construct a new GCspy stream of BYTE_TYPE<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * @param driver          The driver that owns this Stream<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   *                       Values less than this will be represented as "minValue-"<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * @param zeroValue      The zero value for this stream<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * @param defaultValue   The default value for this stream<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * @param presentation   How a stream value is to be presented.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * @param paintStyle     How the value is to be painted.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   * @param colour         The default colour for tiles of this stream<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  public ByteStream(<a name="line.59"></a>
+<span class="sourceLineNo">060</span>         AbstractDriver driver,<a name="line.60"></a>
+<span class="sourceLineNo">061</span>         String name,<a name="line.61"></a>
+<span class="sourceLineNo">062</span>         byte minValue,<a name="line.62"></a>
+<span class="sourceLineNo">063</span>         byte maxValue,<a name="line.63"></a>
+<span class="sourceLineNo">064</span>         byte zeroValue,<a name="line.64"></a>
+<span class="sourceLineNo">065</span>         byte defaultValue,<a name="line.65"></a>
+<span class="sourceLineNo">066</span>         String stringPre,<a name="line.66"></a>
+<span class="sourceLineNo">067</span>         String stringPost,<a name="line.67"></a>
+<span class="sourceLineNo">068</span>         int presentation,<a name="line.68"></a>
+<span class="sourceLineNo">069</span>         int paintStyle,<a name="line.69"></a>
+<span class="sourceLineNo">070</span>         int indexMaxStream,<a name="line.70"></a>
+<span class="sourceLineNo">071</span>         Color colour,<a name="line.71"></a>
+<span class="sourceLineNo">072</span>         boolean summary) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    super(driver, StreamConstants.BYTE_TYPE, name,<a name="line.74"></a>
+<span class="sourceLineNo">075</span>          minValue, maxValue, zeroValue, defaultValue,<a name="line.75"></a>
+<span class="sourceLineNo">076</span>          stringPre, stringPost, presentation, paintStyle,<a name="line.76"></a>
+<span class="sourceLineNo">077</span>          indexMaxStream, colour, summary);<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>    data = (byte[])GCspy.util.createDataArray(new byte[0], driver.getMaxTileNum());<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    this.defaultValue = defaultValue;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   * Reset all data in this stream to default values.<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  public void resetData() {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    for (int i = 0; i &lt; data.length; i++)<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      data[i] = defaultValue;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * Distribute a value across a sequence of tiles. This handles the case<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * when when an object spans two or more tiles and its value is to be<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * attributed to each tile proportionally.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   *<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * @param start the index of the starting tile<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param remainder the value left in the starting tile<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * @param blockSize the size of each tile<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * @param value the value to distribute<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  public void distribute(int start, byte remainder, int blockSize, byte value) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(remainder &lt;= blockSize);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    if (value &lt;= remainder) {  // fits in this tile<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      data[start] += value;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      //checkspace(start, value, "scanObject fits in first tile");<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    } else {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      data[start] += remainder;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      //checkspace(start, remainder, "scanObject remainder put in first tile");<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      value -= remainder;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      start++;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      while (value &gt;= blockSize) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        data[start] += blockSize;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        //checkspace(start, blockSize, "scanObject subsequent tile");<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        value -= blockSize;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        start++;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>      data[start] += value;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      //checkspace(start, value, "scanObject last tile");<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>  /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * Increment the value of a tile.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * @param index the index<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * @param value the increment<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  public void increment(int index, byte value) { data[index] += value; }<a name="line.128"></a>
+<span class="sourceLineNo">129</span><a name="line.129"></a>
+<span class="sourceLineNo">130</span>  @Override<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  public void send(int event, int numTiles) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    if (DEBUG) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      Log.write("sending "); Log.write(numTiles); Log.writeln(" int values");<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    serverSpace.stream(streamId, numTiles);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    for (int index = 0; index &lt; numTiles; index++)<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      serverSpace.streamByteValue(data[index]);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    serverSpace.streamEnd();<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    sendSummary();<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>}<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

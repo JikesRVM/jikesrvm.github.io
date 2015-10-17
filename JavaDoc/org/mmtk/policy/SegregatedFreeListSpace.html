@@ -1,0 +1,1589 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>SegregatedFreeListSpace (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="SegregatedFreeListSpace (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SegregatedFreeListSpace.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/mmtk/policy/RawPageSpace.html" title="class in org.mmtk.policy"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/mmtk/policy/SegregatedFreeListSpace.html" target="_top">Frames</a></li>
+<li><a href="SegregatedFreeListSpace.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.mmtk.policy</div>
+<h2 title="Class SegregatedFreeListSpace" class="title">Class SegregatedFreeListSpace</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">org.mmtk.policy.Space</a></li>
+<li>
+<ul class="inheritance">
+<li>org.mmtk.policy.SegregatedFreeListSpace</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../org/mmtk/policy/ExplicitFreeListSpace.html" title="class in org.mmtk.policy">ExplicitFreeListSpace</a>, <a href="../../../org/mmtk/policy/MarkSweepSpace.html" title="class in org.mmtk.policy">MarkSweepSpace</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public abstract class <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.40">SegregatedFreeListSpace</a>
+extends <a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a>
+implements <a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></pre>
+<div class="block">Each instance of this class corresponds to one mark-sweep *space*.
+ Each of the instance methods of this class may be called by any
+ thread (i.e. synchronization must be explicit in any instance or
+ class method).  This contrasts with the MarkSweepLocal, where
+ instances correspond to *plan* instances and therefore to kernel
+ threads.  Thus unlike this class, synchronization is not necessary
+ in the instance methods of MarkSweepLocal.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a></strong></code>
+<div class="block">A callback used to perform sweeping of a free list space.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested_classes_inherited_from_class_org.mmtk.policy.Space">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;org.mmtk.policy.<a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></h3>
+<code><a href="../../../org/mmtk/policy/Space.SpaceVisitor.html" title="interface in org.mmtk.policy">Space.SpaceVisitor</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#availableBlockHead">availableBlockHead</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#blockHeaderSize">blockHeaderSize</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private byte[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#blockSizeClass">blockSizeClass</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int[]</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#cellSize">cellSize</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#COMPACT_SIZE_CLASSES">COMPACT_SIZE_CLASSES</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#consumedBlockHead">consumedBlockHead</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#flushedBlockHead">flushedBlockHead</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LAZY_SWEEP">LAZY_SWEEP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LIVE_BYTES_PER_REGION">LIVE_BYTES_PER_REGION</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LIVE_WORD_STRIDE">LIVE_WORD_STRIDE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LIVE_WORD_STRIDE_MASK">LIVE_WORD_STRIDE_MASK</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/mmtk/vm/Lock.html" title="class in org.mmtk.vm">Lock</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#lock">lock</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LOG_BIT_COVERAGE">LOG_BIT_COVERAGE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LOG_LIVE_COVERAGE">LOG_LIVE_COVERAGE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#LOG_LIVE_WORD_STRIDE">LOG_LIVE_WORD_STRIDE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#MAX_CELL_SIZE">MAX_CELL_SIZE</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#MAX_CELLS">MAX_CELLS</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#MAX_FREELIST_OBJECT_BYTES">MAX_FREELIST_OBJECT_BYTES</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#META_DATA_OFFSET">META_DATA_OFFSET</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#META_DATA_PAGES_PER_REGION_NO_BITMAP">META_DATA_PAGES_PER_REGION_NO_BITMAP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#META_DATA_PAGES_PER_REGION_WITH_BITMAP">META_DATA_PAGES_PER_REGION_WITH_BITMAP</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#METADATA_OVERHEAD">METADATA_OVERHEAD</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#MIN_CELLS">MIN_CELLS</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#NET_META_DATA_BYTES_PER_REGION">NET_META_DATA_BYTES_PER_REGION</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#NEW_SIZECLASS_OVERHEAD">NEW_SIZECLASS_OVERHEAD</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#OBJECT_LIVE_SHIFT">OBJECT_LIVE_SHIFT</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#WORD_SHIFT_MASK">WORD_SHIFT_MASK</a></strong></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static float</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#WORST_CASE_FRAGMENTATION">WORST_CASE_FRAGMENTATION</a></strong></code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.mmtk.policy.Space">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;org.mmtk.policy.<a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></h3>
+<code><a href="../../../org/mmtk/policy/Space.html#AVAILABLE_BYTES">AVAILABLE_BYTES</a>, <a href="../../../org/mmtk/policy/Space.html#AVAILABLE_END">AVAILABLE_END</a>, <a href="../../../org/mmtk/policy/Space.html#AVAILABLE_PAGES">AVAILABLE_PAGES</a>, <a href="../../../org/mmtk/policy/Space.html#AVAILABLE_START">AVAILABLE_START</a>, <a href="../../../org/mmtk/policy/Space.html#BYTES_IN_CHUNK">BYTES_IN_CHUNK</a>, <a href="../../../org/mmtk/policy/Space.html#contiguous">contiguous</a>, <a href="../../../org/mmtk/policy/Space.html#descriptor">descriptor</a>, <a href="../../../org/mmtk/policy/Space.html#extent">extent</a>, <a href="../../../org/mmtk/policy/Space.html#headDiscontiguousRegion">headDiscontiguousRegion</a>, <a href="../../../org/mmtk/policy/Space.html#HEAP_END">HEAP_END</a>, <a href="../../../org/mmtk/policy/Space.html#HEAP_START">HEAP_START</a>, <a href="../../../org/mmtk/policy/Space.html#immortal">immortal</a>, <a href="../../../org/mmtk/policy/Space.html#LOG_ADDRESS_SPACE">LOG_ADDRESS_SPACE</a>, <a href="../../../org/mmtk/policy/Space.html#LOG_BYTES_IN_CHUNK">LOG_BYTES_IN_CHUNK</a>, <a href="../../../org/mmtk/policy/Space.html#MAX_CHUNKS">MAX_CHUNKS</a>, <a href="../../../org/mmtk/policy/Space.html#MAX_SPACES">MAX_SPACES</a>, <a href="../../../org/mmtk/policy/Space.html#movable">movable</a>, <a href="../../../org/mmtk/policy/Space.html#PAGES_IN_CHUNK">PAGES_IN_CHUNK</a>, <a href="../../../org/mmtk/policy/Space.html#pr">pr</a>, <a href="../../../org/mmtk/policy/Space.html#start">start</a>, <a href="../../../org/mmtk/policy/Space.html#zeroed">zeroed</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.mmtk.utility.Constants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.mmtk.utility.<a href="../../../org/mmtk/utility/Constants.html" title="interface in org.mmtk.utility">Constants</a></h3>
+<code><a href="../../../org/mmtk/utility/Constants.html#ALIGNMENT_VALUE">ALIGNMENT_VALUE</a>, <a href="../../../org/mmtk/utility/Constants.html#ARRAY_ELEMENT">ARRAY_ELEMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_ADDRESS">BITS_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_BYTE">BITS_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_CHAR">BITS_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_INT">BITS_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_PAGE">BITS_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_SHORT">BITS_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#BITS_IN_WORD">BITS_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_ADDRESS">BYTES_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_BYTE">BYTES_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_CHAR">BYTES_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_INT">BYTES_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_KBYTE">BYTES_IN_KBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_MBYTE">BYTES_IN_MBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_PAGE">BYTES_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_SHORT">BYTES_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#BYTES_IN_WORD">BYTES_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#CARD_MASK">CARD_MASK</a>, <a href="../../../org/mmtk/utility/Constants.html#CARD_META_PAGES_PER_REGION">CARD_META_PAGES_PER_REGION</a>, <a href="../../../org/mmtk/utility/Constants.html#INSTANCE_FIELD">INSTANCE_FIELD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_ADDRESS">LOG_BITS_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_BYTE">LOG_BITS_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_CHAR">LOG_BITS_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_INT">LOG_BITS_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_PAGE">LOG_BITS_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_SHORT">LOG_BITS_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BITS_IN_WORD">LOG_BITS_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS">LOG_BYTES_IN_ADDRESS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_ADDRESS_SPACE">LOG_BYTES_IN_ADDRESS_SPACE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_BYTE">LOG_BYTES_IN_BYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_CHAR">LOG_BYTES_IN_CHAR</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_INT">LOG_BYTES_IN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_KBYTE">LOG_BYTES_IN_KBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_MBYTE">LOG_BYTES_IN_MBYTE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_PAGE">LOG_BYTES_IN_PAGE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_SHORT">LOG_BYTES_IN_SHORT</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_BYTES_IN_WORD">LOG_BYTES_IN_WORD</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_BYTES">LOG_CARD_BYTES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_GRAIN">LOG_CARD_GRAIN</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_BYTES">LOG_CARD_META_BYTES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_PAGES">LOG_CARD_META_PAGES</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_META_SIZE">LOG_CARD_META_SIZE</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_CARD_UNITS">LOG_CARD_UNITS</a>, <a href="../../../org/mmtk/utility/Constants.html#LOG_MIN_ALIGNMENT">LOG_MIN_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_ALIGNMENT">MAX_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_BYTES_PADDING">MAX_BYTES_PADDING</a>, <a href="../../../org/mmtk/utility/Constants.html#MAX_INT">MAX_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#MIN_ALIGNMENT">MIN_ALIGNMENT</a>, <a href="../../../org/mmtk/utility/Constants.html#MIN_INT">MIN_INT</a>, <a href="../../../org/mmtk/utility/Constants.html#SUPPORT_CARD_SCANNING">SUPPORT_CARD_SCANNING</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colOne" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#SegregatedFreeListSpace(java.lang.String,%20int,%20org.mmtk.utility.heap.VMRequest)">SegregatedFreeListSpace</a></strong>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
+                                              int&nbsp;additionalMetadata,
+                                              <a href="../../../org/mmtk/utility/heap/VMRequest.html" title="class in org.mmtk.utility.heap">VMRequest</a>&nbsp;vmRequest)</code>
+<div class="block">The caller specifies the region of virtual memory to be used for
+ this space.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected abstract <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#advanceToBlock(org.vmmagic.unboxed.Address,%20int)">advanceToBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                            int&nbsp;sizeClass)</code>
+<div class="block">Prepare a block for allocation, returning a free list into the block.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#alignToLiveStride(org.vmmagic.unboxed.Address)">alignToLiveStride</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Align an address so that it corresponds to a live word boundary.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#clearAllBlockMarks()">clearAllBlockMarks</a></strong>()</code>
+<div class="block">Clear all block marks for this space.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#clearBlockMark(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Extent)">clearBlockMark</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                            <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize)</code>
+<div class="block">Clear block marks for a block</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#clearLiveBit(org.vmmagic.unboxed.Address)">clearLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Clear the live bit for a given address</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#clearLiveBit(org.vmmagic.unboxed.ObjectReference)">clearLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Clear the live bit for a given object</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#clearLiveBits(org.vmmagic.unboxed.Address,%20int)">clearLiveBits</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                          int&nbsp;sizeClass)</code>
+<div class="block">Clear all live bits for a block</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#consumeBlocks()">consumeBlocks</a></strong>()</code>
+<div class="block">Eagerly consume all remaining blocks.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#containsLiveCell(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Extent,%20boolean)">containsLiveCell</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                                <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize,
+                                boolean&nbsp;clearMarks)</code>
+<div class="block">Does this block contain any live cells.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#expandSizeClass(int,%20org.vmmagic.unboxed.AddressArray)">expandSizeClass</a></strong>(int&nbsp;sizeClass,
+                              <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a>&nbsp;freeList)</code>
+<div class="block">Expand a particular size class, allocating a new block, breaking
+ the block into cells and placing those cells on a free list for
+ that block.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#flushAvailableBlocks()">flushAvailableBlocks</a></strong>()</code>
+<div class="block">Flush all the allocation blocks to the consumed list.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getAllocationBlock(int,%20org.vmmagic.unboxed.AddressArray)">getAllocationBlock</a></strong>(int&nbsp;sizeClass,
+                                    <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a>&nbsp;freeList)</code>
+<div class="block">Acquire a new block from the global pool to allocate into.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getBaseCellSize(int)">getBaseCellSize</a></strong>(int&nbsp;sc)</code>
+<div class="block">Return the size of a basic cell (i.e. not including any cell
+ header) for a given size class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getFreeList(org.vmmagic.unboxed.Address)">getFreeList</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block)</code>
+<div class="block">In the case where free lists associated with each block are
+ preserved, get the free list for a given block.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getLiveWordAddress(org.vmmagic.unboxed.Address)">getLiveWordAddress</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Given an address, return the address of the live word for
+ that address.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static <a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getMask(org.vmmagic.unboxed.Address,%20boolean)">getMask</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address,
+              boolean&nbsp;set)</code>
+<div class="block">Given an address, produce a bit mask for the live table</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getSizeClass(int)">getSizeClass</a></strong>(int&nbsp;bytes)</code>
+<div class="block">Get the size class for a given number of bytes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#getSweepBlock(int)">getSweepBlock</a></strong>(int&nbsp;sizeClass)</code>
+<div class="block">Get a block for a parallel sweep.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#initSizeClasses()">initSizeClasses</a></strong>()</code>
+<div class="block">Initialize the size class data structures.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#isCellLive(org.vmmagic.unboxed.ObjectReference)">isCellLive</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">In the cell containing this object live?</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#liveBitSet(org.vmmagic.unboxed.Address)">liveBitSet</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Set the live bit for a given address</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#liveBitSet(org.vmmagic.unboxed.ObjectReference)">liveBitSet</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Test the live bit for a given object</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected abstract boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#maintainSideBitmap()">maintainSideBitmap</a></strong>()</code>
+<div class="block">Should SegregatedFreeListSpace manage a side bitmap to keep track of live objects?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#makeFreeList(org.vmmagic.unboxed.Address,%20int)">makeFreeList</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                        int&nbsp;sizeClass)</code>
+<div class="block">Use the live bits for a block to infer free cells and thus
+ construct a free list for the block.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#markBlock(org.vmmagic.unboxed.Address)">markBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block)</code>
+<div class="block">Set the live bit for the given block.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#markBlock(org.vmmagic.unboxed.ObjectReference)">markBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Set the live bit for the block containing the given object</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#notifyNewBlock(org.vmmagic.unboxed.Address,%20int)">notifyNewBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                            int&nbsp;sizeClass)</code>
+<div class="block">Notify that a new block has been installed.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#parallelSweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper)">parallelSweepCells</a></strong>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper)</code>
+<div class="block">Sweep a block, freeing it and making it available if any live cells were found.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected abstract boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#preserveFreeList()">preserveFreeList</a></strong>()</code>
+<div class="block">Do we need to preserve free lists as we move blocks around.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#reclaimCellForObject(org.vmmagic.unboxed.ObjectReference)">reclaimCellForObject</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Should the sweep reclaim the cell containing this object.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#returnBlock(org.vmmagic.unboxed.Address,%20int,%20org.vmmagic.unboxed.Address)">returnBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                      int&nbsp;sizeClass,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;freeCell)</code>
+<div class="block">Return a block to the global pool.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#returnConsumedBlock(org.vmmagic.unboxed.Address,%20int)">returnConsumedBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                                      int&nbsp;sizeClass)</code>
+<div class="block">Return a block to the global pool.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#setFreeList(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Address)">setFreeList</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                      <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;cell)</code>
+<div class="block">In the case where free lists associated with each block are
+ preserved, set the free list for a given block.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sizeClassCount()">sizeClassCount</a></strong>()</code>
+<div class="block">The number of distinct size classes.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sweepBlock(org.vmmagic.unboxed.Address,%20int,%20org.vmmagic.unboxed.Extent,%20org.vmmagic.unboxed.Address,%20boolean)">sweepBlock</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                    int&nbsp;sizeClass,
+                    <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;availableHead,
+                    boolean&nbsp;clearMarks)</code>
+<div class="block">Sweep a block, freeing it and adding to the list given by availableHead
+ if it contains no free objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper)">sweepCells</a></strong>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper)</code>
+<div class="block">Sweep all blocks for free objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper,%20org.vmmagic.unboxed.Address,%20int)">sweepCells</a></strong>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                    int&nbsp;sizeClass)</code>
+<div class="block">Does this block contain any live cells?</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a></code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper,%20org.vmmagic.unboxed.Address,%20int,%20org.vmmagic.unboxed.Address)">sweepCells</a></strong>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                    int&nbsp;sizeClass,
+                    <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;availableHead)</code>
+<div class="block">Sweep a block, freeing it and adding to the list given by availableHead
+ if it contains no free objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#sweepConsumedBlocks(boolean)">sweepConsumedBlocks</a></strong>(boolean&nbsp;clearMarks)</code>
+<div class="block">Sweep all blocks for free objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#testAndSetLiveBit(org.vmmagic.unboxed.ObjectReference)">testAndSetLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Atomically set the live bit for a given object</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#unsyncClearLiveBit(org.vmmagic.unboxed.Address)">unsyncClearLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</code>
+<div class="block">Clear the live bit for a given address</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#unsyncClearLiveBit(org.vmmagic.unboxed.ObjectReference)">unsyncClearLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Clear the live bit for a given object</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#unsyncSetLiveBit(org.vmmagic.unboxed.ObjectReference)">unsyncSetLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</code>
+<div class="block">Set the live bit for a given object, without using
+ synchronization primitives---must only be used when contention
+ for live bit is strictly not possible</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private static boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#updateLiveBit(org.vmmagic.unboxed.Address,%20boolean,%20boolean)">updateLiveBit</a></strong>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address,
+                          boolean&nbsp;set,
+                          boolean&nbsp;atomic)</code>
+<div class="block">Set the live bit for a given address</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><strong><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.html#zeroLiveBits()">zeroLiveBits</a></strong>()</code>&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.mmtk.policy.Space">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.mmtk.policy.<a href="../../../org/mmtk/policy/Space.html" title="class in org.mmtk.policy">Space</a></h3>
+<code><a href="../../../org/mmtk/policy/Space.html#acquire(int)">acquire</a>, <a href="../../../org/mmtk/policy/Space.html#availablePhysicalPages()">availablePhysicalPages</a>, <a href="../../../org/mmtk/policy/Space.html#chunkAlign(org.vmmagic.unboxed.Address,%20boolean)">chunkAlign</a>, <a href="../../../org/mmtk/policy/Space.html#chunkAlign(org.vmmagic.unboxed.Extent,%20boolean)">chunkAlign</a>, <a href="../../../org/mmtk/policy/Space.html#committedPages()">committedPages</a>, <a href="../../../org/mmtk/policy/Space.html#cumulativeCommittedPages()">cumulativeCommittedPages</a>, <a href="../../../org/mmtk/policy/Space.html#eagerlyMmapMMTkContiguousSpaces()">eagerlyMmapMMTkContiguousSpaces</a>, <a href="../../../org/mmtk/policy/Space.html#eagerlyMmapMMTkDiscontiguousSpaces()">eagerlyMmapMMTkDiscontiguousSpaces</a>, <a href="../../../org/mmtk/policy/Space.html#eagerlyMmapMMTkSpaces()">eagerlyMmapMMTkSpaces</a>, <a href="../../../org/mmtk/policy/Space.html#getDescriptor()">getDescriptor</a>, <a href="../../../org/mmtk/policy/Space.html#getDiscontigEnd()">getDiscontigEnd</a>, <a href="../../../org/mmtk/policy/Space.html#getDiscontigStart()">getDiscontigStart</a>, <a href="../../../org/mmtk/policy/Space.html#getExtent()">getExtent</a>, <a href="../../../org/mmtk/policy/Space.html#getFracAvailable(float)">getFracAvailable</a>, <a href="../../../org/mmtk/policy/Space.html#getHeadDiscontiguousRegion()">getHeadDiscontiguousRegion</a>, <a href="../../../org/mmtk/policy/Space.html#getIndex()">getIndex</a>, <a href="../../../org/mmtk/policy/Space.html#getName()">getName</a>, <a href="../../../org/mmtk/policy/Space.html#getSpaceForAddress(org.vmmagic.unboxed.Address)">getSpaceForAddress</a>, <a href="../../../org/mmtk/policy/Space.html#getSpaceForObject(org.vmmagic.unboxed.ObjectReference)">getSpaceForObject</a>, <a href="../../../org/mmtk/policy/Space.html#getStart()">getStart</a>, <a href="../../../org/mmtk/policy/Space.html#growDiscontiguousSpace(int)">growDiscontiguousSpace</a>, <a href="../../../org/mmtk/policy/Space.html#growSpace(org.vmmagic.unboxed.Address,%20org.vmmagic.unboxed.Extent,%20boolean)">growSpace</a>, <a href="../../../org/mmtk/policy/Space.html#isImmortal()">isImmortal</a>, <a href="../../../org/mmtk/policy/Space.html#isImmortal(org.vmmagic.unboxed.ObjectReference)">isImmortal</a>, <a href="../../../org/mmtk/policy/Space.html#isInSpace(int,%20org.vmmagic.unboxed.Address)">isInSpace</a>, <a href="../../../org/mmtk/policy/Space.html#isInSpace(int,%20org.vmmagic.unboxed.ObjectReference)">isInSpace</a>, <a href="../../../org/mmtk/policy/Space.html#isLive(org.vmmagic.unboxed.ObjectReference)">isLive</a>, <a href="../../../org/mmtk/policy/Space.html#isMappedAddress(org.vmmagic.unboxed.Address)">isMappedAddress</a>, <a href="../../../org/mmtk/policy/Space.html#isMappedObject(org.vmmagic.unboxed.ObjectReference)">isMappedObject</a>, <a href="../../../org/mmtk/policy/Space.html#isMovable()">isMovable</a>, <a href="../../../org/mmtk/policy/Space.html#isMovable(org.vmmagic.unboxed.ObjectReference)">isMovable</a>, <a href="../../../org/mmtk/policy/Space.html#isReachable(org.vmmagic.unboxed.ObjectReference)">isReachable</a>, <a href="../../../org/mmtk/policy/Space.html#printUsageMB()">printUsageMB</a>, <a href="../../../org/mmtk/policy/Space.html#printUsagePages()">printUsagePages</a>, <a href="../../../org/mmtk/policy/Space.html#printVMMap()">printVMMap</a>, <a href="../../../org/mmtk/policy/Space.html#release(org.vmmagic.unboxed.Address)">release</a>, <a href="../../../org/mmtk/policy/Space.html#releaseAllChunks()">releaseAllChunks</a>, <a href="../../../org/mmtk/policy/Space.html#releaseDiscontiguousChunks(org.vmmagic.unboxed.Address)">releaseDiscontiguousChunks</a>, <a href="../../../org/mmtk/policy/Space.html#requiredChunks(int)">requiredChunks</a>, <a href="../../../org/mmtk/policy/Space.html#reservedPages()">reservedPages</a>, <a href="../../../org/mmtk/policy/Space.html#setZeroingApproach(boolean,%20boolean)">setZeroingApproach</a>, <a href="../../../org/mmtk/policy/Space.html#skipConcurrentZeroing()">skipConcurrentZeroing</a>, <a href="../../../org/mmtk/policy/Space.html#traceObject(org.mmtk.plan.TransitiveClosure,%20org.vmmagic.unboxed.ObjectReference)">traceObject</a>, <a href="../../../org/mmtk/policy/Space.html#triggerConcurrentZeroing()">triggerConcurrentZeroing</a>, <a href="../../../org/mmtk/policy/Space.html#visitSpaces(org.mmtk.policy.Space.SpaceVisitor)">visitSpaces</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="LAZY_SWEEP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LAZY_SWEEP</h4>
+<pre>protected static final&nbsp;boolean <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.50">LAZY_SWEEP</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.LAZY_SWEEP">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="COMPACT_SIZE_CLASSES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>COMPACT_SIZE_CLASSES</h4>
+<pre>private static final&nbsp;boolean <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.51">COMPACT_SIZE_CLASSES</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.COMPACT_SIZE_CLASSES">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MIN_CELLS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MIN_CELLS</h4>
+<pre>protected static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.52">MIN_CELLS</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.MIN_CELLS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MAX_CELLS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_CELLS</h4>
+<pre>protected static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.53">MAX_CELLS</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.MAX_CELLS">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MAX_CELL_SIZE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_CELL_SIZE</h4>
+<pre>protected static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.54">MAX_CELL_SIZE</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.MAX_CELL_SIZE">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="MAX_FREELIST_OBJECT_BYTES">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_FREELIST_OBJECT_BYTES</h4>
+<pre>public static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.55">MAX_FREELIST_OBJECT_BYTES</a></pre>
+<dl><dt><span class="strong">See Also:</span></dt><dd><a href="../../../constant-values.html#org.mmtk.policy.SegregatedFreeListSpace.MAX_FREELIST_OBJECT_BYTES">Constant Field Values</a></dd></dl>
+</li>
+</ul>
+<a name="OBJECT_LIVE_SHIFT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>OBJECT_LIVE_SHIFT</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.58">OBJECT_LIVE_SHIFT</a></pre>
+</li>
+</ul>
+<a name="LOG_BIT_COVERAGE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LOG_BIT_COVERAGE</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.59">LOG_BIT_COVERAGE</a></pre>
+</li>
+</ul>
+<a name="LOG_LIVE_COVERAGE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LOG_LIVE_COVERAGE</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.60">LOG_LIVE_COVERAGE</a></pre>
+</li>
+</ul>
+<a name="LIVE_BYTES_PER_REGION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LIVE_BYTES_PER_REGION</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.61">LIVE_BYTES_PER_REGION</a></pre>
+</li>
+</ul>
+<a name="WORD_SHIFT_MASK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>WORD_SHIFT_MASK</h4>
+<pre>private static final&nbsp;<a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.62">WORD_SHIFT_MASK</a></pre>
+</li>
+</ul>
+<a name="LOG_LIVE_WORD_STRIDE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LOG_LIVE_WORD_STRIDE</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.63">LOG_LIVE_WORD_STRIDE</a></pre>
+</li>
+</ul>
+<a name="LIVE_WORD_STRIDE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LIVE_WORD_STRIDE</h4>
+<pre>private static final&nbsp;<a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.64">LIVE_WORD_STRIDE</a></pre>
+</li>
+</ul>
+<a name="LIVE_WORD_STRIDE_MASK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>LIVE_WORD_STRIDE_MASK</h4>
+<pre>private static final&nbsp;<a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.65">LIVE_WORD_STRIDE_MASK</a></pre>
+</li>
+</ul>
+<a name="NET_META_DATA_BYTES_PER_REGION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NET_META_DATA_BYTES_PER_REGION</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.66">NET_META_DATA_BYTES_PER_REGION</a></pre>
+</li>
+</ul>
+<a name="META_DATA_PAGES_PER_REGION_WITH_BITMAP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>META_DATA_PAGES_PER_REGION_WITH_BITMAP</h4>
+<pre>protected static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.67">META_DATA_PAGES_PER_REGION_WITH_BITMAP</a></pre>
+</li>
+</ul>
+<a name="META_DATA_PAGES_PER_REGION_NO_BITMAP">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>META_DATA_PAGES_PER_REGION_NO_BITMAP</h4>
+<pre>protected static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.68">META_DATA_PAGES_PER_REGION_NO_BITMAP</a></pre>
+</li>
+</ul>
+<a name="META_DATA_OFFSET">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>META_DATA_OFFSET</h4>
+<pre>private static final&nbsp;<a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.69">META_DATA_OFFSET</a></pre>
+</li>
+</ul>
+<a name="NEW_SIZECLASS_OVERHEAD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>NEW_SIZECLASS_OVERHEAD</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.73">NEW_SIZECLASS_OVERHEAD</a></pre>
+</li>
+</ul>
+<a name="METADATA_OVERHEAD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>METADATA_OVERHEAD</h4>
+<pre>private static final&nbsp;int <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.74">METADATA_OVERHEAD</a></pre>
+</li>
+</ul>
+<a name="WORST_CASE_FRAGMENTATION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>WORST_CASE_FRAGMENTATION</h4>
+<pre>public static final&nbsp;float <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.75">WORST_CASE_FRAGMENTATION</a></pre>
+</li>
+</ul>
+<a name="lock">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>lock</h4>
+<pre>protected final&nbsp;<a href="../../../org/mmtk/vm/Lock.html" title="class in org.mmtk.vm">Lock</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.85">lock</a></pre>
+</li>
+</ul>
+<a name="consumedBlockHead">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>consumedBlockHead</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.86">consumedBlockHead</a></pre>
+</li>
+</ul>
+<a name="flushedBlockHead">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flushedBlockHead</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.87">flushedBlockHead</a></pre>
+</li>
+</ul>
+<a name="availableBlockHead">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>availableBlockHead</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a> <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.88">availableBlockHead</a></pre>
+</li>
+</ul>
+<a name="cellSize">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>cellSize</h4>
+<pre>private final&nbsp;int[] <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.90">cellSize</a></pre>
+</li>
+</ul>
+<a name="blockSizeClass">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>blockSizeClass</h4>
+<pre>private final&nbsp;byte[] <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.91">blockSizeClass</a></pre>
+</li>
+</ul>
+<a name="blockHeaderSize">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>blockHeaderSize</h4>
+<pre>private final&nbsp;int[] <a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.92">blockHeaderSize</a></pre>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="SegregatedFreeListSpace(java.lang.String, int, org.mmtk.utility.heap.VMRequest)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SegregatedFreeListSpace</h4>
+<pre>public&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.103">SegregatedFreeListSpace</a>(<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
+                       int&nbsp;additionalMetadata,
+                       <a href="../../../org/mmtk/utility/heap/VMRequest.html" title="class in org.mmtk.utility.heap">VMRequest</a>&nbsp;vmRequest)</pre>
+<div class="block">The caller specifies the region of virtual memory to be used for
+ this space.  If this region conflicts with an existing space,
+ then the constructor will fail.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - The name of this space (used when printing error messages etc)</dd><dd><code>additionalMetadata</code> - The number of meta data bytes per region for the subclass.</dd><dd><code>vmRequest</code> - An object describing the virtual memory requested.</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="maintainSideBitmap()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>maintainSideBitmap</h4>
+<pre>protected abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.122">maintainSideBitmap</a>()</pre>
+<div class="block">Should SegregatedFreeListSpace manage a side bitmap to keep track of live objects?</div>
+</li>
+</ul>
+<a name="preserveFreeList()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preserveFreeList</h4>
+<pre>protected abstract&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.127">preserveFreeList</a>()</pre>
+<div class="block">Do we need to preserve free lists as we move blocks around.</div>
+</li>
+</ul>
+<a name="returnConsumedBlock(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>returnConsumedBlock</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.140">returnConsumedBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                       int&nbsp;sizeClass)</pre>
+<div class="block">Return a block to the global pool.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block to return</dd><dd><code>sizeClass</code> - The size class</dd></dl>
+</li>
+</ul>
+<a name="returnBlock(org.vmmagic.unboxed.Address, int, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>returnBlock</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.151">returnBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+               int&nbsp;sizeClass,
+               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;freeCell)</pre>
+<div class="block">Return a block to the global pool.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block to return</dd><dd><code>sizeClass</code> - The size class</dd><dd><code>freeCell</code> - The first free cell in the block.</dd></dl>
+</li>
+</ul>
+<a name="getAllocationBlock(int, org.vmmagic.unboxed.AddressArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAllocationBlock</h4>
+<pre>public&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.176">getAllocationBlock</a>(int&nbsp;sizeClass,
+                         <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a>&nbsp;freeList)</pre>
+<div class="block">Acquire a new block from the global pool to allocate into. This method
+ with either return a non-empty free list, or zero when allocation
+ fails.
+
+ This method will populate the passed in free list for the given size
+ class and return the address of the block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>sizeClass</code> - The size class to allocate into</dd><dd><code>freeList</code> - The free list to populate</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the block</dd></dl>
+</li>
+</ul>
+<a name="expandSizeClass(int, org.vmmagic.unboxed.AddressArray)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>expandSizeClass</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.215">expandSizeClass</a>(int&nbsp;sizeClass,
+                      <a href="../../../org/vmmagic/unboxed/AddressArray.html" title="class in org.vmmagic.unboxed">AddressArray</a>&nbsp;freeList)</pre>
+<div class="block">Expand a particular size class, allocating a new block, breaking
+ the block into cells and placing those cells on a free list for
+ that block.  The block becomes the current head for this size
+ class and the address of the first available cell is returned.<p>
+
+ <b>This is guaranteed to return pre-zeroed cells</b></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>sizeClass</code> - The size class to be expanded</dd><dd><code>freeList</code> - The free list to populate.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The block that was just allocated.</dd></dl>
+</li>
+</ul>
+<a name="initSizeClasses()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initSizeClasses</h4>
+<pre>private&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.257">initSizeClasses</a>()</pre>
+<div class="block">Initialize the size class data structures.</div>
+</li>
+</ul>
+<a name="getSizeClass(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSizeClass</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.298">getSizeClass</a>(int&nbsp;bytes)</pre>
+<div class="block">Get the size class for a given number of bytes.<p>
+
+ We use size classes based on a worst case internal fragmentation
+ loss target of 1/8.  In fact, across sizes from 8 bytes to 512
+ the average worst case loss is 13.3%, giving an expected loss
+ (assuming uniform distribution) of about 7%.  We avoid using the
+ Lea class sizes because they were so numerous and therefore
+ liable to lead to excessive inter-class-size fragmentation.<p>
+
+ This method may segregate arrays and scalars (currently it does
+ not).<p>
+
+ This method should be more intelligent and take alignment requests
+ into consideration. The issue with this is that the block header
+ which can be varied by subclasses can change the alignment of the
+ cells.<p></div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>bytes</code> - The number of bytes required to accommodate the object
+ to be allocated.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The size class capable of accommodating the allocation request.</dd></dl>
+</li>
+</ul>
+<a name="getBaseCellSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBaseCellSize</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.350">getBaseCellSize</a>(int&nbsp;sc)</pre>
+<div class="block">Return the size of a basic cell (i.e. not including any cell
+ header) for a given size class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>sc</code> - The size class in question</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The size of a basic cell (i.e. not including any cell
+ header).</dd></dl>
+</li>
+</ul>
+<a name="sizeClassCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sizeClassCount</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.391">sizeClassCount</a>()</pre>
+<div class="block">The number of distinct size classes.</div>
+</li>
+</ul>
+<a name="advanceToBlock(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>advanceToBlock</h4>
+<pre>protected abstract&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.406">advanceToBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                     int&nbsp;sizeClass)</pre>
+<div class="block">Prepare a block for allocation, returning a free list into the block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The new block</dd><dd><code>sizeClass</code> - The block's sizeclass.</dd></dl>
+</li>
+</ul>
+<a name="notifyNewBlock(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>notifyNewBlock</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.415">notifyNewBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                  int&nbsp;sizeClass)</pre>
+<div class="block">Notify that a new block has been installed. This is to ensure that
+ appropriate collection state can be initialized for the block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The new block</dd><dd><code>sizeClass</code> - The block's sizeclass.</dd></dl>
+</li>
+</ul>
+<a name="reclaimCellForObject(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reclaimCellForObject</h4>
+<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.424">reclaimCellForObject</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Should the sweep reclaim the cell containing this object. Is this object
+ live. This is only used when maintainSideBitmap is false.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object to query</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the cell should be reclaimed</dd></dl>
+</li>
+</ul>
+<a name="getFreeList(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFreeList</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.442">getFreeList</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block)</pre>
+<div class="block">In the case where free lists associated with each block are
+ preserved, get the free list for a given block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block whose free list is to be found</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The free list for this block</dd></dl>
+</li>
+</ul>
+<a name="setFreeList(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setFreeList</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.456">setFreeList</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+               <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;cell)</pre>
+<div class="block">In the case where free lists associated with each block are
+ preserved, set the free list for a given block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block whose free list is to be found</dd><dd><code>cell</code> - The head of the free list (i.e. the first cell in the
+ free list).</dd></dl>
+</li>
+</ul>
+<a name="clearAllBlockMarks()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearAllBlockMarks</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.471">clearAllBlockMarks</a>()</pre>
+<div class="block">Clear all block marks for this space.  This method is important when
+ it is desirable to do partial collections, which man mean that block
+ marks need to be explicitly cleared when necessary.</div>
+</li>
+</ul>
+<a name="sweepConsumedBlocks(boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sweepConsumedBlocks</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.497">sweepConsumedBlocks</a>(boolean&nbsp;clearMarks)</pre>
+<div class="block">Sweep all blocks for free objects.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>clearMarks</code> - should we clear block mark bits as we process.</dd></dl>
+</li>
+</ul>
+<a name="sweepBlock(org.vmmagic.unboxed.Address, int, org.vmmagic.unboxed.Extent, org.vmmagic.unboxed.Address, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sweepBlock</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.528">sweepBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                 int&nbsp;sizeClass,
+                 <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize,
+                 <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;availableHead,
+                 boolean&nbsp;clearMarks)</pre>
+<div class="block">Sweep a block, freeing it and adding to the list given by availableHead
+ if it contains no free objects.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>clearMarks</code> - should we clear block mark bits as we process.</dd></dl>
+</li>
+</ul>
+<a name="consumeBlocks()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>consumeBlocks</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.546">consumeBlocks</a>()</pre>
+<div class="block">Eagerly consume all remaining blocks.</div>
+</li>
+</ul>
+<a name="flushAvailableBlocks()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flushAvailableBlocks</h4>
+<pre>protected final&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.561">flushAvailableBlocks</a>()</pre>
+<div class="block">Flush all the allocation blocks to the consumed list.</div>
+</li>
+</ul>
+<a name="containsLiveCell(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Extent, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>containsLiveCell</h4>
+<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.577">containsLiveCell</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                       <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize,
+                       boolean&nbsp;clearMarks)</pre>
+<div class="block">Does this block contain any live cells.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block</dd><dd><code>blockSize</code> - The size of the block</dd><dd><code>clearMarks</code> - should we clear block mark bits as we process.</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if any cells in the block are live</dd></dl>
+</li>
+</ul>
+<a name="clearBlockMark(org.vmmagic.unboxed.Address, org.vmmagic.unboxed.Extent)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearBlockMark</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.611">clearBlockMark</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                  <a href="../../../org/vmmagic/unboxed/Extent.html" title="class in org.vmmagic.unboxed">Extent</a>&nbsp;blockSize)</pre>
+<div class="block">Clear block marks for a block</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block</dd><dd><code>blockSize</code> - The size of the block</dd></dl>
+</li>
+</ul>
+<a name="isCellLive(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isCellLive</h4>
+<pre>protected&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.627">isCellLive</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">In the cell containing this object live?</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the cell is live</dd></dl>
+</li>
+</ul>
+<a name="makeFreeList(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>makeFreeList</h4>
+<pre>protected final&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.642">makeFreeList</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                   int&nbsp;sizeClass)</pre>
+<div class="block">Use the live bits for a block to infer free cells and thus
+ construct a free list for the block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block to be processed</dd><dd><code>sizeClass</code> - The size class for the block</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The head of the new free list</dd></dl>
+</li>
+</ul>
+<a name="sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sweepCells</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.672">sweepCells</a>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper)</pre>
+<div class="block">Sweep all blocks for free objects.</div>
+</li>
+</ul>
+<a name="sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper, org.vmmagic.unboxed.Address, int, org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sweepCells</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.700">sweepCells</a>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper,
+                 <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                 int&nbsp;sizeClass,
+                 <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;availableHead)</pre>
+<div class="block">Sweep a block, freeing it and adding to the list given by availableHead
+ if it contains no free objects.</div>
+</li>
+</ul>
+<a name="parallelSweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parallelSweepCells</h4>
+<pre>public&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.718">parallelSweepCells</a>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper)</pre>
+<div class="block">Sweep a block, freeing it and making it available if any live cells were found.
+ if it contains no free objects.<p>
+
+ This is designed to be called in parallel by multiple collector threads.</div>
+</li>
+</ul>
+<a name="getSweepBlock(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSweepBlock</h4>
+<pre>private&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.742">getSweepBlock</a>(int&nbsp;sizeClass)</pre>
+<div class="block">Get a block for a parallel sweep.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>sizeClass</code> - The size class of the block to sweep.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The block or zero if no blocks remain to be swept.</dd></dl>
+</li>
+</ul>
+<a name="sweepCells(org.mmtk.policy.SegregatedFreeListSpace.Sweeper, org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sweepCells</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.773">sweepCells</a>(<a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy">SegregatedFreeListSpace.Sweeper</a>&nbsp;sweeper,
+                 <a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                 int&nbsp;sizeClass)</pre>
+<div class="block">Does this block contain any live cells?</div>
+</li>
+</ul>
+<a name="testAndSetLiveBit(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>testAndSetLiveBit</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.817">testAndSetLiveBit</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Atomically set the live bit for a given object</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose live bit is to be set.</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if the bit was changed to true.</dd></dl>
+</li>
+</ul>
+<a name="markBlock(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>markBlock</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.827">markBlock</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Set the live bit for the block containing the given object</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose blocks liveness is to be set.</dd></dl>
+</li>
+</ul>
+<a name="markBlock(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>markBlock</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.837">markBlock</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block)</pre>
+<div class="block">Set the live bit for the given block.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>block</code> - The block whose liveness is to be set.</dd></dl>
+</li>
+</ul>
+<a name="unsyncSetLiveBit(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unsyncSetLiveBit</h4>
+<pre>public static&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.849">unsyncSetLiveBit</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Set the live bit for a given object, without using
+ synchronization primitives---must only be used when contention
+ for live bit is strictly not possible</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose live bit is to be set.</dd></dl>
+</li>
+</ul>
+<a name="updateLiveBit(org.vmmagic.unboxed.Address, boolean, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateLiveBit</h4>
+<pre>private static&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.861">updateLiveBit</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address,
+                    boolean&nbsp;set,
+                    boolean&nbsp;atomic)</pre>
+<div class="block">Set the live bit for a given address</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live bit is to be set.</dd><dd><code>set</code> - <code>true</code> if the bit is to be set, as opposed to cleared</dd><dd><code>atomic</code> - <code>true</code> if we want to perform this operation atomically</dd></dl>
+</li>
+</ul>
+<a name="liveBitSet(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>liveBitSet</h4>
+<pre>protected static&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.883">liveBitSet</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Test the live bit for a given object</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose live bit is to be set.</dd></dl>
+</li>
+</ul>
+<a name="liveBitSet(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>liveBitSet</h4>
+<pre>protected static&nbsp;boolean&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.894">liveBitSet</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Set the live bit for a given address</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live bit is to be set.</dd>
+<dt><span class="strong">Returns:</span></dt><dd><code>true</code> if this operation changed the state of the live bit.</dd></dl>
+</li>
+</ul>
+<a name="clearLiveBit(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearLiveBit</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.907">clearLiveBit</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Clear the live bit for a given object</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose live bit is to be cleared.</dd></dl>
+</li>
+</ul>
+<a name="clearLiveBit(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearLiveBit</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.917">clearLiveBit</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Clear the live bit for a given address</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live bit is to be cleared.</dd></dl>
+</li>
+</ul>
+<a name="unsyncClearLiveBit(org.vmmagic.unboxed.ObjectReference)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unsyncClearLiveBit</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.927">unsyncClearLiveBit</a>(<a href="../../../org/vmmagic/unboxed/ObjectReference.html" title="class in org.vmmagic.unboxed">ObjectReference</a>&nbsp;object)</pre>
+<div class="block">Clear the live bit for a given object</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>object</code> - The object whose live bit is to be cleared.</dd></dl>
+</li>
+</ul>
+<a name="unsyncClearLiveBit(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>unsyncClearLiveBit</h4>
+<pre>protected static&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.937">unsyncClearLiveBit</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Clear the live bit for a given address</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live bit is to be cleared.</dd></dl>
+</li>
+</ul>
+<a name="clearLiveBits(org.vmmagic.unboxed.Address, int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearLiveBits</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.944">clearLiveBits</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;block,
+                 int&nbsp;sizeClass)</pre>
+<div class="block">Clear all live bits for a block</div>
+</li>
+</ul>
+<a name="zeroLiveBits()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>zeroLiveBits</h4>
+<pre>protected&nbsp;void&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.954">zeroLiveBits</a>()</pre>
+</li>
+</ul>
+<a name="alignToLiveStride(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>alignToLiveStride</h4>
+<pre>private static&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.982">alignToLiveStride</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Align an address so that it corresponds to a live word boundary.
+ In other words, if the live bit for the given address is not the
+ zeroth bit of a live word, round the address down such that it
+ does.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address to be aligned to a live word</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The given address, aligned down so that it corresponds to
+ an address on a live word boundary.</dd></dl>
+</li>
+</ul>
+<a name="getMask(org.vmmagic.unboxed.Address, boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMask</h4>
+<pre>private static&nbsp;<a href="../../../org/vmmagic/unboxed/Word.html" title="class in org.vmmagic.unboxed">Word</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.995">getMask</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address,
+           boolean&nbsp;set)</pre>
+<div class="block">Given an address, produce a bit mask for the live table</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live bit mask is to be established</dd><dd><code>set</code> - True if we want the mask for <i>setting</i> the bit,
+ false if we want the mask for <i>clearing</i> the bit.</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The appropriate bit mask for object for the live table for.</dd></dl>
+</li>
+</ul>
+<a name="getLiveWordAddress(org.vmmagic.unboxed.Address)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getLiveWordAddress</h4>
+<pre>private static&nbsp;<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;<a href="../../../src-html/org/mmtk/policy/SegregatedFreeListSpace.html#line.1009">getLiveWordAddress</a>(<a href="../../../org/vmmagic/unboxed/Address.html" title="class in org.vmmagic.unboxed">Address</a>&nbsp;address)</pre>
+<div class="block">Given an address, return the address of the live word for
+ that address.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>address</code> - The address whose live word address is to be returned</dd>
+<dt><span class="strong">Returns:</span></dt><dd>The address of the live word for this object</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/SegregatedFreeListSpace.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../index-all.html">Index</a></li>
+<li><a href="../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../org/mmtk/policy/RawPageSpace.html" title="class in org.mmtk.policy"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../org/mmtk/policy/SegregatedFreeListSpace.Sweeper.html" title="class in org.mmtk.policy"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../index.html?org/mmtk/policy/SegregatedFreeListSpace.html" target="_top">Frames</a></li>
+<li><a href="SegregatedFreeListSpace.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

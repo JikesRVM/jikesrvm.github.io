@@ -1,0 +1,1360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+<title>PhysicalRegisterSet (Jikes RVM API)</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<script type="text/javascript"><!--
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PhysicalRegisterSet (Jikes RVM API)";
+    }
+//-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a name="navbar_top">
+<!--   -->
+</a><a href="#skip-navbar_top" title="Skip navigation links"></a><a name="navbar_top_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/PhysicalRegisterSet.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalDefUse.PDUEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html" target="_top">Frames</a></li>
+<li><a href="PhysicalRegisterSet.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+<!-- ======== START OF CLASS DATA ======== -->
+<div class="header">
+<div class="subTitle">org.jikesrvm.compilers.opt.ir.ia32</div>
+<h2 title="Class PhysicalRegisterSet" class="title">Class PhysicalRegisterSet</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">org.jikesrvm.compilers.opt.ir.GenericPhysicalRegisterSet</a></li>
+<li>
+<ul class="inheritance">
+<li>org.jikesrvm.compilers.opt.ir.ia32.PhysicalRegisterSet</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html" title="interface in org.jikesrvm.compilers.opt.regalloc.ia32">PhysicalRegisterConstants</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSetMapping.html" title="interface in org.jikesrvm.compilers.opt.util">BitSetMapping</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><a href="../../../../../../org/jikesrvm/ArchitectureSpecificOpt.PhysicalRegisterSet.html" title="class in org.jikesrvm">ArchitectureSpecificOpt.PhysicalRegisterSet</a></dd>
+</dl>
+<hr>
+<br>
+<pre>public abstract class <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.32">PhysicalRegisterSet</a>
+extends <a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a>
+implements <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html" title="interface in org.jikesrvm.compilers.opt.regalloc.ia32">PhysicalRegisterConstants</a></pre>
+<div class="block">This class represents a set of Registers corresponding to the
+ IA32 register set.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested_class_summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) static class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a></strong></code>
+<div class="block">An enumerator for use by the physical register utilities.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) class&nbsp;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.RangeEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.RangeEnumeration</a></strong></code>
+<div class="block">An enumerator for use by the physical register utilities.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested_classes_inherited_from_class_org.jikesrvm.ia32.RegisterConstants">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;org.jikesrvm.ia32.<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a></h3>
+<code><a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.FloatingPointMachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.FloatingPointMachineRegister</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.FPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.FPR</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.GPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.GPR</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.MachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.MachineRegister</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.MM.html" title="enum in org.jikesrvm.ia32">RegisterConstants.MM</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.XMM.html" title="enum in org.jikesrvm.ia32">RegisterConstants.XMM</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#fpSet">fpSet</a></strong></code>
+<div class="block">Cache the set of floating-point registers for efficiency</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#reg">reg</a></strong></code>
+<div class="block">This array holds a pool of objects representing physical registers</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#registerName">registerName</a></strong></code>
+<div class="block">Register names for each class. used in printing the IR</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#volatileSet">volatileSet</a></strong></code>
+<div class="block">Cache the set of volatile registers for efficiency</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.compilers.opt.regalloc.ia32.PhysicalRegisterConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.compilers.opt.regalloc.ia32.<a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html" title="interface in org.jikesrvm.compilers.opt.regalloc.ia32">PhysicalRegisterConstants</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#AF">AF</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C0">C0</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C1">C1</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C2">C2</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#C3">C3</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#CF">CF</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#CONDITION_VALUE">CONDITION_VALUE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#DOUBLE_REG">DOUBLE_REG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#DOUBLE_VALUE">DOUBLE_VALUE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_DOUBLE">FIRST_DOUBLE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_INT">FIRST_INT</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FIRST_SPECIAL">FIRST_SPECIAL</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#FLOAT_VALUE">FLOAT_VALUE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#INT_REG">INT_REG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#INT_VALUE">INT_VALUE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#NUM_SPECIALS">NUM_SPECIALS</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#NUMBER_TYPE">NUMBER_TYPE</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#OF">OF</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#PF">PF</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#SF">SF</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#SPECIAL_REG">SPECIAL_REG</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ST0">ST0</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ST1">ST1</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/regalloc/ia32/PhysicalRegisterConstants.html#ZF">ZF</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="fields_inherited_from_class_org.jikesrvm.ia32.RegisterConstants">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;org.jikesrvm.ia32.<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html" title="interface in org.jikesrvm.ia32">RegisterConstants</a></h3>
+<code><a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#ALL_FPRS">ALL_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#ALL_GPRS">ALL_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#EAX">EAX</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#EBP">EBP</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#EBX">EBX</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#ECX">ECX</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#EDI">EDI</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#EDX">EDX</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#ESI">ESI</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#ESP">ESP</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP0">FP0</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP1">FP1</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP2">FP2</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP3">FP3</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP4">FP4</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP5">FP5</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP6">FP6</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#FP7">FP7</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#INSTRUCTION_WIDTH">INSTRUCTION_WIDTH</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#LG_INSTRUCTION_WIDTH">LG_INSTRUCTION_WIDTH</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM0">MM0</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM1">MM1</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM10">MM10</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM11">MM11</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM12">MM12</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM13">MM13</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM14">MM14</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM15">MM15</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM2">MM2</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM3">MM3</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM4">MM4</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM5">MM5</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM6">MM6</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM7">MM7</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM8">MM8</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#MM9">MM9</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_NONVOLATILE_FPRS">NATIVE_NONVOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_NONVOLATILE_GPRS">NATIVE_NONVOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_PARAMETER_FPRS">NATIVE_PARAMETER_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_PARAMETER_GPRS">NATIVE_PARAMETER_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_VOLATILE_FPRS">NATIVE_VOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NATIVE_VOLATILE_GPRS">NATIVE_VOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NONVOLATILE_FPRS">NONVOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NONVOLATILE_GPRS">NONVOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_FPRS">NUM_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_GPRS">NUM_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_NONVOLATILE_FPRS">NUM_NONVOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_NONVOLATILE_GPRS">NUM_NONVOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_PARAMETER_FPRS">NUM_PARAMETER_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_PARAMETER_GPRS">NUM_PARAMETER_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_RETURN_FPRS">NUM_RETURN_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_RETURN_GPRS">NUM_RETURN_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_VOLATILE_FPRS">NUM_VOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#NUM_VOLATILE_GPRS">NUM_VOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#PARAMETER_FPRS">PARAMETER_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#PARAMETER_GPRS">PARAMETER_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R0">R0</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R1">R1</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R10">R10</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R11">R11</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R12">R12</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R13">R13</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R14">R14</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R15">R15</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R2">R2</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R3">R3</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R4">R4</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R5">R5</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R6">R6</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R7">R7</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R8">R8</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#R9">R9</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#RETURN_FPRS">RETURN_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#RETURN_GPRS">RETURN_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#STACK_POINTER">STACK_POINTER</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#THREAD_REGISTER">THREAD_REGISTER</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#VOLATILE_FPRS">VOLATILE_FPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#VOLATILE_GPRS">VOLATILE_GPRS</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM0">XMM0</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM1">XMM1</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM10">XMM10</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM11">XMM11</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM12">XMM12</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM13">XMM13</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM14">XMM14</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM15">XMM15</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM2">XMM2</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM3">XMM3</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM4">XMM4</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM5">XMM5</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM6">XMM6</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM7">XMM7</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM8">XMM8</a>, <a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.html#XMM9">XMM9</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier</th>
+<th class="colLast" scope="col">Constructor and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#PhysicalRegisterSet()">PhysicalRegisterSet</a></strong>()</code>
+<div class="block">Constructor: set up a pool of physical registers.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- ========== METHOD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="overviewSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span>Methods</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateAll()">enumerateAll</a></strong>()</code>
+<div class="block">Enumerate all the physical registers in this set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateFPRs()">enumerateFPRs</a></strong>()</code>
+<div class="block">Enumerate all the FPRs in this set.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateGPRs()">enumerateGPRs</a></strong>()</code>
+<div class="block">Enumerate all the GPRs in this set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateNonvolatileFPRs()">enumerateNonvolatileFPRs</a></strong>()</code>
+<div class="block">Enumerate all the nonvolatile FPRs in this set.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateNonvolatileGPRs()">enumerateNonvolatileGPRs</a></strong>()</code>
+<div class="block">Enumerate all the nonvolatile GPRs in this set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateNonvolatileGPRsBackwards()">enumerateNonvolatileGPRsBackwards</a></strong>()</code>
+<div class="block">Enumerate all the nonvolatile GPRs in this set, backwards</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateNonvolatiles(int)">enumerateNonvolatiles</a></strong>(int&nbsp;regClass)</code>
+<div class="block">Enumerate the nonvolatile physical registers of a given class.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateNonvolatilesBackwards(int)">enumerateNonvolatilesBackwards</a></strong>(int&nbsp;regClass)</code>
+<div class="block">Enumerate the nonvolatile physical registers of a given class,
+ backwards</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateVolatileFPRs()">enumerateVolatileFPRs</a></strong>()</code>
+<div class="block">Enumerate all the volatile FPRs in this set.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateVolatileGPRs()">enumerateVolatileGPRs</a></strong>()</code>
+<div class="block">Enumerate all the volatile GPRs in this set.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateVolatiles()">enumerateVolatiles</a></strong>()</code>
+<div class="block">Enumerate all the volatile physical registers</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#enumerateVolatiles(int)">enumerateVolatiles</a></strong>(int&nbsp;regClass)</code>
+<div class="block">Enumerate the volatile physical registers of a given class.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#get(int)">get</a></strong>(int&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getAF()">getAF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getC0()">getC0</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getC1()">getC1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getC2()">getC2</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getC3()">getC3</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getCF()">getCF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getEAX()">getEAX</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getEBP()">getEBP</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getEBX()">getEBX</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getECX()">getECX</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getEDI()">getEDI</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getEDX()">getEDX</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getESI()">getESI</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getESP()">getESP</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFirstReturnGPR()">getFirstReturnGPR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFP()">getFP</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFPR(int)">getFPR</a></strong>(int&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFPR(org.jikesrvm.ia32.RegisterConstants.FloatingPointMachineRegister)">getFPR</a></strong>(<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.FloatingPointMachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.FloatingPointMachineRegister</a>&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFPRIndex(org.jikesrvm.compilers.opt.ir.Register)">getFPRIndex</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFPRParam(int)">getFPRParam</a></strong>(int&nbsp;n)</code>
+<div class="block">Return the (zero-based indexed) nth FPR that may hold a parameter.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getFPRs()">getFPRs</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getGPR(int)">getGPR</a></strong>(int&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getGPR(org.jikesrvm.ia32.RegisterConstants.GPR)">getGPR</a></strong>(<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.GPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.GPR</a>&nbsp;n)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getGPRIndex(org.jikesrvm.compilers.opt.ir.Register)">getGPRIndex</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getGPRParam(int)">getGPRParam</a></strong>(int&nbsp;n)</code>
+<div class="block">Return the (zero-based indexed) nth GPR that may hold a parameter.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getName(int)">getName</a></strong>(int&nbsp;number)</code>
+<div class="block">Get the register name for a register with a particular number in the
+ pool</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getNumberOfFPRParams()">getNumberOfFPRParams</a></strong>()</code>
+<div class="block">Return the total number of FPRs that may hold parameters.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getNumberOfGPRParams()">getNumberOfGPRParams</a></strong>()</code>
+<div class="block">Return the total number of GPRs that may hold parameters.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getNumberOfNonvolatileGPRs()">getNumberOfNonvolatileGPRs</a></strong>()</code>
+<div class="block">Return the total number of nonvolatile GPRs.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getNumberOfPhysicalRegisters()">getNumberOfPhysicalRegisters</a></strong>()</code>
+<div class="block">Return the total number of physical registers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getOF()">getOF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getPF()">getPF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getPhysicalRegisterType(org.jikesrvm.compilers.opt.ir.Register)">getPhysicalRegisterType</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</code>
+<div class="block">Given a symbolic register, return a code that gives the physical
+ register type to hold the value of the symbolic register.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getReturnFPR()">getReturnFPR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getReturnGPR(int)">getReturnGPR</a></strong>(int&nbsp;n)</code>
+<div class="block">Return the (zero-based indexed) nth GPR that may hold a return value.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getSecondReturnGPR()">getSecondReturnGPR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getSF()">getSF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getSize()">getSize</a></strong>()</code>
+<div class="block">Return the total number of physical registers.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getSpillAlignment(int)">getSpillAlignment</a></strong>(int&nbsp;type)</code>
+<div class="block">Get the required spill alignment for a register with a particular type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getSpillSize(int)">getSpillSize</a></strong>(int&nbsp;type)</code>
+<div class="block">Get the spill size for a register with a particular type</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getST0()">getST0</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getST1()">getST1</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getTR()">getTR</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getVolatiles()">getVolatiles</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a></code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#getZF()">getZF</a></strong>()</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><strong><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#isAllocatable(org.jikesrvm.compilers.opt.ir.Register)">isAllocatable</a></strong>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</code>
+<div class="block">Is a particular register subject to allocation?</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_org.jikesrvm.compilers.opt.ir.GenericPhysicalRegisterSet">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;org.jikesrvm.compilers.opt.ir.<a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></h3>
+<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileFPRsBackwards()">enumerateNonvolatileFPRsBackwards</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getMappedIndex(java.lang.Object)">getMappedIndex</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getMappedObject(int)">getMappedObject</a>, <a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getMappingSize()">getMappingSize</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods_inherited_from_class_java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</a>, <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long,%20int)" title="class or interface in java.lang">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field_detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="reg">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reg</h4>
+<pre>private final&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>[] <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.38">reg</a></pre>
+<div class="block">This array holds a pool of objects representing physical registers</div>
+</li>
+</ul>
+<a name="volatileSet">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>volatileSet</h4>
+<pre>private final&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a> <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.43">volatileSet</a></pre>
+<div class="block">Cache the set of volatile registers for efficiency</div>
+</li>
+</ul>
+<a name="fpSet">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fpSet</h4>
+<pre>private final&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a> <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.48">fpSet</a></pre>
+<div class="block">Cache the set of floating-point registers for efficiency</div>
+</li>
+</ul>
+<a name="registerName">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>registerName</h4>
+<pre>private static final&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[] <a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.451">registerName</a></pre>
+<div class="block">Register names for each class. used in printing the IR</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="constructor_detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a name="PhysicalRegisterSet()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>PhysicalRegisterSet</h4>
+<pre>protected&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.117">PhysicalRegisterSet</a>()</pre>
+<div class="block">Constructor: set up a pool of physical registers.</div>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method_detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="getSize()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSize</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.53">getSize</a>()</pre>
+<div class="block">Return the total number of physical registers.</div>
+</li>
+</ul>
+<a name="getNumberOfPhysicalRegisters()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfPhysicalRegisters</h4>
+<pre>public final&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.58">getNumberOfPhysicalRegisters</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getNumberOfPhysicalRegisters()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Return the total number of physical registers.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getNumberOfPhysicalRegisters()">getNumberOfPhysicalRegisters</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getNumberOfNonvolatileGPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfNonvolatileGPRs</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.65">getNumberOfNonvolatileGPRs</a>()</pre>
+<div class="block">Return the total number of nonvolatile GPRs.</div>
+</li>
+</ul>
+<a name="getNumberOfGPRParams()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfGPRParams</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.72">getNumberOfGPRParams</a>()</pre>
+<div class="block">Return the total number of GPRs that may hold parameters.</div>
+</li>
+</ul>
+<a name="getNumberOfFPRParams()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getNumberOfFPRParams</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.79">getNumberOfFPRParams</a>()</pre>
+<div class="block">Return the total number of FPRs that may hold parameters.</div>
+</li>
+</ul>
+<a name="getGPRParam(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getGPRParam</h4>
+<pre>public final&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.86">getGPRParam</a>(int&nbsp;n)</pre>
+<div class="block">Return the (zero-based indexed) nth GPR that may hold a parameter.</div>
+</li>
+</ul>
+<a name="getFPRParam(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFPRParam</h4>
+<pre>public final&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.98">getFPRParam</a>(int&nbsp;n)</pre>
+<div class="block">Return the (zero-based indexed) nth FPR that may hold a parameter.</div>
+</li>
+</ul>
+<a name="getReturnGPR(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReturnGPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.105">getReturnGPR</a>(int&nbsp;n)</pre>
+<div class="block">Return the (zero-based indexed) nth GPR that may hold a return value.</div>
+</li>
+</ul>
+<a name="isAllocatable(org.jikesrvm.compilers.opt.ir.Register)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isAllocatable</h4>
+<pre>public&nbsp;boolean&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.198">isAllocatable</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</pre>
+<div class="block">Is a particular register subject to allocation?</div>
+</li>
+</ul>
+<a name="getTR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.206">getTR</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getTR()">getTR</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the processor register</dd></dl>
+</li>
+</ul>
+<a name="getFP()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFP</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.214">getFP</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getFP()">getFP</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the frame pointer register</dd></dl>
+</li>
+</ul>
+<a name="getEAX()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEAX</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.221">getEAX</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the EAX register</dd></dl>
+</li>
+</ul>
+<a name="getECX()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getECX</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.228">getECX</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the ECX register</dd></dl>
+</li>
+</ul>
+<a name="getEDX()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEDX</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.235">getEDX</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the EDX register</dd></dl>
+</li>
+</ul>
+<a name="getEBX()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEBX</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.242">getEBX</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the EBX register</dd></dl>
+</li>
+</ul>
+<a name="getESP()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getESP</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.249">getESP</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the ESP register</dd></dl>
+</li>
+</ul>
+<a name="getEBP()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEBP</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.256">getEBP</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the EBP register</dd></dl>
+</li>
+</ul>
+<a name="getESI()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getESI</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.263">getESI</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the ESI register</dd></dl>
+</li>
+</ul>
+<a name="getEDI()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getEDI</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.270">getEDI</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the EDI register</dd></dl>
+</li>
+</ul>
+<a name="getAF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.277">getAF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the AF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getCF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.284">getCF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the CF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getOF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getOF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.291">getOF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the OF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getPF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.298">getPF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the PF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getSF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.305">getSF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the SF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getZF()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getZF</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.312">getZF</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the ZF bit of the EFLAGS register.</dd></dl>
+</li>
+</ul>
+<a name="getC0()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getC0</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.319">getC0</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the C0 floating-point status bit</dd></dl>
+</li>
+</ul>
+<a name="getC1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getC1</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.326">getC1</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the C1 floating-point status bit</dd></dl>
+</li>
+</ul>
+<a name="getC2()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getC2</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.333">getC2</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the C2 floating-point status bit</dd></dl>
+</li>
+</ul>
+<a name="getC3()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getC3</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.340">getC3</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>a register representing the C3 floating-point status bit</dd></dl>
+</li>
+</ul>
+<a name="getGPR(org.jikesrvm.ia32.RegisterConstants.GPR)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getGPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.347">getGPR</a>(<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.GPR.html" title="enum in org.jikesrvm.ia32">RegisterConstants.GPR</a>&nbsp;n)</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the nth physical GPR</dd></dl>
+</li>
+</ul>
+<a name="getGPR(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getGPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.352">getGPR</a>(int&nbsp;n)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getGPR(int)">getGPR</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the nth physical GPR</dd></dl>
+</li>
+</ul>
+<a name="getGPRIndex(org.jikesrvm.compilers.opt.ir.Register)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getGPRIndex</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.361">getGPRIndex</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the index into the GPR set corresponding to a given register.
+
+ PRECONDITION: r is a physical GPR</dd></dl>
+</li>
+</ul>
+<a name="getFirstReturnGPR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFirstReturnGPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.369">getFirstReturnGPR</a>()</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getFirstReturnGPR()">getFirstReturnGPR</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the first GPR register used to hold a return value</dd></dl>
+</li>
+</ul>
+<a name="getSecondReturnGPR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSecondReturnGPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.377">getSecondReturnGPR</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the second GPR register used to hold a return value</dd></dl>
+</li>
+</ul>
+<a name="getST0()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getST0</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.385">getST0</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the FPR register used to hold a return value</dd></dl>
+</li>
+</ul>
+<a name="getST1()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getST1</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.393">getST1</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the special ST1 x87 register</dd></dl>
+</li>
+</ul>
+<a name="getReturnFPR()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getReturnFPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.401">getReturnFPR</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the FPR register used to hold a return value</dd></dl>
+</li>
+</ul>
+<a name="getFPR(org.jikesrvm.ia32.RegisterConstants.FloatingPointMachineRegister)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.409">getFPR</a>(<a href="../../../../../../org/jikesrvm/ia32/RegisterConstants.FloatingPointMachineRegister.html" title="interface in org.jikesrvm.ia32">RegisterConstants.FloatingPointMachineRegister</a>&nbsp;n)</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the nth physical FPR</dd></dl>
+</li>
+</ul>
+<a name="getFPR(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFPR</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.414">getFPR</a>(int&nbsp;n)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#getFPR(int)">getFPR</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the nth physical FPR</dd></dl>
+</li>
+</ul>
+<a name="getFPRIndex(org.jikesrvm.compilers.opt.ir.Register)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFPRIndex</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.423">getFPRIndex</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the index into the GPR set corresponding to a given register.
+
+ PRECONDITION: r is a physical GPR</dd></dl>
+</li>
+</ul>
+<a name="get(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>get</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.428">get</a>(int&nbsp;n)</pre>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#get(int)">get</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+<dt><span class="strong">Returns:</span></dt><dd>the nth physical register in the pool.</dd></dl>
+</li>
+</ul>
+<a name="getPhysicalRegisterType(org.jikesrvm.compilers.opt.ir.Register)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPhysicalRegisterType</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.438">getPhysicalRegisterType</a>(<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&nbsp;r)</pre>
+<div class="block">Given a symbolic register, return a code that gives the physical
+ register type to hold the value of the symbolic register.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>r</code> - a symbolic register</dd>
+<dt><span class="strong">Returns:</span></dt><dd>one of INT_REG, DOUBLE_REG</dd></dl>
+</li>
+</ul>
+<a name="getName(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getName</h4>
+<pre>public static&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.482">getName</a>(int&nbsp;number)</pre>
+<div class="block">Get the register name for a register with a particular number in the
+ pool</div>
+</li>
+</ul>
+<a name="getSpillSize(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSpillSize</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.490">getSpillSize</a>(int&nbsp;type)</pre>
+<div class="block">Get the spill size for a register with a particular type</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - one of INT_REG, DOUBLE_REG, SPECIAL_REG</dd></dl>
+</li>
+</ul>
+<a name="getSpillAlignment(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getSpillAlignment</h4>
+<pre>public static&nbsp;int&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.505">getSpillAlignment</a>(int&nbsp;type)</pre>
+<div class="block">Get the required spill alignment for a register with a particular type</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>type</code> - one of INT_REG, DOUBLE_REG,  SPECIAL_REG</dd></dl>
+</li>
+</ul>
+<a name="enumerateAll()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateAll</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.517">enumerateAll</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateAll()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the physical registers in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateAll()">enumerateAll</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateGPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateGPRs</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.522">enumerateGPRs</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateGPRs()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the GPRs in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateGPRs()">enumerateGPRs</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateFPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateFPRs</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.529">enumerateFPRs</a>()</pre>
+<div class="block">Enumerate all the FPRs in this set.</div>
+</li>
+</ul>
+<a name="enumerateVolatileGPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateVolatileGPRs</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.534">enumerateVolatileGPRs</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatileGPRs()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the volatile GPRs in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatileGPRs()">enumerateVolatileGPRs</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateNonvolatileGPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateNonvolatileGPRs</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.543">enumerateNonvolatileGPRs</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileGPRs()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the nonvolatile GPRs in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileGPRs()">enumerateNonvolatileGPRs</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateNonvolatileGPRsBackwards()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateNonvolatileGPRsBackwards</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.552">enumerateNonvolatileGPRsBackwards</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileGPRsBackwards()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the nonvolatile GPRs in this set, backwards</div>
+<dl>
+<dt><strong>Overrides:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileGPRsBackwards()">enumerateNonvolatileGPRsBackwards</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateVolatileFPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateVolatileFPRs</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.557">enumerateVolatileFPRs</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatileFPRs()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the volatile FPRs in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatileFPRs()">enumerateVolatileFPRs</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateNonvolatileFPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateNonvolatileFPRs</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32">PhysicalRegisterSet.PhysicalRegisterEnumeration</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.566">enumerateNonvolatileFPRs</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileFPRs()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the nonvolatile FPRs in this set.</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateNonvolatileFPRs()">enumerateNonvolatileFPRs</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="enumerateVolatiles(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateVolatiles</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.578">enumerateVolatiles</a>(int&nbsp;regClass)</pre>
+<div class="block">Enumerate the volatile physical registers of a given class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>regClass</code> - one of INT_REG, DOUBLE_REG, SPECIAL_REG</dd></dl>
+</li>
+</ul>
+<a name="enumerateVolatiles()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateVolatiles</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.592">enumerateVolatiles</a>()</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatiles()">GenericPhysicalRegisterSet</a></code></strong></div>
+<div class="block">Enumerate all the volatile physical registers</div>
+<dl>
+<dt><strong>Specified by:</strong></dt>
+<dd><code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html#enumerateVolatiles()">enumerateVolatiles</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/jikesrvm/compilers/opt/ir/GenericPhysicalRegisterSet.html" title="class in org.jikesrvm.compilers.opt.ir">GenericPhysicalRegisterSet</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="getVolatiles()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVolatiles</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.601">getVolatiles</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the set of volatile physical registers</dd></dl>
+</li>
+</ul>
+<a name="getFPRs()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFPRs</h4>
+<pre>public&nbsp;<a href="../../../../../../org/jikesrvm/compilers/opt/util/BitSet.html" title="class in org.jikesrvm.compilers.opt.util">BitSet</a>&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.608">getFPRs</a>()</pre>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the set of FPR physical registers</dd></dl>
+</li>
+</ul>
+<a name="enumerateNonvolatiles(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>enumerateNonvolatiles</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.616">enumerateNonvolatiles</a>(int&nbsp;regClass)</pre>
+<div class="block">Enumerate the nonvolatile physical registers of a given class.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>regClass</code> - one of INT_REG, DOUBLE_REG, SPECIAL_REG</dd></dl>
+</li>
+</ul>
+<a name="enumerateNonvolatilesBackwards(int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>enumerateNonvolatilesBackwards</h4>
+<pre>public&nbsp;<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../../../../org/jikesrvm/compilers/opt/ir/Register.html" title="class in org.jikesrvm.compilers.opt.ir">Register</a>&gt;&nbsp;<a href="../../../../../../src-html/org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html#line.634">enumerateNonvolatilesBackwards</a>(int&nbsp;regClass)</pre>
+<div class="block">Enumerate the nonvolatile physical registers of a given class,
+ backwards</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>regClass</code> - one of INT_REG, DOUBLE_REG, SPECIAL_REG</dd></dl>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- ========= END OF CLASS DATA ========= -->
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a name="navbar_bottom">
+<!--   -->
+</a><a href="#skip-navbar_bottom" title="Skip navigation links"></a><a name="navbar_bottom_firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../overview-summary.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="class-use/PhysicalRegisterSet.html">Use</a></li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList">
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalDefUse.PDUEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32"><span class="strong">Prev Class</span></a></li>
+<li><a href="../../../../../../org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.PhysicalRegisterEnumeration.html" title="class in org.jikesrvm.compilers.opt.ir.ia32"><span class="strong">Next Class</span></a></li>
+</ul>
+<ul class="navList">
+<li><a href="../../../../../../index.html?org/jikesrvm/compilers/opt/ir/ia32/PhysicalRegisterSet.html" target="_top">Frames</a></li>
+<li><a href="PhysicalRegisterSet.html" target="_top">No Frames</a></li>
+</ul>
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses-noframe.html">All Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested_class_summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field_summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field_detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor_detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method_detail">Method</a></li>
+</ul>
+</div>
+<a name="skip-navbar_bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</body>
+</html>

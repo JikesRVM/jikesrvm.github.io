@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.osr;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.SizeConstants;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.classloader.ClassLoaderConstants;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * OSRConstants defines constants used for on-stack-replacement mapping,<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * VM scope descriptor, and pseudo bytecodes.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public interface OSRConstants extends SizeConstants, ClassLoaderConstants {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>  ////////////////////////////////////////////<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  // Part I  constants used for opt compilation with OSR points<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  ///////////////////////////////////////////<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>  /* use the similar encoding as GC map.<a name="line.28"></a>
+<span class="sourceLineNo">029</span>   *<a name="line.29"></a>
+<span class="sourceLineNo">030</span>   * An entry (long) containts the following data:<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   *    m : a machine code offset ( in bytes )<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   *    o : an index into the OSR maps array<a name="line.32"></a>
+<span class="sourceLineNo">033</span>   *    b : the bytecode index of the instruction<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   *    i : index into the inline encoding<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   *<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   * (HIGH)  iiii iiii iiii iiib bbbb bbbb bbbb bbbo<a name="line.36"></a>
+<span class="sourceLineNo">037</span>   * (LOW)   oooo oooo oooo ommm mmmm mmmm mmmm mmmm<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  long OFFSET_MASK = 0x000000000007ffffL;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  long OSRI_MASK = 0x00000001fff80000L;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  long BCI_MASK = 0x0001fffe00000000L;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  long IEI_MASK = 0xfffe000000000000L;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  int OFFSET_SHIFT = 0;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  int OSRI_SHIFT = 19;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  int BCI_SHIFT = 33;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  int IEI_SHIFT = 49;<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  /*<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   * signifies there is no map entry for this machine code offset<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  int NO_OSR_ENTRY = (int) (OSRI_MASK &gt;&gt;&gt; OSRI_SHIFT);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  int INVALID_BCI = (int) (BCI_MASK &gt;&gt;&gt; BCI_SHIFT);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  int INVALID_IEI = (int) (IEI_MASK &gt;&gt;&gt; IEI_SHIFT);<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>  /* array of OSR maps.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   *<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   *  1. Each map has one or more ints as following:<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   *     REG_REF (WORD1 WORD2) (WORD1 WORD2)<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   *<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   *  2. The first in REG_REF is a bit map of registers that<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   *     contain references ( the MSB is used for chaining ).<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   *     Use 'getRegBitPosition' to find the position for<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   *     a register.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   *<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   *  3. The following words are tuple of two words:<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   *     (WORD 1)  Nxxx xxxx xxkt ttnn nnnn nnnn nnnn nnvv<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   *     (WORD 2)  int bits value<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   *<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   *     N : next tuple is valid.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   *     x : unused bits<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   *     k : kind of this element ( LOCAL/STACK )<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   *     t : type of this element ( see type code )<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   *     n : the number this element ( e.g, L0, S1 ), which is 16-bit<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   *         as required by JVM spec.<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   *     v : the type of the next word<a name="line.75"></a>
+<span class="sourceLineNo">076</span> */<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /* bit pattern for the "Next" bit in the OSR maps array<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  int NEXT_BIT = 0x80000000;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  /* kind of element */ int KIND_MASK = 0x00400000;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  int KIND_SHIFT = 22;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  /* type code */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  int TCODE_MASK = 0x00380000;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  int TCODE_SHIFT = 19;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  /* number */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  int NUM_MASK = 0x0007fff8;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  int NUM_SHIFT = 3;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  /* value type */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  int VTYPE_MASK = 0x00000007;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  int VTYPE_SHIFT = 0;<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  ////////////////////////////////////////////<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  //  Part II  constants used when extract VM scope descriptor<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  ////////////////////////////////////////////<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  /** Used to indicate the kind of element is a local variable */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  boolean LOCAL = false;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /** Used to indicate the kind of element is from the operand stack */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  boolean STACK = true;<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  /* the type code of the element, used in osr map encoding. */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  byte INT = 0;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  byte HIGH_64BIT = 1; //used to store the high bits of a 64-bit value<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  byte LONG = 2;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  byte FLOAT = 3;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  byte DOUBLE = 4;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  byte RET_ADDR = 5;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  byte REF = 6;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  byte WORD = 7;<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>  /* value type */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  byte ICONST = 0;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  byte ACONST = 3;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  byte LCONST = 4;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  byte PHYREG = 1;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  byte SPILL = 2;<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>  /////////////////////////////////////////////////<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  // Part III  Pseudo bytecodes<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  ////////////////////////////////////////////////<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  /* We define instruction as follows: JBC_impdep1,<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   *   PSEUDO_instruction, values<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   *<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * LoadConst takes encoded value and push on the top of stack.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * Compiler should construct constant values, and use Magic to<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * convert INT to FLOAT, or LONG to DOUBLE.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   *<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * LoadRetAddrConst followed by offset from the PC of this instruction.<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   *<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * InvokeStatic encoded with index into JTOC.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   *<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * All value are signed except LoadRetAddrConst<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * LoadIntConst :             B, V0, V1, V2, V3<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * LoadLongConst:             B, H0, H1, H2, H3, L0, L1, L2, L3<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   * LoadWordConst: on 32-bit:  B, V0, V1, V2, V3<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   * LoadWordConst: on 64-bit:  B, H0, H1, H2, H3, L0, L1, L2, L3<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   * LoadFloatConst:            B, V0, V1, V2, V3<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * LoadDoubleConst:           B, H0, H1, H2, H3, L0, L1, L2, L3<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   * LoadRetAddrConst:          B, V0, V1, V2, V3<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   *<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * All value are unsigned:<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * InvokeStatic :             B, L0, L1, L2, L3<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   *<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   * The change of stack is pretty obvious.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   */<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>  int PSEUDO_LoadIntConst = 1;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  int PSEUDO_LoadLongConst = 2;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  int PSEUDO_LoadFloatConst = 3;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  int PSEUDO_LoadDoubleConst = 4;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  int PSEUDO_LoadRetAddrConst = 5;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  int PSEUDO_LoadWordConst = 6;<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>  int PSEUDO_InvokeStatic = 7;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  int PSEUDO_CheckCast = 8;<a name="line.157"></a>
+<span class="sourceLineNo">158</span><a name="line.158"></a>
+<span class="sourceLineNo">159</span>  /* followed by compiled method ID */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  int PSEUDO_InvokeCompiledMethod = 9;<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>  /* indicate local initialization ends, for baselike compiler */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  int PSEUDO_ParamInitEnd = 10;<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>  /* special method id for PSEUDO_InvokeStatic, target must be listed here */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  int GETREFAT = 0;  // ObjectHolder.getRefAt<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  int CLEANREFS = 1;  // ObjectHolder.cleanRefAt<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>  byte ReturnAddressTypeCode = (byte) 'R';<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  byte WordTypeCode = (byte) 'W';  //'A'<a name="line.170"></a>
+<span class="sourceLineNo">171</span>}<a name="line.171"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

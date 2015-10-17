@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>package org.jikesrvm.tuningfork;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.policy.Space;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.policy.Space.SpaceVisitor;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.utility.Constants;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import com.ibm.tuningfork.tracegen.chunk.Chunk;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * A chunk to encode Space index/Space name mappings.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>public class SpaceDescriptorChunk extends Chunk {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  private static final int SPACE_DESCRIPTOR_CHUNK_ID = (64 * 1024) + 100;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>  public static final int SPACE_DESCRIPTOR_COUNT_OFFSET = DATA_OFFSET;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  public static final int SPACE_DESCRIPTOR_DATA_OFFSET = SPACE_DESCRIPTOR_COUNT_OFFSET + ENCODING_SPACE_INT;<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>  private int numSpaces;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>  SpaceDescriptorChunk() {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    super(SPACE_DESCRIPTOR_CHUNK_ID);<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>    /* Write mapping of space ids to logical space names */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    seek(SPACE_DESCRIPTOR_DATA_OFFSET);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    numSpaces = 0;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    Space.visitSpaces(new SpaceVisitor() {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>      @Override<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      public void visit(Space s) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        numSpaces++;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        addInt(s.getIndex());<a name="line.43"></a>
+<span class="sourceLineNo">044</span>        addString(s.getName());<a name="line.44"></a>
+<span class="sourceLineNo">045</span>      }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    });<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    int pos = getPosition();<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    seek(SPACE_DESCRIPTOR_COUNT_OFFSET);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    addInt(numSpaces);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    seek(pos);<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>    /* Pages per byte */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    addInt(Constants.BYTES_IN_PAGE);<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>    /* Possible heap range */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /* TODO: Horrific 32 bit assumption.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     *       Matches equally bogus assumption in event definitions that use<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     *       an int to pass addresses.<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     *       MUST FIX BEFORE MERGING TO TRUNK!<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    addInt(org.mmtk.vm.VM.HEAP_START.toInt());<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    addInt(org.mmtk.vm.VM.HEAP_END.toInt());<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    close();<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>}<a name="line.67"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
