@@ -10,12 +10,14 @@ _**Note: This page hasn't been updated for the recent changes due to the migrati
 
 Leading up to a release, here are the steps to take.&nbsp; All commits are to tip (default branch).
 
-1. Update the release number in build.xml (will continue to have +hg suffix) and commit change
-2. Export the userguide from confluence.&nbsp; Update html and pdf versions of userguide and commit.
-3. Update JIRA version management to indicate that version has been released.
-4. Generate text release notes from JIRA and put them in NEWS.txt.&nbsp; Commit.
-5. Generate javadoc (apidoc target).&nbsp; If needed, fix errors and commit changes.
-6. Upload javadoc to static webspace on sourceforge (htdocs/apidocs/version).&nbsp; Switch "latest" symlink to point to version.
+1. Generate javadoc (apidoc target).&nbsp; If needed, fix errors and commit changes.
+2. Update the release number in build.xml (will continue to have +hg suffix) and commit change
+3. Export the userguide from confluence.&nbsp; Update html and pdf versions of userguide and commit.
+4. Update JIRA version management to indicate that version has been released.
+5. Generate text release notes from JIRA and put them in NEWS.txt.&nbsp; Commit.
+6. Upload javadoc to static webspace on sourceforge (htdocs/apidocs/version).&nbsp; Switch "latest" symlink to point to version. TODO JavaDoc for new releases should be in the main Git website repository now.
+
+TODO update for git. TODO Double-check part about pushing tags.
 
 In a clean hg repository (no incoming/outgoing changesets). Perform the following steps
 
@@ -36,4 +38,4 @@ Publish and announce the release
 1. Upload release tar balls and README.txt to sourceforge; set it as default download using Files GUI.
 2. Update the [Releases](/Releases/) page to link to the new download version
 3. Send out mail announcements to jikesrvm-announce and jikesrvm-researchers
-4. Also post announcement in SF news and Confluence news.
+4. Also post announcement in SF news and on the website (create a new post in the _posts directory).
