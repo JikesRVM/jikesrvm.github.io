@@ -83,6 +83,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - [Filip Pizlo](http://homepage.mac.com/pizlo/)
 - Kathiravelu Pradeeban
 - Carl Ritson
+- Benjamin George Roberts
 - Quentin Sabah
 - João Reys Santos
 - Aritra Sengupta
