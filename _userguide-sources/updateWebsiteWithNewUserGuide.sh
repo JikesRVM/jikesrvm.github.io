@@ -16,6 +16,7 @@ frontmatterFile="jekyll-frontmatter"
 tmpFile="cat-tmp-html"
 sedTmpFile="sed-tmp-html"
 sedTmpFileImage="sed-tmp-html-image"
+sedTmpFileImageTakeTwo="sed-tmp-html-image-take-two"
 sedTestFile="sed-test-file"
 
 # Copy files to build dir
@@ -47,7 +48,8 @@ do
   #  i.e. href="/something/bla.html" and not something like href="http://example.com"
   sed 's|href=\"\([^:]*\)\.html#|href=\"/UserGuide/\1\/index.html#|g' $tmpFile > $sedTmpFile
   sed 's|src=\"\(.*\)\.png|src=\"/UserGuide/\1\.png|g' $sedTmpFile > $sedTmpFileImage
-  mv $sedTmpFileImage $htmlFile
+  sed 's|src=\"\(.*\)\.jpg|src=\"/UserGuide/\1\.jpg|g' $sedTmpFileImage > $sedTmpFileImageTakeTwo
+  mv $sedTmpFileImageTakeTwo $htmlFile
 done
 
 # Copy new CSS
@@ -68,6 +70,7 @@ rm $frontmatterFile
 rm $tmpFile
 rm $frontmatterFile
 rm $sedTmpFile
+rm $sedTmpFileImage
 rm $sedTestFile
 
 # Update 
