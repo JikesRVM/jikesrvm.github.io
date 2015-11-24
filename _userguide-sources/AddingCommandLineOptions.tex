@@ -1,0 +1,162 @@
+\setNextFileName{AddingCommandLineOptions.html}
+\begin{section}{Adding command line options}
+\label{sec:addingcommandlineoptions}
+
+There are several places in Jikes RVM where options can be defined and each of those uses another approach. There are options for
+\begin{itemize}
+\item MMTk
+\item VM subystems such as the compilers and the AOS
+\item the core VM
+\end{itemize}
+
+\begin{subsection}{MMTk options}
+
+Options that are relevant for MMTk can be found in the package \texttt{org.mmtk.uti\-li\-ty.options}. The only exception are options that must be parsed before the VM can actually start (e.g. \spverb+-Xms+ and \spverb+-Xmx+). Those options are classified as core VM options.
+
+To create a new MMTk option, create a new class in the \texttt{org.mmtk.uti\-li\-ty.options} package, e.g. \spverb+YourOption+. The class must extend a class from the package \texttt{org.vm\-util.options}. Depending on the type of option, you may want to implement the \texttt{validate} method.
+
+\begin{lstlisting}[language=Java,title=YourOption.java]
+/** Your JavaDoc */
+public class YourOption extends org.vmutil.options.IntOption {
+
+  private static final int DEFAULT_VALUE = 42;
+
+  public YourOption() {
+    super(Options.set, "The name of your option",
+        "The description of your option", DEFAULT_VALUE);
+  }
+
+  @Override
+  protected void validate() {
+    failIf(value < 0 || value > 55,
+        "Value for your option must be non-negative and 55 or smaller");
+  }
+}
+\end{lstlisting}
+
+The newly created option must be linked to the rest of the system. In \spverb+Options+ from the package \texttt{org.mmtk.uti\-li\-ty.options}, add a static variable for the option:
+\begin{lstlisting}[language=Java,title=Options.java]
+public static YourOption yourOption;
+\end{lstlisting}
+
+Lastly, you will need to create an instance of the option in an appropriate place:
+\begin{lstlisting}[language=Java]
+Options.yourOption = new YourOption();
+\end{lstlisting}
+General options can be created in the constructor of \texttt{org.mmtk.plan.Plan}. If the option is specific to a garbage collector, you can create it in one of the collector's classes.
+
+The actual String for the option that will be used on the command line is not determined by MMTk but computed by the VM (Jikes RVM in this case). To look up the chosen key for the newly added option, rebuild Jikes RVM, pass \spverb+-X:gc+ and examine the output. The output displays a list of MMTk options. This list should now include the newly-added option. To verify that the default value is correctly set, use \spverb+-X:gc:printOptions+ and check the value.
+
+\end{subsection}
+
+\begin{subsection}{VM subsystem options}
+
+This section still needs to be written. VM subsystem options are the easiest ones so it shouldn't be hard. Until this section is written, you can take a look at the existing options in \texttt{rvm/src-generated/options}.
+
+\end{subsection}
+
+\begin{subsection}{Core VM options}
+
+Options for the core VM are not specific to a certain subsystem. These options are recognized for all builds of Jikes RVM. This category includes
+\begin{itemize}
+  \item bootloader options (e.g. file names for code, data and reference maps of the VM)
+  \item options that must be processed without help of Java code (e.g. \spverb+Xms+ for the initial heap size or \spverb+-Xbootclasspath/p:<cp>+ for modification of the boot classpath)
+  \item prefixes for option groups like \spverb+-X:opt+ or \spverb+-X:gc+
+\end{itemize}
+
+Note that an option can be recognized without being available for use. For example, attempting to use \spverb+-X:opt+ to get help about the optimizing compiler options will fail on builds that don't include the optimizing compiler.
+
+All Core VM options are parsed in the C code. Some are also processed in Java code. If you want to add a core VM option, you will need to modify the bootloader code in order to ensure that options are passed correctly. Recall that the Jikes RVM command line help (\spverb+-help+) says the following:
+\begin{lstlisting}
+Usage: JikesRVM [-options] class [args...]
+          (to execute a class)
+   or  JikesRVM [-options] -jar jarfile [args...]
+          (to execute a jar file)
+\end{lstlisting}
+The bootloader enforces this usage. It parses all options and if it encounters an option that it doesn't recognize, it will assume that this option signifies the start of the application arguments. Consequently, it is necessary to tell the bootloader about all core VM options. The relevant code fragment is shown below.
+
+\begin{lstlisting}[language=C,title=main.c]
+#define BOOTCLASSPATH_A_INDEX         BOOTCLASSPATH_P_INDEX + 1
+#define PROCESSORS_INDEX              BOOTCLASSPATH_A_INDEX + 1
+
+#define numNonstandardArgs      PROCESSORS_INDEX + 1
+
+static const char* nonStandardArgs[numNonstandardArgs] = {
+ ... more code here ...
+  "-X:availableProcessors=",
+};
+\end{lstlisting}
+
+To add a new option, make the following modifications:
+
+\begin{lstlisting}[language=C,title=main.c]
+#define BOOTCLASSPATH_A_INDEX         BOOTCLASSPATH_P_INDEX + 1
+#define PROCESSORS_INDEX              BOOTCLASSPATH_A_INDEX + 1
+#define YOUR_OPTION_INDEX             PROCESSORS_INDEX + 1
+
+#define numNonstandardArgs      YOUR_OPTION_INDEX + 1
+
+static const char* nonStandardArgs[numNonstandardArgs] = {
+ ... more code here ...
+  "-X:availableProcessors=",
+  "-X:your_option=",
+};
+\end{lstlisting}
+
+It is recommended that you also add a description of your option to the \texttt{non\-stan\-dard\-usage} array.
+
+You must modify \spverb+processCommandLineArguments(..)+ to recognize the option in order to make sure that the option is properly handled and/or passed to the Java code. Failing to do so will cause bugs like \hyperref{RVM-1066}{https://xtenlang.atlassian.net/browse/RVM-1066}. For example, if the option were to take one token, the original code
+
+\begin{lstlisting}[language=C,title=main.c]
+// All VM directives that take one token
+if (STRNEQUAL(token, "-D", 2)
+        || STRNEQUAL(token, nonStandardArgs[INDEX], 5)
+... more code here ...
+        || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_P_INDEX], 18)
+        || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_A_INDEX], 18)
+        || STRNEQUAL(token, nonStandardArgs[PROCESSORS_INDEX], 14))
+    {
+      CLAs[n_JCLAs++]=token;
+      continue;
+    }
+\end{lstlisting}
+
+would need to be changed to
+\begin{lstlisting}[language=C,title=main.c]
+if (STRNEQUAL(token, "-D", 2)
+        || STRNEQUAL(token, nonStandardArgs[INDEX], 5)
+... more code here ...
+        || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_P_INDEX], 18)
+        || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_A_INDEX], 18)
+        || STRNEQUAL(token, nonStandardArgs[PROCESSORS_INDEX], 14)
+        || STRNEQUAL(token, nonStandardArgs[YOUR_OPTION_INDEX], $LENGTH))
+    {
+      CLAs[n_JCLAs++]=token;
+      continue;
+    }
+\end{lstlisting}
+where \spverb+$LENGTH+ is the length of the string for your option that you added to the \spverb+nonStandardArgs+ array.
+
+The above steps are sufficient for options that only need processing in bootloader code. If your option needs processing in Java, you will need to modify \spverb+CommandLineArgs+. Firstly, add a new constant for your option to \spverb+PrefixType+. For example, the code
+\begin{lstlisting}[language=Java,title=CommandLineArgs.java]
+    BOOTCLASSPATH_A_ARG,
+    BOOTSTRAP_CLASSES_ARG,
+    AVAILABLE_PROCESSORS_ARG
+}
+\end{lstlisting}
+
+would need to be changed to
+
+\begin{lstlisting}[language=Java,title=CommandLineArgs.java]
+    BOOTCLASSPATH_A_ARG,
+    BOOTSTRAP_CLASSES_ARG,
+    AVAILABLE_PROCESSORS_ARG,
+    YOUR_OPTION_ARG
+}
+\end{lstlisting}
+
+Secondly, you will need to create a new \spverb+Prefix+ instance in the \spverb+prefixes+ array. After that, you're ready to add the processing of your option.
+
+\end{subsection}
+
+\end{section}
