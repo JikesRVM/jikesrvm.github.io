@@ -51,7 +51,17 @@ The actual String for the option that will be used on the command line is not de
 
 \begin{subsection}{VM subsystem options}
 
-This section still needs to be written. VM subsystem options are the easiest ones so it shouldn't be hard. Until this section is written, you can take a look at the existing options in \texttt{rvm/src-generated/options}.
+Classes for handling VM subsystem options are generated during the build process. The source files for the options are in \texttt{rvm/src-generated/options}. The generated option classes are
+\begin{itemize}
+  \item \texttt{org.jikes\-rvm.Options} for VM options
+  \item \texttt{org.jikes\-rvm.adaptive.util.AOS\-Ex\-ter\-nal\-Options} for AOS Options
+  \item \texttt{org.jikes\-rvm.com\-pi\-lers.ba\-se\-li\-ne.Ba\-se\-li\-ne\-Options} for baseline compiler options
+  \item \texttt{org.jikes\-rvm.com\-pi\-lers.opt.Opt\-Options} for opt compiler options
+\end{itemize}
+
+Each option class is generated from the matching template file (e.g. \texttt{AOS\-Options.tem\-pla\-te} for \texttt{AOS\-Ex\-ter\-nal\-Options}) and its specific options (e.g. \texttt{Boo\-lean\-Options.aos.dat} and \texttt{Value\-Options.aos.dat}). Additionally, the baseline and opt compiler options also use the shared option files \texttt{Sha\-red\-Boo\-lean\-Options.dat} and \texttt{Sha\-red\-Va\-lue\-Options.dat}.
+
+The existing options and documentation in the files should be sufficient to create new options. Please notify us if the documentation needs to be improved.
 
 \end{subsection}
 
