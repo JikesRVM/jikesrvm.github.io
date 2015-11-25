@@ -13,7 +13,7 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-11-24 22:11:00" /> 
+<meta name="date" content="2015-11-25 15:57:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
@@ -154,15 +154,45 @@ value.
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.1.2   </span> <a 
  id="x9-740007.1.2"></a>VM subsystem options</h4>
-<!--l. 54--><p class="noindent" >This section still needs to be written. VM subsystem options are the easiest ones so it
-shouldn&#x2019;t be hard. Until this section is written, you can take a look at the existing
-options in <span 
-class="cmtt-10">rvm/src-generated/options</span>.
-</p><!--l. 58--><p class="noindent" >
+<!--l. 54--><p class="noindent" >Classes for handling VM subsystem options are generated during the build process.
+The source ﬁles for the options are in <span 
+class="cmtt-10">rvm/src-generated/options</span>. The generated
+option classes are </p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="cmtt-10">org.jikesrvm.Options </span>for VM options
+     </li>
+     <li class="itemize"><span 
+class="cmtt-10">org.jikesrvm.adaptive.util.AOSExternalOptions </span>for AOS Options
+     </li>
+     <li class="itemize"><span 
+class="cmtt-10">org.jikesrvm.compilers.baseline.BaselineOptions   </span>for    baseline
+     compiler options
+     </li>
+     <li class="itemize"><span 
+class="cmtt-10">org.jikesrvm.compilers.opt.OptOptions </span>for opt compiler options</li></ul>
+<!--l. 62--><p class="noindent" >Each option class is generated from the matching template ﬁle (e.g.
+<span 
+class="cmtt-10">AOSOptions.template </span>for <span 
+class="cmtt-10">AOSExternalOptions</span>) and its speciﬁc options (e.g.
+<span 
+class="cmtt-10">BooleanOptions.aos.dat </span>and <span 
+class="cmtt-10">ValueOptions.aos.dat</span>). Additionally, the baseline
+and opt compiler options also use the shared option ﬁles <span 
+class="cmtt-10">SharedBooleanOptions.dat</span>
+and <span 
+class="cmtt-10">SharedValueOptions.dat</span>.
+</p><!--l. 64--><p class="noindent" >The existing options and documentation in the ﬁles should be suﬃcient
+to create new options. Please notify us if the documentation needs to be
+improved.
+                                                                  
+
+                                                                  
+</p><!--l. 68--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.1.3   </span> <a 
  id="x9-750007.1.3"></a>Core VM options</h4>
-<!--l. 60--><p class="noindent" >Options for the core VM are not speciﬁc to a certain subsystem. These options are
+<!--l. 70--><p class="noindent" >Options for the core VM are not speciﬁc to a certain subsystem. These options are
 recognized for all builds of Jikes RVM. This category includes </p>
      <ul class="itemize1">
      <li class="itemize">bootloader options (e.g. ﬁle names for code, data and reference maps of
@@ -177,19 +207,16 @@ class="cmtt-10">-Xbootclasspath/p:&#x003C;cp&#x003E;</span></span></span> for mo
      <li class="itemize">preﬁxes for option groups like <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-X:opt</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-X:gc</span></span></span></li></ul>
-                                                                  
-
-                                                                  
-<!--l. 67--><p class="noindent" >Note that an option can be recognized without being available for use. For example,
+<!--l. 77--><p class="noindent" >Note that an option can be recognized without being available for use. For example,
 attempting to use <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-X:opt</span></span></span> to get help about the optimizing compiler options will fail
 on builds that don&#x2019;t include the optimizing compiler.
-</p><!--l. 69--><p class="noindent" >All Core VM options are parsed in the C code. Some are also processed in
+</p><!--l. 79--><p class="noindent" >All Core VM options are parsed in the C code. Some are also processed in
 Java code. If you want to add a core VM option, you will need to modify
 the bootloader code in order to ensure that options are passed correctly.
 Recall that the Jikes RVM command line help (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-help</span></span></span>) says the following:
-</p><!--l. 70-->
+</p><!--l. 80-->
 <div class="lstlisting" id="listing-48"><span class="label"><a 
  id="x9-75001r1"></a></span>Usage: JikesRVM [<span 
 class="cmsy-10">−</span>options] class [args...] <br /><span class="label"><a 
@@ -199,13 +226,13 @@ class="cmsy-10">−</span>options] <span
 class="cmsy-10">−</span>jar jarfile [args...] <br /><span class="label"><a 
  id="x9-75004r4"></a></span>          (to execute a jar file)
 </div>
-<!--l. 76--><p class="noindent" >The bootloader enforces this usage. It parses all options and if it encounters an
+<!--l. 86--><p class="noindent" >The bootloader enforces this usage. It parses all options and if it encounters an
 option that it doesn&#x2019;t recognize, it will assume that this option signiﬁes the
 start of the application arguments. Consequently, it is necessary to tell the
 bootloader about all core VM options. The relevant code fragment is shown
 below.
 </p>
-<!--l. 78-->
+<!--l. 88-->
 <br />
     <div class="caption" 
 ><span class="id">6cAp2x9-750007.1.3:
@@ -234,9 +261,9 @@ class="cmsy-10">−</span>X:availableProcessors=”, <br /><span class="label">
  id="x9-75013r9"></a></span><span 
 class="cmsy-10">}</span>;
 </div>
-<!--l. 90--><p class="noindent" >To add a new option, make the following modiﬁcations:
+<!--l. 100--><p class="noindent" >To add a new option, make the following modiﬁcations:
 </p>
-<!--l. 92-->
+<!--l. 102-->
 <br />
     <div class="caption" 
 ><span class="id">6cAp3x9-750007.1.3:
@@ -269,18 +296,21 @@ class="cmsy-10">−</span>X:availableProcessors=”, <br /><span class="label">
 class="cmsy-10">−</span>X:your_option=”, <br /><span class="label"><a 
  id="x9-75024r11"></a></span><span 
 class="cmsy-10">}</span>;
+                                                                  
+
+                                                                  
 </div>
-<!--l. 106--><p class="noindent" >It is recommended that you also add a description of your option to the
+<!--l. 116--><p class="noindent" >It is recommended that you also add a description of your option to the
 <span 
 class="cmtt-10">nonstandardusage </span>array.
-</p><!--l. 108--><p class="noindent" >You must modify <span class="obeylines-h"><span class="verb"><span 
+</p><!--l. 118--><p class="noindent" >You must modify <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">processCommandLineArguments(..)</span></span></span> to recognize the option in
 order to make sure that the option is properly handled and/or passed to the Java
 code. Failing to do so will cause bugs like <a 
 href="RVM-1066#https://xtenlang.atlassian.net/browse/RVM-1066.." >F</a>or example, if the option were to take one
 token, the original code
 </p>
-<!--l. 110-->
+<!--l. 120-->
 <br />
         <div class="caption" 
 ><span class="id">6cAp4x9-750007.1.3:
@@ -322,10 +352,7 @@ class="cmbx-10">continue</span>; <br /><span class="label"><a
  id="x9-75035r11"></a></span>    <span 
 class="cmsy-10">}</span>
 </div>
-<!--l. 124--><p class="noindent" >would need to be changed to </p><!--l. 125-->
-                                                                  
-
-                                                                  
+<!--l. 134--><p class="noindent" >would need to be changed to </p><!--l. 135-->
 <br />
         <div class="caption" 
 ><span class="id">6cAp5x9-750007.1.3:
@@ -354,16 +381,16 @@ class="cmbx-10">continue</span>; <br /><span class="label"><a
  id="x9-75046r11"></a></span>    <span 
 class="cmsy-10">}</span>
 </div>
-<!--l. 138--><p class="noindent" >where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 148--><p class="noindent" >where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">$LENGTH</span></span></span> is the length of the string for your option that you added to the
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">nonStandardArgs</span></span></span> array.
-</p><!--l. 140--><p class="noindent" >The above steps are suﬃcient for options that only need processing in bootloader code.
+</p><!--l. 150--><p class="noindent" >The above steps are suﬃcient for options that only need processing in bootloader code.
 If your option needs processing in Java, you will need to modify <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">CommandLineArgs</span></span></span>.
 Firstly, add a new constant for your option to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">PrefixType</span></span></span>. For example, the code
-</p><!--l. 141-->
+</p><!--l. 151-->
 <br />
     <div class="caption" 
 ><span class="id">6cAp6x9-750007.1.3:
@@ -375,9 +402,9 @@ class="content">CommandLineArgs.java</span></div><!--tex4ht:label?: x9-750007.1 
  id="x9-75050r4"></a></span><span 
 class="cmsy-10">}</span>
 </div>
-<!--l. 148--><p class="noindent" >would need to be changed to
+<!--l. 158--><p class="noindent" >would need to be changed to
 </p>
-<!--l. 150-->
+<!--l. 160-->
 <br />
     <div class="caption" 
 ><span class="id">6cAp7x9-750007.1.3:
@@ -390,12 +417,15 @@ class="content">CommandLineArgs.java</span></div><!--tex4ht:label?: x9-750007.1 
  id="x9-75055r5"></a></span><span 
 class="cmsy-10">}</span>
 </div>
-<!--l. 158--><p class="noindent" >Secondly, you will need to create a new <span class="obeylines-h"><span class="verb"><span 
+<!--l. 168--><p class="noindent" >Secondly, you will need to create a new <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Prefix</span></span></span> instance in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">prefixes</span></span></span> array. After
 that, you&#x2019;re ready to add the processing of your option.
 </p><!--l. 2--><p class="noindent" >
 </p>
+                                                                  
+
+                                                                  
 <h3 class="sectionHead"><span class="titlemark">7.2   </span> <a 
  id="x9-760007.2"></a>Adding a new garbage collector</h3>
 <!--l. 6--><p class="noindent" >
@@ -410,9 +440,6 @@ design your own GC!
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.2.2   </span> <a 
  id="x9-780007.2.2"></a>Prerequisites</h4>
-                                                                  
-
-                                                                  
 <!--l. 14--><p class="noindent" >Ensure that you have got a clean copy of the source (either a recent release or the git
 HEAD) and can correctly and successfully build one of the base garbage collectors.
 There&#x2019;s little point in trying to build your own until you can reliably build an
@@ -464,6 +491,9 @@ href="/UserGuide/indexpa1/index.html#x2-1000I">how to build and run</a> the VM.
  id="x9-790007.2.3"></a>Cloning the MarkSweep GC</h4>
 <!--l. 44--><p class="noindent" >The best way to do this is in eclipse or a similar tool (see here for how to work with
 eclipse):
+                                                                  
+
+                                                                  
      </p><ol  class="enumerate1" >
      <li 
   class="enumerate" id="x9-79002x1">Clone the <span 
@@ -486,9 +516,6 @@ class="newline" />org.mmtk.plan.mygc (or whatever you like)
              <li 
   class="enumerate" id="x9-79012x4">This will have cloned the marksweep GC in a new package called
              org.mmtk.plan.mygc</li></ol>
-                                                                  
-
-                                                                  
          </li>
          <li 
   class="enumerate" id="x9-79014x2">or by hand:
@@ -528,6 +555,9 @@ class="newline" />MMTk/org/mmtk/plan/mygc
          
          </div>
          </li></ol>
+                                                                  
+
+                                                                  
      </li>
      <li 
   class="enumerate" id="x9-79032x3">Now test your new GC:</li></ol>
@@ -542,9 +572,6 @@ class="cmsy-10">−</span>t gctest BaseBase MyGC
 <!--l. 82--><p class="noindent" >You should have got similar output to your test of MarkSweep above.
 </p><!--l. 84--><p class="noindent" >That&#x2019;s it. You&#x2019;re done. <span 
 class="wasy-10">☺</span>
-                                                                  
-
-                                                                  
 </p><!--l. 88--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.2.4   </span> <a 
@@ -599,6 +626,9 @@ class="cmti-10">build/conﬁgs</span>, and edit each ﬁle <span
 class="cmti-10">*MyGC.properties </span>to refer to
          your renamed classes</li></ul>
      </li></ol>
+                                                                  
+
+                                                                  
 <!--l. 110--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.2.5   </span> <a 
@@ -611,9 +641,6 @@ class="cmti-10">FullAdaptive</span><span
 class="cmbxti-10">MyGC</span>). It&#x2019;s best to leave
 the Fast conﬁgurations for last, when you&#x2019;re sure that your GC is working
 correctly.
-                                                                  
-
-                                                                  
 </p><!--l. 116--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.2.6   </span> <a 
@@ -659,6 +686,9 @@ at:” will appear.
 </p><!--l. 18--><p class="noindent" >If you use the form with a message the message must be a single string literal. Doing
 string appends in assertions can be a source of horrible performance problems when
 assertions are enabled (i.e. most development builds). If you want to provide a more
+                                                                  
+
+                                                                  
 detailed error message when the assertion fails, then you must use the following
 coding pattern:
 </p>
@@ -673,9 +703,6 @@ class="cmsy-10">{</span> <br /><span class="label"><a
 class="cmsy-10">}</span>
 </div>
 <!--l. 27--><p class="noindent" >An assertion failure is always followed by a stack dump.
-                                                                  
-
-                                                                  
 </p><!--l. 29--><p class="noindent" >Use <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">VM.ExtremeAssertions</span></span></span> instead of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">VM.VerifyAssertions</span></span></span> if the assertion is
@@ -717,15 +744,15 @@ are.
      an  OptimizingCompilerException  (e.g.  via  one  of  the  static  methods
      provided  by  that  class).  This  will  lead  to  a  hard  failure  when
      -X:vm:errorsFatal=true is set (which is the case in regression tests). In
+                                                                  
+
+                                                                  
      other cases, the VM will just revert to using the baseline compiler.
      </li>
      <li class="itemize">A command line option has a limited range of values. In MMTk, the
      correct approach is to implement the validate() method for the option.
      In other places, the value of the option needs to be checked at a suitable
      time.</li></ul>
-                                                                  
-
-                                                                  
 <!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">7.4   </span> <a 
@@ -1002,6 +1029,9 @@ listed below. Most of the style guide is intuitive; however, please read through
 document (or at least look at its sample code).
 </p><!--l. 43--><p class="noindent" >We have adopted four modiﬁcations to the Sun code conventions:
 </p>
+                                                                  
+
+                                                                  
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmbx-10">Two-space  indenting  </span>The  Sun  coding  convention  suggests  4  space
@@ -1015,9 +1045,6 @@ class="cmbx-10">132 column lines in exceptional cases </span>The Sun coding conv
      that lines be no longer than 80 columns. Several Jikes RVM contributors
      have found this constraining. Therefore, we allow 132 column lines for
      exceptional cases, such as to avoid bad line breaks.
-                                                                  
-
-                                                                  
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">if (VM.VerifyAssertions)</span></span></span> As a special case, the condition <span 
@@ -1063,6 +1090,9 @@ source code comments should appear as appropriate.
      overriden. If the comment from the method that you are overriding is
      suﬃcient, you do not need to provide JavaDoc for the newly added method
      - JavaDoc will automatically copy the JavaDoc from the overriden method.
+                                                                  
+
+                                                                  
      If you want to extend the comment from the overriden method with new
      information, use @inheritDoc to copy the comment from the superclass
      and add your text.
@@ -1079,9 +1109,6 @@ class="cmtt-10">@throws</span></span></span>).
   class="enumerate" id="x9-91008x4">Each class should include <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">@see</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">@link</span></span></span> references as appropriate.</li></ol>
-                                                                  
-
-                                                                  
 <!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">7.5   </span> <a 
@@ -1130,6 +1157,9 @@ class="cmtt-10">compilationRates</span></span></span> array.
 class="cmtt-10">Measure_Compilation_Opt_1</span></span></span> and the statistic
      Opt.bcb/ms. This is element 2 in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">compilationRates</span></span></span> array.
+                                                                  
+
+                                                                  
      </li>
      <li 
   class="enumerate" id="x9-92012x6">ﬁnd the section named <span class="obeylines-h"><span class="verb"><span 
@@ -1159,9 +1189,6 @@ class="cmtt-10">&#x003C;statistic key=&#x0022;aggregate.best.score&#x0022;</span
 class="cmtt-10">value=&#x0022;137.50&#x0022;/&#x003E;</span></span></span> the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">speedupRates</span></span></span> array element 1 should have a value
      of 4.76.
-                                                                  
-
-                                                                  
      </li>
      <li 
   class="enumerate" id="x9-92018x9">ﬁnd the section named <span class="obeylines-h"><span class="verb"><span 
@@ -1205,6 +1232,9 @@ been possible for the MMTk component since 2005, and as of early 2007
 codebase in Eclipse and similar environments. With Jikes RVM release 2.9.1,
 setting up your Eclipse environment to work with Jikes RVM became even
 easier.
+                                                                  
+
+                                                                  
 </p><!--l. 7--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">7.6.1   </span> <a 
@@ -1221,9 +1251,6 @@ later.
 class="tcrm-1000">$</span> git clone https://github.com/JikesRVM/JikesRVM.git
      
      </div>
-                                                                  
-
-                                                                  
      </li>
      <li 
   class="enumerate" id="x9-94005x2">Create the machine-generated ﬁles and eclipse metadata:
@@ -1276,6 +1303,9 @@ class="cmsy-10">−</span>project
          will edit on:
              <ul class="itemize1">
              <li class="itemize">jikesrvm/.project
+                                                                  
+
+                                                                  
              </li>
              <li class="itemize">jikesrvm/.classpath
              </li>
@@ -1298,9 +1328,6 @@ src="/UserGuide/images/EditingJikesRVMInAnIDE-ImportProject.jpg" alt="PIC"
          </li>
          <li 
   class="enumerate" id="x9-94028x3">Browse to ﬁnd the top-level directory.
-                                                                  
-
-                                                                  
          </li>
          <li 
   class="enumerate" id="x9-94030x4">Select the project (in this case JikesRVM ia32-linux development) <hr class="figure" /><div class="figure" 
@@ -1346,6 +1373,9 @@ proﬁle for Jikes RVM. Edit the new proﬁle. In the edit dialog, choose the ta
 ”Indentation”. Set the tab policy to ”Spaces only” and set both indentation size and
 tab size to 2. Also make sure that the box ”Empty lines” at the bottom of the
 ”Indentation” tab is not checked.
+                                                                  
+
+                                                                  
 </p><!--l. 69--><p class="noindent" >To ensure that you do not introduce whitespace at the end of lines you can conﬁgure
 Eclipse&#x2019;s Save actions in the project properties at Java Editor <span 
 class="tcrm-1000">→</span> Save Actions.
@@ -1365,9 +1395,6 @@ tab.
      </li>
      <li 
   class="enumerate" id="x9-96004x2">Install the Eclipse project importer
-                                                                  
-
-                                                                  
      </li>
      <li 
   class="enumerate" id="x9-96006x3">Select File <span 
