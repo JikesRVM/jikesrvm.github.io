@@ -13,7 +13,7 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2015-11-25 15:57:00" /> 
+<meta name="date" content="2015-11-26 16:35:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
@@ -643,24 +643,14 @@ class="cmtt-10">_ia32-linux</span><span
 class="cmtt-10">_ReadBarriers</span>:
 </p>
 <!--l. 8-->
-<div class="lstlisting" id="listing-7"><span class="label"><a 
+<div class="lstlisting" id="listing-9"><span class="label"><a 
  id="x5-30001r1"></a></span>% cd <span 
 class="tcrm-1000">$</span>RVM_ROOT <br /><span class="label"><a 
- id="x5-30002r2"></a></span>% ant <span 
-class="cmsy-10">−</span>Dconfig.name=prototype <span 
-class="cmsy-10">−</span>Dhost.name=ia32<span 
-class="cmsy-10">−</span>linux <br /><span class="label"><a 
- id="x5-30003r3"></a></span>% patch <span 
-class="cmsy-10">−</span>p0 <span 
+ id="x5-30002r2"></a></span>% ant -Dconfig.name=prototype -Dhost.name=ia32-linux <br /><span class="label"><a 
+ id="x5-30003r3"></a></span>% patch -p0 <span 
 class="cmmi-10">&#x003C;</span> ReadBarriers.diff <br /><span class="label"><a 
- id="x5-30004r4"></a></span>% ant <span 
-class="cmsy-10">−</span>Dconfig.variant=ReadBarriers <span 
-class="cmsy-10">−</span>Dconfig.name=prototype <span 
-class="cmsy-10">−</span>Dhost.name=ia32<span 
-class="cmsy-10">−</span>linux <br /><span class="label"><a 
- id="x5-30005r5"></a></span>% patch <span 
-class="cmsy-10">−</span>R <span 
-class="cmsy-10">−</span>p0 <span 
+ id="x5-30004r4"></a></span>% ant -Dconfig.variant=ReadBarriers -Dconfig.name=prototype -Dhost.name=ia32-linux <br /><span class="label"><a 
+ id="x5-30005r5"></a></span>% patch -R -p0 <span 
 class="cmmi-10">&#x003C;</span> ReadBarriers.diff
 </div>
 <!--l. 16--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
@@ -691,29 +681,17 @@ target.name properties to diﬀerent values.
 </p><!--l. 9--><p class="noindent" >For example, to build the prototype conﬁguration for AIX<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> on a Linux host:
 </p><!--l. 10-->
-<div class="lstlisting" id="listing-8"><span class="label"><a 
+<div class="lstlisting" id="listing-10"><span class="label"><a 
  id="x5-31001r1"></a></span>% cd <span 
 class="tcrm-1000">$</span>RVM_ROOT <br /><span class="label"><a 
- id="x5-31002r2"></a></span>% ant <span 
-class="cmsy-10">−</span>Dconfig.name=prototype <span 
-class="cmsy-10">−</span>Dhost.name=ia32<span 
-class="cmsy-10">−</span>linux <span 
-class="cmsy-10">−</span>Dtarget.name=ppc32<span 
-class="cmsy-10">−</span>aix cross<span 
-class="cmsy-10">−</span>compile<span 
-class="cmsy-10">−</span>host
+ id="x5-31002r2"></a></span>% ant -Dconfig.name=prototype -Dhost.name=ia32-linux -Dtarget.name=ppc32-aix cross-compile-host
 </div>
 <!--l. 15--><p class="noindent" >The build process is then completed by building just the boot loader on an AIX host:
 </p><!--l. 16-->
-<div class="lstlisting" id="listing-9"><span class="label"><a 
+<div class="lstlisting" id="listing-11"><span class="label"><a 
  id="x5-31003r1"></a></span>% cd <span 
 class="tcrm-1000">$</span>RVM_ROOT <br /><span class="label"><a 
- id="x5-31004r2"></a></span>% ant <span 
-class="cmsy-10">−</span>Dconfig.name=prototype <span 
-class="cmsy-10">−</span>Dhost.name=ppc32<span 
-class="cmsy-10">−</span>aix cross<span 
-class="cmsy-10">−</span>compile<span 
-class="cmsy-10">−</span>target
+ id="x5-31004r2"></a></span>% ant -Dconfig.name=prototype -Dhost.name=ppc32-aix cross-compile-target
 </div>
 <!--l. 21--><p class="noindent" >After the script has completed successfully, you should be able to run Jikes
 RVM.
@@ -732,10 +710,8 @@ class="cmtt-10">${components.dir}components.properties</span></span></span> ﬁl
 system was pppc32-linux):
 </p>
 <!--l. 30-->
-<div class="lstlisting" id="listing-10"><span class="label"><a 
- id="x5-32001r1"></a></span>ppc32<span 
-class="cmsy-10">−</span>linux.classpath.lib.dir=path/to/components/classpath/95/ppc32<span 
-class="cmsy-10">−</span>linux/lib
+<div class="lstlisting" id="listing-12"><span class="label"><a 
+ id="x5-32001r1"></a></span>ppc32-linux.classpath.lib.dir=path/to/components/classpath/95/ppc32-linux/lib
 </div>
 <!--l. 34--><p class="noindent" >It may be possible to simply build the dependencies on the host machine. Modify the
 <span class="obeylines-h"><span class="verb"><span 
@@ -748,10 +724,8 @@ machine. This works at the current time but may fail in the future if classpath
 changes the API between platforms. i.e.
 </p>
 <!--l. 36-->
-<div class="lstlisting" id="listing-11"><span class="label"><a 
- id="x5-32002r1"></a></span>ppc32<span 
-class="cmsy-10">−</span>linux.classpath.lib.dir=path/to/components/classpath/95/ia32<span 
-class="cmsy-10">−</span>linux/lib
+<div class="lstlisting" id="listing-13"><span class="label"><a 
+ id="x5-32002r1"></a></span>ppc32-linux.classpath.lib.dir=path/to/components/classpath/95/ia32-linux/lib
 </div>
 <!--l. 2--><p class="noindent" >
 </p>
@@ -803,9 +777,8 @@ others. If you really want to get the most of it, take a look at all the options
 running:
 </p>
 <!--l. 7-->
-<div class="lstlisting" id="listing-12"><span class="label"><a 
- id="x5-34001r1"></a></span>bin/buildit <span 
-class="cmsy-10">−</span>h
+<div class="lstlisting" id="listing-14"><span class="label"><a 
+ id="x5-34001r1"></a></span>bin/buildit -h
 </div>
 <!--l. 11--><p class="noindent" >...or read the script itself.
 </p><!--l. 14--><p class="noindent" >
@@ -827,19 +800,19 @@ class="cmbx-10">chipotle </span>(a remote PowerPC machine).
 <!--l. 20--><p class="noindent" >To build a production image on your desktop, habanero, do the following:
 </p>
 <!--l. 22-->
-<div class="lstlisting" id="listing-13"><span class="label"><a 
+<div class="lstlisting" id="listing-15"><span class="label"><a 
  id="x5-36001r1"></a></span>bin/buildit habanero production
 </div>
 <!--l. 26--><p class="noindent" >Or equivalently:
 </p>
 <!--l. 28-->
-<div class="lstlisting" id="listing-14"><span class="label"><a 
+<div class="lstlisting" id="listing-16"><span class="label"><a 
  id="x5-36002r1"></a></span>bin/buildit localhost production
 </div>
 <!--l. 32--><p class="noindent" >To build a production image on the remote machine jalapeno, do the following:
 </p>
 <!--l. 34-->
-<div class="lstlisting" id="listing-15"><span class="label"><a 
+<div class="lstlisting" id="listing-17"><span class="label"><a 
  id="x5-36003r1"></a></span>bin/buildit jalapeno production
                                                                   
 
@@ -853,7 +826,7 @@ class="cmbx-10">chipotle </span>(a remote PowerPC machine).
 following:
 </p>
 <!--l. 44-->
-<div class="lstlisting" id="listing-16"><span class="label"><a 
+<div class="lstlisting" id="listing-18"><span class="label"><a 
  id="x5-37001r1"></a></span>bin/buildit chipotle production
 </div>
 <!--l. 48--><p class="noindent" >Since building on a PowerPC machine can take a long time, you might prefer to build
@@ -861,9 +834,8 @@ on your x86 machine jalapeno and cross-build to chipotle. In that case you would
 do the following:
 </p>
 <!--l. 50-->
-<div class="lstlisting" id="listing-17"><span class="label"><a 
- id="x5-37002r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span>c chipotle production
+<div class="lstlisting" id="listing-19"><span class="label"><a 
+ id="x5-37002r1"></a></span>bin/buildit jalapeno -c chipotle production
 </div>
 <!--l. 54--><p class="noindent" >In each case, buildit ﬁgures out the host types by interrogating them and does the
 right thing (forcing a PPC build on the x86 host jalapeno since you&#x2019;ve told it
@@ -877,13 +849,13 @@ host.
 <!--l. 60--><p class="noindent" >If you want to specify the build fully, you can do something like this:
 </p>
 <!--l. 62-->
-<div class="lstlisting" id="listing-18"><span class="label"><a 
+<div class="lstlisting" id="listing-20"><span class="label"><a 
  id="x5-38001r1"></a></span>bin/buildit jalapeno FastAdaptive MarkSweep
 </div>
 <!--l. 66--><p class="noindent" >If you want to specify multiple diﬀerent GCs you could do:
 </p>
 <!--l. 68-->
-<div class="lstlisting" id="listing-19"><span class="label"><a 
+<div class="lstlisting" id="listing-21"><span class="label"><a 
  id="x5-38002r1"></a></span>bin/buildit jalapeno FastAdaptive MarkSweep SemiSpace GenMS
 </div>
 <!--l. 72--><p class="noindent" >which would build all three conﬁgurations on jalapeno.
@@ -900,10 +872,8 @@ measurably faster builds, and so should be used when doing performance testing.
 Buildit lets you do this trivially:
 </p>
 <!--l. 79-->
-<div class="lstlisting" id="listing-20"><span class="label"><a 
- id="x5-39001r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span><span 
-class="cmsy-10">−</span>profile production
+<div class="lstlisting" id="listing-22"><span class="label"><a 
+ id="x5-39001r1"></a></span>bin/buildit jalapeno --profile production
 </div>
 <!--l. 85--><p class="noindent" >
 </p>
@@ -926,12 +896,8 @@ tests).
 <!--l. 92--><p class="noindent" >To run the pre-commit test-run on your host jalapeno just do:
 </p>
 <!--l. 94-->
-<div class="lstlisting" id="listing-21"><span class="label"><a 
- id="x5-41001r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span><span 
-class="cmsy-10">−</span>test<span 
-class="cmsy-10">−</span>run pre<span 
-class="cmsy-10">−</span>commit jalapeno
+<div class="lstlisting" id="listing-23"><span class="label"><a 
+ id="x5-41001r1"></a></span>bin/buildit jalapeno --test-run pre-commit jalapeno
 </div>
 <!--l. 100--><p class="noindent" >
 </p>
@@ -940,9 +906,8 @@ class="cmsy-10">−</span>commit jalapeno
 <!--l. 101--><p class="noindent" >To run the dacapo tests against a production on the host jalapeno, do:
 </p>
 <!--l. 103-->
-<div class="lstlisting" id="listing-22"><span class="label"><a 
- id="x5-42001r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span>t dacapo production
+<div class="lstlisting" id="listing-24"><span class="label"><a 
+ id="x5-42001r1"></a></span>bin/buildit jalapeno -t dacapo production
 </div>
                                                                   
 
@@ -951,18 +916,15 @@ class="cmsy-10">−</span>t dacapo production
 jalapeno, do:
 </p>
 <!--l. 109-->
-<div class="lstlisting" id="listing-23"><span class="label"><a 
- id="x5-42002r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span>t dacapo FastAdaptive MarkSweep
+<div class="lstlisting" id="listing-25"><span class="label"><a 
+ id="x5-42002r1"></a></span>bin/buildit jalapeno -t dacapo FastAdaptive MarkSweep
 </div>
 <!--l. 113--><p class="noindent" >To run the dacapo and SPECjvm98 tests against production on the host jalapeno,
 do:
 </p>
 <!--l. 115-->
-<div class="lstlisting" id="listing-24"><span class="label"><a 
- id="x5-42003r1"></a></span>bin/buildit jalapeno <span 
-class="cmsy-10">−</span>t dacapo <span 
-class="cmsy-10">−</span>t SPECjvm98 production
+<div class="lstlisting" id="listing-26"><span class="label"><a 
+ id="x5-42003r1"></a></span>bin/buildit jalapeno -t dacapo -t SPECjvm98 production
 </div>
                                                                   
 
