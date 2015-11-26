@@ -2,11 +2,12 @@
 \begin{chapter}{Quick Start Guide}
 \label{cha:quickstartguide}
 
-On Ubuntu,
+On Ubuntu amd64,
 
 \begin{lstlisting}
-apt-get install git ant gcc g++ gcc-multilib g++-multilib
+apt-get install git ant gcc g++ gcc-multilib g++-multilib bison automake gettext libtool
 \end{lstlisting}
+
 
 Then check your Java version.  If you are using JDK 7, either ensure you are building a Jikes RVM version $\geq 3.1.3$ or switch to JDK 6.
 
@@ -14,8 +15,20 @@ Then,
 \begin{lstlisting}
 git clone https://github.com/JikesRVM/JikesRVM.git jikesrvm
 cd jikesrvm
-bin/buildit localhost prototype-opt             # Change this to select appopriate configuration
-./dist/prototype-opt_$(uname -m)-linux/rvm -version      # Change dir to use selected host and configuration
+\end{lstlisting}
+
+
+You can then build with Ant using
+\begin{lstlisting}
+ant -Dconfig.name=prototype-opt
+./dist/prototype-opt_x86_64-linux/rvm -version
+\end{lstlisting}
+
+or with buildit
+
+\begin{lstlisting}
+bin/buildit localhost prototype-opt -j /usr/lib/jvm/default-java
+./dist/prototype-opt_x86_64-linux/rvm -version
 \end{lstlisting}
 
 \end{chapter}

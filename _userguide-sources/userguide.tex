@@ -22,7 +22,15 @@
 \usepackage[usenames,dvipsnames]{xcolor} % for colored star on the Magic page
 \usepackage{amssymb} % for \bigstar on the Magic page
 \usepackage{hyperref} % for links
-\usepackage{listings} % for code listings and command lines
+
+\usepackage{listingsutf8} % for code listings and command lines
+% Fix up hyphens for listings, see http://tex.stackexchange.com/questions/33185/listings-package-changes-hyphens-to-minus-signs
+\makeatletter
+\lst@CCPutMacro\lst@ProcessOther {"2D}{\lst@ttfamily{-{}}{-{}}}
+\@empty\z@\@empty
+\makeatother
+
+
 \usepackage{graphicx} % for images
 \usepackage[htt]{hyphenat} % For words that contain underscores (e.g. command line options)
 \usepackage{spverbatim} % for spverbatim environment which breaks lines and \spverb macro
@@ -34,7 +42,7 @@
 
 \title{Jikes RVM User Guide}
 \author{Jikes RVM Contributors and Core Team}
-\lstset{breaklines=true,breakatwhitespace=false,frame=single} % Allow linebreaks anywhere and surround the listing with a frame consisting of a single line
+\lstset{breaklines=true,breakatwhitespace=false,frame=single} % Allow linebreaks anywhere and surround the listing with a frame consisting of a single line.
 
 % Disable paragraph indenting
 \setlength{\parindent}{0in}
