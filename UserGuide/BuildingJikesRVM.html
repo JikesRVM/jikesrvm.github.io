@@ -13,7 +13,7 @@ layout: default
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
-<meta name="date" content="2016-01-17 18:41:00" /> 
+<meta name="date" content="2016-02-09 16:15:00" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
 </head><body 
 >
@@ -31,70 +31,75 @@ etc.
 </p>
 <h3 class="sectionHead"><span class="titlemark">3.1   </span> <a 
  id="x5-70003.1"></a>Overview</h3>
-<!--l. 11--><p class="noindent" >
+<!--l. 11--><p class="noindent" >To avoid problems with the build, make sure that the path to the Jikes RVM source
+code doesn&#x2019;t contain any whitespace.
+</p><!--l. 13--><p class="noindent" >If you run into trouble when building Jikes RVM, don&#x2019;t hesitate to ask for help on
+the <a 
+href="http://www.jikesrvm.org/MailingLists/" >researchers mailing list</a>.
+</p><!--l. 15--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.1.1   </span> <a 
  id="x5-80003.1.1"></a>Compiling the source code</h4>
-<!--l. 12--><p class="noindent" >The majority of Jikes RVM is written in Java and will be compiled into class ﬁles
+<!--l. 17--><p class="noindent" >The majority of Jikes RVM is written in Java and will be compiled into class ﬁles
 just as with other Java applications. There is also a small portion of Jikes
 RVM that is written in C that must be compiled with a C compiler such
 as gcc. Jikes RVM uses <a 
 href="https://ant.apache.org" >Ant</a> version 1.7.0 or later as the build tool that
 orchestrates the build process and executes the steps required in building Jikes
 RVM.
-</p><!--l. 14--><p class="noindent" >Jikes RVM requires a complete install of ant, including the optional tasks. These are
+</p><!--l. 19--><p class="noindent" >Jikes RVM requires a complete install of ant, including the optional tasks. These are
 present if you download and install ant manually. Some Linux distributions have
 decided to break ant into multiple packages. So if you are installing on a platform
 such as Debian you may need to install another package such as &#x2019;ant-optional&#x2019;.
-</p><!--l. 17--><p class="noindent" >
+</p><!--l. 22--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.1.2   </span> <a 
  id="x5-90003.1.2"></a>Generating source code</h4>
-<!--l. 19--><p class="noindent" >The build process also generates Java and C source code based on build time
+<!--l. 24--><p class="noindent" >The build process also generates Java and C source code based on build time
 constants such as the selected instruction architecture, garbage collectors and
 compilers. The generation of the source code occurs prior to the compilation
 phase.
-</p><!--l. 23--><p class="noindent" >
+</p><!--l. 28--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.1.3   </span> <a 
  id="x5-100003.1.3"></a>Bootstrapping Jikes RVM</h4>
-<!--l. 25--><p class="noindent" >Jikes RVM compiles Java class ﬁles and produces arrays of code and data. To build
+                                                                  
+
+                                                                  
+<!--l. 30--><p class="noindent" >Jikes RVM compiles Java class ﬁles and produces arrays of code and data. To build
 itself Jikes RVM will execute on an existing Java Virtual Machine and compiles a
 copy of it&#x2019;s own class ﬁles into a boot image for the code and data using the boot
 image writer tool. The set of ﬁles compiled is called the <a 
 href="#x5-330003.7">Primordial Class List</a>. The
-                                                                  
-
-                                                                  
 boot image runner is a small C program that loads the boot image and transfers
 control ﬂow into Jikes RVM.
-</p><!--l. 29--><p class="noindent" >
+</p><!--l. 34--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.1.4   </span> <a 
  id="x5-110003.1.4"></a>Class libraries</h4>
-<!--l. 31--><p class="noindent" >The Java class library is the mechanism by which Java programs communicate with
+<!--l. 36--><p class="noindent" >The Java class library is the mechanism by which Java programs communicate with
 the outside world. Jikes RVM has conﬁgurable class library support, the most mature
 of which is the the <a 
 href="http://www.gnu.org/software/classpath/" >GNU Classpath</a> class library.
-</p><!--l. 33--><p class="noindent" >For GNU Classpath, the developer can either specify a particular version of GNU
+</p><!--l. 38--><p class="noindent" >For GNU Classpath, the developer can either specify a particular version of GNU
 Classpath to use. By default the build process will download and build GNU
 Classpath.
-</p><!--l. 35--><p class="noindent" >Previous releases of the Jikes RVM had support for the Apache Harmony class
+</p><!--l. 40--><p class="noindent" >Previous releases of the Jikes RVM had support for the Apache Harmony class
 library. This is no longer developed or supported because Apache Harmony
 development <a 
 href="https://harmony.apache.org/" >was stopped</a>. Support for OpenJDK is planned, but not yet
 implemented.
-</p><!--l. 41--><p class="noindent" >
+</p><!--l. 46--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">3.2   </span> <a 
  id="x5-120003.2"></a>Target Requirements</h3>
-<!--l. 43--><p class="noindent" >
+<!--l. 48--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.2.1   </span> <a 
  id="x5-130003.2.1"></a>Architectures</h4>
-<!--l. 44--><p class="noindent" >The PowerPC (or ppc) and ia32 instruction set architectures are supported by Jikes
+<!--l. 49--><p class="noindent" >The PowerPC (or ppc) and ia32 instruction set architectures are supported by Jikes
 RVM.
-</p><!--l. 46--><p class="noindent" >Intel&#x2019;s Instruction Set Architectures (ISAs) get known by diﬀerent names:
+</p><!--l. 51--><p class="noindent" >Intel&#x2019;s Instruction Set Architectures (ISAs) get known by diﬀerent names:
 </p>
      <ul class="itemize1">
      <li class="itemize">IA-32  is  the  name  used  to  describe  processors  such  as  386,  486  and
@@ -106,22 +111,22 @@ RVM.
      called x86_64 or AMD64, as AMD chips were the ﬁrst to support it. It
      is found in processors such AMD&#x2019;s Opteron and Athlon 64, as well as in
      Intel&#x2019;s own Pentium 4 processors that have EM64T in their name.
-     </li>
-     <li class="itemize">IA-64 is the name of Intel&#x2019;s Itanium processor ISA.</li></ul>
                                                                   
 
                                                                   
-<!--l. 54--><p class="noindent" >Jikes RVM currently supports the IA-32 ISA and work on IA32-e is in progress. As
+     </li>
+     <li class="itemize">IA-64 is the name of Intel&#x2019;s Itanium processor ISA.</li></ul>
+<!--l. 59--><p class="noindent" >Jikes RVM currently supports the IA-32 ISA and work on IA32-e is in progress. As
 IA-32e is backward compatible with IA-32, Jikes RVM can be built and run upon
 IA-32e processors. The IA-64 architecture supports IA-32 code through a
 compatibility mode or through emulation and Jikes RVM should run in this
 conﬁguration. Native IA-64 is not supported.
-</p><!--l. 56--><p class="noindent" >On PowerPC, only big endian is supported.
-</p><!--l. 60--><p class="noindent" >
+</p><!--l. 61--><p class="noindent" >On PowerPC, only big endian is supported.
+</p><!--l. 65--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.2.2   </span> <a 
  id="x5-140003.2.2"></a>Operating Systems</h4>
-<!--l. 61--><p class="noindent" >Jikes RVM is capable of running on any operating system that is supported by the
+<!--l. 66--><p class="noindent" >Jikes RVM is capable of running on any operating system that is supported by the
 GNU Classpath library, low level library support is implemented and memory layout
 is deﬁned. The low level library support includes interaction with the threading and
 signal libraries, memory management facilities and dynamic library loading services.
@@ -133,17 +138,17 @@ a port to win32 was completed but it was never integrated into the main
 Jikes RVM codebase. AIX was supported previously but support has been
 removed due to lack of demand. The same applies for support of Mac OS on
 PPC.
-</p><!--l. 63--><p class="noindent" >Note: Current implementation of Jikes RVM implies that system native libraries (like
+</p><!--l. 68--><p class="noindent" >Note: Current implementation of Jikes RVM implies that system native libraries (like
 GTK+) have been compiled with frame pointers. Most of Linux distribution have
 frame pointers enabled in most of the packages, but some explicitly use
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-fomit-frame-pointer</span></span></span> thus producing the library that can&#x2019;t be used with Jikes
 RVM.
-</p><!--l. 66--><p class="noindent" >
+</p><!--l. 71--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.2.3   </span> <a 
  id="x5-150003.2.3"></a>Support Matrix</h4>
-<!--l. 67--><p class="noindent" >The platform support matrix table details the targets that have historically
+<!--l. 72--><p class="noindent" >The platform support matrix table details the targets that have historically
 been supported and the current status of the support. The target.name
 column is the identiﬁer that Jikes RVM uses to identify this target. ??? means
 that we don&#x2019;t have regression machines for this platform so the Jikes RVM
@@ -155,7 +160,7 @@ platforms.
                                                                   
 
                                                                   
-<!--l. 71--><p class="noindent" ><a 
+<!--l. 76--><p class="noindent" ><a 
  id="x5-15001r1"></a></p><hr class="float" /><div class="float" 
 >
                                                                   
@@ -259,31 +264,31 @@ class="content">platform support matrix</span></div><!--tex4ht:label?: x5-15001r
                                                                   
 </div><hr class="endfloat" />
 </div>
-<!--l. 88--><p class="noindent" >x86_64 is currently only supported using the legacy 32bit addressing mode and
+<!--l. 93--><p class="noindent" >x86_64 is currently only supported using the legacy 32bit addressing mode and
 instructions. You need to install the 32-bit versions of the required libraries to build
 and use the x86_64 conﬁgurations.
-</p><!--l. 90--><p class="noindent" >Note that building on Windows is currently not supported. All previous attempts at
+</p><!--l. 95--><p class="noindent" >Note that building on Windows is currently not supported. All previous attempts at
 building on Windows natively (i.e. without cygwin) used the Apache Harmony
 classlibrary whose development has been discontinued. Support for building with
 cygwin is not yet implemented.
 </p>
 <h3 class="sectionHead"><span class="titlemark">3.3   </span> <a 
  id="x5-160003.3"></a>Tool Requirements</h3>
-<!--l. 98--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 103--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-170003.3"></a><span 
 class="cmbx-10">Java Virtual Machine</span></span>
 Jikes RVM requires an existing Java Virtual Machine that conforms to Java 6.0 such
 as Oracle JDK 1.6, OpenJDK/IcedTea 6 or IBM SDK 6.0. We also aim to support
 the Java 7.0-conformant ans Java 8.8-conformant versions of these virtual
 machines.
-</p><!--l. 102--><p class="noindent" >Some Java Virtual Machines are unable to cope with compiling the Java class library
+</p><!--l. 107--><p class="noindent" >Some Java Virtual Machines are unable to cope with compiling the Java class library
 so it is recommended that you install one of the above mentioned JVMs if they are
 not already installed on your system. The remaining build instructions assume that a
 suitable Java Virtual Machine is on your path. You can run <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">java -version</span></span></span> to check
 you are using the correct JVM.
 </p>
-<!--l. 106--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 111--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-180003.3"></a><span 
 class="cmbx-10">Ant</span></span>
 Ant version 1.7.0 or later is the tool required to orchestrate the build process. You
@@ -296,14 +301,14 @@ the optional tasks). You can run <span class="obeylines-h"><span class="verb"><s
 class="cmtt-10">ant -version</span></span></span> to check you are running the correct
 version of ant.
 </p>
-<!--l. 112--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 117--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-190003.3"></a><span 
 class="cmbx-10">C compilers</span></span>
 The Jikes RVM build assumes that the GNU Compiler Collection is present on the
 system. Most modern *nix environments satisfy this requirement. Clang should also
 work but is untested.
 </p>
-<!--l. 118--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 123--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-200003.3"></a><span 
 class="cmbx-10">Bison</span></span>
 As part of the build process, Jikes RVM uses the bison tool which should be present
@@ -312,20 +317,20 @@ on most modern *nix environments.
 
                                                                   
 </p>
-<!--l. 124--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 129--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-210003.3"></a><span 
 class="cmbx-10">Perl</span></span>
 Perl is trivially used as part of the build process but this requirement may be
 removed in future releases of Jikes RVM. Perl is also used as part of the regression
 and performance testing framework.
 </p>
-<!--l. 130--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 135--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-220003.3"></a><span 
 class="cmbx-10">Awk</span></span>
 GNU Awk is required as part of the regression and performance testing framework
 but is not required when building Jikes RVM.
 </p>
-<!--l. 138--><p class="noindent" ><span class="paragraphHead"><a 
+<!--l. 143--><p class="noindent" ><span class="paragraphHead"><a 
  id="x5-230003.3"></a><span 
 class="cmbx-10">Extra tools recommended for Solaris</span></span>
 pkg-get will greatly simplify installing GNU packages on Solaris. Our patches require
@@ -336,15 +341,15 @@ class="cmtt-10">/opt/csw/bin/patch</span></span></span> and make sure <span clas
 class="cmtt-10">/opt/csw/bin</span></span></span> is in
 your path before <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">/usr/bin</span></span></span> in order to achieve this.
-</p><!--l. 144--><p class="noindent" >
+</p><!--l. 149--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">3.4   </span> <a 
  id="x5-240003.4"></a>Instructions</h3>
-<!--l. 146--><p class="noindent" >
+<!--l. 151--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.4.1   </span> <a 
  id="x5-250003.4.1"></a>Deﬁning Ant properties</h4>
-<!--l. 148--><p class="noindent" >There are a number of ant properties that are used to control the build process of
+<!--l. 153--><p class="noindent" >There are a number of ant properties that are used to control the build process of
 Jikes RVM. These properties may either be speciﬁed on the command line by
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-Dproperty=variable</span></span></span> or they may be speciﬁed in a ﬁle named <span class="obeylines-h"><span class="verb"><span 
@@ -360,7 +365,7 @@ class="cmtt-10">#</span></span></span> and ﬁnishing at the end of the line.
                                                                   
 
                                                                   
-<!--l. 151--><p class="noindent" ><a 
+<!--l. 156--><p class="noindent" ><a 
  id="x5-25001r2"></a></p><hr class="float" /><div class="float" 
 >
                                                                   
@@ -376,13 +381,13 @@ id="TBL-3-1" /><col
 id="TBL-3-2" /><col 
 id="TBL-3-3" /></colgroup><tr  
  style="vertical-align:baseline;" id="TBL-3-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-1"  
-class="td11"><!--l. 153--><p class="noindent" >Property    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-2"  
-class="td11"><!--l. 153--><p class="noindent" >Description                                               </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-3"  
-class="td11"><!--l. 153--><p class="noindent" >Default      </p></td>
+class="td11"><!--l. 158--><p class="noindent" >Property    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-2"  
+class="td11"><!--l. 158--><p class="noindent" >Description                                               </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-3"  
+class="td11"><!--l. 158--><p class="noindent" >Default      </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-1"  
-class="td11"><!--l. 154--><p class="noindent" >host.name   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-2"  
-class="td11"><!--l. 154--><p class="noindent" >The  name  of  the  host  environment  used  for
+class="td11"><!--l. 159--><p class="noindent" >host.name   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-2"  
+class="td11"><!--l. 159--><p class="noindent" >The  name  of  the  host  environment  used  for
 building  Jikes  RVM.  The  host  environment
 deﬁnes the paths to the tools used during the
 build, e.g. the path to the C compiler. The name
@@ -390,11 +395,11 @@ should  match  one  of  the  ﬁles  located  in  the
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">build/hosts/</span></span></span> directory minus the &#x2019;.properties&#x2019;
 extension.                                                 </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-3"  
-class="td11"><!--l. 154--><p class="noindent" >None         </p></td>
+class="td11"><!--l. 159--><p class="noindent" >None         </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-1"  
-class="td11"><!--l. 155--><p class="noindent" >target.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-2"  
-class="td11"><!--l. 155--><p class="noindent" >The name of the target environment for Jikes
+class="td11"><!--l. 160--><p class="noindent" >target.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-2"  
+class="td11"><!--l. 160--><p class="noindent" >The name of the target environment for Jikes
 RVM.  The  name  should  match  one  of  the
 ﬁles located in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">build/targets/</span></span></span> directory
@@ -403,14 +408,14 @@ only  be  speciﬁed  when  cross  compiling  the
 Jikes RVM. See <a 
 href="#x5-310003.6">Cross-Platform Building</a> for a
 detailed description of cross compilation.        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-3"  
-class="td11"><!--l. 155--><p class="noindent" ><span 
+class="td11"><!--l. 160--><p class="noindent" ><span 
 class="tcrm-1000">$</span><span 
 class="cmsy-10">{</span>host.name<span 
 class="cmsy-10">}</span> </p> </td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-1"  
-class="td11"><!--l. 156--><p class="noindent" >conﬁg.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-2"  
-class="td11"><!--l. 156--><p class="noindent" >The  name  of  the  conﬁguration  used  when
+class="td11"><!--l. 161--><p class="noindent" >conﬁg.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-2"  
+class="td11"><!--l. 161--><p class="noindent" >The  name  of  the  conﬁguration  used  when
 building Jikes RVM. The name should match
 one of the ﬁles located in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">build/configs/</span></span></span>
@@ -418,74 +423,74 @@ directory minus the &#x2019;.properties&#x2019; extension. This
 setting  is  further  described  in  the  section
 <a 
 href="/UserGuide/ConfiguringJikesRVM/index.html#x6-430004">Conﬁguring Jikes RVM</a>.                               </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-3"  
-class="td11"><!--l. 156--><p class="noindent" >None         </p></td>
+class="td11"><!--l. 161--><p class="noindent" >None         </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-1"  
-class="td11"><!--l. 157--><p class="noindent" >patch.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-2"  
-class="td11"><!--l. 157--><p class="noindent" >An identiﬁer for the current patch applied to the
+class="td11"><!--l. 162--><p class="noindent" >patch.name </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-2"  
+class="td11"><!--l. 162--><p class="noindent" >An identiﬁer for the current patch applied to the
 source tree. See <a 
 href="#x5-300003.5">Building Patched Versions</a> for
 a description of how this ﬁts into the standard
 usage patterns of Jikes RVM.                        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-3"  
-class="td11"><!--l. 157--><p class="noindent" >“ ”            </p></td>
+class="td11"><!--l. 162--><p class="noindent" >“ ”            </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-1"  
-class="td11"><!--l. 158--><p class="noindent" >components.dir </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-2"  
-class="td11"><!--l. 158--><p class="noindent" >The  directory  where  Ant  looks  for  external
+class="td11"><!--l. 163--><p class="noindent" >components.dir </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-2"  
+class="td11"><!--l. 163--><p class="noindent" >The  directory  where  Ant  looks  for  external
 components when building Jikes RVM.           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-3"  
-class="td11"><!--l. 158--><p class="noindent" ><span 
+class="td11"><!--l. 163--><p class="noindent" ><span 
 class="tcrm-1000">$</span><span 
 class="cmsy-10">{</span>jikesrvm.<br 
 class="newline" />dir<span 
 class="cmsy-10">}</span>/components </p> </td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-1"  
-class="td11"><!--l. 159--><p class="noindent" >dist.dir       </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-2"  
-class="td11"><!--l. 159--><p class="noindent" >The directory where Ant stores the ﬁnal Jikes
+class="td11"><!--l. 164--><p class="noindent" >dist.dir       </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-2"  
+class="td11"><!--l. 164--><p class="noindent" >The directory where Ant stores the ﬁnal Jikes
 RVM runtime.                                           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-3"  
-class="td11"><!--l. 159--><p class="noindent" ><span 
+class="td11"><!--l. 164--><p class="noindent" ><span 
 class="tcrm-1000">$</span><span 
 class="cmsy-10">{</span>jikesrvm.<br 
 class="newline" />dir<span 
 class="cmsy-10">}</span>/dist    </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-1"  
-class="td11"><!--l. 160--><p class="noindent" >build.dir     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-2"  
-class="td11"><!--l. 160--><p class="noindent" >The directory where Ant stores the intermediate
+class="td11"><!--l. 165--><p class="noindent" >build.dir     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-2"  
+class="td11"><!--l. 165--><p class="noindent" >The directory where Ant stores the intermediate
 artifacts  generated  when  building  the  Jikes
 RVM.                                                      </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-3"  
-class="td11"><!--l. 160--><p class="noindent" ><span 
+class="td11"><!--l. 165--><p class="noindent" ><span 
 class="tcrm-1000">$</span><span 
 class="cmsy-10">{</span>jikesrvm.<br 
 class="newline" />dir<span 
 class="cmsy-10">}</span>/target </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-1"  
-class="td11"><!--l. 161--><p class="noindent" >components.cache.dir </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-2"  
-class="td11"><!--l. 161--><p class="noindent" >The directory  where  Ant  caches  downloaded
+class="td11"><!--l. 166--><p class="noindent" >components.cache.dir </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-2"  
+class="td11"><!--l. 166--><p class="noindent" >The directory  where  Ant  caches  downloaded
 components.   If   you   explicitly   download   a
 component, place it in this directory.              </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-3"  
-class="td11"><!--l. 161--><p class="noindent" >(Undeﬁned,
+class="td11"><!--l. 166--><p class="noindent" >(Undeﬁned,
 forcing
 download)  </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-10-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-1"  
-class="td11"><!--l. 162--><p class="noindent" >require.rvm-unit-tests </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-2"  
-class="td11"><!--l. 162--><p class="noindent" >If set to <span class="obeylines-h"><span class="verb"><span 
+class="td11"><!--l. 167--><p class="noindent" >require.rvm-unit-tests </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-2"  
+class="td11"><!--l. 167--><p class="noindent" >If set to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">true</span></span></span>, run <a 
 href="/UserGuide/TestingJikesRVM/index.html#x12-10800010">unit tests</a> on the built Jikes
 RVM image. Use with care as it will signiﬁcantly
 increase build times for conﬁgurations that are
 compiled using a non-optimizing compiler (see
 below).                                                     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-3"  
-class="td11"><!--l. 162--><p class="noindent" >(Undeﬁned,
+class="td11"><!--l. 167--><p class="noindent" >(Undeﬁned,
 tests     are
 not run)     </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-11-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-11-1"  
-class="td11"><!--l. 163--><p class="noindent" >require.<br 
+class="td11"><!--l. 168--><p class="noindent" >require.<br 
 class="newline" />checkstyle   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-11-2"  
-class="td11"><!--l. 163--><p class="noindent" >Only useful if you want to <a 
+class="td11"><!--l. 168--><p class="noindent" >Only useful if you want to <a 
 href="http://www.jikesrvm.org/Contributions/" >contribute</a> changes
 to the Jikes RVM. If set to true, run checkstyle
 during  the  build  to  check  for  violations  of
@@ -493,29 +498,29 @@ the  Jikes  RVM  <a
 href="/UserGuide/ModifyingJikesRVM/index.html#x9-880007.4">Coding  Style</a>  and  <a 
 href="/UserGuide/ModifyingJikesRVM/index.html#x9-830007.3">Coding
 Conventions</a> for assertions.                           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-11-3"  
-class="td11"><!--l. 163--><p class="noindent" >(Undeﬁned,
+class="td11"><!--l. 168--><p class="noindent" >(Undeﬁned,
 no    checks
 run)          </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-12-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-1"  
-class="td11"><!--l. 164--><p class="noindent" >rvm.debug-symbols </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-2"  
-class="td11"><!--l. 164--><p class="noindent" >If set to true, build the Jikes RVM with debug
+class="td11"><!--l. 169--><p class="noindent" >rvm.debug-symbols </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-2"  
+class="td11"><!--l. 169--><p class="noindent" >If set to true, build the Jikes RVM with debug
 symbols for the bootloader code and the code
 in  the  bootimage.  Note:  this  is  not  enabled
 by default because it causes build failures for
 conﬁgurations  that  build  the  bootimage  with
 the optimizing compiler (see <a 
 href="https://xtenlang.atlassian.net/browse/RVM-1084" >RVM-1084</a>).        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-3"  
-class="td11"><!--l. 164--><p class="noindent" >(Undeﬁned,
+class="td11"><!--l. 169--><p class="noindent" >(Undeﬁned,
 no  symbols
 built)        </p></td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-13-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-1"  
-class="td11"><!--l. 165--><p class="noindent" >protect.conﬁg-ﬁles </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-2"  
-class="td11"><!--l. 165--><p class="noindent" >Deﬁne this property if you do not want the build
+class="td11"><!--l. 170--><p class="noindent" >protect.conﬁg-ﬁles </p> </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-2"  
+class="td11"><!--l. 170--><p class="noindent" >Deﬁne this property if you do not want the build
 process to update conﬁguration ﬁles when auto
 downloading components.                            </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-3"  
-class="td11"><!--l. 165--><p class="noindent" >(Undeﬁned) </p> </td>
+class="td11"><!--l. 170--><p class="noindent" >(Undeﬁned) </p> </td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-14-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-14-1"  
 class="td11">          </td></tr></table>
@@ -531,11 +536,11 @@ class="content">Commonly used Ant properties for Jikes RVM</span></div><!--tex4h
                                                                   
 </div><hr class="endfloat" />
 </div>
-<!--l. 170--><p class="noindent" >At a minimum it is recommended that the user specify the <span class="obeylines-h"><span class="verb"><span 
+<!--l. 175--><p class="noindent" >At a minimum it is recommended that the user specify the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">host.name</span></span></span> property in
 the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">.ant.properties</span></span></span> ﬁle.
-</p><!--l. 172--><p class="noindent" >The conﬁguration ﬁles in <span class="obeylines-h"><span class="verb"><span 
+</p><!--l. 177--><p class="noindent" >The conﬁguration ﬁles in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">build/targets/</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">build/hosts/</span></span></span> are designed to work
 with a typical install but it may be necessary to overide speciﬁc properties. The
@@ -545,7 +550,7 @@ class="cmtt-10">.ant.properties</span></span></span> ﬁle.
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.4.2   </span> <a 
  id="x5-260003.4.2"></a>Selecting a Conﬁguration</h4>
-<!--l. 178--><p class="noindent" >A conﬁguration in terms of Jikes RVM is the combination of build time parameters
+<!--l. 183--><p class="noindent" >A conﬁguration in terms of Jikes RVM is the combination of build time parameters
 and component selection used for a particular Jikes RVM image. The section
 <a 
 href="/UserGuide/ConfiguringJikesRVM/index.html#x6-430004">Conﬁguring Jikes RVM</a> section describes the details of how to deﬁne a conﬁguration.
@@ -569,21 +574,21 @@ class="cmbx-10">prototype</span>: This conﬁguration is compiled using an unopt
 class="cmbx-10">prototype-opt</span>:  This  conﬁguration  is  compiled  using  an  unoptimized
      compiler but it includes the adaptive system and optimizing compiler.
      This conﬁguration has a reasonably fast build time.</li></ul>
-<!--l. 186--><p class="noindent" >If a user is working on a particular conﬁguration most of the time they may specify
+<!--l. 191--><p class="noindent" >If a user is working on a particular conﬁguration most of the time they may specify
 the conﬁg.name ant property in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">.ant.properties</span></span></span> otherwise it should be passed in
 on the command line <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-Dconfig.name=...</span></span></span>.
-</p><!--l. 190--><p class="noindent" >
+</p><!--l. 195--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.4.3   </span> <a 
  id="x5-270003.4.3"></a>Fetching Dependencies</h4>
-<!--l. 192--><p class="noindent" >The Jikes RVM has a build time dependency on the GNU Classpath class library and
+<!--l. 197--><p class="noindent" >The Jikes RVM has a build time dependency on the GNU Classpath class library and
 depending on the conﬁguration may have a dependency on <a 
 href="http://www.cs.kent.ac.uk/projects/gc/gcspy/" >GCSpy</a>. The build system
 will attempt to download and build these dependencies if they are not present or are
 the wrong version.
-</p><!--l. 194--><p class="noindent" >To just download and install the GNU Classpath class library you can run the
+</p><!--l. 199--><p class="noindent" >To just download and install the GNU Classpath class library you can run the
 command ”ant -f build/components/classpath.xml”. After this command has
 completed running it should have downloaded and built the GNU Classpath class
                                                                   
@@ -592,16 +597,16 @@ completed running it should have downloaded and built the GNU Classpath class
 library for the current host. See the <a 
 href="/UserGuide/MMTk/index.html#x19-23700016.4">Using GCSpy</a> page for directions on building
 conﬁgurations with GCSpy support.
-</p><!--l. 196--><p class="noindent" >If you wish to manually download components (for example you need to deﬁne a
+</p><!--l. 201--><p class="noindent" >If you wish to manually download components (for example you need to deﬁne a
 proxy, so ant is not correctly downloading), you can do so and identify the directory
 containing the downloads using <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-Dcomponents.cache.dir=&#x003C;download directory&#x003E;</span></span></span>
 when you build with ant.
-</p><!--l. 200--><p class="noindent" >
+</p><!--l. 205--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.4.4   </span> <a 
  id="x5-280003.4.4"></a>Building Jikes RVM</h4>
-<!--l. 202--><p class="noindent" >The next step in building Jikes RVM is to run the ant command <span class="obeylines-h"><span class="verb"><span 
+<!--l. 207--><p class="noindent" >The next step in building Jikes RVM is to run the ant command <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ant</span></span></span> or
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ant -Dconfig.name=...</span></span></span>. This should build a complete RVM runtime in
@@ -611,11 +616,11 @@ list of documented targets can be listed by executing the command <span class="o
 class="cmtt-10">ant</span>
 <span 
 class="cmtt-10">-projecthelp</span></span></span>.
-</p><!--l. 206--><p class="noindent" >
+</p><!--l. 211--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">3.4.5   </span> <a 
  id="x5-290003.4.5"></a>Running Jikes RVM</h4>
-<!--l. 208--><p class="noindent" >Jikes RVM can be executed in a similar way to most Java Virtual Machines. The
+<!--l. 213--><p class="noindent" >Jikes RVM can be executed in a similar way to most Java Virtual Machines. The
 diﬀerence is that the command is <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">rvm</span></span></span> and resides in the runtime directory (i.e.
 <span class="obeylines-h"><span class="verb"><span 
