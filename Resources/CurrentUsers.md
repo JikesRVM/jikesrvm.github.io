@@ -332,6 +332,7 @@ This list is a subset of researchers who have used Jikes RVM for research or tea
 
 ### [University of Texas at Dallas](http://www.utdallas.edu)
 
+- [Nirmal Tej Kumar](http://www.anteinstitute.org/index.php?page=currentmembers)
 - [Youtao Zhang](http://www.utdallas.edu/%7Ezhangyt)
 
 ### [University of Tokyo](http://www.u-tokyo.ac.jp)
