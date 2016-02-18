@@ -3,39 +3,38 @@ layout: default
 title: Making a release
 ---
 
-
 The following are the steps required to make a release of the Jikes RVM.
 
-_**Note: This page hasn't been updated for the recent changes due to the migrations yet**_
+Leading up to a release, here are the steps to take. Commits are to the master branch.
 
-Leading up to a release, here are the steps to take.&nbsp; All commits are to tip (default branch).
+1. Generate javadoc (apidoc target). If needed, fix errors and commit changes.
+2. Take the generated javadoc and commit it to JavaDoc directory of jikesrvm.github.io
+3. Update the release number in build.xml (will continue to have +git suffix) and commit change
+4. Generate html and pdf versions of the userguide.  The sources are in jikesrvm.github.io
+   _userguide-sources.  Use pdflatex to make the pdf version; use buildHTMLUserguideForLocalDebugging.sh
+   to generate the html.  Copy these into the userguide directory of the main git repo and commit/push.
+5. Update JIRA version management to indicate that version has been released.
+6. Generate text release notes from JIRA and put them in NEWS.txt. Commit.
 
-1. Generate javadoc (apidoc target).&nbsp; If needed, fix errors and commit changes.
-2. Update the release number in build.xml (will continue to have +hg suffix) and commit change
-3. Export the userguide from confluence.&nbsp; Update html and pdf versions of userguide and commit.
-4. Update JIRA version management to indicate that version has been released.
-5. Generate text release notes from JIRA and put them in NEWS.txt.&nbsp; Commit.
-6. Upload javadoc to static webspace on sourceforge (htdocs/apidocs/version).&nbsp; Switch "latest" symlink to point to version. TODO JavaDoc for new releases should be in the main Git website repository now.
+Next, actually do the git operations to update the release branch.
 
-TODO update for git. TODO Double-check part about pushing tags.
+1. Switch to the release branch (git checkout release)
+2. Merge master to the release branch (git merge master; git commit/push).
+   It is very likely you will need to resolve a conflict in build.xml around the release
+   number and git.version as part of doing this merge. There should not be other conflicts.
+3. Edit build.xml to remove the +git from the release number and set the git.version field. git commit/push.
+4. Tag the release (git tag -a 3.1.4 -m "JikesRVM 3.1.4 release"; git push --tags)
 
-In a clean hg repository (no incoming/outgoing changesets). Perform the following steps
+Finally, publish and announce the release.
 
-1. Switch to the release branch (hg update release)
-2. Merge tip to the release branch (hg merge default; hg commit)
-3. Edit build.xml to remove the +hg from the release number and set the hg.version field.&nbsp; Commit
-4. Tag the release (hg tag <version>; hg push)
+GitHub will have automatically made a release based on the tag you created above.
+We will also mirror that release tar ball into sourceforge so that people can
+get it from either place.
 
-Clone a new .hg repository and create the release tar balls
-
-1. hg clone http://hg.code.sourceforge.net/p/jikesrvm/code -b release jikesrvm-version
-2. rm -rf jikesrvm/.hg
-3. tar cjf jikesrvm-version.tar.bz2 jikesrvm-version;&nbsp; tar czf jikesrvm-version.tar.gz jikesrvm-version;
-4. Extract the portion of NEWS.txt relevant to this release into README.txt (will be used for ReleaseNotes on SF file download).
-
-Publish and announce the release
-
-1. Upload release tar balls and README.txt to sourceforge; set it as default download using Files GUI.
-2. Update the [Releases](/Releases/) page to link to the new download version
-3. Send out mail announcements to jikesrvm-announce and jikesrvm-researchers
-4. Also post announcement in SF news and on the website (create a new post in the _posts directory).
+1. Download JikesRVM-version.tar.gz from the GitHub release.
+2. Extract the portion of NEWS.txt relevant to this release into a README.md file
+   and convert formatting to markdown.  Edit the GitHub release to add this as ReleaseNotes.
+3. Upload the release tar ball and README.md to sourceforge; set it as default download using Files GUI.
+4. In jikesrvm.github.io, update Releases.md to refer to the new download version; commit.
+5. Post announcement in SF news and on the website (create a new post in the _posts directory).
+6. Send out mail announcements to jikesrvm-announce and jikesrvm-researchers
