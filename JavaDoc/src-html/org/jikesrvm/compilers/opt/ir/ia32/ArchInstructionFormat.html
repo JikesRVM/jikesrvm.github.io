@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a name="line.1"></a>
+<span class="sourceLineNo">002</span>/*<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  You may not use this file except in compliance with the License. You<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *  may obtain a copy of the License at<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *  regarding copyright ownership.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> */<a name="line.13"></a>
+<span class="sourceLineNo">014</span>package org.jikesrvm.compilers.opt.ir.ia32;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.OptimizingCompilerException;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.ir.operand.*;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.ir.InstructionFormat;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.Operator;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Abstract parent class of all InstructionFormat classes.&lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> *<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * The header comment for {@link org.jikesrvm.compilers.opt.ir.Instruction} contains<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * an explanation of the role of InstructionFormats in the<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * opt compiler's IR.&lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> *<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * NOTE: We currently only support a subset of cases of variable operands.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;ul&gt;<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *  &lt;li&gt;instructions with 0+ defs, 0+ def/uses, 0+ uses, and a variable number of uses<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *  &lt;li&gt;instructions with 0+ defs and variable number of defs.<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * Variable number of def/uses and variable number of defs with non-zero<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * number of def/uses or uses are not supported (and will generate java code<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * for the instruction format that doesn't compile).  Fully general support would<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * be a pain in the butt and since it currently isn't required, we don't do it.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * &lt;/ul&gt;<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * &lt;p&gt;<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * THIS FILE IS MACHINE_GENERATED. DO NOT EDIT.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * See ArchInstructionFormats.template, InstructionFormatList.dat,<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * OperatorList.dat, etc<a name="line.42"></a>
+<span class="sourceLineNo">043</span> */<a name="line.43"></a>
+<span class="sourceLineNo">044</span>public abstract class ArchInstructionFormat extends InstructionFormat {<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  static {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    if (MIN_OPERAND_ARRAY_LENGTH != 5) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>      throw new Error("Disagreement between architecture and common instruction formats on minimum operands");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /** Typecode for the MIR_LowTableSwitch InstructionFormat */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final byte MIR_LowTableSwitch_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+0;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  /** Typecode for the MIR_Move InstructionFormat */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  public static final byte MIR_Move_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+1;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  /** Typecode for the MIR_CondMove InstructionFormat */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  public static final byte MIR_CondMove_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+2;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /** Typecode for the MIR_Lea InstructionFormat */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  public static final byte MIR_Lea_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+3;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  /** Typecode for the MIR_BinaryAcc InstructionFormat */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  public static final byte MIR_BinaryAcc_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+4;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  /** Typecode for the MIR_Divide InstructionFormat */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  public static final byte MIR_Divide_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+5;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  /** Typecode for the MIR_Multiply InstructionFormat */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public static final byte MIR_Multiply_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+6;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  /** Typecode for the MIR_ConvertDW2QW InstructionFormat */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public static final byte MIR_ConvertDW2QW_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+7;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  /** Typecode for the MIR_UnaryAcc InstructionFormat */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  public static final byte MIR_UnaryAcc_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+8;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /** Typecode for the MIR_Compare InstructionFormat */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public static final byte MIR_Compare_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+9;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /** Typecode for the MIR_CompareExchange InstructionFormat */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  public static final byte MIR_CompareExchange_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+10;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  /** Typecode for the MIR_CompareExchange8B InstructionFormat */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  public static final byte MIR_CompareExchange8B_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+11;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  /** Typecode for the MIR_Trap InstructionFormat */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  public static final byte MIR_Trap_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+12;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /** Typecode for the MIR_TrapIf InstructionFormat */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static final byte MIR_TrapIf_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+13;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  /** Typecode for the MIR_Branch InstructionFormat */<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  public static final byte MIR_Branch_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+14;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  /** Typecode for the MIR_CondBranch InstructionFormat */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  public static final byte MIR_CondBranch_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+15;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  /** Typecode for the MIR_CondBranch2 InstructionFormat */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  public static final byte MIR_CondBranch2_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+16;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  /** Typecode for the MIR_Call InstructionFormat */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  public static final byte MIR_Call_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+17;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  /** Typecode for the MIR_Empty InstructionFormat */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  public static final byte MIR_Empty_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+18;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  /** Typecode for the MIR_Return InstructionFormat */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  public static final byte MIR_Return_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+19;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  /** Typecode for the MIR_Set InstructionFormat */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  public static final byte MIR_Set_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+20;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  /** Typecode for the MIR_Test InstructionFormat */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  public static final byte MIR_Test_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+21;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  /** Typecode for the MIR_Nullary InstructionFormat */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  public static final byte MIR_Nullary_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+22;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /** Typecode for the MIR_UnaryNoRes InstructionFormat */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public static final byte MIR_UnaryNoRes_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+23;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  /** Typecode for the MIR_Unary InstructionFormat */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  public static final byte MIR_Unary_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+24;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /** Typecode for the MIR_XChng InstructionFormat */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  public static final byte MIR_XChng_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+25;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  /** Typecode for the MIR_DoubleShift InstructionFormat */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  public static final byte MIR_DoubleShift_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+26;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /** Typecode for the MIR_CaseLabel InstructionFormat */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  public static final byte MIR_CaseLabel_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+27;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  /** Typecode for the MIR_FSave InstructionFormat */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public static final byte MIR_FSave_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+28;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  /** Typecode for the MIR_RDTSC InstructionFormat */<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  public static final byte MIR_RDTSC_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+29;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  /** Typecode for the MIR_CacheOp InstructionFormat */<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  public static final byte MIR_CacheOp_format = ARCH_INDEPENDENT_INSTR_FORMAT_END_format+30;<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>  /** Shared traits for operators of the MIR_LowTableSwitch InstructionFormat */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  public static final int MIR_LowTableSwitch_traits = Operator.varUses;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  /** Shared traits for operators of the MIR_Move InstructionFormat */<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  public static final int MIR_Move_traits = Operator.none;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  /** Shared traits for operators of the MIR_CondMove InstructionFormat */<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  public static final int MIR_CondMove_traits = Operator.none;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  /** Shared traits for operators of the MIR_Lea InstructionFormat */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public static final int MIR_Lea_traits = Operator.none;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  /** Shared traits for operators of the MIR_BinaryAcc InstructionFormat */<a name="line.123"></a>
+<span class="sourceLineNo">124</span>  public static final int MIR_BinaryAcc_traits = Operator.none;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  /** Shared traits for operators of the MIR_Divide InstructionFormat */<a name="line.125"></a>
+<span class="sourceLineNo">126</span>  public static final int MIR_Divide_traits = Operator.none;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  /** Shared traits for operators of the MIR_Multiply InstructionFormat */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  public static final int MIR_Multiply_traits = Operator.none;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  /** Shared traits for operators of the MIR_ConvertDW2QW InstructionFormat */<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  public static final int MIR_ConvertDW2QW_traits = Operator.none;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  /** Shared traits for operators of the MIR_UnaryAcc InstructionFormat */<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  public static final int MIR_UnaryAcc_traits = Operator.none;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  /** Shared traits for operators of the MIR_Compare InstructionFormat */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  public static final int MIR_Compare_traits = Operator.none;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  /** Shared traits for operators of the MIR_CompareExchange InstructionFormat */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  public static final int MIR_CompareExchange_traits = Operator.none;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  /** Shared traits for operators of the MIR_CompareExchange8B InstructionFormat */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  public static final int MIR_CompareExchange8B_traits = Operator.none;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  /** Shared traits for operators of the MIR_Trap InstructionFormat */<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  public static final int MIR_Trap_traits = Operator.none;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  /** Shared traits for operators of the MIR_TrapIf InstructionFormat */<a name="line.141"></a>
+<span class="sourceLineNo">142</span>  public static final int MIR_TrapIf_traits = Operator.none;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  /** Shared traits for operators of the MIR_Branch InstructionFormat */<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  public static final int MIR_Branch_traits = Operator.none;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  /** Shared traits for operators of the MIR_CondBranch InstructionFormat */<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  public static final int MIR_CondBranch_traits = Operator.none;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  /** Shared traits for operators of the MIR_CondBranch2 InstructionFormat */<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  public static final int MIR_CondBranch2_traits = Operator.none;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  /** Shared traits for operators of the MIR_Call InstructionFormat */<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  public static final int MIR_Call_traits = Operator.varUses;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  /** Shared traits for operators of the MIR_Empty InstructionFormat */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  public static final int MIR_Empty_traits = Operator.none;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  /** Shared traits for operators of the MIR_Return InstructionFormat */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  public static final int MIR_Return_traits = Operator.none;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  /** Shared traits for operators of the MIR_Set InstructionFormat */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  public static final int MIR_Set_traits = Operator.none;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  /** Shared traits for operators of the MIR_Test InstructionFormat */<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  public static final int MIR_Test_traits = Operator.none;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  /** Shared traits for operators of the MIR_Nullary InstructionFormat */<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  public static final int MIR_Nullary_traits = Operator.none;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  /** Shared traits for operators of the MIR_UnaryNoRes InstructionFormat */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  public static final int MIR_UnaryNoRes_traits = Operator.none;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  /** Shared traits for operators of the MIR_Unary InstructionFormat */<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  public static final int MIR_Unary_traits = Operator.none;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  /** Shared traits for operators of the MIR_XChng InstructionFormat */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public static final int MIR_XChng_traits = Operator.none;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  /** Shared traits for operators of the MIR_DoubleShift InstructionFormat */<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  public static final int MIR_DoubleShift_traits = Operator.none;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  /** Shared traits for operators of the MIR_CaseLabel InstructionFormat */<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  public static final int MIR_CaseLabel_traits = Operator.none;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>  /** Shared traits for operators of the MIR_FSave InstructionFormat */<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  public static final int MIR_FSave_traits = Operator.none;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>  /** Shared traits for operators of the MIR_RDTSC InstructionFormat */<a name="line.173"></a>
+<span class="sourceLineNo">174</span>  public static final int MIR_RDTSC_traits = Operator.none;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  /** Shared traits for operators of the MIR_CacheOp InstructionFormat */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  public static final int MIR_CacheOp_traits = Operator.none;<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>}<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

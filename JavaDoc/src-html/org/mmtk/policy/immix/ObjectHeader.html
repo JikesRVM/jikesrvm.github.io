@@ -45,20 +45,20 @@
 <span class="sourceLineNo">037</span>  static final byte NEW_OBJECT_MARK = 0; // using zero means no need for explicit initialization on allocation<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
 <span class="sourceLineNo">039</span>  public static final int PINNED_BIT_NUMBER = ForwardingWord.FORWARDING_BITS;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  public static final byte PINNED_BIT = 1&lt;&lt;PINNED_BIT_NUMBER;<a name="line.40"></a>
+<span class="sourceLineNo">040</span>  public static final byte PINNED_BIT = 1 &lt;&lt; PINNED_BIT_NUMBER;<a name="line.40"></a>
 <span class="sourceLineNo">041</span><a name="line.41"></a>
 <span class="sourceLineNo">042</span>  private static final int STRADDLE_BIT_NUMBER = PINNED_BIT_NUMBER + 1;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>  public static final byte STRADDLE_BIT = 1&lt;&lt;STRADDLE_BIT_NUMBER;<a name="line.43"></a>
+<span class="sourceLineNo">043</span>  public static final byte STRADDLE_BIT = 1 &lt;&lt; STRADDLE_BIT_NUMBER;<a name="line.43"></a>
 <span class="sourceLineNo">044</span><a name="line.44"></a>
 <span class="sourceLineNo">045</span>  /* mark bits */<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
 <span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
 <span class="sourceLineNo">048</span>   *<a name="line.48"></a>
 <span class="sourceLineNo">049</span>   */<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  private static final int  MARK_BASE = STRADDLE_BIT_NUMBER+1;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  static final int  MAX_MARKCOUNT_BITS = AVAILABLE_LOCAL_BITS-MARK_BASE;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  private static final byte MARK_INCREMENT = 1&lt;&lt;MARK_BASE;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>  public static final byte MARK_MASK = (byte) (((1&lt;&lt;MAX_MARKCOUNT_BITS)-1)&lt;&lt;MARK_BASE);<a name="line.53"></a>
+<span class="sourceLineNo">050</span>  private static final int  MARK_BASE = STRADDLE_BIT_NUMBER + 1;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  static final int  MAX_MARKCOUNT_BITS = AVAILABLE_LOCAL_BITS - MARK_BASE;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  private static final byte MARK_INCREMENT = 1 &lt;&lt; MARK_BASE;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final byte MARK_MASK = (byte) (((1 &lt;&lt; MAX_MARKCOUNT_BITS) - 1) &lt;&lt; MARK_BASE);<a name="line.53"></a>
 <span class="sourceLineNo">054</span>  private static final byte MARK_AND_FORWARDING_MASK = (byte) (MARK_MASK | ForwardingWord.FORWARDING_MASK);<a name="line.54"></a>
 <span class="sourceLineNo">055</span>  public static final byte MARK_BASE_VALUE = MARK_INCREMENT;<a name="line.55"></a>
 <span class="sourceLineNo">056</span><a name="line.56"></a>
@@ -177,19 +177,20 @@
 <span class="sourceLineNo">169</span>  /**<a name="line.169"></a>
 <span class="sourceLineNo">170</span>   * Return the mark state incremented or decremented by one.<a name="line.170"></a>
 <span class="sourceLineNo">171</span>   *<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * @param increment If {@code true}, then return the incremented value else return the decremented value<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * @return the mark state incremented or decremented by one.<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   */<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  static byte deltaMarkState(byte state, boolean increment) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    byte rtn = state;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    do {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>      rtn = (byte) (increment ? rtn + MARK_INCREMENT : rtn - MARK_INCREMENT);<a name="line.178"></a>
-<span class="sourceLineNo">179</span>      rtn &amp;= MARK_MASK;<a name="line.179"></a>
-<span class="sourceLineNo">180</span>      } while (rtn &lt; MARK_BASE_VALUE);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(rtn != state);<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    return rtn;<a name="line.182"></a>
-<span class="sourceLineNo">183</span>  }<a name="line.183"></a>
-<span class="sourceLineNo">184</span>}<a name="line.184"></a>
+<span class="sourceLineNo">172</span>   * @param state the mark state<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @param increment If {@code true}, then return the incremented value else return the decremented value<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * @return the mark state incremented or decremented by one.<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  static byte deltaMarkState(byte state, boolean increment) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    byte rtn = state;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    do {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      rtn = (byte) (increment ? rtn + MARK_INCREMENT : rtn - MARK_INCREMENT);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      rtn &amp;= MARK_MASK;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      } while (rtn &lt; MARK_BASE_VALUE);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(rtn != state);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    return rtn;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>  }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>}<a name="line.185"></a>
 
 
 

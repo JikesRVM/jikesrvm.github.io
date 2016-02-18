@@ -59,7 +59,7 @@
 <span class="sourceLineNo">051</span>  BasicBlockLE fallThrough;<a name="line.51"></a>
 <span class="sourceLineNo">052</span><a name="line.52"></a>
 <span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   * The exception handler BBLE's for this block (null if none)<a name="line.54"></a>
+<span class="sourceLineNo">054</span>   * The exception handler BBLE's for this block ({@code null} if none)<a name="line.54"></a>
 <span class="sourceLineNo">055</span>   */<a name="line.55"></a>
 <span class="sourceLineNo">056</span>  HandlerBlockLE[] handlers;<a name="line.56"></a>
 <span class="sourceLineNo">057</span><a name="line.57"></a>
@@ -74,138 +74,179 @@
 <span class="sourceLineNo">066</span>  private static final byte COLOR = 0x10;           //(Red = 0, Black = 1)<a name="line.66"></a>
 <span class="sourceLineNo">067</span>  private static final byte IN_CODE_ORDER = 0x20;<a name="line.67"></a>
 <span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>  final void setStackKnown() { flags |= STACK_KNOWN; }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>  final void clearStackKnown() { flags &amp;= ~STACK_KNOWN; }<a name="line.71"></a>
+<span class="sourceLineNo">069</span>  final void setStackKnown() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    flags |= STACK_KNOWN;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
 <span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>  final boolean isStackKnown() { return (flags &amp; STACK_KNOWN) != 0; }<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>  final void setLocalKnown() { flags |= LOCAL_KNOWN; }<a name="line.75"></a>
+<span class="sourceLineNo">073</span>  final void clearStackKnown() {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    flags &amp;= ~STACK_KNOWN;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  }<a name="line.75"></a>
 <span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>  final void clearLocalKnown() { flags &amp;= ~LOCAL_KNOWN; }<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>  final boolean isLocalKnown() { return (flags &amp; LOCAL_KNOWN) != 0; }<a name="line.79"></a>
+<span class="sourceLineNo">077</span>  final boolean isStackKnown() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    return (flags &amp; STACK_KNOWN) != 0;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  }<a name="line.79"></a>
 <span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>  final void setSelfRegen() { flags |= SELF_REGEN; }<a name="line.81"></a>
-<span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>  final void clearSelfRegen() { flags &amp;= ~SELF_REGEN; }<a name="line.83"></a>
+<span class="sourceLineNo">081</span>  final void setLocalKnown() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    flags |= LOCAL_KNOWN;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
 <span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>  final boolean isSelfRegen() { return (flags &amp; SELF_REGEN) != 0; }<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>  final void setGenerated() { flags |= GENERATED; }<a name="line.87"></a>
+<span class="sourceLineNo">085</span>  final void clearLocalKnown() {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    flags &amp;= ~LOCAL_KNOWN;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  }<a name="line.87"></a>
 <span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>  final void clearGenerated() { flags &amp;= ~GENERATED; }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>  final boolean isGenerated() { return (flags &amp; GENERATED) != 0; }<a name="line.91"></a>
+<span class="sourceLineNo">089</span>  final boolean isLocalKnown() {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    return (flags &amp; LOCAL_KNOWN) != 0;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  }<a name="line.91"></a>
 <span class="sourceLineNo">092</span><a name="line.92"></a>
-<span class="sourceLineNo">093</span>  final void setBlack() { flags |= COLOR; }<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>  final boolean isBlack() { return (flags &amp; COLOR) != 0; }<a name="line.95"></a>
+<span class="sourceLineNo">093</span>  final void setSelfRegen() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    flags |= SELF_REGEN;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
 <span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>  final void setRed() { flags &amp;= ~COLOR; }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>  final boolean isRed() { return (flags &amp; COLOR) == 0; }<a name="line.99"></a>
+<span class="sourceLineNo">097</span>  final void clearSelfRegen() {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    flags &amp;= ~SELF_REGEN;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
 <span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>  final void setInCodeOrder() { flags |= IN_CODE_ORDER; }<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>  final void clearInCodeOrder() { flags &amp;= ~IN_CODE_ORDER; }<a name="line.103"></a>
+<span class="sourceLineNo">101</span>  final boolean isSelfRegen() {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    return (flags &amp; SELF_REGEN) != 0;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  }<a name="line.103"></a>
 <span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>  final boolean isInCodeOrder() { return (flags &amp; IN_CODE_ORDER) != 0; }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   * Is the BBLE ready to generate?<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  final boolean isReadyToGenerate() {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    // (isStackKnown() &amp;&amp; isLocalKnown &amp;&amp; !isGenerated)<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    byte READY_MASK = STACK_KNOWN | LOCAL_KNOWN | GENERATED;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    byte READY_VAL = STACK_KNOWN | LOCAL_KNOWN;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    return (flags &amp; READY_MASK) == READY_VAL;<a name="line.114"></a>
+<span class="sourceLineNo">105</span>  final void setGenerated() {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    flags |= GENERATED;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>  final void clearGenerated() {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    flags &amp;= ~GENERATED;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>  final boolean isGenerated() {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    return (flags &amp; GENERATED) != 0;<a name="line.114"></a>
 <span class="sourceLineNo">115</span>  }<a name="line.115"></a>
 <span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>  /**<a name="line.117"></a>
-<span class="sourceLineNo">118</span>   * Save a shallow copy of the given local variable state into this.<a name="line.118"></a>
-<span class="sourceLineNo">119</span>   * @param _localState local variable state to save<a name="line.119"></a>
-<span class="sourceLineNo">120</span>   */<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  final void copyIntoLocalState(Operand[] _localState) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    localState = new Operand[_localState.length];<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    System.arraycopy(_localState, 0, localState, 0, _localState.length);<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    setLocalKnown();<a name="line.124"></a>
-<span class="sourceLineNo">125</span>  }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>  /**<a name="line.127"></a>
-<span class="sourceLineNo">128</span>   * Return a shallow copy of my local state.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>   */<a name="line.129"></a>
-<span class="sourceLineNo">130</span>  final Operand[] copyLocalState() {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    Operand[] ls = new Operand[localState.length];<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    System.arraycopy(localState, 0, ls, 0, localState.length);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    return ls;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  }<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>  /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * Add an exception handler BBLE to the handlers array.<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * NOTE: this isn't incredibly efficient, but empirically the expected<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   * number of handlers per basic block is 0, with an observed<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * maximum across 10,000+ methods of 3.<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   * Until this changes, we just don't care.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>   */<a name="line.142"></a>
-<span class="sourceLineNo">143</span>  final void addHandler(HandlerBlockLE handler) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    if (handlers == null) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      handlers = new HandlerBlockLE[1];<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      handlers[0] = handler;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    } else {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>      for (HandlerBlockLE handler1 : handlers) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        if (handler1 == handler) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>          return;             //already there (was in emap more than once)<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      }<a name="line.152"></a>
-<span class="sourceLineNo">153</span>      int n = handlers.length;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      HandlerBlockLE[] tmp = new HandlerBlockLE[n + 1];<a name="line.154"></a>
-<span class="sourceLineNo">155</span>      for (int i = 0; i &lt; n; i++) {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        tmp[i] = handlers[i];<a name="line.156"></a>
-<span class="sourceLineNo">157</span>      }<a name="line.157"></a>
-<span class="sourceLineNo">158</span>      tmp[n] = handler;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>      handlers = tmp;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
-<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
-<span class="sourceLineNo">162</span><a name="line.162"></a>
-<span class="sourceLineNo">163</span>  /**<a name="line.163"></a>
-<span class="sourceLineNo">164</span>   * Create a new BBLE (and basic block) for the specified bytecode index.<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   *<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   * @param loc bytecode index<a name="line.166"></a>
-<span class="sourceLineNo">167</span>   * @param position the inline sequence<a name="line.167"></a>
-<span class="sourceLineNo">168</span>   * @param cfg ControlFlowGraph into which the block<a name="line.168"></a>
-<span class="sourceLineNo">169</span>   *            will eventually be inserted<a name="line.169"></a>
-<span class="sourceLineNo">170</span>   */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>  BasicBlockLE(int loc, InlineSequence position, ControlFlowGraph cfg) {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    block = new BasicBlock(loc, position, cfg);<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    low = loc;<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    high = loc;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  }<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>  // Only for use by subclasses to avoid above constructor.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>  protected BasicBlockLE(int loc) { low = loc;  }<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>  /**<a name="line.180"></a>
-<span class="sourceLineNo">181</span>   * Returns a string representation of this BBLE.<a name="line.181"></a>
-<span class="sourceLineNo">182</span>   */<a name="line.182"></a>
-<span class="sourceLineNo">183</span>  @Override<a name="line.183"></a>
-<span class="sourceLineNo">184</span>  public String toString() {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    if (isGenerated()) {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>      return "(" + low + "," + high + "," + max + ")";<a name="line.186"></a>
-<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    if (isReadyToGenerate()) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>      return "{" + low + "," + max + "}";<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    }<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    return "[" + low + "," + max + "]";<a name="line.191"></a>
-<span class="sourceLineNo">192</span>  }<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>  /**<a name="line.194"></a>
-<span class="sourceLineNo">195</span>   * Returns a string representation of state that determines if the BBLE<a name="line.195"></a>
-<span class="sourceLineNo">196</span>   * is ready to be generated */<a name="line.196"></a>
-<span class="sourceLineNo">197</span>  public String genState() {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    return "(sk=" + isStackKnown() + ", lk=" + isLocalKnown() + ", gen=" + isGenerated() + ")";<a name="line.198"></a>
+<span class="sourceLineNo">117</span>  final void setBlack() {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    flags |= COLOR;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  }<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>  final boolean isBlack() {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    return (flags &amp; COLOR) != 0;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>  final void setRed() {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    flags &amp;= ~COLOR;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  }<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>  final boolean isRed() {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    return (flags &amp; COLOR) == 0;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>  final void setInCodeOrder() {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    flags |= IN_CODE_ORDER;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  }<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>  final void clearInCodeOrder() {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    flags &amp;= ~IN_CODE_ORDER;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>  final boolean isInCodeOrder() {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    return (flags &amp; IN_CODE_ORDER) != 0;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  }<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
+<span class="sourceLineNo">145</span>  final boolean isReadyToGenerate() {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    // (isStackKnown() &amp;&amp; isLocalKnown &amp;&amp; !isGenerated)<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    byte READY_MASK = STACK_KNOWN | LOCAL_KNOWN | GENERATED;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    byte READY_VAL = STACK_KNOWN | LOCAL_KNOWN;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    return (flags &amp; READY_MASK) == READY_VAL;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>  /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * Save a shallow copy of the given local variable state into this.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   * @param _localState local variable state to save<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   */<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  final void copyIntoLocalState(Operand[] _localState) {<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    localState = new Operand[_localState.length];<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    System.arraycopy(_localState, 0, localState, 0, _localState.length);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    setLocalKnown();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>  /**<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   * @return a shallow copy of the local state<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   */<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  final Operand[] copyLocalState() {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    Operand[] ls = new Operand[localState.length];<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    System.arraycopy(localState, 0, ls, 0, localState.length);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    return ls;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  }<a name="line.169"></a>
+<span class="sourceLineNo">170</span><a name="line.170"></a>
+<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   * Adds an exception handler BBLE to the handlers array.<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * &lt;p&gt;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * NOTE: this isn't incredibly efficient, but empirically the expected<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * number of handlers per basic block is 0, with an observed<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * maximum across 10,000+ methods of 3.<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * Until this changes, we just don't care.<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   *<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   * @param handler the handler block to add<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  final void addHandler(HandlerBlockLE handler) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    if (handlers == null) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      handlers = new HandlerBlockLE[1];<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      handlers[0] = handler;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    } else {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      for (HandlerBlockLE handler1 : handlers) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        if (handler1 == handler) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>          return;             //already there (was in emap more than once)<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>      }<a name="line.190"></a>
+<span class="sourceLineNo">191</span>      int n = handlers.length;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      HandlerBlockLE[] tmp = new HandlerBlockLE[n + 1];<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      for (int i = 0; i &lt; n; i++) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        tmp[i] = handlers[i];<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      tmp[n] = handler;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      handlers = tmp;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
 <span class="sourceLineNo">199</span>  }<a name="line.199"></a>
-<span class="sourceLineNo">200</span>}<a name="line.200"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>  /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>   * Create a new BBLE (and basic block) for the specified bytecode index.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>   *<a name="line.203"></a>
+<span class="sourceLineNo">204</span>   * @param loc bytecode index<a name="line.204"></a>
+<span class="sourceLineNo">205</span>   * @param position the inline sequence<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * @param cfg ControlFlowGraph into which the block<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   *            will eventually be inserted<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   */<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  BasicBlockLE(int loc, InlineSequence position, ControlFlowGraph cfg) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    block = new BasicBlock(loc, position, cfg);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    low = loc;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    high = loc;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>  // Only for use by subclasses to avoid above constructor.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  protected BasicBlockLE(int loc) {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    low = loc;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>  }<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>  /**<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   * Returns a string representation of this BBLE.<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   */<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  @Override<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public String toString() {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    if (isGenerated()) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>      return "(" + low + "," + high + "," + max + ")";<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    if (isReadyToGenerate()) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>      return "{" + low + "," + max + "}";<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    }<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    return "[" + low + "," + max + "]";<a name="line.231"></a>
+<span class="sourceLineNo">232</span>  }<a name="line.232"></a>
+<span class="sourceLineNo">233</span><a name="line.233"></a>
+<span class="sourceLineNo">234</span>  /**<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @return a string representation of state that determines if the BBLE<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * is ready to be generated<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   */<a name="line.237"></a>
+<span class="sourceLineNo">238</span>  public String genState() {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    return "(sk=" + isStackKnown() + ", lk=" + isLocalKnown() + ", gen=" + isGenerated() + ")";<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  }<a name="line.240"></a>
+<span class="sourceLineNo">241</span>}<a name="line.241"></a>
 
 
 

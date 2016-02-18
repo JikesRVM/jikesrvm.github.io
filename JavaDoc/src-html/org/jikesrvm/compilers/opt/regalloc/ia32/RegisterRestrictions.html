@@ -20,395 +20,484 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.regalloc.ia32;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.ArrayList;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Enumeration;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.ArchitectureSpecificOpt.PhysicalRegisterSet;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.ir.MIR_BinaryAcc;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.MIR_CacheOp;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.ir.MIR_Compare;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.MIR_CondMove;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.MIR_DoubleShift;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.MIR_LowTableSwitch;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.MIR_Move;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.MIR_Set;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.MIR_Test;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.MIR_Unary;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.MIR_UnaryNoRes;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.ir.Operators;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.jikesrvm.compilers.opt.ir.Register;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.jikesrvm.compilers.opt.ir.operand.MemoryOperand;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.jikesrvm.compilers.opt.ir.operand.ia32.BURSManagedFPROperand;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import org.jikesrvm.compilers.opt.regalloc.GenericRegisterRestrictions;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import org.jikesrvm.compilers.opt.regalloc.LiveIntervalElement;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * An instance of this class encapsulates restrictions on register<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * assignment.<a name="line.43"></a>
-<span class="sourceLineNo">044</span> */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>public class RegisterRestrictions extends GenericRegisterRestrictions<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    implements Operators, PhysicalRegisterConstants {<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>  /**<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * Allow scratch registers in PEIs?<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  public static final boolean SCRATCH_IN_PEI = true;<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   * Default Constructor<a name="line.54"></a>
-<span class="sourceLineNo">055</span>   */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  protected RegisterRestrictions(PhysicalRegisterSet phys) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    super(phys);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>  }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>  @Override<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  public void addArchRestrictions(BasicBlock bb, ArrayList&lt;LiveIntervalElement&gt; symbolics) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    // If there are any registers used in catch blocks, we want to ensure<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    // that these registers are not used or evicted from scratch registers<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    // at a relevant PEI, so that the assumptions of register homes in the<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    // catch block remain valid.  For now, we do this by forcing any<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    // register used in such a PEI as not spilled.  TODO: relax this<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    // restriction for better code.<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    for (Enumeration&lt;Instruction&gt; ie = bb.forwardInstrEnumerator(); ie.hasMoreElements();) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>      Instruction s = ie.nextElement();<a name="line.69"></a>
-<span class="sourceLineNo">070</span>      if (s.isPEI() &amp;&amp; s.operator != IR_PROLOGUE) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        if (bb.hasApplicableExceptionalOut(s) || !SCRATCH_IN_PEI) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>          for (Enumeration&lt;Operand&gt; e = s.getOperands(); e.hasMoreElements();) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            Operand op = e.nextElement();<a name="line.73"></a>
-<span class="sourceLineNo">074</span>            if (op != null &amp;&amp; op.isRegister()) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>              noteMustNotSpill(op.asRegister().getRegister());<a name="line.75"></a>
-<span class="sourceLineNo">076</span>              handle8BitRestrictions(s);<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>          }<a name="line.78"></a>
-<span class="sourceLineNo">079</span>        }<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      }<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>      // handle special cases<a name="line.82"></a>
-<span class="sourceLineNo">083</span>      switch (s.getOpcode()) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        case MIR_LOWTABLESWITCH_opcode: {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>          RegisterOperand op = MIR_LowTableSwitch.getMethodStart(s);<a name="line.85"></a>
-<span class="sourceLineNo">086</span>          noteMustNotSpill(op.getRegister());<a name="line.86"></a>
-<span class="sourceLineNo">087</span>          op = MIR_LowTableSwitch.getIndex(s);<a name="line.87"></a>
-<span class="sourceLineNo">088</span>          noteMustNotSpill(op.getRegister());<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        }<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        break;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        case IA32_MOVZX__B_opcode:<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        case IA32_MOVSX__B_opcode: {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>          if (MIR_Unary.getVal(s).isRegister()) {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>            RegisterOperand val = MIR_Unary.getVal(s).asRegister();<a name="line.94"></a>
-<span class="sourceLineNo">095</span>            restrictTo8Bits(val.getRegister());<a name="line.95"></a>
-<span class="sourceLineNo">096</span>          }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        break;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>        case IA32_SET__B_opcode: {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>          if (MIR_Set.getResult(s).isRegister()) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>            RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.101"></a>
-<span class="sourceLineNo">102</span>            restrictTo8Bits(op.getRegister());<a name="line.102"></a>
-<span class="sourceLineNo">103</span>          }<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        break;<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>        default:<a name="line.107"></a>
-<span class="sourceLineNo">108</span>          handle8BitRestrictions(s);<a name="line.108"></a>
-<span class="sourceLineNo">109</span>          break;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>      }<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    for (Enumeration&lt;Instruction&gt; ie = bb.forwardInstrEnumerator(); ie.hasMoreElements();) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>      Instruction s = ie.nextElement();<a name="line.113"></a>
-<span class="sourceLineNo">114</span>      if (s.operator == IA32_FNINIT) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        // No floating point register survives across an FNINIT<a name="line.115"></a>
-<span class="sourceLineNo">116</span>        for (LiveIntervalElement symb : symbolics) {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>          if (symb.getRegister().isFloatingPoint()) {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>            if (contains(symb, s.scratch)) {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>              addRestrictions(symb.getRegister(), phys.getFPRs());<a name="line.119"></a>
-<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
-<span class="sourceLineNo">121</span>          }<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        }<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      } else if (s.operator == IA32_FCLEAR) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        // Only some FPRs survive across an FCLEAR<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        for (LiveIntervalElement symb : symbolics) {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>          if (symb.getRegister().isFloatingPoint()) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>            if (contains(symb, s.scratch)) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>              int nSave = MIR_UnaryNoRes.getVal(s).asIntConstant().value;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>              for (int i = nSave; i &lt; NUM_FPRS; i++) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>                addRestriction(symb.getRegister(), phys.getFPR(i));<a name="line.130"></a>
-<span class="sourceLineNo">131</span>              }<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            }<a name="line.132"></a>
-<span class="sourceLineNo">133</span>          }<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        }<a name="line.134"></a>
-<span class="sourceLineNo">135</span>      }<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>  /**<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * Does instruction s contain an 8-bit memory operand?<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   */<a name="line.141"></a>
-<span class="sourceLineNo">142</span>  final boolean has8BitMemoryOperand(Instruction s) {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    for (Enumeration&lt;Operand&gt; me = s.getMemoryOperands(); me.hasMoreElements();) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>      MemoryOperand mop = (MemoryOperand) me.nextElement();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      if (mop.size == 1) {<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        return true;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>      }<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    return false;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>  /**<a name="line.152"></a>
-<span class="sourceLineNo">153</span>   * Ensure that if an operand has an 8 bit memory operand that<a name="line.153"></a>
-<span class="sourceLineNo">154</span>   * all of its register operands are in 8 bit registers.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>   * @param s the instruction to restrict<a name="line.155"></a>
-<span class="sourceLineNo">156</span>   */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  final void handle8BitRestrictions(Instruction s) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    for (Enumeration&lt;Operand&gt; me = s.getMemoryOperands(); me.hasMoreElements();) {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>      MemoryOperand mop = (MemoryOperand) me.nextElement();<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      if (mop.size == 1) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        for (Enumeration&lt;Operand&gt; e2 = s.getRootOperands(); e2.hasMoreElements();) {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>          Operand rootOp = e2.nextElement();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>          if (rootOp.isRegister()) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>            restrictTo8Bits(rootOp.asRegister().getRegister());<a name="line.164"></a>
-<span class="sourceLineNo">165</span>          }<a name="line.165"></a>
-<span class="sourceLineNo">166</span>        }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>      }<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * Ensure that a particular register is only assigned to AL, BL, CL, or<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * DL, since these are the only 8-bit registers we normally address.<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   */<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  final void restrictTo8Bits(Register r) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    Register ESP = phys.getESP();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    Register EBP = phys.getEBP();<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    Register ESI = phys.getESI();<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    Register EDI = phys.getEDI();<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    addRestriction(r, ESP);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    addRestriction(r, EBP);<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    addRestriction(r, ESI);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    addRestriction(r, EDI);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>  }<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>  /**<a name="line.186"></a>
-<span class="sourceLineNo">187</span>   * Given symbolic register r that appears in instruction s, does the<a name="line.187"></a>
-<span class="sourceLineNo">188</span>   * architecture demand that r be assigned to a physical register in s?<a name="line.188"></a>
-<span class="sourceLineNo">189</span>   */<a name="line.189"></a>
-<span class="sourceLineNo">190</span>  public static boolean mustBeInRegister(Register r, Instruction s) {<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    switch (s.getOpcode()) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>      case IA32_PREFETCHNTA_opcode: {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        RegisterOperand op = MIR_CacheOp.getAddress(s).asRegister();<a name="line.193"></a>
-<span class="sourceLineNo">194</span>        if (op.register == r) return true;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>      }<a name="line.195"></a>
-<span class="sourceLineNo">196</span>      break;<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>      case IA32_SQRTSS_opcode:<a name="line.198"></a>
-<span class="sourceLineNo">199</span>      case IA32_SQRTSD_opcode:<a name="line.199"></a>
-<span class="sourceLineNo">200</span>      case IA32_CVTSD2SI_opcode:<a name="line.200"></a>
-<span class="sourceLineNo">201</span>      case IA32_CVTSD2SS_opcode:<a name="line.201"></a>
-<span class="sourceLineNo">202</span>      case IA32_CVTSI2SD_opcode:<a name="line.202"></a>
-<span class="sourceLineNo">203</span>      case IA32_CVTSS2SD_opcode:<a name="line.203"></a>
-<span class="sourceLineNo">204</span>      case IA32_CVTSS2SI_opcode:<a name="line.204"></a>
-<span class="sourceLineNo">205</span>      case IA32_CVTTSD2SI_opcode:<a name="line.205"></a>
-<span class="sourceLineNo">206</span>      case IA32_CVTTSS2SI_opcode:<a name="line.206"></a>
-<span class="sourceLineNo">207</span>      case IA32_CVTSI2SS_opcode: {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.208"></a>
-<span class="sourceLineNo">209</span>        if (op.getRegister() == r) return true;<a name="line.209"></a>
-<span class="sourceLineNo">210</span>      }<a name="line.210"></a>
-<span class="sourceLineNo">211</span>      break;<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>      // Instructions that require 16byte alignment (not guaranteed by our<a name="line.213"></a>
-<span class="sourceLineNo">214</span>      // spills) must be forced to always use registers<a name="line.214"></a>
-<span class="sourceLineNo">215</span>      case IA32_ANDPS_opcode:<a name="line.215"></a>
-<span class="sourceLineNo">216</span>      case IA32_ANDNPS_opcode:<a name="line.216"></a>
-<span class="sourceLineNo">217</span>      case IA32_ORPS_opcode:<a name="line.217"></a>
-<span class="sourceLineNo">218</span>      case IA32_XORPS_opcode:<a name="line.218"></a>
-<span class="sourceLineNo">219</span>      case IA32_ANDPD_opcode:<a name="line.219"></a>
-<span class="sourceLineNo">220</span>      case IA32_ANDNPD_opcode:<a name="line.220"></a>
-<span class="sourceLineNo">221</span>      case IA32_ORPD_opcode:<a name="line.221"></a>
-<span class="sourceLineNo">222</span>      case IA32_XORPD_opcode:<a name="line.222"></a>
-<span class="sourceLineNo">223</span>        return true;<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>      case IA32_ADDSS_opcode:<a name="line.225"></a>
-<span class="sourceLineNo">226</span>      case IA32_CMPEQSS_opcode:<a name="line.226"></a>
-<span class="sourceLineNo">227</span>      case IA32_CMPLTSS_opcode:<a name="line.227"></a>
-<span class="sourceLineNo">228</span>      case IA32_CMPLESS_opcode:<a name="line.228"></a>
-<span class="sourceLineNo">229</span>      case IA32_CMPUNORDSS_opcode:<a name="line.229"></a>
-<span class="sourceLineNo">230</span>      case IA32_CMPNESS_opcode:<a name="line.230"></a>
-<span class="sourceLineNo">231</span>      case IA32_CMPNLTSS_opcode:<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      case IA32_CMPNLESS_opcode:<a name="line.232"></a>
-<span class="sourceLineNo">233</span>      case IA32_CMPORDSS_opcode:<a name="line.233"></a>
-<span class="sourceLineNo">234</span>      case IA32_DIVSS_opcode:<a name="line.234"></a>
-<span class="sourceLineNo">235</span>      case IA32_MULSS_opcode:<a name="line.235"></a>
-<span class="sourceLineNo">236</span>      case IA32_SUBSS_opcode:<a name="line.236"></a>
-<span class="sourceLineNo">237</span>      case IA32_ADDSD_opcode:<a name="line.237"></a>
-<span class="sourceLineNo">238</span>      case IA32_CMPEQSD_opcode:<a name="line.238"></a>
-<span class="sourceLineNo">239</span>      case IA32_CMPLTSD_opcode:<a name="line.239"></a>
-<span class="sourceLineNo">240</span>      case IA32_CMPLESD_opcode:<a name="line.240"></a>
-<span class="sourceLineNo">241</span>      case IA32_CMPUNORDSD_opcode:<a name="line.241"></a>
-<span class="sourceLineNo">242</span>      case IA32_CMPNESD_opcode:<a name="line.242"></a>
-<span class="sourceLineNo">243</span>      case IA32_CMPNLTSD_opcode:<a name="line.243"></a>
-<span class="sourceLineNo">244</span>      case IA32_CMPNLESD_opcode:<a name="line.244"></a>
-<span class="sourceLineNo">245</span>      case IA32_CMPORDSD_opcode:<a name="line.245"></a>
-<span class="sourceLineNo">246</span>      case IA32_DIVSD_opcode:<a name="line.246"></a>
-<span class="sourceLineNo">247</span>      case IA32_MULSD_opcode:<a name="line.247"></a>
-<span class="sourceLineNo">248</span>      case IA32_SUBSD_opcode: {<a name="line.248"></a>
-<span class="sourceLineNo">249</span>        RegisterOperand op = MIR_BinaryAcc.getResult(s).asRegister();<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        if (op.getRegister() == r) return true;<a name="line.250"></a>
-<span class="sourceLineNo">251</span>      }<a name="line.251"></a>
-<span class="sourceLineNo">252</span>      break;<a name="line.252"></a>
-<span class="sourceLineNo">253</span><a name="line.253"></a>
-<span class="sourceLineNo">254</span>      case IA32_UCOMISD_opcode:<a name="line.254"></a>
-<span class="sourceLineNo">255</span>      case IA32_UCOMISS_opcode: {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        RegisterOperand op = MIR_Compare.getVal1(s).asRegister();<a name="line.256"></a>
-<span class="sourceLineNo">257</span>        if (op.getRegister() == r) return true;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      }<a name="line.258"></a>
-<span class="sourceLineNo">259</span>      break;<a name="line.259"></a>
-<span class="sourceLineNo">260</span><a name="line.260"></a>
-<span class="sourceLineNo">261</span>      case IA32_SHRD_opcode:<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      case IA32_SHLD_opcode: {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        RegisterOperand op = MIR_DoubleShift.getSource(s);<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        if (op.getRegister() == r) return true;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>      }<a name="line.265"></a>
-<span class="sourceLineNo">266</span>      break;<a name="line.266"></a>
-<span class="sourceLineNo">267</span>      case IA32_FCOMI_opcode:<a name="line.267"></a>
-<span class="sourceLineNo">268</span>      case IA32_FCOMIP_opcode: {<a name="line.268"></a>
-<span class="sourceLineNo">269</span>        Operand op = MIR_Compare.getVal2(s);<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        if (!(op instanceof BURSManagedFPROperand)) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>          if (op.asRegister().getRegister() == r) return true;<a name="line.271"></a>
-<span class="sourceLineNo">272</span>        }<a name="line.272"></a>
-<span class="sourceLineNo">273</span>      }<a name="line.273"></a>
-<span class="sourceLineNo">274</span>      break;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>      case IA32_IMUL2_opcode: {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        RegisterOperand op = MIR_BinaryAcc.getResult(s).asRegister();<a name="line.276"></a>
-<span class="sourceLineNo">277</span>        if (op.getRegister() == r) return true;<a name="line.277"></a>
-<span class="sourceLineNo">278</span>      }<a name="line.278"></a>
-<span class="sourceLineNo">279</span>      break;<a name="line.279"></a>
-<span class="sourceLineNo">280</span>      case MIR_LOWTABLESWITCH_opcode: {<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        RegisterOperand op = MIR_LowTableSwitch.getIndex(s);<a name="line.281"></a>
-<span class="sourceLineNo">282</span>        if (op.getRegister() == r) return true;<a name="line.282"></a>
-<span class="sourceLineNo">283</span>      }<a name="line.283"></a>
-<span class="sourceLineNo">284</span>      break;<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      case IA32_CMOV_opcode:<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      case IA32_FCMOV_opcode: {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>        RegisterOperand op = MIR_CondMove.getResult(s).asRegister();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        if (op.getRegister() == r) return true;<a name="line.288"></a>
-<span class="sourceLineNo">289</span>      }<a name="line.289"></a>
-<span class="sourceLineNo">290</span>      break;<a name="line.290"></a>
-<span class="sourceLineNo">291</span>      case IA32_MOVD_opcode: {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>        RegisterOperand res = MIR_Move.getResult(s).asRegister();<a name="line.292"></a>
-<span class="sourceLineNo">293</span>        if (!res.isFloat() &amp;&amp; !res.isDouble()) {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>          // result is integer so source must be MM/XMM register and<a name="line.294"></a>
-<span class="sourceLineNo">295</span>          // result must remain a register<a name="line.295"></a>
-<span class="sourceLineNo">296</span>          if (VM.VerifyAssertions) {<a name="line.296"></a>
-<span class="sourceLineNo">297</span>            Operand val = MIR_Move.getValue(s);<a name="line.297"></a>
-<span class="sourceLineNo">298</span>            VM._assert(val.isRegister() &amp;&amp; (val.isFloat() || val.isDouble()));<a name="line.298"></a>
-<span class="sourceLineNo">299</span>          }<a name="line.299"></a>
-<span class="sourceLineNo">300</span>          return true;<a name="line.300"></a>
-<span class="sourceLineNo">301</span>        }<a name="line.301"></a>
-<span class="sourceLineNo">302</span>        Operand val = MIR_Move.getValue(s);<a name="line.302"></a>
-<span class="sourceLineNo">303</span>        if (!val.isFloat() &amp;&amp; !val.isDouble()) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>          // source is integer so destination must be MM/XMM register and<a name="line.304"></a>
-<span class="sourceLineNo">305</span>          // source must remain a register<a name="line.305"></a>
-<span class="sourceLineNo">306</span>          if (VM.VerifyAssertions) {<a name="line.306"></a>
-<span class="sourceLineNo">307</span>            VM._assert(res.isRegister() &amp;&amp; (res.isFloat() || res.isDouble()));<a name="line.307"></a>
-<span class="sourceLineNo">308</span>          }<a name="line.308"></a>
-<span class="sourceLineNo">309</span>          return true;<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        }<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      }<a name="line.311"></a>
-<span class="sourceLineNo">312</span>      break;<a name="line.312"></a>
-<span class="sourceLineNo">313</span>      case IA32_MOVZX__B_opcode:<a name="line.313"></a>
-<span class="sourceLineNo">314</span>      case IA32_MOVSX__B_opcode: {<a name="line.314"></a>
-<span class="sourceLineNo">315</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        if (op.getRegister() == r) return true;<a name="line.316"></a>
-<span class="sourceLineNo">317</span>      }<a name="line.317"></a>
-<span class="sourceLineNo">318</span>      break;<a name="line.318"></a>
-<span class="sourceLineNo">319</span>      case IA32_MOVZX__W_opcode:<a name="line.319"></a>
-<span class="sourceLineNo">320</span>      case IA32_MOVSX__W_opcode: {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        if (op.getRegister() == r) return true;<a name="line.322"></a>
-<span class="sourceLineNo">323</span>      }<a name="line.323"></a>
-<span class="sourceLineNo">324</span>      break;<a name="line.324"></a>
-<span class="sourceLineNo">325</span>      case IA32_SET__B_opcode: {<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        if (MIR_Set.getResult(s).isRegister()) {<a name="line.326"></a>
-<span class="sourceLineNo">327</span>          RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.327"></a>
-<span class="sourceLineNo">328</span>          if (op.asRegister().getRegister() == r) return true;<a name="line.328"></a>
-<span class="sourceLineNo">329</span>        }<a name="line.329"></a>
-<span class="sourceLineNo">330</span>      }<a name="line.330"></a>
-<span class="sourceLineNo">331</span>      break;<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      case IA32_TEST_opcode: {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        // at least 1 of the two operands must be in a register<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        if (!MIR_Test.getVal2(s).isConstant()) {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>          if (MIR_Test.getVal1(s).isRegister()) {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>            if (MIR_Test.getVal1(s).asRegister().getRegister() == r) return true;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>          } else if (MIR_Test.getVal2(s).isRegister()) {<a name="line.337"></a>
-<span class="sourceLineNo">338</span>            if (MIR_Test.getVal2(s).asRegister().getRegister() == r) return true;<a name="line.338"></a>
-<span class="sourceLineNo">339</span>          }<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        }<a name="line.340"></a>
-<span class="sourceLineNo">341</span>      }<a name="line.341"></a>
-<span class="sourceLineNo">342</span>      break;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>      case IA32_BT_opcode: {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        // val2 of bit test must be either a constant or register<a name="line.344"></a>
-<span class="sourceLineNo">345</span>        if (!MIR_Test.getVal2(s).isConstant()) {<a name="line.345"></a>
-<span class="sourceLineNo">346</span>          if (MIR_Test.getVal2(s).isRegister()) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>            if (MIR_Test.getVal2(s).asRegister().getRegister() == r) return true;<a name="line.347"></a>
-<span class="sourceLineNo">348</span>          }<a name="line.348"></a>
-<span class="sourceLineNo">349</span>        }<a name="line.349"></a>
-<span class="sourceLineNo">350</span>      }<a name="line.350"></a>
-<span class="sourceLineNo">351</span>      break;<a name="line.351"></a>
-<span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>      default:<a name="line.353"></a>
-<span class="sourceLineNo">354</span>        break;<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    }<a name="line.355"></a>
-<span class="sourceLineNo">356</span>    return false;<a name="line.356"></a>
-<span class="sourceLineNo">357</span>  }<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>  /**<a name="line.359"></a>
-<span class="sourceLineNo">360</span>   * Can physical register r hold an 8-bit value?<a name="line.360"></a>
-<span class="sourceLineNo">361</span>   */<a name="line.361"></a>
-<span class="sourceLineNo">362</span>  private boolean okFor8(Register r) {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>    Register ESP = phys.getESP();<a name="line.363"></a>
-<span class="sourceLineNo">364</span>    Register EBP = phys.getEBP();<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    Register ESI = phys.getESI();<a name="line.365"></a>
-<span class="sourceLineNo">366</span>    Register EDI = phys.getEDI();<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    return (r != ESP &amp;&amp; r != EBP &amp;&amp; r != ESI &amp;&amp; r != EDI);<a name="line.367"></a>
-<span class="sourceLineNo">368</span>  }<a name="line.368"></a>
-<span class="sourceLineNo">369</span><a name="line.369"></a>
-<span class="sourceLineNo">370</span>  @Override<a name="line.370"></a>
-<span class="sourceLineNo">371</span>  public boolean isForbidden(Register symb, Register r, Instruction s) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span><a name="line.372"></a>
-<span class="sourceLineNo">373</span>    // Look at 8-bit restrictions.<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    switch (s.operator.opcode) {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>      case IA32_MOVZX__B_opcode:<a name="line.375"></a>
-<span class="sourceLineNo">376</span>      case IA32_MOVSX__B_opcode: {<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        if (MIR_Unary.getVal(s).isRegister()) {<a name="line.377"></a>
-<span class="sourceLineNo">378</span>          RegisterOperand val = MIR_Unary.getVal(s).asRegister();<a name="line.378"></a>
-<span class="sourceLineNo">379</span>          if (val.getRegister() == symb) {<a name="line.379"></a>
-<span class="sourceLineNo">380</span>            return !okFor8(r);<a name="line.380"></a>
-<span class="sourceLineNo">381</span>          }<a name="line.381"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.ir.Operators.IR_PROLOGUE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ADDSD_opcode;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ADDSS_opcode;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ANDNPD_opcode;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ANDNPS_opcode;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ANDPD_opcode;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ANDPS_opcode;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_BT_opcode;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMOV_opcode;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPEQSD_opcode;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPEQSS_opcode;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPLESD_opcode;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPLESS_opcode;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPLTSD_opcode;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPLTSS_opcode;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNESD_opcode;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNESS_opcode;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNLESD_opcode;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNLESS_opcode;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNLTSD_opcode;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPNLTSS_opcode;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPORDSD_opcode;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPORDSS_opcode;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPUNORDSD_opcode;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CMPUNORDSS_opcode;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSD2SI_opcode;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSD2SS_opcode;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSI2SD_opcode;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSI2SS_opcode;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSS2SD_opcode;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTSS2SI_opcode;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTTSD2SI_opcode;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_CVTTSS2SI_opcode;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_DIVSD_opcode;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_DIVSS_opcode;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_FCLEAR;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_FCMOV_opcode;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_FCOMIP_opcode;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_FCOMI_opcode;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_FNINIT;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_IMUL2_opcode;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVD_opcode;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVSXQ__B_opcode;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVSXQ__W_opcode;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVSX__B_opcode;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVSX__W_opcode;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVZXQ__B_opcode;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVZXQ__W_opcode;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVZX__B_opcode;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MOVZX__W_opcode;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MULSD_opcode;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_MULSS_opcode;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ORPD_opcode;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_ORPS_opcode;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_PREFETCHNTA_opcode;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SET__B_opcode;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SHLD_opcode;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SHRD_opcode;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SQRTSD_opcode;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SQRTSS_opcode;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SUBSD_opcode;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_SUBSS_opcode;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_TEST_opcode;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_UCOMISD_opcode;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_UCOMISS_opcode;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_XORPD_opcode;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IA32_XORPS_opcode;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.IMMQ_MOV_opcode;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>import static org.jikesrvm.compilers.opt.ir.ia32.ArchOperators.MIR_LOWTABLESWITCH_opcode;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>import static org.jikesrvm.ia32.RegisterConstants.NUM_FPRS;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>import java.util.ArrayList;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>import java.util.Enumeration;<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>import org.jikesrvm.VM;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>import org.jikesrvm.compilers.opt.ir.GenericPhysicalRegisterSet;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>import org.jikesrvm.compilers.opt.ir.Register;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_BinaryAcc;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_CacheOp;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_Compare;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_CondMove;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_DoubleShift;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_LowTableSwitch;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_Move;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_Set;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_Test;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_Unary;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>import org.jikesrvm.compilers.opt.ir.ia32.MIR_UnaryNoRes;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>import org.jikesrvm.compilers.opt.ir.ia32.PhysicalRegisterSet;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>import org.jikesrvm.compilers.opt.ir.operand.MemoryOperand;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>import org.jikesrvm.compilers.opt.ir.operand.ia32.BURSManagedFPROperand;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>import org.jikesrvm.compilers.opt.regalloc.GenericRegisterRestrictions;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>import org.jikesrvm.compilers.opt.regalloc.LiveIntervalElement;<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>/**<a name="line.113"></a>
+<span class="sourceLineNo">114</span> * An instance of this class encapsulates restrictions on register<a name="line.114"></a>
+<span class="sourceLineNo">115</span> * assignment.<a name="line.115"></a>
+<span class="sourceLineNo">116</span> */<a name="line.116"></a>
+<span class="sourceLineNo">117</span>public final class RegisterRestrictions extends GenericRegisterRestrictions {<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>  /**<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * Allow scratch registers in PEIs?<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public static final boolean SCRATCH_IN_PEI = true;<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  public RegisterRestrictions(GenericPhysicalRegisterSet phys) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    super(phys);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>  }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>  @Override<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  public void addArchRestrictions(BasicBlock bb, ArrayList&lt;LiveIntervalElement&gt; symbolics) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    // If there are any registers used in catch blocks, we want to ensure<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    // that these registers are not used or evicted from scratch registers<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    // at a relevant PEI, so that the assumptions of register homes in the<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    // catch block remain valid.  For now, we do this by forcing any<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    // register used in such a PEI as not spilled.  TODO: relax this<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    // restriction for better code.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    for (Enumeration&lt;Instruction&gt; ie = bb.forwardInstrEnumerator(); ie.hasMoreElements();) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      Instruction s = ie.nextElement();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      if (s.isPEI() &amp;&amp; s.operator() != IR_PROLOGUE) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>        if (bb.hasApplicableExceptionalOut(s) || !SCRATCH_IN_PEI) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>          for (Enumeration&lt;Operand&gt; e = s.getOperands(); e.hasMoreElements();) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            Operand op = e.nextElement();<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            if (op != null &amp;&amp; op.isRegister()) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>              noteMustNotSpill(op.asRegister().getRegister());<a name="line.143"></a>
+<span class="sourceLineNo">144</span>              handle8BitRestrictions(s);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>          }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>      // handle special cases<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      switch (s.getOpcode()) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        case MIR_LOWTABLESWITCH_opcode: {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          RegisterOperand op = MIR_LowTableSwitch.getMethodStart(s);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>          noteMustNotSpill(op.getRegister());<a name="line.154"></a>
+<span class="sourceLineNo">155</span>          op = MIR_LowTableSwitch.getIndex(s);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          noteMustNotSpill(op.getRegister());<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        break;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        case IA32_MOVZX__B_opcode:<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        case IA32_MOVSX__B_opcode:<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        case IA32_MOVZXQ__B_opcode:<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        case IA32_MOVSXQ__B_opcode: {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>          if (MIR_Unary.getVal(s).isRegister()) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>            RegisterOperand val = MIR_Unary.getVal(s).asRegister();<a name="line.164"></a>
+<span class="sourceLineNo">165</span>            restrictTo8Bits(val.getRegister());<a name="line.165"></a>
+<span class="sourceLineNo">166</span>          }<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        break;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        case IA32_SET__B_opcode: {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>          if (MIR_Set.getResult(s).isRegister()) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>            RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>            restrictTo8Bits(op.getRegister());<a name="line.172"></a>
+<span class="sourceLineNo">173</span>          }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        }<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        break;<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>        default:<a name="line.177"></a>
+<span class="sourceLineNo">178</span>          handle8BitRestrictions(s);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>          break;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      }<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    for (Enumeration&lt;Instruction&gt; ie = bb.forwardInstrEnumerator(); ie.hasMoreElements();) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      Instruction s = ie.nextElement();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      if (s.operator() == IA32_FNINIT) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // No floating point register survives across an FNINIT<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        for (LiveIntervalElement symb : symbolics) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>          if (symb.getRegister().isFloatingPoint()) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            if (contains(symb, regAllocState.getDFN(s))) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>              addRestrictions(symb.getRegister(), phys.asIA32().getFPRs());<a name="line.189"></a>
+<span class="sourceLineNo">190</span>            }<a name="line.190"></a>
+<span class="sourceLineNo">191</span>          }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      } else if (s.operator() == IA32_FCLEAR) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        // Only some FPRs survive across an FCLEAR<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        for (LiveIntervalElement symb : symbolics) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>          if (symb.getRegister().isFloatingPoint()) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            if (contains(symb, regAllocState.getDFN(s))) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>              int nSave = MIR_UnaryNoRes.getVal(s).asIntConstant().value;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>              for (int i = nSave; i &lt; NUM_FPRS; i++) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                addRestriction(symb.getRegister(), phys.getFPR(i));<a name="line.200"></a>
+<span class="sourceLineNo">201</span>              }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>          }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        }<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      }<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    }<a name="line.206"></a>
+<span class="sourceLineNo">207</span>  }<a name="line.207"></a>
+<span class="sourceLineNo">208</span><a name="line.208"></a>
+<span class="sourceLineNo">209</span>  /**<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * @param s the instruction to check<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   * @return {@code true} if and only if the instruction contains an 8-bit memory operand<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   */<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  boolean has8BitMemoryOperand(Instruction s) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    for (Enumeration&lt;Operand&gt; me = s.getMemoryOperands(); me.hasMoreElements();) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      MemoryOperand mop = (MemoryOperand) me.nextElement();<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      if (mop.size == 1) {<a name="line.216"></a>
+<span class="sourceLineNo">217</span>        return true;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      }<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    }<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    return false;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>  }<a name="line.221"></a>
+<span class="sourceLineNo">222</span><a name="line.222"></a>
+<span class="sourceLineNo">223</span>  /**<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   * Ensure that if an operand has an 8 bit memory operand that<a name="line.224"></a>
+<span class="sourceLineNo">225</span>   * all of its register operands are in 8 bit registers.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   * @param s the instruction to restrict<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  void handle8BitRestrictions(Instruction s) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    for (Enumeration&lt;Operand&gt; me = s.getMemoryOperands(); me.hasMoreElements();) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>      MemoryOperand mop = (MemoryOperand) me.nextElement();<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      if (mop.size == 1) {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>        for (Enumeration&lt;Operand&gt; e2 = s.getRootOperands(); e2.hasMoreElements();) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>          Operand rootOp = e2.nextElement();<a name="line.233"></a>
+<span class="sourceLineNo">234</span>          if (rootOp.isRegister()) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            restrictTo8Bits(rootOp.asRegister().getRegister());<a name="line.235"></a>
+<span class="sourceLineNo">236</span>          }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>        }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      }<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  }<a name="line.240"></a>
+<span class="sourceLineNo">241</span><a name="line.241"></a>
+<span class="sourceLineNo">242</span>  /**<a name="line.242"></a>
+<span class="sourceLineNo">243</span>   * Ensures that a particular register is only assigned to AL, BL, CL, or<a name="line.243"></a>
+<span class="sourceLineNo">244</span>   * DL, since these are the only 8-bit registers we normally address.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>   *<a name="line.245"></a>
+<span class="sourceLineNo">246</span>   * @param r the register that needs to be restricted to 8 bits<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   */<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  void restrictTo8Bits(Register r) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    PhysicalRegisterSet phys = (PhysicalRegisterSet)this.phys;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    Register ESP = phys.getESP();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    Register EBP = phys.getEBP();<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    Register ESI = phys.getESI();<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    Register EDI = phys.getEDI();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    addRestriction(r, ESP);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    addRestriction(r, EBP);<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    addRestriction(r, ESI);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    addRestriction(r, EDI);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>  }<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>  /**<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * Given symbolic register r that appears in instruction s, does the<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   * architecture demand that r be assigned to a physical register in s?<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   *<a name="line.263"></a>
+<span class="sourceLineNo">264</span>   * @param r a symbolic register<a name="line.264"></a>
+<span class="sourceLineNo">265</span>   * @param s instruction where the register appears<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   *<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * @return {@code true} if the symbolic register r must use a physical<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   *  register in the instruction, {@code false} if we can use a spill location<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   */<a name="line.269"></a>
+<span class="sourceLineNo">270</span>  public static boolean mustBeInRegister(Register r, Instruction s) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    switch (s.getOpcode()) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      case IA32_PREFETCHNTA_opcode: {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        RegisterOperand op = MIR_CacheOp.getAddress(s).asRegister();<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        if (op.getRegister() == r) return true;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      }<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      break;<a name="line.276"></a>
+<span class="sourceLineNo">277</span><a name="line.277"></a>
+<span class="sourceLineNo">278</span>      case IA32_SQRTSS_opcode:<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      case IA32_SQRTSD_opcode:<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      case IA32_CVTSD2SI_opcode:<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      case IA32_CVTSD2SS_opcode:<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      case IA32_CVTSI2SD_opcode:<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      case IA32_CVTSS2SD_opcode:<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      case IA32_CVTSS2SI_opcode:<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      case IA32_CVTTSD2SI_opcode:<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      case IA32_CVTTSS2SI_opcode:<a name="line.286"></a>
+<span class="sourceLineNo">287</span>      case IA32_CVTSI2SS_opcode: {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>        if (op.getRegister() == r) return true;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>      }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      break;<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>      // Instructions that require 16byte alignment (not guaranteed by our<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      // spills) must be forced to always use registers<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      case IA32_ANDPS_opcode:<a name="line.295"></a>
+<span class="sourceLineNo">296</span>      case IA32_ANDNPS_opcode:<a name="line.296"></a>
+<span class="sourceLineNo">297</span>      case IA32_ORPS_opcode:<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      case IA32_XORPS_opcode:<a name="line.298"></a>
+<span class="sourceLineNo">299</span>      case IA32_ANDPD_opcode:<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      case IA32_ANDNPD_opcode:<a name="line.300"></a>
+<span class="sourceLineNo">301</span>      case IA32_ORPD_opcode:<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      case IA32_XORPD_opcode:<a name="line.302"></a>
+<span class="sourceLineNo">303</span>      case IMMQ_MOV_opcode:<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        return true;<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>      case IA32_ADDSS_opcode:<a name="line.306"></a>
+<span class="sourceLineNo">307</span>      case IA32_CMPEQSS_opcode:<a name="line.307"></a>
+<span class="sourceLineNo">308</span>      case IA32_CMPLTSS_opcode:<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      case IA32_CMPLESS_opcode:<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      case IA32_CMPUNORDSS_opcode:<a name="line.310"></a>
+<span class="sourceLineNo">311</span>      case IA32_CMPNESS_opcode:<a name="line.311"></a>
+<span class="sourceLineNo">312</span>      case IA32_CMPNLTSS_opcode:<a name="line.312"></a>
+<span class="sourceLineNo">313</span>      case IA32_CMPNLESS_opcode:<a name="line.313"></a>
+<span class="sourceLineNo">314</span>      case IA32_CMPORDSS_opcode:<a name="line.314"></a>
+<span class="sourceLineNo">315</span>      case IA32_DIVSS_opcode:<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      case IA32_MULSS_opcode:<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      case IA32_SUBSS_opcode:<a name="line.317"></a>
+<span class="sourceLineNo">318</span>      case IA32_ADDSD_opcode:<a name="line.318"></a>
+<span class="sourceLineNo">319</span>      case IA32_CMPEQSD_opcode:<a name="line.319"></a>
+<span class="sourceLineNo">320</span>      case IA32_CMPLTSD_opcode:<a name="line.320"></a>
+<span class="sourceLineNo">321</span>      case IA32_CMPLESD_opcode:<a name="line.321"></a>
+<span class="sourceLineNo">322</span>      case IA32_CMPUNORDSD_opcode:<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      case IA32_CMPNESD_opcode:<a name="line.323"></a>
+<span class="sourceLineNo">324</span>      case IA32_CMPNLTSD_opcode:<a name="line.324"></a>
+<span class="sourceLineNo">325</span>      case IA32_CMPNLESD_opcode:<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      case IA32_CMPORDSD_opcode:<a name="line.326"></a>
+<span class="sourceLineNo">327</span>      case IA32_DIVSD_opcode:<a name="line.327"></a>
+<span class="sourceLineNo">328</span>      case IA32_MULSD_opcode:<a name="line.328"></a>
+<span class="sourceLineNo">329</span>      case IA32_SUBSD_opcode: {<a name="line.329"></a>
+<span class="sourceLineNo">330</span>        RegisterOperand op = MIR_BinaryAcc.getResult(s).asRegister();<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        if (op.getRegister() == r) return true;<a name="line.331"></a>
+<span class="sourceLineNo">332</span>      }<a name="line.332"></a>
+<span class="sourceLineNo">333</span>      break;<a name="line.333"></a>
+<span class="sourceLineNo">334</span><a name="line.334"></a>
+<span class="sourceLineNo">335</span>      case IA32_UCOMISD_opcode:<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      case IA32_UCOMISS_opcode: {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        RegisterOperand op = MIR_Compare.getVal1(s).asRegister();<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        if (op.getRegister() == r) return true;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>      }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      break;<a name="line.340"></a>
+<span class="sourceLineNo">341</span><a name="line.341"></a>
+<span class="sourceLineNo">342</span>      case IA32_SHRD_opcode:<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      case IA32_SHLD_opcode: {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        RegisterOperand op = MIR_DoubleShift.getSource(s);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        if (op.getRegister() == r) return true;<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      }<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      break;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      case IA32_FCOMI_opcode:<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      case IA32_FCOMIP_opcode: {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        Operand op = MIR_Compare.getVal2(s);<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        if (!(op instanceof BURSManagedFPROperand)) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>          if (op.asRegister().getRegister() == r) return true;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      break;<a name="line.355"></a>
+<span class="sourceLineNo">356</span>      case IA32_IMUL2_opcode: {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        RegisterOperand op = MIR_BinaryAcc.getResult(s).asRegister();<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        if (op.getRegister() == r) return true;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      }<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      break;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>      case MIR_LOWTABLESWITCH_opcode: {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        RegisterOperand op = MIR_LowTableSwitch.getIndex(s);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        if (op.getRegister() == r) return true;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      }<a name="line.364"></a>
+<span class="sourceLineNo">365</span>      break;<a name="line.365"></a>
+<span class="sourceLineNo">366</span>      case IA32_CMOV_opcode:<a name="line.366"></a>
+<span class="sourceLineNo">367</span>      case IA32_FCMOV_opcode: {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        RegisterOperand op = MIR_CondMove.getResult(s).asRegister();<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        if (op.getRegister() == r) return true;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      break;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>      case IA32_MOVD_opcode: {<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        RegisterOperand res = MIR_Move.getResult(s).asRegister();<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        if (!res.isFloat() &amp;&amp; !res.isDouble()) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>          // result is integer so source must be MM/XMM register and<a name="line.375"></a>
+<span class="sourceLineNo">376</span>          // result must remain a register<a name="line.376"></a>
+<span class="sourceLineNo">377</span>          if (VM.VerifyAssertions) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>            Operand val = MIR_Move.getValue(s);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>            VM._assert(val.isRegister() &amp;&amp; (val.isFloat() || val.isDouble()));<a name="line.379"></a>
+<span class="sourceLineNo">380</span>          }<a name="line.380"></a>
+<span class="sourceLineNo">381</span>          return true;<a name="line.381"></a>
 <span class="sourceLineNo">382</span>        }<a name="line.382"></a>
-<span class="sourceLineNo">383</span>      }<a name="line.383"></a>
-<span class="sourceLineNo">384</span>      break;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>      case IA32_SET__B_opcode: {<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        if (MIR_Set.getResult(s).isRegister()) {<a name="line.386"></a>
-<span class="sourceLineNo">387</span>          RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.387"></a>
-<span class="sourceLineNo">388</span>          if (op.asRegister().getRegister() == symb) {<a name="line.388"></a>
-<span class="sourceLineNo">389</span>            return !okFor8(r);<a name="line.389"></a>
-<span class="sourceLineNo">390</span>          }<a name="line.390"></a>
+<span class="sourceLineNo">383</span>        Operand val = MIR_Move.getValue(s);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        if (!val.isFloat() &amp;&amp; !val.isDouble()) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>          // source is integer so destination must be MM/XMM register and<a name="line.385"></a>
+<span class="sourceLineNo">386</span>          // source must remain a register<a name="line.386"></a>
+<span class="sourceLineNo">387</span>          if (VM.VerifyAssertions) {<a name="line.387"></a>
+<span class="sourceLineNo">388</span>            VM._assert(res.isRegister() &amp;&amp; (res.isFloat() || res.isDouble()));<a name="line.388"></a>
+<span class="sourceLineNo">389</span>          }<a name="line.389"></a>
+<span class="sourceLineNo">390</span>          return true;<a name="line.390"></a>
 <span class="sourceLineNo">391</span>        }<a name="line.391"></a>
 <span class="sourceLineNo">392</span>      }<a name="line.392"></a>
 <span class="sourceLineNo">393</span>      break;<a name="line.393"></a>
-<span class="sourceLineNo">394</span>    }<a name="line.394"></a>
-<span class="sourceLineNo">395</span><a name="line.395"></a>
-<span class="sourceLineNo">396</span>    if (has8BitMemoryOperand(s)) {<a name="line.396"></a>
-<span class="sourceLineNo">397</span>      return !okFor8(r);<a name="line.397"></a>
-<span class="sourceLineNo">398</span>    }<a name="line.398"></a>
-<span class="sourceLineNo">399</span><a name="line.399"></a>
-<span class="sourceLineNo">400</span>    // Otherwise, it's OK.<a name="line.400"></a>
-<span class="sourceLineNo">401</span>    return false;<a name="line.401"></a>
-<span class="sourceLineNo">402</span>  }<a name="line.402"></a>
-<span class="sourceLineNo">403</span>}<a name="line.403"></a>
+<span class="sourceLineNo">394</span>      case IA32_MOVZX__B_opcode:<a name="line.394"></a>
+<span class="sourceLineNo">395</span>      case IA32_MOVSX__B_opcode:<a name="line.395"></a>
+<span class="sourceLineNo">396</span>      case IA32_MOVZXQ__B_opcode:<a name="line.396"></a>
+<span class="sourceLineNo">397</span>      case IA32_MOVSXQ__B_opcode: {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        if (op.getRegister() == r) return true;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>      }<a name="line.400"></a>
+<span class="sourceLineNo">401</span>      break;<a name="line.401"></a>
+<span class="sourceLineNo">402</span>      case IA32_MOVZX__W_opcode:<a name="line.402"></a>
+<span class="sourceLineNo">403</span>      case IA32_MOVSX__W_opcode:<a name="line.403"></a>
+<span class="sourceLineNo">404</span>      case IA32_MOVZXQ__W_opcode:<a name="line.404"></a>
+<span class="sourceLineNo">405</span>      case IA32_MOVSXQ__W_opcode: {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        RegisterOperand op = MIR_Unary.getResult(s).asRegister();<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        if (op.getRegister() == r) return true;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>      break;<a name="line.409"></a>
+<span class="sourceLineNo">410</span>      case IA32_SET__B_opcode: {<a name="line.410"></a>
+<span class="sourceLineNo">411</span>        if (MIR_Set.getResult(s).isRegister()) {<a name="line.411"></a>
+<span class="sourceLineNo">412</span>          RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.412"></a>
+<span class="sourceLineNo">413</span>          if (op.asRegister().getRegister() == r) return true;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        }<a name="line.414"></a>
+<span class="sourceLineNo">415</span>      }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>      break;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>      case IA32_TEST_opcode: {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>        // at least 1 of the two operands must be in a register<a name="line.418"></a>
+<span class="sourceLineNo">419</span>        if (!MIR_Test.getVal2(s).isConstant()) {<a name="line.419"></a>
+<span class="sourceLineNo">420</span>          if (MIR_Test.getVal1(s).isRegister()) {<a name="line.420"></a>
+<span class="sourceLineNo">421</span>            if (MIR_Test.getVal1(s).asRegister().getRegister() == r) return true;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>          } else if (MIR_Test.getVal2(s).isRegister()) {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>            if (MIR_Test.getVal2(s).asRegister().getRegister() == r) return true;<a name="line.423"></a>
+<span class="sourceLineNo">424</span>          }<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>      }<a name="line.426"></a>
+<span class="sourceLineNo">427</span>      break;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      case IA32_BT_opcode: {<a name="line.428"></a>
+<span class="sourceLineNo">429</span>        // val2 of bit test must be either a constant or register<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        if (!MIR_Test.getVal2(s).isConstant()) {<a name="line.430"></a>
+<span class="sourceLineNo">431</span>          if (MIR_Test.getVal2(s).isRegister()) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>            if (MIR_Test.getVal2(s).asRegister().getRegister() == r) return true;<a name="line.432"></a>
+<span class="sourceLineNo">433</span>          }<a name="line.433"></a>
+<span class="sourceLineNo">434</span>        }<a name="line.434"></a>
+<span class="sourceLineNo">435</span>      }<a name="line.435"></a>
+<span class="sourceLineNo">436</span>      break;<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>      default:<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        break;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>    }<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    return false;<a name="line.441"></a>
+<span class="sourceLineNo">442</span>  }<a name="line.442"></a>
+<span class="sourceLineNo">443</span><a name="line.443"></a>
+<span class="sourceLineNo">444</span>  /**<a name="line.444"></a>
+<span class="sourceLineNo">445</span>   * @param r the register to check<a name="line.445"></a>
+<span class="sourceLineNo">446</span>   * @return {@code true} if the physical register r hold an 8-bit value?<a name="line.446"></a>
+<span class="sourceLineNo">447</span>   */<a name="line.447"></a>
+<span class="sourceLineNo">448</span>  private boolean okFor8(Register r) {<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    PhysicalRegisterSet phys = (PhysicalRegisterSet)this.phys;<a name="line.449"></a>
+<span class="sourceLineNo">450</span>    Register ESP = phys.getESP();<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    Register EBP = phys.getEBP();<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    Register ESI = phys.getESI();<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    Register EDI = phys.getEDI();<a name="line.453"></a>
+<span class="sourceLineNo">454</span>    return (r != ESP &amp;&amp; r != EBP &amp;&amp; r != ESI &amp;&amp; r != EDI);<a name="line.454"></a>
+<span class="sourceLineNo">455</span>  }<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>  @Override<a name="line.457"></a>
+<span class="sourceLineNo">458</span>  public boolean isForbidden(Register symb, Register r, Instruction s) {<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>    // Look at 8-bit restrictions.<a name="line.460"></a>
+<span class="sourceLineNo">461</span>    switch (s.getOpcode()) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>      case IA32_MOVZX__B_opcode:<a name="line.462"></a>
+<span class="sourceLineNo">463</span>      case IA32_MOVSX__B_opcode:<a name="line.463"></a>
+<span class="sourceLineNo">464</span>      case IA32_MOVZXQ__B_opcode:<a name="line.464"></a>
+<span class="sourceLineNo">465</span>      case IA32_MOVSXQ__B_opcode: {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        if (MIR_Unary.getVal(s).isRegister()) {<a name="line.466"></a>
+<span class="sourceLineNo">467</span>          RegisterOperand val = MIR_Unary.getVal(s).asRegister();<a name="line.467"></a>
+<span class="sourceLineNo">468</span>          if (val.getRegister() == symb) {<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            return !okFor8(r);<a name="line.469"></a>
+<span class="sourceLineNo">470</span>          }<a name="line.470"></a>
+<span class="sourceLineNo">471</span>        }<a name="line.471"></a>
+<span class="sourceLineNo">472</span>      }<a name="line.472"></a>
+<span class="sourceLineNo">473</span>      break;<a name="line.473"></a>
+<span class="sourceLineNo">474</span>      case IA32_SET__B_opcode: {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>        if (MIR_Set.getResult(s).isRegister()) {<a name="line.475"></a>
+<span class="sourceLineNo">476</span>          RegisterOperand op = MIR_Set.getResult(s).asRegister();<a name="line.476"></a>
+<span class="sourceLineNo">477</span>          if (op.asRegister().getRegister() == symb) {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            return !okFor8(r);<a name="line.478"></a>
+<span class="sourceLineNo">479</span>          }<a name="line.479"></a>
+<span class="sourceLineNo">480</span>        }<a name="line.480"></a>
+<span class="sourceLineNo">481</span>      }<a name="line.481"></a>
+<span class="sourceLineNo">482</span>      break;<a name="line.482"></a>
+<span class="sourceLineNo">483</span>    }<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>    if (has8BitMemoryOperand(s)) {<a name="line.485"></a>
+<span class="sourceLineNo">486</span>      return !okFor8(r);<a name="line.486"></a>
+<span class="sourceLineNo">487</span>    }<a name="line.487"></a>
+<span class="sourceLineNo">488</span><a name="line.488"></a>
+<span class="sourceLineNo">489</span>    // Otherwise, it's OK.<a name="line.489"></a>
+<span class="sourceLineNo">490</span>    return false;<a name="line.490"></a>
+<span class="sourceLineNo">491</span>  }<a name="line.491"></a>
+<span class="sourceLineNo">492</span>}<a name="line.492"></a>
 
 
 

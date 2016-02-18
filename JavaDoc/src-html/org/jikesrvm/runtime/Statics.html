@@ -20,758 +20,810 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.runtime;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.Constants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.ArchitectureSpecific.CodeArray;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.mm.mminterface.Barriers;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.objectmodel.TIB;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.util.BitVector;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.util.ImmutableEntryIdentityHashMapRVM;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.vmmagic.pragma.UninterruptibleNoWarn;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.Address;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.vmmagic.unboxed.Extent;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.vmmagic.unboxed.Offset;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.vmmagic.unboxed.Word;<a name="line.27"></a>
-<span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * The static fields and methods comprising a running virtual machine image.<a name="line.30"></a>
-<span class="sourceLineNo">031</span> *<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * &lt;p&gt; These fields, methods and literal constants form the "root set"<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * of all the objects in the running virtual machine. They are stored<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * in an array where the middle element is always pointed to by the<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * virtual machine's "table of contents" (JTOC) register. The slots of<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * this array hold either primitives (int, long, float, double),<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * object pointers, or array pointers. To enable the garbage collector<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * to differentiate between reference and non-reference values,<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * reference values are indexed positively and numeric values<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * negatively with respect to the middle of the table.<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * &lt;p&gt; Consider the following declarations:<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * &lt;pre&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *      class A { static int    i = 123;    }<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *      class B { static String s = "abc";  }<a name="line.46"></a>
-<span class="sourceLineNo">047</span> *      class C { static double d = 4.56;   }<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *      class D { static void m() {} }<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * &lt;/pre&gt;<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;p&gt;Here's a picture of what the corresponding JTOC would look like<a name="line.51"></a>
-<span class="sourceLineNo">052</span> * in memory:<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * &lt;pre&gt;<a name="line.54"></a>
-<span class="sourceLineNo">055</span> *                     +---------------+<a name="line.55"></a>
-<span class="sourceLineNo">056</span> *                     |     ...       |<a name="line.56"></a>
-<span class="sourceLineNo">057</span> *                     +---------------+<a name="line.57"></a>
-<span class="sourceLineNo">058</span> * field            -6 |   C.d (hi)    |<a name="line.58"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.JavaSizeConstants.BITS_IN_INT;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_INT;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_LONG;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.runtime.JavaSizeConstants.LOG_BYTES_IN_INT;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.common.CodeArray;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.mm.mminterface.Barriers;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.objectmodel.TIB;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.util.BitVector;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.util.ImmutableEntryIdentityHashMapRVM;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.vmmagic.pragma.UninterruptibleNoWarn;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.vmmagic.unboxed.Address;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.vmmagic.unboxed.Extent;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.vmmagic.unboxed.Offset;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.vmmagic.unboxed.Word;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>/**<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * The static fields and methods comprising a running virtual machine image.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;p&gt; These fields, methods and literal constants form the "root set"<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * of all the objects in the running virtual machine. They are stored<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * in an array where the middle element is always pointed to by the<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * virtual machine's "table of contents" (JTOC) register. The slots of<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * this array hold either primitives (int, long, float, double),<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * object pointers, or array pointers. To enable the garbage collector<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * to differentiate between reference and non-reference values,<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * reference values are indexed positively and numeric values<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * negatively with respect to the middle of the table.<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * &lt;p&gt; Consider the following declarations:<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * &lt;pre&gt;<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *      class A { static int    i = 123;    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span> *      class B { static String s = "abc";  }<a name="line.50"></a>
+<span class="sourceLineNo">051</span> *      class C { static double d = 4.56;   }<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *      class D { static void m() {} }<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;/pre&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * &lt;p&gt;Here's a picture of what the corresponding JTOC would look like<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * in memory:<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * &lt;pre&gt;<a name="line.58"></a>
 <span class="sourceLineNo">059</span> *                     +---------------+<a name="line.59"></a>
-<span class="sourceLineNo">060</span> * field            -5 |   C.d (lo)    |<a name="line.60"></a>
+<span class="sourceLineNo">060</span> *                     |     ...       |<a name="line.60"></a>
 <span class="sourceLineNo">061</span> *                     +---------------+<a name="line.61"></a>
-<span class="sourceLineNo">062</span> * literal          -4 |  4.56 (hi)    |<a name="line.62"></a>
+<span class="sourceLineNo">062</span> * field            -6 |   C.d (hi)    |<a name="line.62"></a>
 <span class="sourceLineNo">063</span> *                     +---------------+<a name="line.63"></a>
-<span class="sourceLineNo">064</span> * literal          -3 |  4.56 (lo)    |<a name="line.64"></a>
+<span class="sourceLineNo">064</span> * field            -5 |   C.d (lo)    |<a name="line.64"></a>
 <span class="sourceLineNo">065</span> *                     +---------------+<a name="line.65"></a>
-<span class="sourceLineNo">066</span> * field            -2 |     A.i       |<a name="line.66"></a>
+<span class="sourceLineNo">066</span> * literal          -4 |  4.56 (hi)    |<a name="line.66"></a>
 <span class="sourceLineNo">067</span> *                     +---------------+<a name="line.67"></a>
-<span class="sourceLineNo">068</span> * literal          -1 |     123       |<a name="line.68"></a>
-<span class="sourceLineNo">069</span> *                     +---------------+       +---------------+<a name="line.69"></a>
-<span class="sourceLineNo">070</span> * [jtoc register]-&gt; 0:|      0        |       |   (header)    |<a name="line.70"></a>
-<span class="sourceLineNo">071</span> *                     +---------------+       +---------------+<a name="line.71"></a>
-<span class="sourceLineNo">072</span> * literal           1:|  (objref)   ---------&gt;|    "abc"      |<a name="line.72"></a>
+<span class="sourceLineNo">068</span> * literal          -3 |  4.56 (lo)    |<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *                     +---------------+<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * field            -2 |     A.i       |<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *                     +---------------+<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * literal          -1 |     123       |<a name="line.72"></a>
 <span class="sourceLineNo">073</span> *                     +---------------+       +---------------+<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * field             2:|     B.s       |<a name="line.74"></a>
+<span class="sourceLineNo">074</span> * [jtoc register]-&amp;gt; 0:|      0        |       |   (header)    |<a name="line.74"></a>
 <span class="sourceLineNo">075</span> *                     +---------------+       +---------------+<a name="line.75"></a>
-<span class="sourceLineNo">076</span> *                   3:|  (coderef)  ------+   |   (header)    |<a name="line.76"></a>
-<span class="sourceLineNo">077</span> *                     +---------------+   |   +---------------+<a name="line.77"></a>
-<span class="sourceLineNo">078</span> *                     |     ...       |   +--&gt;|  machine code |<a name="line.78"></a>
-<span class="sourceLineNo">079</span> *                     +---------------+       |    for "m"    |<a name="line.79"></a>
-<span class="sourceLineNo">080</span> *                                             +---------------+<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * &lt;/pre&gt;<a name="line.81"></a>
-<span class="sourceLineNo">082</span> */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>public class Statics implements Constants {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * How many 32bit slots do we want in the JTOC to hold numeric (non-reference) values?<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   */<a name="line.86"></a>
-<span class="sourceLineNo">087</span>  private static final int numNumericSlots =   0x20000; // 128k<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>  /**<a name="line.89"></a>
-<span class="sourceLineNo">090</span>   * How many reference-sized slots do we want in the JTOC to hold reference values?<a name="line.90"></a>
-<span class="sourceLineNo">091</span>   */<a name="line.91"></a>
-<span class="sourceLineNo">092</span>  private static final int numReferenceSlots = 0x20000; // 128k<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>  /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   * Static data values (pointed to by JTOC register).<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   * This is currently fixed-size, although at one point the system's plans<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * called for making it dynamically growable.  We could also make it<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * non-contiguous.<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  private static final int[] slots = new int[numNumericSlots + (VM.BuildFor64Addr ? 2 : 1) * numReferenceSlots];<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>  /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   * Object version of the slots used during boot image creation and<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   * destroyed shortly after. This is required to support conversion<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   * of a slot address to its associated object during boot image<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   * creation.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  private static Object[] objectSlots = new Object[slots.length];<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>  /**<a name="line.110"></a>
-<span class="sourceLineNo">111</span>   * The logical middle of the table, references are slots above this and<a name="line.111"></a>
-<span class="sourceLineNo">112</span>   * numeric values below this. The JTOC points to the middle of the<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   * table.<a name="line.113"></a>
-<span class="sourceLineNo">114</span>   */<a name="line.114"></a>
-<span class="sourceLineNo">115</span>  public static final int middleOfTable = numNumericSlots;<a name="line.115"></a>
-<span class="sourceLineNo">116</span><a name="line.116"></a>
-<span class="sourceLineNo">117</span>  /** Next available numeric slot number */<a name="line.117"></a>
-<span class="sourceLineNo">118</span>  private static volatile int nextNumericSlot = middleOfTable - 1;<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>  /**<a name="line.120"></a>
-<span class="sourceLineNo">121</span>   * Numeric slot hole. Holes are created to align 8byte values. We<a name="line.121"></a>
-<span class="sourceLineNo">122</span>   * allocate into a hole rather than consume another numeric slot.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>   * The value of middleOfTable indicates the slot isn't in use.<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   */<a name="line.124"></a>
-<span class="sourceLineNo">125</span>  private static volatile int numericSlotHole = middleOfTable;<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>  /** Next available reference slot number */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>  private static volatile int nextReferenceSlot = middleOfTable;<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>  /**<a name="line.130"></a>
-<span class="sourceLineNo">131</span>   * Bit vector indicating whether a numeric slot is a field (true) or a<a name="line.131"></a>
-<span class="sourceLineNo">132</span>   * literal (false).<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   */<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  private static final BitVector numericFieldVector = new BitVector(middleOfTable);<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>  /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * Map of objects to their literal offsets<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   */<a name="line.138"></a>
-<span class="sourceLineNo">139</span>  private static final ImmutableEntryIdentityHashMapRVM&lt;Object, Integer&gt; objectLiterals =<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    new ImmutableEntryIdentityHashMapRVM&lt;Object, Integer&gt;();<a name="line.140"></a>
-<span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>  static {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    // allocate a slot to be null - offset zero should map to null<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    int offset = allocateReferenceSlot(false).toInt();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    if (VM.VerifyAssertions) VM._assert(offset == 0);<a name="line.145"></a>
-<span class="sourceLineNo">146</span>  }<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>  /**<a name="line.148"></a>
-<span class="sourceLineNo">149</span>   * Conversion from JTOC slot index to JTOC offset.<a name="line.149"></a>
-<span class="sourceLineNo">150</span>   */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  @Uninterruptible<a name="line.151"></a>
-<span class="sourceLineNo">152</span>  public static Offset slotAsOffset(int slot) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    return Offset.fromIntSignExtend((slot - middleOfTable) &lt;&lt; LOG_BYTES_IN_INT);<a name="line.153"></a>
-<span class="sourceLineNo">154</span>  }<a name="line.154"></a>
-<span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>  /**<a name="line.156"></a>
-<span class="sourceLineNo">157</span>   * Conversion from JTOC offset to JTOC slot index.<a name="line.157"></a>
-<span class="sourceLineNo">158</span>   */<a name="line.158"></a>
-<span class="sourceLineNo">159</span>  @Uninterruptible<a name="line.159"></a>
-<span class="sourceLineNo">160</span>  public static int offsetAsSlot(Offset offset) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    if (VM.VerifyAssertions) VM._assert((offset.toInt() &amp; 3) == 0);<a name="line.161"></a>
-<span class="sourceLineNo">162</span>    return middleOfTable + (offset.toInt() &gt;&gt; LOG_BYTES_IN_INT);<a name="line.162"></a>
-<span class="sourceLineNo">163</span>  }<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>  /**<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   * Return the lowest slot number in use<a name="line.166"></a>
-<span class="sourceLineNo">167</span>   */<a name="line.167"></a>
-<span class="sourceLineNo">168</span>  public static int getLowestInUseSlot() {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    return nextNumericSlot + 1;<a name="line.169"></a>
-<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
-<span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>  /**<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * Return the highest slot number in use<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   */<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  public static int getHighestInUseSlot() {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    return nextReferenceSlot - (VM.BuildFor32Addr ? 1 : 2);<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  }<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>  /**<a name="line.179"></a>
-<span class="sourceLineNo">180</span>   * Find the given literal in the int like literal map, if not found<a name="line.180"></a>
-<span class="sourceLineNo">181</span>   * create a slot for the literal and place an entry in the map<a name="line.181"></a>
-<span class="sourceLineNo">182</span>   * @param literal the literal value to find or create<a name="line.182"></a>
-<span class="sourceLineNo">183</span>   * @return the offset in the JTOC of the literal<a name="line.183"></a>
+<span class="sourceLineNo">076</span> * literal           1:|  (objref)   ---------&amp;gt;|    "abc"      |<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *                     +---------------+       +---------------+<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * field             2:|     B.s       |<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *                     +---------------+       +---------------+<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *                   3:|  (coderef)  ------+   |   (header)    |<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *                     +---------------+   |   +---------------+<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *                     |     ...       |   +--&amp;gt;|  machine code |<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *                     +---------------+       |    for "m"    |<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *                                             +---------------+<a name="line.84"></a>
+<span class="sourceLineNo">085</span> * &lt;/pre&gt;<a name="line.85"></a>
+<span class="sourceLineNo">086</span> */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>public class Statics {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  /**<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * How many 32bit slots do we want in the JTOC to hold numeric (non-reference) values?<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  private static final int numNumericSlots =   0x20000; // 128k<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * How many reference-sized slots do we want in the JTOC to hold reference values?<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  private static final int numReferenceSlots = 0x20000; // 128k<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * Static data values (pointed to by JTOC register).<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * This is currently fixed-size, although at one point the system's plans<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * called for making it dynamically growable.  We could also make it<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * non-contiguous.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  private static final int[] slots = new int[numNumericSlots + (VM.BuildFor64Addr ? 2 : 1) * numReferenceSlots];<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * Object version of the slots used during boot image creation and<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * destroyed shortly after. This is required to support conversion<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * of a slot address to its associated object during boot image<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * creation.<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  private static Object[] objectSlots = new Object[slots.length];<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>  /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   * The logical middle of the table, references are slots above this and<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   * numeric values below this. The JTOC points to the middle of the<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * table.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   */<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  public static final int middleOfTable = numNumericSlots;<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>  /** Next available numeric slot number */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  private static volatile int nextNumericSlot = middleOfTable - 1;<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * Numeric slot hole. Holes are created to align 8byte values. We<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * allocate into a hole rather than consume another numeric slot.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * The value of middleOfTable indicates the slot isn't in use.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  private static volatile int numericSlotHole = middleOfTable;<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>  /** Next available reference slot number */<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  private static volatile int nextReferenceSlot = middleOfTable;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>  /**<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * Bit vector indicating whether a numeric slot is a field (true) or a<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   * literal (false).<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  private static final BitVector numericFieldVector = new BitVector(middleOfTable);<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * Map of objects to their literal offsets<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  private static final ImmutableEntryIdentityHashMapRVM&lt;Object, Integer&gt; objectLiterals =<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    new ImmutableEntryIdentityHashMapRVM&lt;Object, Integer&gt;();<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>  static {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    // allocate a slot to be null - offset zero should map to null<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    int offset = allocateReferenceSlot(false).toInt();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    if (VM.VerifyAssertions) VM._assert(offset == 0);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>  /**<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * Conversion from JTOC slot index to JTOC offset.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   *<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   * @param slot the JTOC slot index<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   * @return the JTOC offset<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   */<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  @Uninterruptible<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  public static Offset slotAsOffset(int slot) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    return Offset.fromIntSignExtend((slot - middleOfTable) &lt;&lt; LOG_BYTES_IN_INT);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>  /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   * Conversion from JTOC offset to JTOC slot index.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   *<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   * @param offset the JTOC offset<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   * @return the JTOC slot index<a name="line.167"></a>
+<span class="sourceLineNo">168</span>   */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  @Uninterruptible<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  public static int offsetAsSlot(Offset offset) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    if (VM.VerifyAssertions) VM._assert((offset.toInt() &amp; 3) == 0);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>    return middleOfTable + (offset.toInt() &gt;&gt; LOG_BYTES_IN_INT);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>  }<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>  /**<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * @return the lowest slot number in use<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  public static int getLowestInUseSlot() {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    return nextNumericSlot + 1;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>  /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>   * @return the highest slot number in use<a name="line.183"></a>
 <span class="sourceLineNo">184</span>   */<a name="line.184"></a>
-<span class="sourceLineNo">185</span>  public static int findOrCreateIntSizeLiteral(int literal) {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    final int bottom = getLowestInUseSlot();<a name="line.186"></a>
-<span class="sourceLineNo">187</span>    final int top = middleOfTable;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    for (int i=top; i &gt;= bottom; i--) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>      if ((slots[i] == literal) &amp;&amp; !numericFieldVector.get(i) &amp;&amp; (i != numericSlotHole)) {<a name="line.189"></a>
-<span class="sourceLineNo">190</span>        return slotAsOffset(i).toInt();<a name="line.190"></a>
-<span class="sourceLineNo">191</span>      }<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    }<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    Offset newOff = allocateNumericSlot(BYTES_IN_INT, false);<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    setSlotContents(newOff, literal);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    return newOff.toInt();<a name="line.195"></a>
-<span class="sourceLineNo">196</span>  }<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>  /**<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   * Find the given literal in the long like literal map, if not found<a name="line.199"></a>
-<span class="sourceLineNo">200</span>   * create a slot for the literal and place an entry in the map<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * @param literal the literal value to find or create<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   * @return the offset in the JTOC of the literal<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   */<a name="line.203"></a>
-<span class="sourceLineNo">204</span>  public static int findOrCreateLongSizeLiteral(long literal) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    final int bottom = getLowestInUseSlot();<a name="line.205"></a>
-<span class="sourceLineNo">206</span>    final int top = middleOfTable &amp; 0xFFFFFFFE;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    for (int i=top; i &gt;= bottom; i-=2) {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      Offset off = slotAsOffset(i);<a name="line.208"></a>
-<span class="sourceLineNo">209</span>      if ((getSlotContentsAsLong(off) == literal) &amp;&amp;<a name="line.209"></a>
-<span class="sourceLineNo">210</span>          !numericFieldVector.get(i) &amp;&amp; !(numericFieldVector.get(i+1)) &amp;&amp;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>          (i != numericSlotHole) &amp;&amp; (i+1 != numericSlotHole)) {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        return slotAsOffset(i).toInt();<a name="line.212"></a>
-<span class="sourceLineNo">213</span>      }<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    Offset newOff = allocateNumericSlot(BYTES_IN_LONG, false);<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    setSlotContents(newOff, literal);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>    return newOff.toInt();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>  }<a name="line.218"></a>
-<span class="sourceLineNo">219</span><a name="line.219"></a>
-<span class="sourceLineNo">220</span>  /**<a name="line.220"></a>
-<span class="sourceLineNo">221</span>   * Find the given literal in the 16byte like literal map, if not found<a name="line.221"></a>
-<span class="sourceLineNo">222</span>   * create a slot for the literal and place an entry in the map<a name="line.222"></a>
-<span class="sourceLineNo">223</span>   * @param literal_high the high part of the literal value to find or create<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   * @param literal_low the low part of the literal value to find or create<a name="line.224"></a>
-<span class="sourceLineNo">225</span>   * @return the offset in the JTOC of the literal<a name="line.225"></a>
-<span class="sourceLineNo">226</span>   */<a name="line.226"></a>
-<span class="sourceLineNo">227</span>  public static int findOrCreate16ByteSizeLiteral(long literal_high, long literal_low) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    final int bottom = getLowestInUseSlot();<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    final int top = middleOfTable &amp; 0xFFFFFFFC;<a name="line.229"></a>
-<span class="sourceLineNo">230</span>    for (int i=top; i &gt;= bottom; i-=4) {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>      Offset off = slotAsOffset(i);<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      if ((getSlotContentsAsLong(off) == literal_low) &amp;&amp;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>          (getSlotContentsAsLong(off.plus(8)) == literal_high) &amp;&amp;<a name="line.233"></a>
-<span class="sourceLineNo">234</span>          !numericFieldVector.get(i) &amp;&amp; !(numericFieldVector.get(i+1)) &amp;&amp;<a name="line.234"></a>
-<span class="sourceLineNo">235</span>          !numericFieldVector.get(i+2) &amp;&amp; !(numericFieldVector.get(i+3)) &amp;&amp;<a name="line.235"></a>
-<span class="sourceLineNo">236</span>          (i != numericSlotHole) &amp;&amp; (i+1 != numericSlotHole) &amp;&amp;<a name="line.236"></a>
-<span class="sourceLineNo">237</span>          (i+2 != numericSlotHole) &amp;&amp; (i+3 != numericSlotHole)) {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        return slotAsOffset(i).toInt();<a name="line.238"></a>
-<span class="sourceLineNo">239</span>      }<a name="line.239"></a>
-<span class="sourceLineNo">240</span>    }<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    Offset newOff = allocateNumericSlot(16, false);<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    setSlotContents(newOff, literal_low);<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    setSlotContents(newOff.plus(8), literal_high);<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    return newOff.toInt();<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  }<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>  /**<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   * Find or allocate a slot in the JTOC for an object literal.<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * @param       literal value<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   * @return offset of slot that was allocated<a name="line.250"></a>
-<span class="sourceLineNo">251</span>   * Side effect: literal value is stored into JTOC<a name="line.251"></a>
-<span class="sourceLineNo">252</span>   */<a name="line.252"></a>
-<span class="sourceLineNo">253</span>  public static int findOrCreateObjectLiteral(Object literal) {<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    int off = findObjectLiteral(literal);<a name="line.254"></a>
-<span class="sourceLineNo">255</span>    if (off != 0) {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>      return off;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>    } else {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      Offset newOff = allocateReferenceSlot(false);<a name="line.258"></a>
-<span class="sourceLineNo">259</span>      setSlotContents(newOff, literal);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>      synchronized(objectLiterals) {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        objectLiterals.put(literal, newOff.toInt());<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      return newOff.toInt();<a name="line.263"></a>
-<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  }<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>  /**<a name="line.267"></a>
-<span class="sourceLineNo">268</span>   * Find a slot in the JTOC with this object literal in else return 0<a name="line.268"></a>
-<span class="sourceLineNo">269</span>   * @param  literal value<a name="line.269"></a>
-<span class="sourceLineNo">270</span>   * @return offset containing literal or 0<a name="line.270"></a>
-<span class="sourceLineNo">271</span>   */<a name="line.271"></a>
-<span class="sourceLineNo">272</span>  public static int findObjectLiteral(Object literal) {<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    synchronized (objectLiterals) {<a name="line.273"></a>
-<span class="sourceLineNo">274</span>      Integer result = objectLiterals.get(literal);<a name="line.274"></a>
-<span class="sourceLineNo">275</span>      return result == null ? 0 : result.intValue();<a name="line.275"></a>
-<span class="sourceLineNo">276</span>    }<a name="line.276"></a>
-<span class="sourceLineNo">277</span>  }<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>  /**<a name="line.279"></a>
-<span class="sourceLineNo">280</span>   * Marks a slot that was previously a field as being a literal as its value is<a name="line.280"></a>
-<span class="sourceLineNo">281</span>   * final.<a name="line.281"></a>
-<span class="sourceLineNo">282</span>   */<a name="line.282"></a>
-<span class="sourceLineNo">283</span>  public static synchronized void markAsNumericLiteral(int size, Offset fieldOffset) {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>    int slot = offsetAsSlot(fieldOffset);<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    if (size == BYTES_IN_LONG) {<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      numericFieldVector.clear(slot);<a name="line.286"></a>
-<span class="sourceLineNo">287</span>      numericFieldVector.clear(slot+1);<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    } else {<a name="line.288"></a>
-<span class="sourceLineNo">289</span>      numericFieldVector.clear(slot);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
-<span class="sourceLineNo">291</span>  }<a name="line.291"></a>
-<span class="sourceLineNo">292</span><a name="line.292"></a>
-<span class="sourceLineNo">293</span>  /**<a name="line.293"></a>
-<span class="sourceLineNo">294</span>   * Marks a slot that was previously a field as being a literal as its value is<a name="line.294"></a>
-<span class="sourceLineNo">295</span>   * final.<a name="line.295"></a>
-<span class="sourceLineNo">296</span>   */<a name="line.296"></a>
-<span class="sourceLineNo">297</span>  public static synchronized void markAsReferenceLiteral(Offset fieldOffset) {<a name="line.297"></a>
-<span class="sourceLineNo">298</span>    Object literal = getSlotContentsAsObject(fieldOffset);<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    if (!VM.runningVM &amp;&amp; literal instanceof TIB) {<a name="line.299"></a>
-<span class="sourceLineNo">300</span>      // TIB is just a wrapper for the boot image, so don't place the wrapper<a name="line.300"></a>
-<span class="sourceLineNo">301</span>      // in objectLiterals<a name="line.301"></a>
-<span class="sourceLineNo">302</span>      return;<a name="line.302"></a>
-<span class="sourceLineNo">303</span>    } else if (literal != null) {<a name="line.303"></a>
-<span class="sourceLineNo">304</span>      if (findObjectLiteral(literal) == 0) {<a name="line.304"></a>
-<span class="sourceLineNo">305</span>        synchronized(objectLiterals) {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>          objectLiterals.put(literal, fieldOffset.toInt());<a name="line.306"></a>
-<span class="sourceLineNo">307</span>        }<a name="line.307"></a>
-<span class="sourceLineNo">308</span>      }<a name="line.308"></a>
-<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
-<span class="sourceLineNo">310</span>  }<a name="line.310"></a>
-<span class="sourceLineNo">311</span><a name="line.311"></a>
-<span class="sourceLineNo">312</span>  /**<a name="line.312"></a>
-<span class="sourceLineNo">313</span>   * Allocate a numeric slot in the JTOC.<a name="line.313"></a>
-<span class="sourceLineNo">314</span>   * @param size of slot<a name="line.314"></a>
-<span class="sourceLineNo">315</span>   * @param field is the slot for a field<a name="line.315"></a>
-<span class="sourceLineNo">316</span>   * @return offset of slot that was allocated as int<a name="line.316"></a>
-<span class="sourceLineNo">317</span>   * (two slots are allocated for longs and doubles)<a name="line.317"></a>
-<span class="sourceLineNo">318</span>   */<a name="line.318"></a>
-<span class="sourceLineNo">319</span>  public static synchronized Offset allocateNumericSlot(int size, boolean field) {<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    // Result slot<a name="line.320"></a>
-<span class="sourceLineNo">321</span>    int slot;<a name="line.321"></a>
-<span class="sourceLineNo">322</span>    // Allocate 2 or 4 slots for wide items after possibly blowing<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    // other slots for alignment.<a name="line.323"></a>
-<span class="sourceLineNo">324</span>    if (size == 16) {<a name="line.324"></a>
-<span class="sourceLineNo">325</span>      // widen for a wide<a name="line.325"></a>
-<span class="sourceLineNo">326</span>      nextNumericSlot-=3;<a name="line.326"></a>
-<span class="sourceLineNo">327</span>      // check alignment<a name="line.327"></a>
-<span class="sourceLineNo">328</span>      if ((nextNumericSlot &amp; 1) != 0) {<a name="line.328"></a>
-<span class="sourceLineNo">329</span>        // slot isn't 8byte aligned so increase by 1 and record hole<a name="line.329"></a>
-<span class="sourceLineNo">330</span>        nextNumericSlot--;<a name="line.330"></a>
-<span class="sourceLineNo">331</span>        numericSlotHole = nextNumericSlot + 4;<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      }<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      if ((nextNumericSlot &amp; 3) != 0) {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        // slot not 16byte aligned, ignore any holes<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        nextNumericSlot-=2;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>      }<a name="line.336"></a>
-<span class="sourceLineNo">337</span>      // Remember the slot and adjust the next available slot<a name="line.337"></a>
-<span class="sourceLineNo">338</span>      slot = nextNumericSlot;<a name="line.338"></a>
-<span class="sourceLineNo">339</span>      nextNumericSlot--;<a name="line.339"></a>
-<span class="sourceLineNo">340</span>      if (field) {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        numericFieldVector.set(slot);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        numericFieldVector.set(slot+1);<a name="line.342"></a>
-<span class="sourceLineNo">343</span>        numericFieldVector.set(slot+2);<a name="line.343"></a>
-<span class="sourceLineNo">344</span>        numericFieldVector.set(slot+3);<a name="line.344"></a>
-<span class="sourceLineNo">345</span>      }<a name="line.345"></a>
-<span class="sourceLineNo">346</span>    } else if (size == BYTES_IN_LONG) {<a name="line.346"></a>
-<span class="sourceLineNo">347</span>      // widen for a wide<a name="line.347"></a>
-<span class="sourceLineNo">348</span>      nextNumericSlot--;<a name="line.348"></a>
-<span class="sourceLineNo">349</span>      // check alignment<a name="line.349"></a>
-<span class="sourceLineNo">350</span>      if ((nextNumericSlot &amp; 1) != 0) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>        // slot isn't 8byte aligned so increase by 1 and record hole<a name="line.351"></a>
-<span class="sourceLineNo">352</span>        nextNumericSlot--;<a name="line.352"></a>
-<span class="sourceLineNo">353</span>        numericSlotHole = nextNumericSlot + 2;<a name="line.353"></a>
-<span class="sourceLineNo">354</span>      }<a name="line.354"></a>
-<span class="sourceLineNo">355</span>      // Remember the slot and adjust the next available slot<a name="line.355"></a>
-<span class="sourceLineNo">356</span>      slot = nextNumericSlot;<a name="line.356"></a>
-<span class="sourceLineNo">357</span>      nextNumericSlot--;<a name="line.357"></a>
-<span class="sourceLineNo">358</span>      if (field) {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>        numericFieldVector.set(slot);<a name="line.359"></a>
-<span class="sourceLineNo">360</span>        numericFieldVector.set(slot+1);<a name="line.360"></a>
-<span class="sourceLineNo">361</span>      }<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    } else {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>      // 4byte quantity, try to reuse hole if one is available<a name="line.363"></a>
-<span class="sourceLineNo">364</span>      if (numericSlotHole != middleOfTable) {<a name="line.364"></a>
-<span class="sourceLineNo">365</span>        slot = numericSlotHole;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        numericSlotHole = middleOfTable;<a name="line.366"></a>
-<span class="sourceLineNo">367</span>      } else {<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        slot = nextNumericSlot;<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        nextNumericSlot--;<a name="line.369"></a>
-<span class="sourceLineNo">370</span>      }<a name="line.370"></a>
-<span class="sourceLineNo">371</span>      if (field) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>        numericFieldVector.set(slot);<a name="line.372"></a>
-<span class="sourceLineNo">373</span>      }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    }<a name="line.374"></a>
-<span class="sourceLineNo">375</span>    if (nextNumericSlot &lt; 0) {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>      enlargeTable();<a name="line.376"></a>
-<span class="sourceLineNo">377</span>    }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>    return slotAsOffset(slot);<a name="line.378"></a>
-<span class="sourceLineNo">379</span>  }<a name="line.379"></a>
-<span class="sourceLineNo">380</span><a name="line.380"></a>
-<span class="sourceLineNo">381</span>  /**<a name="line.381"></a>
-<span class="sourceLineNo">382</span>   * Allocate a reference slot in the JTOC.<a name="line.382"></a>
-<span class="sourceLineNo">383</span>   * @param field is the slot for a field<a name="line.383"></a>
-<span class="sourceLineNo">384</span>   * @return offset of slot that was allocated as int<a name="line.384"></a>
-<span class="sourceLineNo">385</span>   * (two slots are allocated on 64bit architectures)<a name="line.385"></a>
-<span class="sourceLineNo">386</span>   */<a name="line.386"></a>
-<span class="sourceLineNo">387</span>  public static synchronized Offset allocateReferenceSlot(boolean field) {<a name="line.387"></a>
-<span class="sourceLineNo">388</span>    int slot = nextReferenceSlot;<a name="line.388"></a>
-<span class="sourceLineNo">389</span>    nextReferenceSlot += getReferenceSlotSize();<a name="line.389"></a>
-<span class="sourceLineNo">390</span>    if (nextReferenceSlot &gt;= slots.length) {<a name="line.390"></a>
+<span class="sourceLineNo">185</span>  public static int getHighestInUseSlot() {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    return nextReferenceSlot - (VM.BuildFor32Addr ? 1 : 2);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>  }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>  /**<a name="line.189"></a>
+<span class="sourceLineNo">190</span>   * Find the given literal in the int like literal map, if not found<a name="line.190"></a>
+<span class="sourceLineNo">191</span>   * create a slot for the literal and place an entry in the map<a name="line.191"></a>
+<span class="sourceLineNo">192</span>   * @param literal the literal value to find or create<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   * @return the offset in the JTOC of the literal<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>  public static int findOrCreateIntSizeLiteral(int literal) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    final int bottom = getLowestInUseSlot();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    final int top = middleOfTable;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    for (int i = top; i &gt;= bottom; i--) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>      if ((slots[i] == literal) &amp;&amp; !numericFieldVector.get(i) &amp;&amp; (i != numericSlotHole)) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        return slotAsOffset(i).toInt();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>      }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    Offset newOff = allocateNumericSlot(BYTES_IN_INT, false);<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    setSlotContents(newOff, literal);<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    return newOff.toInt();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>  /**<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * Find the given literal in the long like literal map, if not found<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * create a slot for the literal and place an entry in the map<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   * @param literal the literal value to find or create<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   * @return the offset in the JTOC of the literal<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  public static int findOrCreateLongSizeLiteral(long literal) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    final int bottom = getLowestInUseSlot();<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    final int top = middleOfTable &amp; 0xFFFFFFFE;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    for (int i = top; i &gt;= bottom; i -= 2) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>      Offset off = slotAsOffset(i);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>      if ((getSlotContentsAsLong(off) == literal) &amp;&amp;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>          !numericFieldVector.get(i) &amp;&amp; !(numericFieldVector.get(i + 1)) &amp;&amp;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>          (i != numericSlotHole) &amp;&amp; (i + 1 != numericSlotHole)) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>        return slotAsOffset(i).toInt();<a name="line.222"></a>
+<span class="sourceLineNo">223</span>      }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    Offset newOff = allocateNumericSlot(BYTES_IN_LONG, false);<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    setSlotContents(newOff, literal);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    return newOff.toInt();<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>  /**<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   * Find the given literal in the 16byte like literal map, if not found<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * create a slot for the literal and place an entry in the map<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @param literal_high the high part of the literal value to find or create<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * @param literal_low the low part of the literal value to find or create<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @return the offset in the JTOC of the literal<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  public static int findOrCreate16ByteSizeLiteral(long literal_high, long literal_low) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    final int bottom = getLowestInUseSlot();<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    final int top = middleOfTable &amp; 0xFFFFFFFC;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    for (int i = top; i &gt;= bottom; i -= 4) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      Offset off = slotAsOffset(i);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>      if ((getSlotContentsAsLong(off) == literal_low) &amp;&amp;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>          (getSlotContentsAsLong(off.plus(8)) == literal_high) &amp;&amp;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>          !numericFieldVector.get(i) &amp;&amp; !(numericFieldVector.get(i + 1)) &amp;&amp;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>          !numericFieldVector.get(i + 2) &amp;&amp; !(numericFieldVector.get(i + 3)) &amp;&amp;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>          (i != numericSlotHole) &amp;&amp; (i + 1 != numericSlotHole) &amp;&amp;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>          (i + 2 != numericSlotHole) &amp;&amp; (i + 3 != numericSlotHole)) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        return slotAsOffset(i).toInt();<a name="line.248"></a>
+<span class="sourceLineNo">249</span>      }<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    }<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    Offset newOff = allocateNumericSlot(16, false);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    setSlotContents(newOff, literal_low);<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    setSlotContents(newOff.plus(8), literal_high);<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    return newOff.toInt();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>  /**<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * Find or allocate a slot in the JTOC for an object literal.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * @param       literal value<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * @return offset of slot that was allocated<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * Side effect: literal value is stored into JTOC<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   */<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  public static int findOrCreateObjectLiteral(Object literal) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    int off = findObjectLiteral(literal);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    if (off != 0) {<a name="line.265"></a>
+<span class="sourceLineNo">266</span>      return off;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    } else {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>      Offset newOff = allocateReferenceSlot(false);<a name="line.268"></a>
+<span class="sourceLineNo">269</span>      setSlotContents(newOff, literal);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>      synchronized (objectLiterals) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>        objectLiterals.put(literal, newOff.toInt());<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      }<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      return newOff.toInt();<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    }<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>  /**<a name="line.277"></a>
+<span class="sourceLineNo">278</span>   * Find a slot in the JTOC with this object literal in else return 0<a name="line.278"></a>
+<span class="sourceLineNo">279</span>   * @param  literal value<a name="line.279"></a>
+<span class="sourceLineNo">280</span>   * @return offset containing literal or 0<a name="line.280"></a>
+<span class="sourceLineNo">281</span>   */<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  public static int findObjectLiteral(Object literal) {<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    synchronized (objectLiterals) {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      Integer result = objectLiterals.get(literal);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      return result == null ? 0 : result.intValue();<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    }<a name="line.286"></a>
+<span class="sourceLineNo">287</span>  }<a name="line.287"></a>
+<span class="sourceLineNo">288</span><a name="line.288"></a>
+<span class="sourceLineNo">289</span>  /**<a name="line.289"></a>
+<span class="sourceLineNo">290</span>   * Marks a slot that was previously a field as being a literal as its value is<a name="line.290"></a>
+<span class="sourceLineNo">291</span>   * final.<a name="line.291"></a>
+<span class="sourceLineNo">292</span>   *<a name="line.292"></a>
+<span class="sourceLineNo">293</span>   * @param size the slot's size<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * @param fieldOffset the field's offset in the JTOC<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   */<a name="line.295"></a>
+<span class="sourceLineNo">296</span>  public static synchronized void markAsNumericLiteral(int size, Offset fieldOffset) {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    int slot = offsetAsSlot(fieldOffset);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    if (size == BYTES_IN_LONG) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>      numericFieldVector.clear(slot);<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      numericFieldVector.clear(slot + 1);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    } else {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      numericFieldVector.clear(slot);<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    }<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>  /**<a name="line.306"></a>
+<span class="sourceLineNo">307</span>   * Marks a slot that was previously a field as being a literal as its value is<a name="line.307"></a>
+<span class="sourceLineNo">308</span>   * final.<a name="line.308"></a>
+<span class="sourceLineNo">309</span>   *<a name="line.309"></a>
+<span class="sourceLineNo">310</span>   * @param fieldOffset the field's offset in the JTOC<a name="line.310"></a>
+<span class="sourceLineNo">311</span>   */<a name="line.311"></a>
+<span class="sourceLineNo">312</span>  public static synchronized void markAsReferenceLiteral(Offset fieldOffset) {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    Object literal = getSlotContentsAsObject(fieldOffset);<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    if (!VM.runningVM &amp;&amp; literal instanceof TIB) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>      // TIB is just a wrapper for the boot image, so don't place the wrapper<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      // in objectLiterals<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      return;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    } else if (literal != null) {<a name="line.318"></a>
+<span class="sourceLineNo">319</span>      if (findObjectLiteral(literal) == 0) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        synchronized (objectLiterals) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>          objectLiterals.put(literal, fieldOffset.toInt());<a name="line.321"></a>
+<span class="sourceLineNo">322</span>        }<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      }<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    }<a name="line.324"></a>
+<span class="sourceLineNo">325</span>  }<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>  /**<a name="line.327"></a>
+<span class="sourceLineNo">328</span>   * Allocate a numeric slot in the JTOC.<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * @param size of slot<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * @param field is the slot for a field<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * @return offset of slot that was allocated as int<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   * (two slots are allocated for longs and doubles)<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>  public static synchronized Offset allocateNumericSlot(int size, boolean field) {<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    // Result slot<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    int slot;<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    // Allocate 2 or 4 slots for wide items after possibly blowing<a name="line.337"></a>
+<span class="sourceLineNo">338</span>    // other slots for alignment.<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    if (size == 16) {<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      // widen for a wide<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      nextNumericSlot -= 3;<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      // check alignment<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      if ((nextNumericSlot &amp; 1) != 0) {<a name="line.343"></a>
+<span class="sourceLineNo">344</span>        // slot isn't 8byte aligned so increase by 1 and record hole<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        nextNumericSlot--;<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        numericSlotHole = nextNumericSlot + 4;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      if ((nextNumericSlot &amp; 3) != 0) {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        // slot not 16byte aligned, ignore any holes<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        nextNumericSlot -= 2;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>      // Remember the slot and adjust the next available slot<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      slot = nextNumericSlot;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      nextNumericSlot--;<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      if (field) {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        numericFieldVector.set(slot);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        numericFieldVector.set(slot + 1);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        numericFieldVector.set(slot + 2);<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        numericFieldVector.set(slot + 3);<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      }<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    } else if (size == BYTES_IN_LONG) {<a name="line.361"></a>
+<span class="sourceLineNo">362</span>      // widen for a wide<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      nextNumericSlot--;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      // check alignment<a name="line.364"></a>
+<span class="sourceLineNo">365</span>      if ((nextNumericSlot &amp; 1) != 0) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        // slot isn't 8byte aligned so increase by 1 and record hole<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        nextNumericSlot--;<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        numericSlotHole = nextNumericSlot + 2;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>      }<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      // Remember the slot and adjust the next available slot<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      slot = nextNumericSlot;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>      nextNumericSlot--;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>      if (field) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        numericFieldVector.set(slot);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        numericFieldVector.set(slot + 1);<a name="line.375"></a>
+<span class="sourceLineNo">376</span>      }<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    } else {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>      // 4byte quantity, try to reuse hole if one is available<a name="line.378"></a>
+<span class="sourceLineNo">379</span>      if (numericSlotHole != middleOfTable) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        slot = numericSlotHole;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        numericSlotHole = middleOfTable;<a name="line.381"></a>
+<span class="sourceLineNo">382</span>      } else {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        slot = nextNumericSlot;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        nextNumericSlot--;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>      }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>      if (field) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>        numericFieldVector.set(slot);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>      }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    }<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    if (nextNumericSlot &lt; 0) {<a name="line.390"></a>
 <span class="sourceLineNo">391</span>      enlargeTable();<a name="line.391"></a>
 <span class="sourceLineNo">392</span>    }<a name="line.392"></a>
 <span class="sourceLineNo">393</span>    return slotAsOffset(slot);<a name="line.393"></a>
 <span class="sourceLineNo">394</span>  }<a name="line.394"></a>
 <span class="sourceLineNo">395</span><a name="line.395"></a>
 <span class="sourceLineNo">396</span>  /**<a name="line.396"></a>
-<span class="sourceLineNo">397</span>   * Grow the statics table<a name="line.397"></a>
-<span class="sourceLineNo">398</span>   */<a name="line.398"></a>
-<span class="sourceLineNo">399</span>  private static void enlargeTable() {<a name="line.399"></a>
-<span class="sourceLineNo">400</span>    // !!TODO: enlarge slots[] and descriptions[], and modify JTOC register to<a name="line.400"></a>
-<span class="sourceLineNo">401</span>    // point to newly enlarged slots[]<a name="line.401"></a>
-<span class="sourceLineNo">402</span>    // NOTE: very tricky on IA32 because opt uses 32 bit literal address to access JTOC.<a name="line.402"></a>
-<span class="sourceLineNo">403</span>    VM.sysFail("Statics.enlargeTable: jtoc is full");<a name="line.403"></a>
-<span class="sourceLineNo">404</span>  }<a name="line.404"></a>
-<span class="sourceLineNo">405</span><a name="line.405"></a>
-<span class="sourceLineNo">406</span>  /**<a name="line.406"></a>
-<span class="sourceLineNo">407</span>   * Fetch number of numeric JTOC slots currently allocated.<a name="line.407"></a>
-<span class="sourceLineNo">408</span>   */<a name="line.408"></a>
-<span class="sourceLineNo">409</span>  @Uninterruptible<a name="line.409"></a>
-<span class="sourceLineNo">410</span>  public static int getNumberOfNumericSlots() {<a name="line.410"></a>
-<span class="sourceLineNo">411</span>    return middleOfTable - nextNumericSlot;<a name="line.411"></a>
-<span class="sourceLineNo">412</span>  }<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>  /**<a name="line.414"></a>
-<span class="sourceLineNo">415</span>   * Fetch number of reference JTOC slots currently allocated.<a name="line.415"></a>
-<span class="sourceLineNo">416</span>   */<a name="line.416"></a>
-<span class="sourceLineNo">417</span>  @Uninterruptible<a name="line.417"></a>
-<span class="sourceLineNo">418</span>  public static int getNumberOfReferenceSlots() {<a name="line.418"></a>
-<span class="sourceLineNo">419</span>    return nextReferenceSlot - middleOfTable;<a name="line.419"></a>
-<span class="sourceLineNo">420</span>  }<a name="line.420"></a>
-<span class="sourceLineNo">421</span><a name="line.421"></a>
-<span class="sourceLineNo">422</span>  /**<a name="line.422"></a>
-<span class="sourceLineNo">423</span>   * Fetch total number of slots comprising the JTOC.<a name="line.423"></a>
-<span class="sourceLineNo">424</span>   */<a name="line.424"></a>
-<span class="sourceLineNo">425</span>  @Uninterruptible<a name="line.425"></a>
-<span class="sourceLineNo">426</span>  public static int getTotalNumberOfSlots() {<a name="line.426"></a>
-<span class="sourceLineNo">427</span>    return slots.length;<a name="line.427"></a>
-<span class="sourceLineNo">428</span>  }<a name="line.428"></a>
-<span class="sourceLineNo">429</span><a name="line.429"></a>
-<span class="sourceLineNo">430</span>  /**<a name="line.430"></a>
-<span class="sourceLineNo">431</span>   * Does specified JTOC slot contain a reference?<a name="line.431"></a>
-<span class="sourceLineNo">432</span>   * @param  slot obtained from offsetAsSlot()<a name="line.432"></a>
-<span class="sourceLineNo">433</span>   * @return {@code true} --&gt; slot contains a reference<a name="line.433"></a>
-<span class="sourceLineNo">434</span>   */<a name="line.434"></a>
-<span class="sourceLineNo">435</span>  @Uninterruptible<a name="line.435"></a>
-<span class="sourceLineNo">436</span>  public static boolean isReference(int slot) {<a name="line.436"></a>
-<span class="sourceLineNo">437</span>    return slot &gt;= middleOfTable;<a name="line.437"></a>
-<span class="sourceLineNo">438</span>  }<a name="line.438"></a>
-<span class="sourceLineNo">439</span><a name="line.439"></a>
-<span class="sourceLineNo">440</span>  /**<a name="line.440"></a>
-<span class="sourceLineNo">441</span>   * Does specified JTOC slot contain an int sized literal?<a name="line.441"></a>
-<span class="sourceLineNo">442</span>   * @param  slot obtained from offsetAsSlot()<a name="line.442"></a>
-<span class="sourceLineNo">443</span>   * @return {@code true} --&gt; slot contains a reference<a name="line.443"></a>
-<span class="sourceLineNo">444</span>   */<a name="line.444"></a>
-<span class="sourceLineNo">445</span>  public static boolean isIntSizeLiteral(int slot) {<a name="line.445"></a>
-<span class="sourceLineNo">446</span>    if (isReference(slot) || slot &lt; getLowestInUseSlot()) {<a name="line.446"></a>
-<span class="sourceLineNo">447</span>      return false;<a name="line.447"></a>
-<span class="sourceLineNo">448</span>    } else {<a name="line.448"></a>
-<span class="sourceLineNo">449</span>      return !numericFieldVector.get(slot);<a name="line.449"></a>
-<span class="sourceLineNo">450</span>    }<a name="line.450"></a>
-<span class="sourceLineNo">451</span>  }<a name="line.451"></a>
-<span class="sourceLineNo">452</span><a name="line.452"></a>
-<span class="sourceLineNo">453</span>  /**<a name="line.453"></a>
-<span class="sourceLineNo">454</span>   * Does specified JTOC slot contain a long sized literal?<a name="line.454"></a>
-<span class="sourceLineNo">455</span>   * @param  slot obtained from offsetAsSlot()<a name="line.455"></a>
-<span class="sourceLineNo">456</span>   * @return {@code true} --&gt; slot contains a reference<a name="line.456"></a>
-<span class="sourceLineNo">457</span>   */<a name="line.457"></a>
-<span class="sourceLineNo">458</span>  public static boolean isLongSizeLiteral(int slot) {<a name="line.458"></a>
-<span class="sourceLineNo">459</span>    if (isReference(slot) || slot &lt; getLowestInUseSlot() || ((slot &amp; 1) != 0)) {<a name="line.459"></a>
-<span class="sourceLineNo">460</span>      return false;<a name="line.460"></a>
-<span class="sourceLineNo">461</span>    } else {<a name="line.461"></a>
-<span class="sourceLineNo">462</span>      return !numericFieldVector.get(slot) &amp;&amp; !numericFieldVector.get(slot+1);<a name="line.462"></a>
-<span class="sourceLineNo">463</span>    }<a name="line.463"></a>
-<span class="sourceLineNo">464</span>  }<a name="line.464"></a>
-<span class="sourceLineNo">465</span><a name="line.465"></a>
-<span class="sourceLineNo">466</span>  /**<a name="line.466"></a>
-<span class="sourceLineNo">467</span>   * Does specified JTOC slot contain a reference literal?<a name="line.467"></a>
-<span class="sourceLineNo">468</span>   * @param  slot obtained from offsetAsSlot()<a name="line.468"></a>
-<span class="sourceLineNo">469</span>   * @return {@code true} --&gt; slot contains a reference<a name="line.469"></a>
-<span class="sourceLineNo">470</span>   */<a name="line.470"></a>
-<span class="sourceLineNo">471</span>  public static boolean isReferenceLiteral(int slot) {<a name="line.471"></a>
-<span class="sourceLineNo">472</span>    if (!isReference(slot) || slot &gt; getHighestInUseSlot()) {<a name="line.472"></a>
-<span class="sourceLineNo">473</span>      return false;<a name="line.473"></a>
-<span class="sourceLineNo">474</span>    } else {<a name="line.474"></a>
-<span class="sourceLineNo">475</span>      return (slotAsOffset(slot).toInt() == 0) ||<a name="line.475"></a>
-<span class="sourceLineNo">476</span>        (findObjectLiteral(getSlotContentsAsObject(slotAsOffset(slot))) != 0);<a name="line.476"></a>
-<span class="sourceLineNo">477</span>    }<a name="line.477"></a>
-<span class="sourceLineNo">478</span>  }<a name="line.478"></a>
-<span class="sourceLineNo">479</span><a name="line.479"></a>
-<span class="sourceLineNo">480</span>  /**<a name="line.480"></a>
-<span class="sourceLineNo">481</span>   * Get size occupied by a reference<a name="line.481"></a>
-<span class="sourceLineNo">482</span>   */<a name="line.482"></a>
-<span class="sourceLineNo">483</span>  @Uninterruptible<a name="line.483"></a>
-<span class="sourceLineNo">484</span>  public static int getReferenceSlotSize() {<a name="line.484"></a>
-<span class="sourceLineNo">485</span>    return VM.BuildFor64Addr ? 2 : 1;<a name="line.485"></a>
-<span class="sourceLineNo">486</span>  }<a name="line.486"></a>
-<span class="sourceLineNo">487</span><a name="line.487"></a>
-<span class="sourceLineNo">488</span>  /**<a name="line.488"></a>
-<span class="sourceLineNo">489</span>   * Fetch JTOC object (for JNI environment and GC).<a name="line.489"></a>
-<span class="sourceLineNo">490</span>   */<a name="line.490"></a>
-<span class="sourceLineNo">491</span>  @Uninterruptible<a name="line.491"></a>
-<span class="sourceLineNo">492</span>  public static Address getSlots() {<a name="line.492"></a>
-<span class="sourceLineNo">493</span>    return Magic.objectAsAddress(slots).plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT);<a name="line.493"></a>
-<span class="sourceLineNo">494</span>  }<a name="line.494"></a>
-<span class="sourceLineNo">495</span><a name="line.495"></a>
-<span class="sourceLineNo">496</span>  /**<a name="line.496"></a>
-<span class="sourceLineNo">497</span>   * Fetch JTOC object (for JNI environment and GC).<a name="line.497"></a>
-<span class="sourceLineNo">498</span>   */<a name="line.498"></a>
-<span class="sourceLineNo">499</span>  @Uninterruptible<a name="line.499"></a>
-<span class="sourceLineNo">500</span>  public static int[] getSlotsAsIntArray() {<a name="line.500"></a>
-<span class="sourceLineNo">501</span>    return slots;<a name="line.501"></a>
-<span class="sourceLineNo">502</span>  }<a name="line.502"></a>
-<span class="sourceLineNo">503</span><a name="line.503"></a>
-<span class="sourceLineNo">504</span>  /**<a name="line.504"></a>
-<span class="sourceLineNo">505</span>   * Fetch contents of a slot, as an integer<a name="line.505"></a>
-<span class="sourceLineNo">506</span>   */<a name="line.506"></a>
-<span class="sourceLineNo">507</span>  @Uninterruptible<a name="line.507"></a>
-<span class="sourceLineNo">508</span>  public static int getSlotContentsAsInt(Offset offset) {<a name="line.508"></a>
-<span class="sourceLineNo">509</span>    if (VM.runningVM) {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>      return Magic.getIntAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.510"></a>
-<span class="sourceLineNo">511</span>    } else {<a name="line.511"></a>
-<span class="sourceLineNo">512</span>      int slot = offsetAsSlot(offset);<a name="line.512"></a>
-<span class="sourceLineNo">513</span>      return slots[slot];<a name="line.513"></a>
-<span class="sourceLineNo">514</span>    }<a name="line.514"></a>
-<span class="sourceLineNo">515</span>  }<a name="line.515"></a>
-<span class="sourceLineNo">516</span><a name="line.516"></a>
-<span class="sourceLineNo">517</span>  /**<a name="line.517"></a>
-<span class="sourceLineNo">518</span>   * Fetch contents of a slot-pair, as a long integer.<a name="line.518"></a>
-<span class="sourceLineNo">519</span>   */<a name="line.519"></a>
-<span class="sourceLineNo">520</span>  @Uninterruptible<a name="line.520"></a>
-<span class="sourceLineNo">521</span>  public static long getSlotContentsAsLong(Offset offset) {<a name="line.521"></a>
-<span class="sourceLineNo">522</span>    if (VM.runningVM) {<a name="line.522"></a>
-<span class="sourceLineNo">523</span>      return Magic.getLongAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.523"></a>
-<span class="sourceLineNo">524</span>    } else {<a name="line.524"></a>
-<span class="sourceLineNo">525</span>      int slot = offsetAsSlot(offset);<a name="line.525"></a>
-<span class="sourceLineNo">526</span>      long result;<a name="line.526"></a>
-<span class="sourceLineNo">527</span>      if (VM.LittleEndian) {<a name="line.527"></a>
-<span class="sourceLineNo">528</span>        result = (((long) slots[slot + 1]) &lt;&lt; BITS_IN_INT); // hi<a name="line.528"></a>
-<span class="sourceLineNo">529</span>        result |= (slots[slot]) &amp; 0xFFFFFFFFL; // lo<a name="line.529"></a>
-<span class="sourceLineNo">530</span>      } else {<a name="line.530"></a>
-<span class="sourceLineNo">531</span>        result = (((long) slots[slot]) &lt;&lt; BITS_IN_INT);     // hi<a name="line.531"></a>
-<span class="sourceLineNo">532</span>        result |= (slots[slot + 1]) &amp; 0xFFFFFFFFL; // lo<a name="line.532"></a>
-<span class="sourceLineNo">533</span>      }<a name="line.533"></a>
-<span class="sourceLineNo">534</span>      return result;<a name="line.534"></a>
-<span class="sourceLineNo">535</span>    }<a name="line.535"></a>
-<span class="sourceLineNo">536</span>  }<a name="line.536"></a>
-<span class="sourceLineNo">537</span><a name="line.537"></a>
-<span class="sourceLineNo">538</span>  /**<a name="line.538"></a>
-<span class="sourceLineNo">539</span>   * Fetch contents of a slot, as an object.<a name="line.539"></a>
-<span class="sourceLineNo">540</span>   */<a name="line.540"></a>
-<span class="sourceLineNo">541</span>  @Uninterruptible<a name="line.541"></a>
-<span class="sourceLineNo">542</span>  public static Object getSlotContentsAsObject(Offset offset) {<a name="line.542"></a>
-<span class="sourceLineNo">543</span>    if (VM.runningVM) {<a name="line.543"></a>
-<span class="sourceLineNo">544</span>      return Magic.getObjectAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.544"></a>
-<span class="sourceLineNo">545</span>    } else {<a name="line.545"></a>
-<span class="sourceLineNo">546</span>      return objectSlots[offsetAsSlot(offset)];<a name="line.546"></a>
-<span class="sourceLineNo">547</span>    }<a name="line.547"></a>
-<span class="sourceLineNo">548</span>  }<a name="line.548"></a>
-<span class="sourceLineNo">549</span><a name="line.549"></a>
-<span class="sourceLineNo">550</span>  /**<a name="line.550"></a>
-<span class="sourceLineNo">551</span>   * Fetch contents of a slot, as an Address.<a name="line.551"></a>
-<span class="sourceLineNo">552</span>   */<a name="line.552"></a>
-<span class="sourceLineNo">553</span>  @UninterruptibleNoWarn("Interruptible code only reachable during boot image creation")<a name="line.553"></a>
-<span class="sourceLineNo">554</span>  public static Address getSlotContentsAsAddress(Offset offset) {<a name="line.554"></a>
-<span class="sourceLineNo">555</span>    if (VM.runningVM) {<a name="line.555"></a>
-<span class="sourceLineNo">556</span>      if (VM.BuildFor32Addr) {<a name="line.556"></a>
-<span class="sourceLineNo">557</span>        return Address.fromIntSignExtend(getSlotContentsAsInt(offset));<a name="line.557"></a>
-<span class="sourceLineNo">558</span>      } else {<a name="line.558"></a>
-<span class="sourceLineNo">559</span>        return Address.fromLong(getSlotContentsAsLong(offset));<a name="line.559"></a>
-<span class="sourceLineNo">560</span>      }<a name="line.560"></a>
-<span class="sourceLineNo">561</span>    } else {<a name="line.561"></a>
-<span class="sourceLineNo">562</span>      // Addresses are represented by objects in the tools building the VM<a name="line.562"></a>
-<span class="sourceLineNo">563</span>      Object unboxed = objectSlots[offsetAsSlot(offset)];<a name="line.563"></a>
-<span class="sourceLineNo">564</span>      if (unboxed instanceof Address) {<a name="line.564"></a>
-<span class="sourceLineNo">565</span>        return (Address) unboxed;<a name="line.565"></a>
-<span class="sourceLineNo">566</span>      } else if (unboxed instanceof Word) {<a name="line.566"></a>
-<span class="sourceLineNo">567</span>        return ((Word) unboxed).toAddress();<a name="line.567"></a>
-<span class="sourceLineNo">568</span>      } else if (unboxed instanceof Extent) {<a name="line.568"></a>
-<span class="sourceLineNo">569</span>        return ((Extent) unboxed).toWord().toAddress();<a name="line.569"></a>
-<span class="sourceLineNo">570</span>      } else if (unboxed instanceof Offset) {<a name="line.570"></a>
-<span class="sourceLineNo">571</span>        return ((Offset) unboxed).toWord().toAddress();<a name="line.571"></a>
-<span class="sourceLineNo">572</span>      } else {<a name="line.572"></a>
-<span class="sourceLineNo">573</span>        if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);<a name="line.573"></a>
-<span class="sourceLineNo">574</span>        return Address.zero();<a name="line.574"></a>
-<span class="sourceLineNo">575</span>      }<a name="line.575"></a>
-<span class="sourceLineNo">576</span>    }<a name="line.576"></a>
-<span class="sourceLineNo">577</span>  }<a name="line.577"></a>
-<span class="sourceLineNo">578</span><a name="line.578"></a>
-<span class="sourceLineNo">579</span>  /**<a name="line.579"></a>
-<span class="sourceLineNo">580</span>   * Set contents of a slot, as an integer.<a name="line.580"></a>
-<span class="sourceLineNo">581</span>   */<a name="line.581"></a>
-<span class="sourceLineNo">582</span>  @Uninterruptible<a name="line.582"></a>
-<span class="sourceLineNo">583</span>  public static void setSlotContents(Offset offset, int value) {<a name="line.583"></a>
-<span class="sourceLineNo">584</span>    if (VM.runningVM) {<a name="line.584"></a>
-<span class="sourceLineNo">585</span>      Magic.setIntAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.585"></a>
-<span class="sourceLineNo">586</span>    } else {<a name="line.586"></a>
-<span class="sourceLineNo">587</span>      slots[offsetAsSlot(offset)] = value;<a name="line.587"></a>
-<span class="sourceLineNo">588</span>    }<a name="line.588"></a>
-<span class="sourceLineNo">589</span>  }<a name="line.589"></a>
-<span class="sourceLineNo">590</span><a name="line.590"></a>
-<span class="sourceLineNo">591</span>  /**<a name="line.591"></a>
-<span class="sourceLineNo">592</span>   * Set contents of a slot, as an float.<a name="line.592"></a>
-<span class="sourceLineNo">593</span>   */<a name="line.593"></a>
-<span class="sourceLineNo">594</span>  @Uninterruptible<a name="line.594"></a>
-<span class="sourceLineNo">595</span>  public static void setSlotContents(Offset offset, float value) {<a name="line.595"></a>
-<span class="sourceLineNo">596</span>    if (VM.runningVM) {<a name="line.596"></a>
-<span class="sourceLineNo">597</span>      Magic.setFloatAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.597"></a>
-<span class="sourceLineNo">598</span>    } else {<a name="line.598"></a>
-<span class="sourceLineNo">599</span>      slots[offsetAsSlot(offset)] = Magic.floatAsIntBits(value);<a name="line.599"></a>
-<span class="sourceLineNo">600</span>    }<a name="line.600"></a>
-<span class="sourceLineNo">601</span>  }<a name="line.601"></a>
-<span class="sourceLineNo">602</span><a name="line.602"></a>
-<span class="sourceLineNo">603</span>  /**<a name="line.603"></a>
-<span class="sourceLineNo">604</span>   * Set contents of a slot, as a double.<a name="line.604"></a>
-<span class="sourceLineNo">605</span>   */<a name="line.605"></a>
-<span class="sourceLineNo">606</span>  @Uninterruptible<a name="line.606"></a>
-<span class="sourceLineNo">607</span>  public static void setSlotContents(Offset offset, double value) {<a name="line.607"></a>
-<span class="sourceLineNo">608</span>    if (VM.runningVM) {<a name="line.608"></a>
-<span class="sourceLineNo">609</span>      Magic.setDoubleAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.609"></a>
-<span class="sourceLineNo">610</span>    } else {<a name="line.610"></a>
-<span class="sourceLineNo">611</span>      int slot = offsetAsSlot(offset);<a name="line.611"></a>
-<span class="sourceLineNo">612</span>      long value64bits = Magic.doubleAsLongBits(value);<a name="line.612"></a>
-<span class="sourceLineNo">613</span>      if (VM.LittleEndian) {<a name="line.613"></a>
-<span class="sourceLineNo">614</span>        slots[slot + 1] = (int) (value64bits &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.614"></a>
-<span class="sourceLineNo">615</span>        slots[slot] = (int) (value64bits); // lo<a name="line.615"></a>
-<span class="sourceLineNo">616</span>      } else {<a name="line.616"></a>
-<span class="sourceLineNo">617</span>        slots[slot] = (int) (value64bits &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.617"></a>
-<span class="sourceLineNo">618</span>        slots[slot + 1] = (int) (value64bits); // lo<a name="line.618"></a>
-<span class="sourceLineNo">619</span>      }<a name="line.619"></a>
-<span class="sourceLineNo">620</span>    }<a name="line.620"></a>
-<span class="sourceLineNo">621</span>  }<a name="line.621"></a>
-<span class="sourceLineNo">622</span><a name="line.622"></a>
-<span class="sourceLineNo">623</span>  /**<a name="line.623"></a>
-<span class="sourceLineNo">624</span>   * Set contents of a slot, as a long integer.<a name="line.624"></a>
-<span class="sourceLineNo">625</span>   */<a name="line.625"></a>
-<span class="sourceLineNo">626</span>  @Uninterruptible<a name="line.626"></a>
-<span class="sourceLineNo">627</span>  public static void setSlotContents(Offset offset, long value) {<a name="line.627"></a>
-<span class="sourceLineNo">628</span>    if (VM.runningVM) {<a name="line.628"></a>
-<span class="sourceLineNo">629</span>      Magic.setLongAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.629"></a>
-<span class="sourceLineNo">630</span>    } else {<a name="line.630"></a>
-<span class="sourceLineNo">631</span>      int slot = offsetAsSlot(offset);<a name="line.631"></a>
-<span class="sourceLineNo">632</span>      if (VM.LittleEndian) {<a name="line.632"></a>
-<span class="sourceLineNo">633</span>        slots[slot + 1] = (int) (value &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.633"></a>
-<span class="sourceLineNo">634</span>        slots[slot] = (int) (value); // lo<a name="line.634"></a>
-<span class="sourceLineNo">635</span>      } else {<a name="line.635"></a>
-<span class="sourceLineNo">636</span>        slots[slot] = (int) (value &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.636"></a>
-<span class="sourceLineNo">637</span>        slots[slot + 1] = (int) (value); // lo<a name="line.637"></a>
-<span class="sourceLineNo">638</span>      }<a name="line.638"></a>
-<span class="sourceLineNo">639</span>    }<a name="line.639"></a>
-<span class="sourceLineNo">640</span>  }<a name="line.640"></a>
-<span class="sourceLineNo">641</span><a name="line.641"></a>
-<span class="sourceLineNo">642</span>  /**<a name="line.642"></a>
-<span class="sourceLineNo">643</span>   * Set contents of a slot, as an object.<a name="line.643"></a>
-<span class="sourceLineNo">644</span>   */<a name="line.644"></a>
-<span class="sourceLineNo">645</span>  @UninterruptibleNoWarn("Interruptible code only reachable during boot image creation")<a name="line.645"></a>
-<span class="sourceLineNo">646</span>  public static void setSlotContents(Offset offset, Object object) {<a name="line.646"></a>
-<span class="sourceLineNo">647</span>    // NB uninterruptible warnings are disabled for this method due to<a name="line.647"></a>
-<span class="sourceLineNo">648</span>    // the array store which could cause a fault - this can't actually<a name="line.648"></a>
-<span class="sourceLineNo">649</span>    // happen as the fault would only ever occur when not running the<a name="line.649"></a>
-<span class="sourceLineNo">650</span>    // VM. We suppress the warning as we know the error can't happen.<a name="line.650"></a>
-<span class="sourceLineNo">651</span><a name="line.651"></a>
-<span class="sourceLineNo">652</span>    if (VM.runningVM &amp;&amp; Barriers.NEEDS_OBJECT_PUTSTATIC_BARRIER) {<a name="line.652"></a>
-<span class="sourceLineNo">653</span>      Barriers.objectStaticWrite(object, offset, 0);<a name="line.653"></a>
-<span class="sourceLineNo">654</span>    } else {<a name="line.654"></a>
-<span class="sourceLineNo">655</span>      setSlotContents(offset, Magic.objectAsAddress(object).toWord());<a name="line.655"></a>
-<span class="sourceLineNo">656</span>    }<a name="line.656"></a>
-<span class="sourceLineNo">657</span>    if (VM.VerifyAssertions) VM._assert(offset.toInt() &gt; 0);<a name="line.657"></a>
-<span class="sourceLineNo">658</span>    if (!VM.runningVM &amp;&amp; objectSlots != null) {<a name="line.658"></a>
-<span class="sourceLineNo">659</span>      // When creating the boot image objectSlots is populated as<a name="line.659"></a>
-<span class="sourceLineNo">660</span>      // Magic won't work in the bootstrap JVM.<a name="line.660"></a>
-<span class="sourceLineNo">661</span>      objectSlots[offsetAsSlot(offset)] = Magic.bootImageIntern(object);<a name="line.661"></a>
-<span class="sourceLineNo">662</span>    }<a name="line.662"></a>
-<span class="sourceLineNo">663</span>  }<a name="line.663"></a>
-<span class="sourceLineNo">664</span><a name="line.664"></a>
-<span class="sourceLineNo">665</span>  /**<a name="line.665"></a>
-<span class="sourceLineNo">666</span>   * Set contents of a slot, as a CodeArray.<a name="line.666"></a>
-<span class="sourceLineNo">667</span>   */<a name="line.667"></a>
-<span class="sourceLineNo">668</span>  @Uninterruptible<a name="line.668"></a>
-<span class="sourceLineNo">669</span>  public static void setSlotContents(Offset offset, CodeArray code) {<a name="line.669"></a>
-<span class="sourceLineNo">670</span>    setSlotContents(offset, Magic.codeArrayAsObject(code));<a name="line.670"></a>
+<span class="sourceLineNo">397</span>   * Allocate a reference slot in the JTOC.<a name="line.397"></a>
+<span class="sourceLineNo">398</span>   * @param field is the slot for a field<a name="line.398"></a>
+<span class="sourceLineNo">399</span>   * @return offset of slot that was allocated as int<a name="line.399"></a>
+<span class="sourceLineNo">400</span>   * (two slots are allocated on 64bit architectures)<a name="line.400"></a>
+<span class="sourceLineNo">401</span>   */<a name="line.401"></a>
+<span class="sourceLineNo">402</span>  public static synchronized Offset allocateReferenceSlot(boolean field) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>    int slot = nextReferenceSlot;<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    nextReferenceSlot += getReferenceSlotSize();<a name="line.404"></a>
+<span class="sourceLineNo">405</span>    if (nextReferenceSlot &gt;= slots.length) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>      enlargeTable();<a name="line.406"></a>
+<span class="sourceLineNo">407</span>    }<a name="line.407"></a>
+<span class="sourceLineNo">408</span>    return slotAsOffset(slot);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>  }<a name="line.409"></a>
+<span class="sourceLineNo">410</span><a name="line.410"></a>
+<span class="sourceLineNo">411</span>  /**<a name="line.411"></a>
+<span class="sourceLineNo">412</span>   * Grow the statics table<a name="line.412"></a>
+<span class="sourceLineNo">413</span>   */<a name="line.413"></a>
+<span class="sourceLineNo">414</span>  private static void enlargeTable() {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    // !!TODO: enlarge slots[] and descriptions[], and modify JTOC register to<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    // point to newly enlarged slots[]<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    // NOTE: very tricky on IA32 because opt uses 32 bit literal address to access JTOC.<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    VM.sysFail("Statics.enlargeTable: jtoc is full");<a name="line.418"></a>
+<span class="sourceLineNo">419</span>  }<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>  /**<a name="line.421"></a>
+<span class="sourceLineNo">422</span>   * @return number of numeric JTOC slots currently allocated.<a name="line.422"></a>
+<span class="sourceLineNo">423</span>   */<a name="line.423"></a>
+<span class="sourceLineNo">424</span>  @Uninterruptible<a name="line.424"></a>
+<span class="sourceLineNo">425</span>  public static int getNumberOfNumericSlots() {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>    return middleOfTable - nextNumericSlot;<a name="line.426"></a>
+<span class="sourceLineNo">427</span>  }<a name="line.427"></a>
+<span class="sourceLineNo">428</span><a name="line.428"></a>
+<span class="sourceLineNo">429</span>  /**<a name="line.429"></a>
+<span class="sourceLineNo">430</span>   * @return number of reference JTOC slots currently allocated.<a name="line.430"></a>
+<span class="sourceLineNo">431</span>   */<a name="line.431"></a>
+<span class="sourceLineNo">432</span>  @Uninterruptible<a name="line.432"></a>
+<span class="sourceLineNo">433</span>  public static int getNumberOfReferenceSlots() {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    return nextReferenceSlot - middleOfTable;<a name="line.434"></a>
+<span class="sourceLineNo">435</span>  }<a name="line.435"></a>
+<span class="sourceLineNo">436</span><a name="line.436"></a>
+<span class="sourceLineNo">437</span>  /**<a name="line.437"></a>
+<span class="sourceLineNo">438</span>   * @return total number of slots comprising the JTOC.<a name="line.438"></a>
+<span class="sourceLineNo">439</span>   */<a name="line.439"></a>
+<span class="sourceLineNo">440</span>  @Uninterruptible<a name="line.440"></a>
+<span class="sourceLineNo">441</span>  public static int getTotalNumberOfSlots() {<a name="line.441"></a>
+<span class="sourceLineNo">442</span>    return slots.length;<a name="line.442"></a>
+<span class="sourceLineNo">443</span>  }<a name="line.443"></a>
+<span class="sourceLineNo">444</span><a name="line.444"></a>
+<span class="sourceLineNo">445</span>  /**<a name="line.445"></a>
+<span class="sourceLineNo">446</span>   * Does specified JTOC slot contain a reference?<a name="line.446"></a>
+<span class="sourceLineNo">447</span>   * @param  slot obtained from offsetAsSlot()<a name="line.447"></a>
+<span class="sourceLineNo">448</span>   * @return {@code true} --&amp;gt; slot contains a reference<a name="line.448"></a>
+<span class="sourceLineNo">449</span>   */<a name="line.449"></a>
+<span class="sourceLineNo">450</span>  @Uninterruptible<a name="line.450"></a>
+<span class="sourceLineNo">451</span>  public static boolean isReference(int slot) {<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    return slot &gt;= middleOfTable;<a name="line.452"></a>
+<span class="sourceLineNo">453</span>  }<a name="line.453"></a>
+<span class="sourceLineNo">454</span><a name="line.454"></a>
+<span class="sourceLineNo">455</span>  /**<a name="line.455"></a>
+<span class="sourceLineNo">456</span>   * Does specified JTOC slot contain an int sized literal?<a name="line.456"></a>
+<span class="sourceLineNo">457</span>   * @param  slot obtained from offsetAsSlot()<a name="line.457"></a>
+<span class="sourceLineNo">458</span>   * @return {@code true} --&amp;gt; slot contains a reference<a name="line.458"></a>
+<span class="sourceLineNo">459</span>   */<a name="line.459"></a>
+<span class="sourceLineNo">460</span>  public static boolean isIntSizeLiteral(int slot) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>    if (isReference(slot) || slot &lt; getLowestInUseSlot()) {<a name="line.461"></a>
+<span class="sourceLineNo">462</span>      return false;<a name="line.462"></a>
+<span class="sourceLineNo">463</span>    } else {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>      return !numericFieldVector.get(slot);<a name="line.464"></a>
+<span class="sourceLineNo">465</span>    }<a name="line.465"></a>
+<span class="sourceLineNo">466</span>  }<a name="line.466"></a>
+<span class="sourceLineNo">467</span><a name="line.467"></a>
+<span class="sourceLineNo">468</span>  /**<a name="line.468"></a>
+<span class="sourceLineNo">469</span>   * Does specified JTOC slot contain a long sized literal?<a name="line.469"></a>
+<span class="sourceLineNo">470</span>   * @param  slot obtained from offsetAsSlot()<a name="line.470"></a>
+<span class="sourceLineNo">471</span>   * @return {@code true} --&amp;gt; slot contains a reference<a name="line.471"></a>
+<span class="sourceLineNo">472</span>   */<a name="line.472"></a>
+<span class="sourceLineNo">473</span>  public static boolean isLongSizeLiteral(int slot) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>    if (isReference(slot) || slot &lt; getLowestInUseSlot() || ((slot &amp; 1) != 0)) {<a name="line.474"></a>
+<span class="sourceLineNo">475</span>      return false;<a name="line.475"></a>
+<span class="sourceLineNo">476</span>    } else {<a name="line.476"></a>
+<span class="sourceLineNo">477</span>      return !numericFieldVector.get(slot) &amp;&amp; !numericFieldVector.get(slot + 1);<a name="line.477"></a>
+<span class="sourceLineNo">478</span>    }<a name="line.478"></a>
+<span class="sourceLineNo">479</span>  }<a name="line.479"></a>
+<span class="sourceLineNo">480</span><a name="line.480"></a>
+<span class="sourceLineNo">481</span>  /**<a name="line.481"></a>
+<span class="sourceLineNo">482</span>   * Does specified JTOC slot contain a reference literal?<a name="line.482"></a>
+<span class="sourceLineNo">483</span>   * @param  slot obtained from offsetAsSlot()<a name="line.483"></a>
+<span class="sourceLineNo">484</span>   * @return {@code true} --&amp;gt; slot contains a reference<a name="line.484"></a>
+<span class="sourceLineNo">485</span>   */<a name="line.485"></a>
+<span class="sourceLineNo">486</span>  public static boolean isReferenceLiteral(int slot) {<a name="line.486"></a>
+<span class="sourceLineNo">487</span>    if (!isReference(slot) || slot &gt; getHighestInUseSlot()) {<a name="line.487"></a>
+<span class="sourceLineNo">488</span>      return false;<a name="line.488"></a>
+<span class="sourceLineNo">489</span>    } else {<a name="line.489"></a>
+<span class="sourceLineNo">490</span>      return (slotAsOffset(slot).toInt() == 0) ||<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        (findObjectLiteral(getSlotContentsAsObject(slotAsOffset(slot))) != 0);<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    }<a name="line.492"></a>
+<span class="sourceLineNo">493</span>  }<a name="line.493"></a>
+<span class="sourceLineNo">494</span><a name="line.494"></a>
+<span class="sourceLineNo">495</span>  /**<a name="line.495"></a>
+<span class="sourceLineNo">496</span>   * @return size occupied by a reference<a name="line.496"></a>
+<span class="sourceLineNo">497</span>   */<a name="line.497"></a>
+<span class="sourceLineNo">498</span>  @Uninterruptible<a name="line.498"></a>
+<span class="sourceLineNo">499</span>  public static int getReferenceSlotSize() {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>    return VM.BuildFor64Addr ? 2 : 1;<a name="line.500"></a>
+<span class="sourceLineNo">501</span>  }<a name="line.501"></a>
+<span class="sourceLineNo">502</span><a name="line.502"></a>
+<span class="sourceLineNo">503</span>  /**<a name="line.503"></a>
+<span class="sourceLineNo">504</span>   * @return JTOC object (for JNI environment and GC).<a name="line.504"></a>
+<span class="sourceLineNo">505</span>   */<a name="line.505"></a>
+<span class="sourceLineNo">506</span>  @Uninterruptible<a name="line.506"></a>
+<span class="sourceLineNo">507</span>  public static Address getSlots() {<a name="line.507"></a>
+<span class="sourceLineNo">508</span>    return Magic.objectAsAddress(slots).plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT);<a name="line.508"></a>
+<span class="sourceLineNo">509</span>  }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>  /**<a name="line.511"></a>
+<span class="sourceLineNo">512</span>   * @return JTOC object (for JNI environment and GC).<a name="line.512"></a>
+<span class="sourceLineNo">513</span>   */<a name="line.513"></a>
+<span class="sourceLineNo">514</span>  @Uninterruptible<a name="line.514"></a>
+<span class="sourceLineNo">515</span>  public static int[] getSlotsAsIntArray() {<a name="line.515"></a>
+<span class="sourceLineNo">516</span>    return slots;<a name="line.516"></a>
+<span class="sourceLineNo">517</span>  }<a name="line.517"></a>
+<span class="sourceLineNo">518</span><a name="line.518"></a>
+<span class="sourceLineNo">519</span>  /**<a name="line.519"></a>
+<span class="sourceLineNo">520</span>   * @param offset the slot's offset in the JTOC<a name="line.520"></a>
+<span class="sourceLineNo">521</span>   * @return contents of a slot, as an integer<a name="line.521"></a>
+<span class="sourceLineNo">522</span>   */<a name="line.522"></a>
+<span class="sourceLineNo">523</span>  @Uninterruptible<a name="line.523"></a>
+<span class="sourceLineNo">524</span>  public static int getSlotContentsAsInt(Offset offset) {<a name="line.524"></a>
+<span class="sourceLineNo">525</span>    if (VM.runningVM) {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>      return Magic.getIntAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.526"></a>
+<span class="sourceLineNo">527</span>    } else {<a name="line.527"></a>
+<span class="sourceLineNo">528</span>      int slot = offsetAsSlot(offset);<a name="line.528"></a>
+<span class="sourceLineNo">529</span>      return slots[slot];<a name="line.529"></a>
+<span class="sourceLineNo">530</span>    }<a name="line.530"></a>
+<span class="sourceLineNo">531</span>  }<a name="line.531"></a>
+<span class="sourceLineNo">532</span><a name="line.532"></a>
+<span class="sourceLineNo">533</span>  /**<a name="line.533"></a>
+<span class="sourceLineNo">534</span>   * @param offset the slot's offset<a name="line.534"></a>
+<span class="sourceLineNo">535</span>   * @return contents of a slot-pair, as a long integer.<a name="line.535"></a>
+<span class="sourceLineNo">536</span>   */<a name="line.536"></a>
+<span class="sourceLineNo">537</span>  @Uninterruptible<a name="line.537"></a>
+<span class="sourceLineNo">538</span>  public static long getSlotContentsAsLong(Offset offset) {<a name="line.538"></a>
+<span class="sourceLineNo">539</span>    if (VM.runningVM) {<a name="line.539"></a>
+<span class="sourceLineNo">540</span>      return Magic.getLongAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.540"></a>
+<span class="sourceLineNo">541</span>    } else {<a name="line.541"></a>
+<span class="sourceLineNo">542</span>      int slot = offsetAsSlot(offset);<a name="line.542"></a>
+<span class="sourceLineNo">543</span>      long result;<a name="line.543"></a>
+<span class="sourceLineNo">544</span>      if (VM.LittleEndian) {<a name="line.544"></a>
+<span class="sourceLineNo">545</span>        result = (((long) slots[slot + 1]) &lt;&lt; BITS_IN_INT); // hi<a name="line.545"></a>
+<span class="sourceLineNo">546</span>        result |= (slots[slot]) &amp; 0xFFFFFFFFL; // lo<a name="line.546"></a>
+<span class="sourceLineNo">547</span>      } else {<a name="line.547"></a>
+<span class="sourceLineNo">548</span>        result = (((long) slots[slot]) &lt;&lt; BITS_IN_INT);     // hi<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        result |= (slots[slot + 1]) &amp; 0xFFFFFFFFL; // lo<a name="line.549"></a>
+<span class="sourceLineNo">550</span>      }<a name="line.550"></a>
+<span class="sourceLineNo">551</span>      return result;<a name="line.551"></a>
+<span class="sourceLineNo">552</span>    }<a name="line.552"></a>
+<span class="sourceLineNo">553</span>  }<a name="line.553"></a>
+<span class="sourceLineNo">554</span><a name="line.554"></a>
+<span class="sourceLineNo">555</span>  /**<a name="line.555"></a>
+<span class="sourceLineNo">556</span>   * @param offset the slot's offset<a name="line.556"></a>
+<span class="sourceLineNo">557</span>   * @return contents of a slot, as an object.<a name="line.557"></a>
+<span class="sourceLineNo">558</span>   */<a name="line.558"></a>
+<span class="sourceLineNo">559</span>  @Uninterruptible<a name="line.559"></a>
+<span class="sourceLineNo">560</span>  public static Object getSlotContentsAsObject(Offset offset) {<a name="line.560"></a>
+<span class="sourceLineNo">561</span>    if (VM.runningVM) {<a name="line.561"></a>
+<span class="sourceLineNo">562</span>      return Magic.getObjectAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT));<a name="line.562"></a>
+<span class="sourceLineNo">563</span>    } else {<a name="line.563"></a>
+<span class="sourceLineNo">564</span>      return objectSlots[offsetAsSlot(offset)];<a name="line.564"></a>
+<span class="sourceLineNo">565</span>    }<a name="line.565"></a>
+<span class="sourceLineNo">566</span>  }<a name="line.566"></a>
+<span class="sourceLineNo">567</span><a name="line.567"></a>
+<span class="sourceLineNo">568</span>  /**<a name="line.568"></a>
+<span class="sourceLineNo">569</span>   * @param offset the slot's offset<a name="line.569"></a>
+<span class="sourceLineNo">570</span>   * @return contents of a slot, as an Address.<a name="line.570"></a>
+<span class="sourceLineNo">571</span>   */<a name="line.571"></a>
+<span class="sourceLineNo">572</span>  @UninterruptibleNoWarn("Interruptible code only reachable during boot image creation")<a name="line.572"></a>
+<span class="sourceLineNo">573</span>  public static Address getSlotContentsAsAddress(Offset offset) {<a name="line.573"></a>
+<span class="sourceLineNo">574</span>    if (VM.runningVM) {<a name="line.574"></a>
+<span class="sourceLineNo">575</span>      if (VM.BuildFor32Addr) {<a name="line.575"></a>
+<span class="sourceLineNo">576</span>        return Address.fromIntSignExtend(getSlotContentsAsInt(offset));<a name="line.576"></a>
+<span class="sourceLineNo">577</span>      } else {<a name="line.577"></a>
+<span class="sourceLineNo">578</span>        return Address.fromLong(getSlotContentsAsLong(offset));<a name="line.578"></a>
+<span class="sourceLineNo">579</span>      }<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    } else {<a name="line.580"></a>
+<span class="sourceLineNo">581</span>      // Addresses are represented by objects in the tools building the VM<a name="line.581"></a>
+<span class="sourceLineNo">582</span>      Object unboxed = objectSlots[offsetAsSlot(offset)];<a name="line.582"></a>
+<span class="sourceLineNo">583</span>      if (unboxed instanceof Address) {<a name="line.583"></a>
+<span class="sourceLineNo">584</span>        return (Address) unboxed;<a name="line.584"></a>
+<span class="sourceLineNo">585</span>      } else if (unboxed instanceof Word) {<a name="line.585"></a>
+<span class="sourceLineNo">586</span>        return ((Word) unboxed).toAddress();<a name="line.586"></a>
+<span class="sourceLineNo">587</span>      } else if (unboxed instanceof Extent) {<a name="line.587"></a>
+<span class="sourceLineNo">588</span>        return ((Extent) unboxed).toWord().toAddress();<a name="line.588"></a>
+<span class="sourceLineNo">589</span>      } else if (unboxed instanceof Offset) {<a name="line.589"></a>
+<span class="sourceLineNo">590</span>        return ((Offset) unboxed).toWord().toAddress();<a name="line.590"></a>
+<span class="sourceLineNo">591</span>      } else {<a name="line.591"></a>
+<span class="sourceLineNo">592</span>        if (VM.VerifyAssertions) VM._assert(VM.NOT_REACHED);<a name="line.592"></a>
+<span class="sourceLineNo">593</span>        return Address.zero();<a name="line.593"></a>
+<span class="sourceLineNo">594</span>      }<a name="line.594"></a>
+<span class="sourceLineNo">595</span>    }<a name="line.595"></a>
+<span class="sourceLineNo">596</span>  }<a name="line.596"></a>
+<span class="sourceLineNo">597</span><a name="line.597"></a>
+<span class="sourceLineNo">598</span>  /**<a name="line.598"></a>
+<span class="sourceLineNo">599</span>   * Set contents of a slot, as an integer.<a name="line.599"></a>
+<span class="sourceLineNo">600</span>   *<a name="line.600"></a>
+<span class="sourceLineNo">601</span>   * @param offset the slot's offset<a name="line.601"></a>
+<span class="sourceLineNo">602</span>   * @param value new value for the slot<a name="line.602"></a>
+<span class="sourceLineNo">603</span>   */<a name="line.603"></a>
+<span class="sourceLineNo">604</span>  @Uninterruptible<a name="line.604"></a>
+<span class="sourceLineNo">605</span>  public static void setSlotContents(Offset offset, int value) {<a name="line.605"></a>
+<span class="sourceLineNo">606</span>    if (VM.runningVM) {<a name="line.606"></a>
+<span class="sourceLineNo">607</span>      Magic.setIntAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.607"></a>
+<span class="sourceLineNo">608</span>    } else {<a name="line.608"></a>
+<span class="sourceLineNo">609</span>      slots[offsetAsSlot(offset)] = value;<a name="line.609"></a>
+<span class="sourceLineNo">610</span>    }<a name="line.610"></a>
+<span class="sourceLineNo">611</span>  }<a name="line.611"></a>
+<span class="sourceLineNo">612</span><a name="line.612"></a>
+<span class="sourceLineNo">613</span>  /**<a name="line.613"></a>
+<span class="sourceLineNo">614</span>   * Set contents of a slot, as an float.<a name="line.614"></a>
+<span class="sourceLineNo">615</span>   *<a name="line.615"></a>
+<span class="sourceLineNo">616</span>   * @param offset the slot's offset<a name="line.616"></a>
+<span class="sourceLineNo">617</span>   * @param value new value for the slot<a name="line.617"></a>
+<span class="sourceLineNo">618</span>   */<a name="line.618"></a>
+<span class="sourceLineNo">619</span>  @Uninterruptible<a name="line.619"></a>
+<span class="sourceLineNo">620</span>  public static void setSlotContents(Offset offset, float value) {<a name="line.620"></a>
+<span class="sourceLineNo">621</span>    if (VM.runningVM) {<a name="line.621"></a>
+<span class="sourceLineNo">622</span>      Magic.setFloatAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.622"></a>
+<span class="sourceLineNo">623</span>    } else {<a name="line.623"></a>
+<span class="sourceLineNo">624</span>      slots[offsetAsSlot(offset)] = Magic.floatAsIntBits(value);<a name="line.624"></a>
+<span class="sourceLineNo">625</span>    }<a name="line.625"></a>
+<span class="sourceLineNo">626</span>  }<a name="line.626"></a>
+<span class="sourceLineNo">627</span><a name="line.627"></a>
+<span class="sourceLineNo">628</span>  /**<a name="line.628"></a>
+<span class="sourceLineNo">629</span>   * Set contents of a slot, as a double.<a name="line.629"></a>
+<span class="sourceLineNo">630</span>   *<a name="line.630"></a>
+<span class="sourceLineNo">631</span>   * @param offset the slot's offset<a name="line.631"></a>
+<span class="sourceLineNo">632</span>   * @param value new value for the slot<a name="line.632"></a>
+<span class="sourceLineNo">633</span>   */<a name="line.633"></a>
+<span class="sourceLineNo">634</span>  @Uninterruptible<a name="line.634"></a>
+<span class="sourceLineNo">635</span>  public static void setSlotContents(Offset offset, double value) {<a name="line.635"></a>
+<span class="sourceLineNo">636</span>    if (VM.runningVM) {<a name="line.636"></a>
+<span class="sourceLineNo">637</span>      Magic.setDoubleAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.637"></a>
+<span class="sourceLineNo">638</span>    } else {<a name="line.638"></a>
+<span class="sourceLineNo">639</span>      int slot = offsetAsSlot(offset);<a name="line.639"></a>
+<span class="sourceLineNo">640</span>      long value64bits = Magic.doubleAsLongBits(value);<a name="line.640"></a>
+<span class="sourceLineNo">641</span>      if (VM.LittleEndian) {<a name="line.641"></a>
+<span class="sourceLineNo">642</span>        slots[slot + 1] = (int) (value64bits &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.642"></a>
+<span class="sourceLineNo">643</span>        slots[slot] = (int) (value64bits); // lo<a name="line.643"></a>
+<span class="sourceLineNo">644</span>      } else {<a name="line.644"></a>
+<span class="sourceLineNo">645</span>        slots[slot] = (int) (value64bits &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.645"></a>
+<span class="sourceLineNo">646</span>        slots[slot + 1] = (int) (value64bits); // lo<a name="line.646"></a>
+<span class="sourceLineNo">647</span>      }<a name="line.647"></a>
+<span class="sourceLineNo">648</span>    }<a name="line.648"></a>
+<span class="sourceLineNo">649</span>  }<a name="line.649"></a>
+<span class="sourceLineNo">650</span><a name="line.650"></a>
+<span class="sourceLineNo">651</span>  /**<a name="line.651"></a>
+<span class="sourceLineNo">652</span>   * Set contents of a slot, as a long integer.<a name="line.652"></a>
+<span class="sourceLineNo">653</span>   *<a name="line.653"></a>
+<span class="sourceLineNo">654</span>   * @param offset the slot's offset<a name="line.654"></a>
+<span class="sourceLineNo">655</span>   * @param value new value for the slot<a name="line.655"></a>
+<span class="sourceLineNo">656</span>   */<a name="line.656"></a>
+<span class="sourceLineNo">657</span>  @Uninterruptible<a name="line.657"></a>
+<span class="sourceLineNo">658</span>  public static void setSlotContents(Offset offset, long value) {<a name="line.658"></a>
+<span class="sourceLineNo">659</span>    if (VM.runningVM) {<a name="line.659"></a>
+<span class="sourceLineNo">660</span>      Magic.setLongAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.660"></a>
+<span class="sourceLineNo">661</span>    } else {<a name="line.661"></a>
+<span class="sourceLineNo">662</span>      int slot = offsetAsSlot(offset);<a name="line.662"></a>
+<span class="sourceLineNo">663</span>      if (VM.LittleEndian) {<a name="line.663"></a>
+<span class="sourceLineNo">664</span>        slots[slot + 1] = (int) (value &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.664"></a>
+<span class="sourceLineNo">665</span>        slots[slot] = (int) (value); // lo<a name="line.665"></a>
+<span class="sourceLineNo">666</span>      } else {<a name="line.666"></a>
+<span class="sourceLineNo">667</span>        slots[slot] = (int) (value &gt;&gt;&gt; BITS_IN_INT); // hi<a name="line.667"></a>
+<span class="sourceLineNo">668</span>        slots[slot + 1] = (int) (value); // lo<a name="line.668"></a>
+<span class="sourceLineNo">669</span>      }<a name="line.669"></a>
+<span class="sourceLineNo">670</span>    }<a name="line.670"></a>
 <span class="sourceLineNo">671</span>  }<a name="line.671"></a>
 <span class="sourceLineNo">672</span><a name="line.672"></a>
 <span class="sourceLineNo">673</span>  /**<a name="line.673"></a>
-<span class="sourceLineNo">674</span>   * Set contents of a slot, as a CodeArray.<a name="line.674"></a>
-<span class="sourceLineNo">675</span>   */<a name="line.675"></a>
-<span class="sourceLineNo">676</span>  @Uninterruptible<a name="line.676"></a>
-<span class="sourceLineNo">677</span>  public static void setSlotContents(Offset offset, TIB tib) {<a name="line.677"></a>
-<span class="sourceLineNo">678</span>    setSlotContents(offset, Magic.tibAsObject(tib));<a name="line.678"></a>
-<span class="sourceLineNo">679</span>  }<a name="line.679"></a>
-<span class="sourceLineNo">680</span><a name="line.680"></a>
-<span class="sourceLineNo">681</span>  /**<a name="line.681"></a>
-<span class="sourceLineNo">682</span>   * Set contents of a slot, as a Word.<a name="line.682"></a>
-<span class="sourceLineNo">683</span>   */<a name="line.683"></a>
-<span class="sourceLineNo">684</span>  @Uninterruptible<a name="line.684"></a>
-<span class="sourceLineNo">685</span>  public static void setSlotContents(Offset offset, Word word) {<a name="line.685"></a>
-<span class="sourceLineNo">686</span>    if (VM.runningVM) {<a name="line.686"></a>
-<span class="sourceLineNo">687</span>      Magic.setWordAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), word);<a name="line.687"></a>
+<span class="sourceLineNo">674</span>   * Set contents of a slot, as an object.<a name="line.674"></a>
+<span class="sourceLineNo">675</span>   *<a name="line.675"></a>
+<span class="sourceLineNo">676</span>   * @param offset the slot's offset<a name="line.676"></a>
+<span class="sourceLineNo">677</span>   * @param object new value for the slot<a name="line.677"></a>
+<span class="sourceLineNo">678</span>   */<a name="line.678"></a>
+<span class="sourceLineNo">679</span>  @UninterruptibleNoWarn("Interruptible code only reachable during boot image creation")<a name="line.679"></a>
+<span class="sourceLineNo">680</span>  public static void setSlotContents(Offset offset, Object object) {<a name="line.680"></a>
+<span class="sourceLineNo">681</span>    // NB uninterruptible warnings are disabled for this method due to<a name="line.681"></a>
+<span class="sourceLineNo">682</span>    // the array store which could cause a fault - this can't actually<a name="line.682"></a>
+<span class="sourceLineNo">683</span>    // happen as the fault would only ever occur when not running the<a name="line.683"></a>
+<span class="sourceLineNo">684</span>    // VM. We suppress the warning as we know the error can't happen.<a name="line.684"></a>
+<span class="sourceLineNo">685</span><a name="line.685"></a>
+<span class="sourceLineNo">686</span>    if (VM.runningVM &amp;&amp; Barriers.NEEDS_OBJECT_PUTSTATIC_BARRIER) {<a name="line.686"></a>
+<span class="sourceLineNo">687</span>      Barriers.objectStaticWrite(object, offset, 0);<a name="line.687"></a>
 <span class="sourceLineNo">688</span>    } else {<a name="line.688"></a>
-<span class="sourceLineNo">689</span>      if (VM.BuildFor32Addr) {<a name="line.689"></a>
-<span class="sourceLineNo">690</span>        setSlotContents(offset, word.toInt());<a name="line.690"></a>
-<span class="sourceLineNo">691</span>      } else {<a name="line.691"></a>
-<span class="sourceLineNo">692</span>        setSlotContents(offset, word.toLong());<a name="line.692"></a>
-<span class="sourceLineNo">693</span>      }<a name="line.693"></a>
-<span class="sourceLineNo">694</span>    }<a name="line.694"></a>
-<span class="sourceLineNo">695</span>  }<a name="line.695"></a>
-<span class="sourceLineNo">696</span><a name="line.696"></a>
-<span class="sourceLineNo">697</span>  /**<a name="line.697"></a>
-<span class="sourceLineNo">698</span>   * Set contents of a slot, as a Address<a name="line.698"></a>
-<span class="sourceLineNo">699</span>   */<a name="line.699"></a>
-<span class="sourceLineNo">700</span>  @Uninterruptible<a name="line.700"></a>
-<span class="sourceLineNo">701</span>  public static void setSlotContents(Offset offset, Address value) {<a name="line.701"></a>
-<span class="sourceLineNo">702</span>    if (VM.runningVM) {<a name="line.702"></a>
-<span class="sourceLineNo">703</span>      Magic.setAddressAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.703"></a>
-<span class="sourceLineNo">704</span>    } else {<a name="line.704"></a>
-<span class="sourceLineNo">705</span>      if (VM.BuildFor32Addr) {<a name="line.705"></a>
-<span class="sourceLineNo">706</span>        setSlotContents(offset, value.toInt());<a name="line.706"></a>
-<span class="sourceLineNo">707</span>      } else {<a name="line.707"></a>
-<span class="sourceLineNo">708</span>        setSlotContents(offset, value.toLong());<a name="line.708"></a>
-<span class="sourceLineNo">709</span>      }<a name="line.709"></a>
-<span class="sourceLineNo">710</span>    }<a name="line.710"></a>
-<span class="sourceLineNo">711</span>  }<a name="line.711"></a>
-<span class="sourceLineNo">712</span><a name="line.712"></a>
-<span class="sourceLineNo">713</span>  /**<a name="line.713"></a>
-<span class="sourceLineNo">714</span>   * Set contents of a slot, as a Extent<a name="line.714"></a>
+<span class="sourceLineNo">689</span>      setSlotContents(offset, Magic.objectAsAddress(object).toWord());<a name="line.689"></a>
+<span class="sourceLineNo">690</span>    }<a name="line.690"></a>
+<span class="sourceLineNo">691</span>    if (VM.VerifyAssertions) VM._assert(offset.toInt() &gt; 0);<a name="line.691"></a>
+<span class="sourceLineNo">692</span>    if (!VM.runningVM &amp;&amp; objectSlots != null) {<a name="line.692"></a>
+<span class="sourceLineNo">693</span>      // When creating the boot image objectSlots is populated as<a name="line.693"></a>
+<span class="sourceLineNo">694</span>      // Magic won't work in the bootstrap JVM.<a name="line.694"></a>
+<span class="sourceLineNo">695</span>      objectSlots[offsetAsSlot(offset)] = Magic.bootImageIntern(object);<a name="line.695"></a>
+<span class="sourceLineNo">696</span>    }<a name="line.696"></a>
+<span class="sourceLineNo">697</span>  }<a name="line.697"></a>
+<span class="sourceLineNo">698</span><a name="line.698"></a>
+<span class="sourceLineNo">699</span>  /**<a name="line.699"></a>
+<span class="sourceLineNo">700</span>   * Set contents of a slot, as a CodeArray.<a name="line.700"></a>
+<span class="sourceLineNo">701</span>   *<a name="line.701"></a>
+<span class="sourceLineNo">702</span>   * @param offset the slot's offset<a name="line.702"></a>
+<span class="sourceLineNo">703</span>   * @param code  new value for the slot<a name="line.703"></a>
+<span class="sourceLineNo">704</span>   */<a name="line.704"></a>
+<span class="sourceLineNo">705</span>  @Uninterruptible<a name="line.705"></a>
+<span class="sourceLineNo">706</span>  public static void setSlotContents(Offset offset, CodeArray code) {<a name="line.706"></a>
+<span class="sourceLineNo">707</span>    setSlotContents(offset, Magic.codeArrayAsObject(code));<a name="line.707"></a>
+<span class="sourceLineNo">708</span>  }<a name="line.708"></a>
+<span class="sourceLineNo">709</span><a name="line.709"></a>
+<span class="sourceLineNo">710</span>  /**<a name="line.710"></a>
+<span class="sourceLineNo">711</span>   * Set contents of a slot, as a TIB.<a name="line.711"></a>
+<span class="sourceLineNo">712</span>   *<a name="line.712"></a>
+<span class="sourceLineNo">713</span>   * @param offset the slot's offset<a name="line.713"></a>
+<span class="sourceLineNo">714</span>   * @param tib new value for the slot<a name="line.714"></a>
 <span class="sourceLineNo">715</span>   */<a name="line.715"></a>
 <span class="sourceLineNo">716</span>  @Uninterruptible<a name="line.716"></a>
-<span class="sourceLineNo">717</span>  public static void setSlotContents(Offset offset, Extent value) {<a name="line.717"></a>
-<span class="sourceLineNo">718</span>    if (VM.runningVM) {<a name="line.718"></a>
-<span class="sourceLineNo">719</span>      Magic.setExtentAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.719"></a>
-<span class="sourceLineNo">720</span>    } else {<a name="line.720"></a>
-<span class="sourceLineNo">721</span>      if (VM.BuildFor32Addr) {<a name="line.721"></a>
-<span class="sourceLineNo">722</span>        setSlotContents(offset, value.toInt());<a name="line.722"></a>
-<span class="sourceLineNo">723</span>      } else {<a name="line.723"></a>
-<span class="sourceLineNo">724</span>        setSlotContents(offset, value.toLong());<a name="line.724"></a>
-<span class="sourceLineNo">725</span>      }<a name="line.725"></a>
-<span class="sourceLineNo">726</span>    }<a name="line.726"></a>
-<span class="sourceLineNo">727</span>  }<a name="line.727"></a>
-<span class="sourceLineNo">728</span><a name="line.728"></a>
-<span class="sourceLineNo">729</span>  /**<a name="line.729"></a>
-<span class="sourceLineNo">730</span>   * Set contents of a slot, as a Offset<a name="line.730"></a>
-<span class="sourceLineNo">731</span>   */<a name="line.731"></a>
-<span class="sourceLineNo">732</span>  @Uninterruptible<a name="line.732"></a>
-<span class="sourceLineNo">733</span>  public static void setSlotContents(Offset offset, Offset value) {<a name="line.733"></a>
-<span class="sourceLineNo">734</span>    if (VM.runningVM) {<a name="line.734"></a>
-<span class="sourceLineNo">735</span>      Magic.setOffsetAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.735"></a>
-<span class="sourceLineNo">736</span>    } else {<a name="line.736"></a>
-<span class="sourceLineNo">737</span>      if (VM.BuildFor32Addr) {<a name="line.737"></a>
-<span class="sourceLineNo">738</span>        setSlotContents(offset, value.toInt());<a name="line.738"></a>
-<span class="sourceLineNo">739</span>      } else {<a name="line.739"></a>
-<span class="sourceLineNo">740</span>        setSlotContents(offset, value.toLong());<a name="line.740"></a>
-<span class="sourceLineNo">741</span>      }<a name="line.741"></a>
-<span class="sourceLineNo">742</span>    }<a name="line.742"></a>
-<span class="sourceLineNo">743</span>  }<a name="line.743"></a>
-<span class="sourceLineNo">744</span><a name="line.744"></a>
-<span class="sourceLineNo">745</span>  /**<a name="line.745"></a>
-<span class="sourceLineNo">746</span>   * Inform Statics that boot image instantiation is over and that<a name="line.746"></a>
-<span class="sourceLineNo">747</span>   * unnecessary data structures, for runtime, can be released.<a name="line.747"></a>
-<span class="sourceLineNo">748</span>   * @return information that may later be restored to help generate<a name="line.748"></a>
-<span class="sourceLineNo">749</span>   * the boot image report<a name="line.749"></a>
-<span class="sourceLineNo">750</span>   */<a name="line.750"></a>
-<span class="sourceLineNo">751</span>  public static Object bootImageInstantiationFinished() {<a name="line.751"></a>
-<span class="sourceLineNo">752</span>    Object t = objectSlots;<a name="line.752"></a>
-<span class="sourceLineNo">753</span>    objectSlots = null;<a name="line.753"></a>
-<span class="sourceLineNo">754</span>    return t;<a name="line.754"></a>
-<span class="sourceLineNo">755</span>  }<a name="line.755"></a>
-<span class="sourceLineNo">756</span><a name="line.756"></a>
-<span class="sourceLineNo">757</span>  /**<a name="line.757"></a>
-<span class="sourceLineNo">758</span>   * After serializing Statics the boot image writer generates<a name="line.758"></a>
-<span class="sourceLineNo">759</span>   * a report. This method is called to restore data lost by the call<a name="line.759"></a>
-<span class="sourceLineNo">760</span>   * to bootImageInstantiationFinished.<a name="line.760"></a>
-<span class="sourceLineNo">761</span>   * @param slots object slots to restore<a name="line.761"></a>
-<span class="sourceLineNo">762</span>   */<a name="line.762"></a>
-<span class="sourceLineNo">763</span>  public static void bootImageReportGeneration(Object slots) {<a name="line.763"></a>
-<span class="sourceLineNo">764</span>    objectSlots = (Object[])slots;<a name="line.764"></a>
-<span class="sourceLineNo">765</span>  }<a name="line.765"></a>
-<span class="sourceLineNo">766</span>}<a name="line.766"></a>
+<span class="sourceLineNo">717</span>  public static void setSlotContents(Offset offset, TIB tib) {<a name="line.717"></a>
+<span class="sourceLineNo">718</span>    setSlotContents(offset, Magic.tibAsObject(tib));<a name="line.718"></a>
+<span class="sourceLineNo">719</span>  }<a name="line.719"></a>
+<span class="sourceLineNo">720</span><a name="line.720"></a>
+<span class="sourceLineNo">721</span>  /**<a name="line.721"></a>
+<span class="sourceLineNo">722</span>   * Set contents of a slot, as a Word.<a name="line.722"></a>
+<span class="sourceLineNo">723</span>   *<a name="line.723"></a>
+<span class="sourceLineNo">724</span>   * @param offset the slot's offset<a name="line.724"></a>
+<span class="sourceLineNo">725</span>   * @param word new value for the slot<a name="line.725"></a>
+<span class="sourceLineNo">726</span>   */<a name="line.726"></a>
+<span class="sourceLineNo">727</span>  @Uninterruptible<a name="line.727"></a>
+<span class="sourceLineNo">728</span>  public static void setSlotContents(Offset offset, Word word) {<a name="line.728"></a>
+<span class="sourceLineNo">729</span>    if (VM.runningVM) {<a name="line.729"></a>
+<span class="sourceLineNo">730</span>      Magic.setWordAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), word);<a name="line.730"></a>
+<span class="sourceLineNo">731</span>    } else {<a name="line.731"></a>
+<span class="sourceLineNo">732</span>      if (VM.BuildFor32Addr) {<a name="line.732"></a>
+<span class="sourceLineNo">733</span>        setSlotContents(offset, word.toInt());<a name="line.733"></a>
+<span class="sourceLineNo">734</span>      } else {<a name="line.734"></a>
+<span class="sourceLineNo">735</span>        setSlotContents(offset, word.toLong());<a name="line.735"></a>
+<span class="sourceLineNo">736</span>      }<a name="line.736"></a>
+<span class="sourceLineNo">737</span>    }<a name="line.737"></a>
+<span class="sourceLineNo">738</span>  }<a name="line.738"></a>
+<span class="sourceLineNo">739</span><a name="line.739"></a>
+<span class="sourceLineNo">740</span>  /**<a name="line.740"></a>
+<span class="sourceLineNo">741</span>   * Set contents of a slot, as a Address<a name="line.741"></a>
+<span class="sourceLineNo">742</span>   *<a name="line.742"></a>
+<span class="sourceLineNo">743</span>   * @param offset the slot's offset<a name="line.743"></a>
+<span class="sourceLineNo">744</span>   * @param value new value for the slot<a name="line.744"></a>
+<span class="sourceLineNo">745</span>   */<a name="line.745"></a>
+<span class="sourceLineNo">746</span>  @Uninterruptible<a name="line.746"></a>
+<span class="sourceLineNo">747</span>  public static void setSlotContents(Offset offset, Address value) {<a name="line.747"></a>
+<span class="sourceLineNo">748</span>    if (VM.runningVM) {<a name="line.748"></a>
+<span class="sourceLineNo">749</span>      Magic.setAddressAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.749"></a>
+<span class="sourceLineNo">750</span>    } else {<a name="line.750"></a>
+<span class="sourceLineNo">751</span>      if (VM.BuildFor32Addr) {<a name="line.751"></a>
+<span class="sourceLineNo">752</span>        setSlotContents(offset, value.toInt());<a name="line.752"></a>
+<span class="sourceLineNo">753</span>      } else {<a name="line.753"></a>
+<span class="sourceLineNo">754</span>        setSlotContents(offset, value.toLong());<a name="line.754"></a>
+<span class="sourceLineNo">755</span>      }<a name="line.755"></a>
+<span class="sourceLineNo">756</span>    }<a name="line.756"></a>
+<span class="sourceLineNo">757</span>  }<a name="line.757"></a>
+<span class="sourceLineNo">758</span><a name="line.758"></a>
+<span class="sourceLineNo">759</span>  /**<a name="line.759"></a>
+<span class="sourceLineNo">760</span>   * Set contents of a slot, as a Extent<a name="line.760"></a>
+<span class="sourceLineNo">761</span>   *<a name="line.761"></a>
+<span class="sourceLineNo">762</span>   * @param offset the slot's offset<a name="line.762"></a>
+<span class="sourceLineNo">763</span>   * @param value new value for the slot<a name="line.763"></a>
+<span class="sourceLineNo">764</span>   */<a name="line.764"></a>
+<span class="sourceLineNo">765</span>  @Uninterruptible<a name="line.765"></a>
+<span class="sourceLineNo">766</span>  public static void setSlotContents(Offset offset, Extent value) {<a name="line.766"></a>
+<span class="sourceLineNo">767</span>    if (VM.runningVM) {<a name="line.767"></a>
+<span class="sourceLineNo">768</span>      Magic.setExtentAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.768"></a>
+<span class="sourceLineNo">769</span>    } else {<a name="line.769"></a>
+<span class="sourceLineNo">770</span>      if (VM.BuildFor32Addr) {<a name="line.770"></a>
+<span class="sourceLineNo">771</span>        setSlotContents(offset, value.toInt());<a name="line.771"></a>
+<span class="sourceLineNo">772</span>      } else {<a name="line.772"></a>
+<span class="sourceLineNo">773</span>        setSlotContents(offset, value.toLong());<a name="line.773"></a>
+<span class="sourceLineNo">774</span>      }<a name="line.774"></a>
+<span class="sourceLineNo">775</span>    }<a name="line.775"></a>
+<span class="sourceLineNo">776</span>  }<a name="line.776"></a>
+<span class="sourceLineNo">777</span><a name="line.777"></a>
+<span class="sourceLineNo">778</span>  /**<a name="line.778"></a>
+<span class="sourceLineNo">779</span>   * Set contents of a slot, as a Offset<a name="line.779"></a>
+<span class="sourceLineNo">780</span>   *<a name="line.780"></a>
+<span class="sourceLineNo">781</span>   * @param offset the slot's offset<a name="line.781"></a>
+<span class="sourceLineNo">782</span>   * @param value new value for the slot<a name="line.782"></a>
+<span class="sourceLineNo">783</span>   */<a name="line.783"></a>
+<span class="sourceLineNo">784</span>  @Uninterruptible<a name="line.784"></a>
+<span class="sourceLineNo">785</span>  public static void setSlotContents(Offset offset, Offset value) {<a name="line.785"></a>
+<span class="sourceLineNo">786</span>    if (VM.runningVM) {<a name="line.786"></a>
+<span class="sourceLineNo">787</span>      Magic.setOffsetAtOffset(slots, offset.plus(middleOfTable &lt;&lt; LOG_BYTES_IN_INT), value);<a name="line.787"></a>
+<span class="sourceLineNo">788</span>    } else {<a name="line.788"></a>
+<span class="sourceLineNo">789</span>      if (VM.BuildFor32Addr) {<a name="line.789"></a>
+<span class="sourceLineNo">790</span>        setSlotContents(offset, value.toInt());<a name="line.790"></a>
+<span class="sourceLineNo">791</span>      } else {<a name="line.791"></a>
+<span class="sourceLineNo">792</span>        setSlotContents(offset, value.toLong());<a name="line.792"></a>
+<span class="sourceLineNo">793</span>      }<a name="line.793"></a>
+<span class="sourceLineNo">794</span>    }<a name="line.794"></a>
+<span class="sourceLineNo">795</span>  }<a name="line.795"></a>
+<span class="sourceLineNo">796</span><a name="line.796"></a>
+<span class="sourceLineNo">797</span>  /**<a name="line.797"></a>
+<span class="sourceLineNo">798</span>   * Inform Statics that boot image instantiation is over and that<a name="line.798"></a>
+<span class="sourceLineNo">799</span>   * unnecessary data structures, for runtime, can be released.<a name="line.799"></a>
+<span class="sourceLineNo">800</span>   * @return information that may later be restored to help generate<a name="line.800"></a>
+<span class="sourceLineNo">801</span>   * the boot image report<a name="line.801"></a>
+<span class="sourceLineNo">802</span>   */<a name="line.802"></a>
+<span class="sourceLineNo">803</span>  public static Object bootImageInstantiationFinished() {<a name="line.803"></a>
+<span class="sourceLineNo">804</span>    Object t = objectSlots;<a name="line.804"></a>
+<span class="sourceLineNo">805</span>    objectSlots = null;<a name="line.805"></a>
+<span class="sourceLineNo">806</span>    return t;<a name="line.806"></a>
+<span class="sourceLineNo">807</span>  }<a name="line.807"></a>
+<span class="sourceLineNo">808</span><a name="line.808"></a>
+<span class="sourceLineNo">809</span>  /**<a name="line.809"></a>
+<span class="sourceLineNo">810</span>   * After serializing Statics the boot image writer generates<a name="line.810"></a>
+<span class="sourceLineNo">811</span>   * a report. This method is called to restore data lost by the call<a name="line.811"></a>
+<span class="sourceLineNo">812</span>   * to bootImageInstantiationFinished.<a name="line.812"></a>
+<span class="sourceLineNo">813</span>   * @param slots object slots to restore<a name="line.813"></a>
+<span class="sourceLineNo">814</span>   */<a name="line.814"></a>
+<span class="sourceLineNo">815</span>  public static void bootImageReportGeneration(Object slots) {<a name="line.815"></a>
+<span class="sourceLineNo">816</span>    objectSlots = (Object[])slots;<a name="line.816"></a>
+<span class="sourceLineNo">817</span>  }<a name="line.817"></a>
+<span class="sourceLineNo">818</span>}<a name="line.818"></a>
 
 
 

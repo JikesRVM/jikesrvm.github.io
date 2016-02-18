@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> *  This file is part of the Jikes RVM project (http://jikesrvm.org).<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> *  This file is licensed to You under the Eclipse Public License (EPL);<a name="line.4"></a>
+<span class="sourceLineNo">005</span> *  You may not use this file except in compliance with the License. You<a name="line.5"></a>
+<span class="sourceLineNo">006</span> *  may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *      http://www.opensource.org/licenses/eclipse-1.0.php<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> *  See the COPYRIGHT.txt file distributed with this work for information<a name="line.10"></a>
+<span class="sourceLineNo">011</span> *  regarding copyright ownership.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.regalloc;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.classloader.ClassLoaderConstants.LongTypeCode;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.osr.OSRConstants.ACONST;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.osr.OSRConstants.ICONST;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.osr.OSRConstants.LCONST;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.osr.OSRConstants.PHYREG;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.osr.OSRConstants.SPILL;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.VM;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.OptimizingCompilerException;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.driver.CompilerPhase;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.Register;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.operand.AddressConstantOperand;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.ir.operand.LongConstantOperand;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.osr.LocalRegPair;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.osr.MethodVariables;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.jikesrvm.osr.VariableMapElement;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.vmmagic.unboxed.Word;<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * Update GC maps after register allocation but before inserting spill<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * code.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public final class UpdateOSRMaps extends CompilerPhase {<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>  @Override<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  public boolean shouldPerform(OptOptions options) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    return true;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * Return this instance of this phase. This phase contains no<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * per-compilation instance fields.<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * @param ir not used<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * @return this<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  @Override<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public CompilerPhase newExecution(IR ir) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    return this;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  }<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  @Override<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  public String getName() {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    return "Update OSRMaps";<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  public boolean printingEnabled(OptOptions options, boolean before) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    return false;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * Iterate over the IR-based OSR map, and update symbolic registers<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   * with real reg number or spill locations.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * Verify there are only two types of operands:<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   *    ConstantOperand<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   *    RegisterOperand<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   *        for integer constant, we save the value of the integer<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   *<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   * The LONG register has another half part.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * CodeSpill replaces any allocated symbolic register by<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * physical registers.<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public void perform(IR ir) throws OptimizingCompilerException {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    // list of OsrVariableMapElement<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    //LinkedList&lt;VariableMapElement&gt; mapList = ir.MIRInfo.osrVarMap.list;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    //for (int numOsrs=0, m=mapList.size(); numOsrs&lt;m; numOsrs++) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    //  VariableMapElement elm = mapList.get(numOsrs);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    /* for each osr instruction */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    for (VariableMapElement elm : ir.MIRInfo.osrVarMap.list) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>      // for each inlined method<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      //LinkedList&lt;MethodVariables&gt; mvarsList = elm.mvars;                   XXX Remove once proven correct<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      //for (int numMvars=0, n=mvarsList.size(); numMvars&lt;n; numMvars++) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      //  MethodVariables mvar = mvarsList.get(numMvars);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      for (MethodVariables mvar : elm.mvars) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        // for each tuple<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        //LinkedList&lt;LocalRegPair&gt; tupleList = mvar.tupleList;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        //for (int numTuple=0, k=tupleList.size(); numTuple&lt;k; numTuple++) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        //LocalRegPair tuple = tupleList.get(numTuple);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        for (LocalRegPair tuple : mvar.tupleList) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span><a name="line.103"></a>
+<span class="sourceLineNo">104</span>          Operand op = tuple.operand;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>          if (op.isRegister()) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            Register sym_reg = ((RegisterOperand) op).getRegister();<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>            setRealPosition(ir, tuple, sym_reg);<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>            // get another half part of long register<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            if (VM.BuildFor32Addr &amp;&amp; (tuple.typeCode == LongTypeCode)) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>              LocalRegPair other = tuple._otherHalf;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>              Operand other_op = other.operand;<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>              if (VM.VerifyAssertions) VM._assert(other_op.isRegister());<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>              Register other_reg = ((RegisterOperand) other_op).getRegister();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>              setRealPosition(ir, other, other_reg);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>            }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>            /* According to ConvertToLowLevelIR, StringConstant, LongConstant,<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            * NullConstant, FloatConstant, and DoubleConstant are all materialized<a name="line.122"></a>
+<span class="sourceLineNo">123</span>            * The only thing left is the integer constants which could encode<a name="line.123"></a>
+<span class="sourceLineNo">124</span>            * non-moveable objects.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            * POTENTIAL DRAWBACKS: since any long, float, and double are moved<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            * to register and treated as use, it may consume more registers and<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            * add unnecessary MOVEs.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>            *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            * Perhaps, ConvertToLowLevelIR can skip OsrPoint instruction.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>            */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>          } else if (op.isIntConstant()) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>            setTupleValue(tuple, ICONST, ((IntConstantOperand) op).value);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            if (VM.BuildFor32Addr &amp;&amp; (tuple.typeCode == LongTypeCode)) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>              LocalRegPair other = tuple._otherHalf;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>              Operand other_op = other.operand;<a name="line.135"></a>
+<span class="sourceLineNo">136</span><a name="line.136"></a>
+<span class="sourceLineNo">137</span>              if (VM.VerifyAssertions) VM._assert(other_op.isIntConstant());<a name="line.137"></a>
+<span class="sourceLineNo">138</span>              setTupleValue(other, ICONST, ((IntConstantOperand) other_op).value);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>          } else if (op.isAddressConstant()) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            setTupleValue(tuple, ACONST, ((AddressConstantOperand) op).value.toWord());<a name="line.141"></a>
+<span class="sourceLineNo">142</span>          } else if (VM.BuildFor64Addr &amp;&amp; op.isLongConstant()) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            setTupleValue(tuple, LCONST, Word.fromLong(((LongConstantOperand) op).value));<a name="line.143"></a>
+<span class="sourceLineNo">144</span>          } else {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            throw new OptimizingCompilerException("LinearScan", "Unexpected operand type at ", op.toString());<a name="line.145"></a>
+<span class="sourceLineNo">146</span>          } // for the op type<a name="line.146"></a>
+<span class="sourceLineNo">147</span>        } // for each tuple<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      } // for each inlined method<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    } // for each osr instruction<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>  void setRealPosition(IR ir, LocalRegPair tuple, Register sym_reg) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    if (VM.VerifyAssertions) VM._assert(sym_reg != null);<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    int REG_MASK = 0x01F;<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>    // now it is not symbolic register anymore.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    // is is really confusing that sometimes a sym reg is a phy,<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    // and sometimes not.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    if (sym_reg.isAllocated()) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      setTupleValue(tuple, PHYREG, sym_reg.number &amp; REG_MASK);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    } else if (sym_reg.isPhysical()) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>      setTupleValue(tuple, PHYREG, sym_reg.number &amp; REG_MASK);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    } else if (sym_reg.isSpilled()) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      int spillLocation = ir.MIRInfo.regAllocState.getSpill(sym_reg);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      setTupleValue(tuple, SPILL, spillLocation);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    } else {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>      dumpIR(ir, "PANIC");<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      throw new RuntimeException("LinearScan PANIC in OSRMAP, " + sym_reg + " is not alive");<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>  }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>  static void setTupleValue(LocalRegPair tuple, byte type, int value) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    tuple.valueType = type;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    tuple.value = Word.fromIntSignExtend(value);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  }<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>  static void setTupleValue(LocalRegPair tuple, byte type, Word value) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    tuple.valueType = type;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    tuple.value = value;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  }<a name="line.181"></a>
+<span class="sourceLineNo">182</span>}<a name="line.182"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

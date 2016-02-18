@@ -36,64 +36,72 @@
 <span class="sourceLineNo">028</span>  /**<a name="line.28"></a>
 <span class="sourceLineNo">029</span>   * The compiled method associated querries.<a name="line.29"></a>
 <span class="sourceLineNo">030</span>   */<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  private CompiledMethod cm;<a name="line.31"></a>
+<span class="sourceLineNo">031</span>  private final CompiledMethod cm;<a name="line.31"></a>
 <span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>  public final int getCMID() { return cm.getId(); }<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>  public final CompiledMethod getCompiledMethod() { return cm; }<a name="line.35"></a>
+<span class="sourceLineNo">033</span>  public final int getCMID() {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    return cm.getId();<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  }<a name="line.35"></a>
 <span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>  public final RVMMethod getMethod() { return cm.getMethod(); }<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>  public final boolean isOptCompiled() {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    return cm.getCompilerType() == CompiledMethod.OPT;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>  }<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>  public final int getOptCompiledLevel() {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    if (!isOptCompiled()) return -1;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    return ((OptCompiledMethod) cm).getOptLevel();<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>  public final int getPrevCompilerConstant() {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    if (isOptCompiled()) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>      return CompilerDNA.getCompilerConstant(getOptCompiledLevel());<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    } else {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>      return CompilerDNA.BASELINE;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span>  }<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>  /**<a name="line.56"></a>
-<span class="sourceLineNo">057</span>   * Number of samples attributed to this method.<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  private double numSamples;<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>  public final double getNumSamples() { return numSamples; }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>  /**<a name="line.63"></a>
-<span class="sourceLineNo">064</span>   * @param _cm the compiled method<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   * @param _numSamples the number of samples attributed to the method<a name="line.65"></a>
-<span class="sourceLineNo">066</span>   */<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  HotMethodEvent(CompiledMethod _cm, double _numSamples) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    if (VM.VerifyAssertions) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>      VM._assert(_cm != null, "Don't create me for null compiled method!");<a name="line.69"></a>
-<span class="sourceLineNo">070</span>      VM._assert(_numSamples &gt;= 0.0, "Invalid numSamples value");<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    cm = _cm;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    numSamples = _numSamples;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>  }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>  /**<a name="line.76"></a>
-<span class="sourceLineNo">077</span>   * @param _cm the compiled method<a name="line.77"></a>
-<span class="sourceLineNo">078</span>   * @param _numSamples the number of samples attributed to the method<a name="line.78"></a>
-<span class="sourceLineNo">079</span>   */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  HotMethodEvent(CompiledMethod _cm, int _numSamples) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    this(_cm, (double) _numSamples);<a name="line.81"></a>
+<span class="sourceLineNo">037</span>  public final CompiledMethod getCompiledMethod() {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    return cm;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public final RVMMethod getMethod() {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    return cm.getMethod();<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  public final boolean isOptCompiled() {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    return cm.getCompilerType() == CompiledMethod.OPT;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public final int getOptCompiledLevel() {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    if (!isOptCompiled()) return -1;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    return ((OptCompiledMethod) cm).getOptLevel();<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  }<a name="line.52"></a>
+<span class="sourceLineNo">053</span><a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public final int getPrevCompilerConstant() {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    if (isOptCompiled()) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      return CompilerDNA.getCompilerConstant(getOptCompiledLevel());<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    } else {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>      return CompilerDNA.BASELINE;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    }<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  }<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>  /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * Number of samples attributed to this method.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  private final double numSamples;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public final double getNumSamples() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    return numSamples;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>  /**<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   * @param _cm the compiled method<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * @param _numSamples the number of samples attributed to the method<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  HotMethodEvent(CompiledMethod _cm, double _numSamples) {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    if (VM.VerifyAssertions) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>      VM._assert(_cm != null, "Don't create me for null compiled method!");<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      VM._assert(_numSamples &gt;= 0.0, "Invalid numSamples value");<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    cm = _cm;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    numSamples = _numSamples;<a name="line.81"></a>
 <span class="sourceLineNo">082</span>  }<a name="line.82"></a>
 <span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>  @Override<a name="line.84"></a>
-<span class="sourceLineNo">085</span>  public String toString() {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    return getMethod() + " = " + getNumSamples();<a name="line.86"></a>
-<span class="sourceLineNo">087</span>  }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>}<a name="line.88"></a>
+<span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   * @param _cm the compiled method<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * @param _numSamples the number of samples attributed to the method<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  HotMethodEvent(CompiledMethod _cm, int _numSamples) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    this(_cm, (double) _numSamples);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  @Override<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  public String toString() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    return getMethod() + " = " + getNumSamples();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>}<a name="line.96"></a>
 
 
 

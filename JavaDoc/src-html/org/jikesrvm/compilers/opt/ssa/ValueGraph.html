@@ -218,7 +218,7 @@
 <span class="sourceLineNo">210</span>      processCall(s);<a name="line.210"></a>
 <span class="sourceLineNo">211</span>    } else if (Move.conforms(s)) {<a name="line.211"></a>
 <span class="sourceLineNo">212</span>      processMove(s);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>    } else if (s.operator == PI) {<a name="line.213"></a>
+<span class="sourceLineNo">213</span>    } else if (s.operator() == PI) {<a name="line.213"></a>
 <span class="sourceLineNo">214</span>      processPi(s);<a name="line.214"></a>
 <span class="sourceLineNo">215</span>    } else if (New.conforms(s)) {<a name="line.215"></a>
 <span class="sourceLineNo">216</span>      processNew(s);<a name="line.216"></a>
@@ -789,30 +789,32 @@
 <span class="sourceLineNo">781</span>   * Note: treat PI instructions like MOVES<a name="line.781"></a>
 <span class="sourceLineNo">782</span>   *<a name="line.782"></a>
 <span class="sourceLineNo">783</span>   * @param op the RegisterOperand<a name="line.783"></a>
-<span class="sourceLineNo">784</span>   */<a name="line.784"></a>
-<span class="sourceLineNo">785</span>  private Operand bypassMoves(Operand op) {<a name="line.785"></a>
-<span class="sourceLineNo">786</span>    if (!op.isRegister()) return op;<a name="line.786"></a>
-<span class="sourceLineNo">787</span>    Register r = op.asRegister().getRegister();<a name="line.787"></a>
-<span class="sourceLineNo">788</span>    Instruction def = r.getFirstDef();<a name="line.788"></a>
-<span class="sourceLineNo">789</span>    if (def == null) {<a name="line.789"></a>
-<span class="sourceLineNo">790</span>      return op;<a name="line.790"></a>
-<span class="sourceLineNo">791</span>    }<a name="line.791"></a>
-<span class="sourceLineNo">792</span>    if (r.isPhysical()) {<a name="line.792"></a>
-<span class="sourceLineNo">793</span>      return op;<a name="line.793"></a>
-<span class="sourceLineNo">794</span>    }<a name="line.794"></a>
-<span class="sourceLineNo">795</span>    if (Move.conforms(def)) {<a name="line.795"></a>
-<span class="sourceLineNo">796</span>      //   In a perfect world, this shouldn't happen. Copy propagation<a name="line.796"></a>
-<span class="sourceLineNo">797</span>      //   in SSA form should remove all 'normal' moves.<a name="line.797"></a>
-<span class="sourceLineNo">798</span>      //   We can't simply bypass this move, since it may lead to<a name="line.798"></a>
-<span class="sourceLineNo">799</span>      //   infinite mutual recursion.<a name="line.799"></a>
-<span class="sourceLineNo">800</span>      return op;<a name="line.800"></a>
-<span class="sourceLineNo">801</span>    } else if (def.operator == PI) {<a name="line.801"></a>
-<span class="sourceLineNo">802</span>      return bypassMoves(GuardedUnary.getVal(def));<a name="line.802"></a>
-<span class="sourceLineNo">803</span>    } else {<a name="line.803"></a>
-<span class="sourceLineNo">804</span>      return op;<a name="line.804"></a>
-<span class="sourceLineNo">805</span>    }<a name="line.805"></a>
-<span class="sourceLineNo">806</span>  }<a name="line.806"></a>
-<span class="sourceLineNo">807</span>}<a name="line.807"></a>
+<span class="sourceLineNo">784</span>   * @return the first def in the chain that is not the result of<a name="line.784"></a>
+<span class="sourceLineNo">785</span>   *  move if it can be found, the original operand otherwise<a name="line.785"></a>
+<span class="sourceLineNo">786</span>   */<a name="line.786"></a>
+<span class="sourceLineNo">787</span>  private Operand bypassMoves(Operand op) {<a name="line.787"></a>
+<span class="sourceLineNo">788</span>    if (!op.isRegister()) return op;<a name="line.788"></a>
+<span class="sourceLineNo">789</span>    Register r = op.asRegister().getRegister();<a name="line.789"></a>
+<span class="sourceLineNo">790</span>    Instruction def = r.getFirstDef();<a name="line.790"></a>
+<span class="sourceLineNo">791</span>    if (def == null) {<a name="line.791"></a>
+<span class="sourceLineNo">792</span>      return op;<a name="line.792"></a>
+<span class="sourceLineNo">793</span>    }<a name="line.793"></a>
+<span class="sourceLineNo">794</span>    if (r.isPhysical()) {<a name="line.794"></a>
+<span class="sourceLineNo">795</span>      return op;<a name="line.795"></a>
+<span class="sourceLineNo">796</span>    }<a name="line.796"></a>
+<span class="sourceLineNo">797</span>    if (Move.conforms(def)) {<a name="line.797"></a>
+<span class="sourceLineNo">798</span>      //   In a perfect world, this shouldn't happen. Copy propagation<a name="line.798"></a>
+<span class="sourceLineNo">799</span>      //   in SSA form should remove all 'normal' moves.<a name="line.799"></a>
+<span class="sourceLineNo">800</span>      //   We can't simply bypass this move, since it may lead to<a name="line.800"></a>
+<span class="sourceLineNo">801</span>      //   infinite mutual recursion.<a name="line.801"></a>
+<span class="sourceLineNo">802</span>      return op;<a name="line.802"></a>
+<span class="sourceLineNo">803</span>    } else if (def.operator() == PI) {<a name="line.803"></a>
+<span class="sourceLineNo">804</span>      return bypassMoves(GuardedUnary.getVal(def));<a name="line.804"></a>
+<span class="sourceLineNo">805</span>    } else {<a name="line.805"></a>
+<span class="sourceLineNo">806</span>      return op;<a name="line.806"></a>
+<span class="sourceLineNo">807</span>    }<a name="line.807"></a>
+<span class="sourceLineNo">808</span>  }<a name="line.808"></a>
+<span class="sourceLineNo">809</span>}<a name="line.809"></a>
 
 
 

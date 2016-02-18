@@ -20,380 +20,388 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.mm.mmtk;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.mmtk.plan.CollectorContext;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.mmtk.plan.TraceLocal;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.mmtk.utility.Constants;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.mmtk.utility.Log;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.VM;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.runtime.BootRecord;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.scheduler.RVMThread;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.mm.mminterface.MemoryManager;<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.*;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.vmmagic.pragma.*;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * Scan the boot image for references using the boot image reference map<a name="line.28"></a>
-<span class="sourceLineNo">029</span> */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>public class ScanBootImage implements Constants {<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>  private static final boolean DEBUG = false;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>  private static final boolean FILTER = true;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>  private static final int LOG_CHUNK_BYTES = 12;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  private static final int CHUNK_BYTES = 1&lt;&lt;LOG_CHUNK_BYTES;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  private static final int LONGENCODING_MASK = 0x1;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  private static final int RUN_MASK = 0x2;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  private static final int MAX_RUN = (1&lt;&lt;BITS_IN_BYTE)-1;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  private static final int LONGENCODING_OFFSET_BYTES = 4;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>  private static final int GUARD_REGION = LONGENCODING_OFFSET_BYTES + 1; /* long offset + run encoding */<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>  /* statistics */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>  static int roots = 0;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  static int refs = 0;<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>  /****************************************************************************<a name="line.47"></a>
-<span class="sourceLineNo">048</span>   *<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * GC-time decoding (multi-threaded)<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   * Scan the boot image for object references.  Executed by<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   * all GC threads in parallel, with each doing a portion of the<a name="line.54"></a>
-<span class="sourceLineNo">055</span>   * boot image.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>   *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>   * @param trace The trace object to which the roots should be added<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  @Inline<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  @Uninterruptible<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  public static void scanBootImage(TraceLocal trace) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    /* establish sentinals in map &amp; image */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    Address mapStart = BootRecord.the_boot_record.bootImageRMapStart;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    Address mapEnd = BootRecord.the_boot_record.bootImageRMapEnd;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    Address imageStart = BootRecord.the_boot_record.bootImageDataStart;<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>    /* figure out striding */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    CollectorContext collector = RVMThread.getCurrentThread().getCollectorContext();<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    int stride = collector.parallelWorkerCount()&lt;&lt;LOG_CHUNK_BYTES;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    int start = collector.parallelWorkerOrdinal()&lt;&lt;LOG_CHUNK_BYTES;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    Address cursor = mapStart.plus(start);<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>    /* statistics */<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    roots = 0;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    refs = 0;<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>    /* process chunks in parallel till done */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    while (cursor.LT(mapEnd)) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>      processChunk(cursor, imageStart, mapStart, mapEnd, trace);<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      cursor = cursor.plus(stride);<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span><a name="line.82"></a>
-<span class="sourceLineNo">083</span>    /* print some debugging stats */<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    if (DEBUG) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>      Log.write("&lt;boot image");<a name="line.85"></a>
-<span class="sourceLineNo">086</span>      Log.write(" roots: "); Log.write(roots);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>      Log.write(" refs: "); Log.write(refs);<a name="line.87"></a>
-<span class="sourceLineNo">088</span>      Log.write("&gt;");<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>  /**<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   * Process a chunk of encoded reference data, enqueuing each<a name="line.93"></a>
-<span class="sourceLineNo">094</span>   * reference (optionally filtering them on whether they point<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   * outside the boot image).<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   *<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * @param chunkStart The address of the first byte of encoded data<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * @param imageStart The address of the start of the boot image<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   * @param mapStart The address of the start of the encoded reference map<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   * @param mapEnd The address of the end of the encoded reference map<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   * @param trace The &lt;code&gt;TraceLocal&lt;/code&gt; into which roots should<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   * be enqueued.<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  @Inline<a name="line.104"></a>
-<span class="sourceLineNo">105</span>  @Uninterruptible<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  private static void processChunk(Address chunkStart, Address imageStart,<a name="line.106"></a>
-<span class="sourceLineNo">107</span>      Address mapStart, Address mapEnd, TraceLocal trace) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    int value;<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    Offset offset = Offset.zero();<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    Address cursor = chunkStart;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>    while ((value = (cursor.loadByte() &amp; 0xff)) != 0) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      /* establish the offset */<a name="line.112"></a>
-<span class="sourceLineNo">113</span>      if ((value &amp; LONGENCODING_MASK) != 0) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>        offset = decodeLongEncoding(cursor);<a name="line.114"></a>
-<span class="sourceLineNo">115</span>        cursor = cursor.plus(LONGENCODING_OFFSET_BYTES);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>      } else {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>        offset = offset.plus(value &amp; 0xfc);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        cursor = cursor.plus(1);<a name="line.118"></a>
-<span class="sourceLineNo">119</span>      }<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      /* figure out the length of the run, if any */<a name="line.120"></a>
-<span class="sourceLineNo">121</span>      int runlength = 0;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>      if ((value &amp; RUN_MASK) != 0) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        runlength = cursor.loadByte() &amp; 0xff;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        cursor = cursor.plus(1);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      /* enqueue the specified slot or slots */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      if (VM.VerifyAssertions) VM._assert(isAddressAligned(offset));<a name="line.127"></a>
-<span class="sourceLineNo">128</span>      Address slot = imageStart.plus(offset);<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      if (DEBUG) refs++;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      if (!FILTER || slot.loadAddress().GT(mapEnd)) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        if (DEBUG) roots++;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        trace.processRootEdge(slot, false);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>      }<a name="line.133"></a>
-<span class="sourceLineNo">134</span>      if (runlength != 0) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        for (int i = 0; i &lt; runlength; i++) {<a name="line.135"></a>
-<span class="sourceLineNo">136</span>          offset = offset.plus(BYTES_IN_ADDRESS);<a name="line.136"></a>
-<span class="sourceLineNo">137</span>          slot = imageStart.plus(offset);<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          if (VM.VerifyAssertions) VM._assert(isAddressAligned(slot));<a name="line.138"></a>
-<span class="sourceLineNo">139</span>          if (DEBUG) refs++;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>          if (!FILTER || slot.loadAddress().GT(mapEnd)) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>            if (DEBUG) roots++;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            if (ScanThread.VALIDATE_REFS) checkReference(slot);<a name="line.142"></a>
-<span class="sourceLineNo">143</span>            trace.processRootEdge(slot, false);<a name="line.143"></a>
-<span class="sourceLineNo">144</span>          }<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        }<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
-<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.151"></a>
-<span class="sourceLineNo">152</span>   * the reference is invalid, dump stack and die.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>   *<a name="line.153"></a>
-<span class="sourceLineNo">154</span>   * @param refaddr The address of the reference in question.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>   */<a name="line.155"></a>
-<span class="sourceLineNo">156</span>  @Uninterruptible<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  private static void checkReference(Address refaddr) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    ObjectReference ref = org.mmtk.vm.VM.activePlan.global().loadObjectReference(refaddr);<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    if (!MemoryManager.validRef(ref)) {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      Log.writeln();<a name="line.160"></a>
-<span class="sourceLineNo">161</span>      Log.writeln("Invalid ref reported while scanning boot image");<a name="line.161"></a>
-<span class="sourceLineNo">162</span>      Log.writeln();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.163"></a>
-<span class="sourceLineNo">164</span>      Log.writeln();<a name="line.164"></a>
-<span class="sourceLineNo">165</span>      Log.writeln("Dumping stack:");<a name="line.165"></a>
-<span class="sourceLineNo">166</span>      RVMThread.dumpStack();<a name="line.166"></a>
-<span class="sourceLineNo">167</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * Return true if the given offset is address-aligned<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * @param offset the offset to be check<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   * @return true if the offset is address aligned.<a name="line.174"></a>
-<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
-<span class="sourceLineNo">176</span>  @Uninterruptible<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  private static boolean isAddressAligned(Offset offset) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    return (offset.toLong()&gt;&gt;LOG_BYTES_IN_ADDRESS)&lt;&lt;LOG_BYTES_IN_ADDRESS == offset.toLong();<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>  /**<a name="line.181"></a>
-<span class="sourceLineNo">182</span>   * Return true if the given address is address-aligned<a name="line.182"></a>
-<span class="sourceLineNo">183</span>   * @param address the address to be check<a name="line.183"></a>
-<span class="sourceLineNo">184</span>   * @return true if the address is address aligned.<a name="line.184"></a>
-<span class="sourceLineNo">185</span>   */<a name="line.185"></a>
-<span class="sourceLineNo">186</span>  @Uninterruptible<a name="line.186"></a>
-<span class="sourceLineNo">187</span>  private static boolean isAddressAligned(Address address) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    return (address.toLong()&gt;&gt;LOG_BYTES_IN_ADDRESS)&lt;&lt;LOG_BYTES_IN_ADDRESS == address.toLong();<a name="line.188"></a>
-<span class="sourceLineNo">189</span>  }<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>  /****************************************************************************<a name="line.191"></a>
-<span class="sourceLineNo">192</span>   *<a name="line.192"></a>
-<span class="sourceLineNo">193</span>   * Build-time encoding (assumed to be single-threaded)<a name="line.193"></a>
-<span class="sourceLineNo">194</span>   */<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>  /** */<a name="line.196"></a>
-<span class="sourceLineNo">197</span>  private static int lastOffset = Integer.MIN_VALUE / 2;  /* bootstrap value */<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  private static int oldIndex = 0;<a name="line.198"></a>
-<span class="sourceLineNo">199</span>  private static int codeIndex = 0;<a name="line.199"></a>
-<span class="sourceLineNo">200</span><a name="line.200"></a>
-<span class="sourceLineNo">201</span>  /* statistics */<a name="line.201"></a>
-<span class="sourceLineNo">202</span>  private static int shortRefs = 0;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>  private static int runRefs = 0;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>  private static int longRefs = 0;<a name="line.204"></a>
-<span class="sourceLineNo">205</span>  private static int startRefs = 0;<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>  /**<a name="line.207"></a>
-<span class="sourceLineNo">208</span>   * Take a bytemap encoding of all references in the boot image, and<a name="line.208"></a>
-<span class="sourceLineNo">209</span>   * produce an encoded byte array.  Return the total length of the<a name="line.209"></a>
-<span class="sourceLineNo">210</span>   * encoding.<a name="line.210"></a>
-<span class="sourceLineNo">211</span>   */<a name="line.211"></a>
-<span class="sourceLineNo">212</span>  public static int encodeRMap(byte[] bootImageRMap, byte[] referenceMap,<a name="line.212"></a>
-<span class="sourceLineNo">213</span>      int referenceMapLimit) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    for (int index = 0; index &lt;= referenceMapLimit; index++) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>      if (referenceMap[index] == 1) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        addOffset(bootImageRMap, index&lt;&lt;LOG_BYTES_IN_ADDRESS);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>      }<a name="line.217"></a>
-<span class="sourceLineNo">218</span>    }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    return codeIndex + 1;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>  }<a name="line.220"></a>
-<span class="sourceLineNo">221</span><a name="line.221"></a>
-<span class="sourceLineNo">222</span>  /**<a name="line.222"></a>
-<span class="sourceLineNo">223</span>   * Print some basic statistics about the encoded references, for<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   * debugging purposes.<a name="line.224"></a>
-<span class="sourceLineNo">225</span>   */<a name="line.225"></a>
-<span class="sourceLineNo">226</span>  public static void encodingStats() {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    if (DEBUG) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>      Log.write("refs: "); Log.writeln(startRefs + shortRefs + longRefs + runRefs);<a name="line.228"></a>
-<span class="sourceLineNo">229</span>      Log.write("start: "); Log.writeln(startRefs);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>      Log.write("short: "); Log.writeln(shortRefs);<a name="line.230"></a>
-<span class="sourceLineNo">231</span>      Log.write("long: "); Log.writeln(longRefs);<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      Log.write("run: "); Log.writeln(runRefs);<a name="line.232"></a>
-<span class="sourceLineNo">233</span>      Log.write("size: "); Log.writeln(codeIndex);<a name="line.233"></a>
-<span class="sourceLineNo">234</span>    }<a name="line.234"></a>
-<span class="sourceLineNo">235</span>  }<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>  /**<a name="line.237"></a>
-<span class="sourceLineNo">238</span>   * Encode a given offset (distance from the start of the boot image)<a name="line.238"></a>
-<span class="sourceLineNo">239</span>   * into the code array.<a name="line.239"></a>
-<span class="sourceLineNo">240</span>   *<a name="line.240"></a>
-<span class="sourceLineNo">241</span>   * @param code A byte array into which the value should be encoded<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   * @param offset The offset value to be encoded<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   */<a name="line.243"></a>
-<span class="sourceLineNo">244</span>  private static void addOffset(byte[] code, int offset) {<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    if ((codeIndex ^ (codeIndex + GUARD_REGION)) &gt;= CHUNK_BYTES) {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>      codeIndex = (codeIndex + GUARD_REGION) &amp; ~(CHUNK_BYTES - 1);<a name="line.246"></a>
-<span class="sourceLineNo">247</span>      oldIndex = codeIndex;<a name="line.247"></a>
-<span class="sourceLineNo">248</span>      codeIndex = encodeLongEncoding(code, codeIndex, offset);<a name="line.248"></a>
-<span class="sourceLineNo">249</span>      if (DEBUG) {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>        startRefs++;<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        Log.write("[chunk: "); Log.write(codeIndex);<a name="line.251"></a>
-<span class="sourceLineNo">252</span>        Log.write(" offset: "); Log.write(offset);<a name="line.252"></a>
-<span class="sourceLineNo">253</span>        Log.write(" last offset: "); Log.write(lastOffset);<a name="line.253"></a>
-<span class="sourceLineNo">254</span>        Log.writeln("]");<a name="line.254"></a>
-<span class="sourceLineNo">255</span>      }<a name="line.255"></a>
-<span class="sourceLineNo">256</span>    } else {<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      int delta = offset - lastOffset;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      if (VM.VerifyAssertions) VM._assert((delta &amp; 0x3) == 0);<a name="line.258"></a>
-<span class="sourceLineNo">259</span>      if (VM.VerifyAssertions) VM._assert(delta &gt; 0);<a name="line.259"></a>
-<span class="sourceLineNo">260</span><a name="line.260"></a>
-<span class="sourceLineNo">261</span>      int currentrun = (code[codeIndex]) &amp; 0xff;<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      if ((delta == BYTES_IN_ADDRESS) &amp;&amp;<a name="line.262"></a>
-<span class="sourceLineNo">263</span>          (currentrun &lt; MAX_RUN)) {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        currentrun++;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        code[codeIndex] = (byte) (currentrun &amp; 0xff);<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        code[oldIndex] |= RUN_MASK;<a name="line.266"></a>
-<span class="sourceLineNo">267</span>        if (DEBUG) runRefs++;<a name="line.267"></a>
-<span class="sourceLineNo">268</span>      } else {<a name="line.268"></a>
-<span class="sourceLineNo">269</span>        if (currentrun != 0) codeIndex++;<a name="line.269"></a>
-<span class="sourceLineNo">270</span>        oldIndex = codeIndex;<a name="line.270"></a>
-<span class="sourceLineNo">271</span>        if (delta &lt; 1&lt;&lt;BITS_IN_BYTE) {<a name="line.271"></a>
-<span class="sourceLineNo">272</span>          /* common case: single byte encoding */<a name="line.272"></a>
-<span class="sourceLineNo">273</span>          code[codeIndex++] = (byte) (delta &amp; 0xff);<a name="line.273"></a>
-<span class="sourceLineNo">274</span>          if (DEBUG) shortRefs++;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>        } else {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>          /* else four byte encoding */<a name="line.276"></a>
-<span class="sourceLineNo">277</span>          codeIndex = encodeLongEncoding(code, codeIndex, offset);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>          if (DEBUG) longRefs++;<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        }<a name="line.279"></a>
-<span class="sourceLineNo">280</span>      }<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span>    if (offset != getOffset(code, oldIndex, lastOffset)) {<a name="line.282"></a>
-<span class="sourceLineNo">283</span>      Log.write("offset: "); Log.writeln(offset);<a name="line.283"></a>
-<span class="sourceLineNo">284</span>      Log.write("last offset: "); Log.writeln(lastOffset);<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      Log.write("offset: "); Log.writeln(getOffset(code, oldIndex, lastOffset));<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      Log.write("index: "); Log.writeln(oldIndex);<a name="line.286"></a>
-<span class="sourceLineNo">287</span>      Log.write("index: "); Log.writeln(oldIndex &amp; (CHUNK_BYTES - 1));<a name="line.287"></a>
-<span class="sourceLineNo">288</span>      Log.writeln();<a name="line.288"></a>
-<span class="sourceLineNo">289</span>      Log.write("1: "); Log.writeln(code[oldIndex]);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>      Log.write("2: "); Log.writeln(code[oldIndex+1]);<a name="line.290"></a>
-<span class="sourceLineNo">291</span>      Log.write("3: "); Log.writeln(code[oldIndex+2]);<a name="line.291"></a>
-<span class="sourceLineNo">292</span>      Log.write("4: "); Log.writeln(code[oldIndex+3]);<a name="line.292"></a>
-<span class="sourceLineNo">293</span>      Log.write("5: "); Log.writeln(code[oldIndex+4]);<a name="line.293"></a>
-<span class="sourceLineNo">294</span>      if (VM.VerifyAssertions)<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        VM._assert(offset == getOffset(code, oldIndex, lastOffset));<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
-<span class="sourceLineNo">297</span>    lastOffset = offset;<a name="line.297"></a>
-<span class="sourceLineNo">298</span>  }<a name="line.298"></a>
-<span class="sourceLineNo">299</span><a name="line.299"></a>
-<span class="sourceLineNo">300</span>  /****************************************************************************<a name="line.300"></a>
-<span class="sourceLineNo">301</span>   *<a name="line.301"></a>
-<span class="sourceLineNo">302</span>   * Utility encoding and decoding methods<a name="line.302"></a>
-<span class="sourceLineNo">303</span>   */<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>  /**<a name="line.305"></a>
-<span class="sourceLineNo">306</span>   * Decode an encoded offset given the coded byte array, and index<a name="line.306"></a>
-<span class="sourceLineNo">307</span>   * into it, and the current (last) offset.<a name="line.307"></a>
-<span class="sourceLineNo">308</span>   *<a name="line.308"></a>
-<span class="sourceLineNo">309</span>   * @param code A byte array containing the encoded value<a name="line.309"></a>
-<span class="sourceLineNo">310</span>   * @param index The offset into the code array from which to<a name="line.310"></a>
-<span class="sourceLineNo">311</span>   * commence decoding<a name="line.311"></a>
-<span class="sourceLineNo">312</span>   * @param lastOffset The current (last) encoded offset<a name="line.312"></a>
-<span class="sourceLineNo">313</span>   * @return The next offset, which is either explicitly encoded in<a name="line.313"></a>
-<span class="sourceLineNo">314</span>   * the byte array or inferred from an encoded delta and the last<a name="line.314"></a>
-<span class="sourceLineNo">315</span>   * offset.<a name="line.315"></a>
-<span class="sourceLineNo">316</span> */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>  private static int getOffset(byte[] code, int index, int lastOffset) {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    if ((code[index] &amp; RUN_MASK) == RUN_MASK) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>      return lastOffset + BYTES_IN_WORD;<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    } else {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>      if (((index &amp; (CHUNK_BYTES - 1)) == 0) ||<a name="line.321"></a>
-<span class="sourceLineNo">322</span>          ((code[index] &amp;LONGENCODING_MASK) == LONGENCODING_MASK)) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        return decodeLongEncoding(code, index);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>      } else {<a name="line.324"></a>
-<span class="sourceLineNo">325</span>        return lastOffset + ((code[index]) &amp; 0xff);<a name="line.325"></a>
-<span class="sourceLineNo">326</span>      }<a name="line.326"></a>
-<span class="sourceLineNo">327</span>    }<a name="line.327"></a>
-<span class="sourceLineNo">328</span>  }<a name="line.328"></a>
-<span class="sourceLineNo">329</span><a name="line.329"></a>
-<span class="sourceLineNo">330</span>  /**<a name="line.330"></a>
-<span class="sourceLineNo">331</span>   * Decode a 4-byte encoding, taking a pointer to the first byte of<a name="line.331"></a>
-<span class="sourceLineNo">332</span>   * the encoding, and returning the encoded value as an &lt;code&gt;Offset&lt;/code&gt;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>   *<a name="line.333"></a>
-<span class="sourceLineNo">334</span>   * @param cursor A pointer to the first byte of encoded data<a name="line.334"></a>
-<span class="sourceLineNo">335</span>   * @return The encoded value as an &lt;code&gt;Offset&lt;/code&gt;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>   */<a name="line.336"></a>
-<span class="sourceLineNo">337</span>  @Inline<a name="line.337"></a>
-<span class="sourceLineNo">338</span>  @Uninterruptible<a name="line.338"></a>
-<span class="sourceLineNo">339</span>  private static Offset decodeLongEncoding(Address cursor) {<a name="line.339"></a>
-<span class="sourceLineNo">340</span>    int value;<a name="line.340"></a>
-<span class="sourceLineNo">341</span>    value  = (cursor.loadByte())                                              &amp; 0x000000fc;<a name="line.341"></a>
-<span class="sourceLineNo">342</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(1))&lt;&lt;BITS_IN_BYTE)     &amp; 0x0000ff00;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(2))&lt;&lt;(2*BITS_IN_BYTE)) &amp; 0x00ff0000;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(3))&lt;&lt;(3*BITS_IN_BYTE)) &amp; 0xff000000;<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    return Offset.fromIntSignExtend(value);<a name="line.345"></a>
-<span class="sourceLineNo">346</span>  }<a name="line.346"></a>
-<span class="sourceLineNo">347</span><a name="line.347"></a>
-<span class="sourceLineNo">348</span>  /**<a name="line.348"></a>
-<span class="sourceLineNo">349</span>   * Decode a 4-byte encoding, taking a byte array and an index into<a name="line.349"></a>
-<span class="sourceLineNo">350</span>   * it and returning the encoded value as an integer<a name="line.350"></a>
-<span class="sourceLineNo">351</span>   *<a name="line.351"></a>
-<span class="sourceLineNo">352</span>   * @param code A byte array containing the encoded value<a name="line.352"></a>
-<span class="sourceLineNo">353</span>   * @param index The offset into the code array from which to<a name="line.353"></a>
-<span class="sourceLineNo">354</span>   * commence decoding<a name="line.354"></a>
-<span class="sourceLineNo">355</span>   * @return The encoded value as an integer<a name="line.355"></a>
-<span class="sourceLineNo">356</span>   */<a name="line.356"></a>
-<span class="sourceLineNo">357</span>  @Inline<a name="line.357"></a>
-<span class="sourceLineNo">358</span>  @Uninterruptible<a name="line.358"></a>
-<span class="sourceLineNo">359</span>  private static int decodeLongEncoding(byte[] code, int index) {<a name="line.359"></a>
-<span class="sourceLineNo">360</span>    int value;<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    value  = (code[index])                     &amp; 0x000000fc;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    value |= (code[index+1]&lt;&lt;BITS_IN_BYTE)     &amp; 0x0000ff00;<a name="line.362"></a>
-<span class="sourceLineNo">363</span>    value |= (code[index+2]&lt;&lt;(2*BITS_IN_BYTE)) &amp; 0x00ff0000;<a name="line.363"></a>
-<span class="sourceLineNo">364</span>    value |= (code[index+3]&lt;&lt;(3*BITS_IN_BYTE)) &amp; 0xff000000;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    return value;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>  }<a name="line.366"></a>
-<span class="sourceLineNo">367</span><a name="line.367"></a>
-<span class="sourceLineNo">368</span>  /**<a name="line.368"></a>
-<span class="sourceLineNo">369</span>   * Encode a 4-byte encoding, taking a byte array, the current index into<a name="line.369"></a>
-<span class="sourceLineNo">370</span>   * it, and the value to be encoded.<a name="line.370"></a>
-<span class="sourceLineNo">371</span>   *<a name="line.371"></a>
-<span class="sourceLineNo">372</span>   * @param code A byte array to contain the encoded value<a name="line.372"></a>
-<span class="sourceLineNo">373</span>   * @param index The current offset into the code array<a name="line.373"></a>
-<span class="sourceLineNo">374</span>   * @param value The value to be encoded<a name="line.374"></a>
-<span class="sourceLineNo">375</span>   * @return The updated index into the code array<a name="line.375"></a>
-<span class="sourceLineNo">376</span>   */<a name="line.376"></a>
-<span class="sourceLineNo">377</span>  private static int encodeLongEncoding(byte[] code, int index, int value) {<a name="line.377"></a>
-<span class="sourceLineNo">378</span>    code[index++] = (byte) ((value &amp; 0xff) | LONGENCODING_MASK);<a name="line.378"></a>
-<span class="sourceLineNo">379</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.379"></a>
-<span class="sourceLineNo">380</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.381"></a>
-<span class="sourceLineNo">382</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.382"></a>
-<span class="sourceLineNo">383</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.383"></a>
-<span class="sourceLineNo">384</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.384"></a>
-<span class="sourceLineNo">385</span>    return index;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>  }<a name="line.386"></a>
-<span class="sourceLineNo">387</span><a name="line.387"></a>
-<span class="sourceLineNo">388</span>}<a name="line.388"></a>
+<span class="sourceLineNo">015</span>import static org.mmtk.utility.Constants.*;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.plan.CollectorContext;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.plan.TraceLocal;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.mmtk.utility.Log;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.runtime.BootRecord;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.scheduler.RVMThread;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.mm.mminterface.MemoryManager;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.vmmagic.unboxed.*;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.vmmagic.pragma.*;<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * Scan the boot image for references using the boot image reference map<a name="line.29"></a>
+<span class="sourceLineNo">030</span> */<a name="line.30"></a>
+<span class="sourceLineNo">031</span>public class ScanBootImage {<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>  private static final boolean DEBUG = false;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  private static final boolean FILTER = true;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>  private static final int LOG_CHUNK_BYTES = 12;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  private static final int CHUNK_BYTES = 1 &lt;&lt; LOG_CHUNK_BYTES;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  private static final int LONGENCODING_MASK = 0x1;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  private static final int RUN_MASK = 0x2;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  private static final int MAX_RUN = (1 &lt;&lt; BITS_IN_BYTE) - 1;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  private static final int LONGENCODING_OFFSET_BYTES = 4;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  private static final int GUARD_REGION = LONGENCODING_OFFSET_BYTES + 1; /* long offset + run encoding */<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>  /* statistics */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  static int roots = 0;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  static int refs = 0;<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  /****************************************************************************<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * GC-time decoding (multi-threaded)<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * Scan the boot image for object references.  Executed by<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * all GC threads in parallel, with each doing a portion of the<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * boot image.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   * @param trace The trace object to which the roots should be added<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  @Inline<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  @Uninterruptible<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static void scanBootImage(TraceLocal trace) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    /* establish sentinals in map &amp; image */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    Address mapStart = BootRecord.the_boot_record.bootImageRMapStart;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    Address mapEnd = BootRecord.the_boot_record.bootImageRMapEnd;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    Address imageStart = BootRecord.the_boot_record.bootImageDataStart;<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    /* figure out striding */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    CollectorContext collector = RVMThread.getCurrentThread().getCollectorContext();<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    int stride = collector.parallelWorkerCount() &lt;&lt; LOG_CHUNK_BYTES;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    int start = collector.parallelWorkerOrdinal() &lt;&lt; LOG_CHUNK_BYTES;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    Address cursor = mapStart.plus(start);<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>    /* statistics */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    roots = 0;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    refs = 0;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>    /* process chunks in parallel till done */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    while (cursor.LT(mapEnd)) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      processChunk(cursor, imageStart, mapStart, mapEnd, trace);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      cursor = cursor.plus(stride);<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>    /* print some debugging stats */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    if (DEBUG) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      Log.write("&lt;boot image");<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      Log.write(" roots: "); Log.write(roots);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      Log.write(" refs: "); Log.write(refs);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>      Log.write("&gt;");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * Process a chunk of encoded reference data, enqueuing each<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * reference (optionally filtering them on whether they point<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * outside the boot image).<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   *<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param chunkStart The address of the first byte of encoded data<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * @param imageStart The address of the start of the boot image<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * @param mapStart The address of the start of the encoded reference map<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @param mapEnd The address of the end of the encoded reference map<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * @param trace The &lt;code&gt;TraceLocal&lt;/code&gt; into which roots should<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * be enqueued.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  @Inline<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  @Uninterruptible<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  private static void processChunk(Address chunkStart, Address imageStart,<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      Address mapStart, Address mapEnd, TraceLocal trace) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    int value;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    Offset offset = Offset.zero();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    Address cursor = chunkStart;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    while ((value = (cursor.loadByte() &amp; 0xff)) != 0) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      /* establish the offset */<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      if ((value &amp; LONGENCODING_MASK) != 0) {<a name="line.114"></a>
+<span class="sourceLineNo">115</span>        offset = decodeLongEncoding(cursor);<a name="line.115"></a>
+<span class="sourceLineNo">116</span>        cursor = cursor.plus(LONGENCODING_OFFSET_BYTES);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      } else {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        offset = offset.plus(value &amp; 0xfc);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        cursor = cursor.plus(1);<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      /* figure out the length of the run, if any */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      int runlength = 0;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>      if ((value &amp; RUN_MASK) != 0) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        runlength = cursor.loadByte() &amp; 0xff;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        cursor = cursor.plus(1);<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      /* enqueue the specified slot or slots */<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      if (VM.VerifyAssertions) VM._assert(isAddressAligned(offset));<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      Address slot = imageStart.plus(offset);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      if (DEBUG) refs++;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      if (!FILTER || slot.loadAddress().GT(mapEnd)) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        if (DEBUG) roots++;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        trace.processRootEdge(slot, false);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      }<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      if (runlength != 0) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        for (int i = 0; i &lt; runlength; i++) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>          offset = offset.plus(BYTES_IN_ADDRESS);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>          slot = imageStart.plus(offset);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>          if (VM.VerifyAssertions) VM._assert(isAddressAligned(slot));<a name="line.139"></a>
+<span class="sourceLineNo">140</span>          if (DEBUG) refs++;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>          if (!FILTER || slot.loadAddress().GT(mapEnd)) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            if (DEBUG) roots++;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            if (ScanThread.VALIDATE_REFS) checkReference(slot);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            trace.processRootEdge(slot, false);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>          }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>  /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * the reference is invalid, dump stack and die.<a name="line.153"></a>
+<span class="sourceLineNo">154</span>   *<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   * @param refaddr The address of the reference in question.<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   */<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  @Uninterruptible<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  private static void checkReference(Address refaddr) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    ObjectReference ref = org.mmtk.vm.VM.activePlan.global().loadObjectReference(refaddr);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    if (!MemoryManager.validRef(ref)) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      Log.writeln();<a name="line.161"></a>
+<span class="sourceLineNo">162</span>      Log.writeln("Invalid ref reported while scanning boot image");<a name="line.162"></a>
+<span class="sourceLineNo">163</span>      Log.writeln();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      Log.writeln();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      Log.writeln("Dumping stack:");<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      RVMThread.dumpStack();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>  /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * Return true if the given offset is address-aligned<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * @param offset the offset to be check<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * @return true if the offset is address aligned.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   */<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  @Uninterruptible<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  private static boolean isAddressAligned(Offset offset) {<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    return (offset.toLong() &gt;&gt; LOG_BYTES_IN_ADDRESS) &lt;&lt; LOG_BYTES_IN_ADDRESS == offset.toLong();<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  }<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>  /**<a name="line.182"></a>
+<span class="sourceLineNo">183</span>   * Return true if the given address is address-aligned<a name="line.183"></a>
+<span class="sourceLineNo">184</span>   * @param address the address to be check<a name="line.184"></a>
+<span class="sourceLineNo">185</span>   * @return true if the address is address aligned.<a name="line.185"></a>
+<span class="sourceLineNo">186</span>   */<a name="line.186"></a>
+<span class="sourceLineNo">187</span>  @Uninterruptible<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  private static boolean isAddressAligned(Address address) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    return (address.toLong() &gt;&gt; LOG_BYTES_IN_ADDRESS) &lt;&lt; LOG_BYTES_IN_ADDRESS == address.toLong();<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>  /****************************************************************************<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   * Build-time encoding (assumed to be single-threaded)<a name="line.194"></a>
+<span class="sourceLineNo">195</span>   */<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>  /** */<a name="line.197"></a>
+<span class="sourceLineNo">198</span>  private static int lastOffset = Integer.MIN_VALUE / 2;  /* bootstrap value */<a name="line.198"></a>
+<span class="sourceLineNo">199</span>  private static int oldIndex = 0;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>  private static int codeIndex = 0;<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>  /* statistics */<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  private static int shortRefs = 0;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  private static int runRefs = 0;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>  private static int longRefs = 0;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  private static int startRefs = 0;<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>  /**<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * Take a bytemap encoding of all references in the boot image, and<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * produce an encoded byte array.  Return the total length of the<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   * encoding.<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   *<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   * @param bootImageRMap space for the compressed reference map. The map<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   *  is initially empty and will be filled during execution of this method.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * @param referenceMap the (uncompressed) reference map for the bootimage<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * @param referenceMapLimit the highest index in the referenceMap that<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   *  contains a reference<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   * @return the total length of the encoding<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public static int encodeRMap(byte[] bootImageRMap, byte[] referenceMap,<a name="line.220"></a>
+<span class="sourceLineNo">221</span>      int referenceMapLimit) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    for (int index = 0; index &lt;= referenceMapLimit; index++) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>      if (referenceMap[index] == 1) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        addOffset(bootImageRMap, index &lt;&lt; LOG_BYTES_IN_ADDRESS);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>      }<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    }<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    return codeIndex + 1;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  }<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
+<span class="sourceLineNo">230</span>  /**<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   * Print some basic statistics about the encoded references, for<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * debugging purposes.<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   */<a name="line.233"></a>
+<span class="sourceLineNo">234</span>  public static void encodingStats() {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    if (DEBUG) {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      Log.write("refs: "); Log.writeln(startRefs + shortRefs + longRefs + runRefs);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>      Log.write("start: "); Log.writeln(startRefs);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      Log.write("short: "); Log.writeln(shortRefs);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>      Log.write("long: "); Log.writeln(longRefs);<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      Log.write("run: "); Log.writeln(runRefs);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      Log.write("size: "); Log.writeln(codeIndex);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
+<span class="sourceLineNo">243</span>  }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>  /**<a name="line.245"></a>
+<span class="sourceLineNo">246</span>   * Encode a given offset (distance from the start of the boot image)<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   * into the code array.<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   *<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   * @param code A byte array into which the value should be encoded<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * @param offset The offset value to be encoded<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  private static void addOffset(byte[] code, int offset) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    if ((codeIndex ^ (codeIndex + GUARD_REGION)) &gt;= CHUNK_BYTES) {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>      codeIndex = (codeIndex + GUARD_REGION) &amp; ~(CHUNK_BYTES - 1);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>      oldIndex = codeIndex;<a name="line.255"></a>
+<span class="sourceLineNo">256</span>      codeIndex = encodeLongEncoding(code, codeIndex, offset);<a name="line.256"></a>
+<span class="sourceLineNo">257</span>      if (DEBUG) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>        startRefs++;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        Log.write("[chunk: "); Log.write(codeIndex);<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        Log.write(" offset: "); Log.write(offset);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        Log.write(" last offset: "); Log.write(lastOffset);<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        Log.writeln("]");<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    } else {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>      int delta = offset - lastOffset;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>      if (VM.VerifyAssertions) VM._assert((delta &amp; 0x3) == 0);<a name="line.266"></a>
+<span class="sourceLineNo">267</span>      if (VM.VerifyAssertions) VM._assert(delta &gt; 0);<a name="line.267"></a>
+<span class="sourceLineNo">268</span><a name="line.268"></a>
+<span class="sourceLineNo">269</span>      int currentrun = (code[codeIndex]) &amp; 0xff;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>      if ((delta == BYTES_IN_ADDRESS) &amp;&amp;<a name="line.270"></a>
+<span class="sourceLineNo">271</span>          (currentrun &lt; MAX_RUN)) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>        currentrun++;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>        code[codeIndex] = (byte) (currentrun &amp; 0xff);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        code[oldIndex] |= RUN_MASK;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        if (DEBUG) runRefs++;<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      } else {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        if (currentrun != 0) codeIndex++;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        oldIndex = codeIndex;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        if (delta &lt; 1 &lt;&lt; BITS_IN_BYTE) {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>          /* common case: single byte encoding */<a name="line.280"></a>
+<span class="sourceLineNo">281</span>          code[codeIndex++] = (byte) (delta &amp; 0xff);<a name="line.281"></a>
+<span class="sourceLineNo">282</span>          if (DEBUG) shortRefs++;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>        } else {<a name="line.283"></a>
+<span class="sourceLineNo">284</span>          /* else four byte encoding */<a name="line.284"></a>
+<span class="sourceLineNo">285</span>          codeIndex = encodeLongEncoding(code, codeIndex, offset);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>          if (DEBUG) longRefs++;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      }<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    }<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    if (offset != getOffset(code, oldIndex, lastOffset)) {<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      Log.write("offset: "); Log.writeln(offset);<a name="line.291"></a>
+<span class="sourceLineNo">292</span>      Log.write("last offset: "); Log.writeln(lastOffset);<a name="line.292"></a>
+<span class="sourceLineNo">293</span>      Log.write("offset: "); Log.writeln(getOffset(code, oldIndex, lastOffset));<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      Log.write("index: "); Log.writeln(oldIndex);<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      Log.write("index: "); Log.writeln(oldIndex &amp; (CHUNK_BYTES - 1));<a name="line.295"></a>
+<span class="sourceLineNo">296</span>      Log.writeln();<a name="line.296"></a>
+<span class="sourceLineNo">297</span>      Log.write("1: "); Log.writeln(code[oldIndex]);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      Log.write("2: "); Log.writeln(code[oldIndex + 1]);<a name="line.298"></a>
+<span class="sourceLineNo">299</span>      Log.write("3: "); Log.writeln(code[oldIndex + 2]);<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      Log.write("4: "); Log.writeln(code[oldIndex + 3]);<a name="line.300"></a>
+<span class="sourceLineNo">301</span>      Log.write("5: "); Log.writeln(code[oldIndex + 4]);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      if (VM.VerifyAssertions)<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        VM._assert(offset == getOffset(code, oldIndex, lastOffset));<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    lastOffset = offset;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>  /****************************************************************************<a name="line.308"></a>
+<span class="sourceLineNo">309</span>   *<a name="line.309"></a>
+<span class="sourceLineNo">310</span>   * Utility encoding and decoding methods<a name="line.310"></a>
+<span class="sourceLineNo">311</span>   */<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>  /**<a name="line.313"></a>
+<span class="sourceLineNo">314</span>   * Decode an encoded offset given the coded byte array, and index<a name="line.314"></a>
+<span class="sourceLineNo">315</span>   * into it, and the current (last) offset.<a name="line.315"></a>
+<span class="sourceLineNo">316</span>   *<a name="line.316"></a>
+<span class="sourceLineNo">317</span>   * @param code A byte array containing the encoded value<a name="line.317"></a>
+<span class="sourceLineNo">318</span>   * @param index The offset into the code array from which to<a name="line.318"></a>
+<span class="sourceLineNo">319</span>   * commence decoding<a name="line.319"></a>
+<span class="sourceLineNo">320</span>   * @param lastOffset The current (last) encoded offset<a name="line.320"></a>
+<span class="sourceLineNo">321</span>   * @return The next offset, which is either explicitly encoded in<a name="line.321"></a>
+<span class="sourceLineNo">322</span>   * the byte array or inferred from an encoded delta and the last<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   * offset.<a name="line.323"></a>
+<span class="sourceLineNo">324</span> */<a name="line.324"></a>
+<span class="sourceLineNo">325</span>  private static int getOffset(byte[] code, int index, int lastOffset) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    if ((code[index] &amp; RUN_MASK) == RUN_MASK) {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>      return lastOffset + BYTES_IN_WORD;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    } else {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>      if (((index &amp; (CHUNK_BYTES - 1)) == 0) ||<a name="line.329"></a>
+<span class="sourceLineNo">330</span>          ((code[index] &amp; LONGENCODING_MASK) == LONGENCODING_MASK)) {<a name="line.330"></a>
+<span class="sourceLineNo">331</span>        return decodeLongEncoding(code, index);<a name="line.331"></a>
+<span class="sourceLineNo">332</span>      } else {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        return lastOffset + ((code[index]) &amp; 0xff);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>      }<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    }<a name="line.335"></a>
+<span class="sourceLineNo">336</span>  }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>  /**<a name="line.338"></a>
+<span class="sourceLineNo">339</span>   * Decode a 4-byte encoding, taking a pointer to the first byte of<a name="line.339"></a>
+<span class="sourceLineNo">340</span>   * the encoding, and returning the encoded value as an &lt;code&gt;Offset&lt;/code&gt;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>   *<a name="line.341"></a>
+<span class="sourceLineNo">342</span>   * @param cursor A pointer to the first byte of encoded data<a name="line.342"></a>
+<span class="sourceLineNo">343</span>   * @return The encoded value as an &lt;code&gt;Offset&lt;/code&gt;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>   */<a name="line.344"></a>
+<span class="sourceLineNo">345</span>  @Inline<a name="line.345"></a>
+<span class="sourceLineNo">346</span>  @Uninterruptible<a name="line.346"></a>
+<span class="sourceLineNo">347</span>  private static Offset decodeLongEncoding(Address cursor) {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>    int value;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>    value  = (cursor.loadByte())                                              &amp; 0x000000fc;<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(1)) &lt;&lt; BITS_IN_BYTE)     &amp; 0x0000ff00;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(2)) &lt;&lt; (2 * BITS_IN_BYTE)) &amp; 0x00ff0000;<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    value |= (cursor.loadByte(Offset.fromIntSignExtend(3)) &lt;&lt; (3 * BITS_IN_BYTE)) &amp; 0xff000000;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    return Offset.fromIntSignExtend(value);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>  }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>  /**<a name="line.356"></a>
+<span class="sourceLineNo">357</span>   * Decode a 4-byte encoding, taking a byte array and an index into<a name="line.357"></a>
+<span class="sourceLineNo">358</span>   * it and returning the encoded value as an integer<a name="line.358"></a>
+<span class="sourceLineNo">359</span>   *<a name="line.359"></a>
+<span class="sourceLineNo">360</span>   * @param code A byte array containing the encoded value<a name="line.360"></a>
+<span class="sourceLineNo">361</span>   * @param index The offset into the code array from which to<a name="line.361"></a>
+<span class="sourceLineNo">362</span>   * commence decoding<a name="line.362"></a>
+<span class="sourceLineNo">363</span>   * @return The encoded value as an integer<a name="line.363"></a>
+<span class="sourceLineNo">364</span>   */<a name="line.364"></a>
+<span class="sourceLineNo">365</span>  @Inline<a name="line.365"></a>
+<span class="sourceLineNo">366</span>  @Uninterruptible<a name="line.366"></a>
+<span class="sourceLineNo">367</span>  private static int decodeLongEncoding(byte[] code, int index) {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    int value;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    value  = (code[index])                     &amp; 0x000000fc;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    value |= (code[index + 1] &lt;&lt; BITS_IN_BYTE)     &amp; 0x0000ff00;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    value |= (code[index + 2] &lt;&lt; (2 * BITS_IN_BYTE)) &amp; 0x00ff0000;<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    value |= (code[index + 3] &lt;&lt; (3 * BITS_IN_BYTE)) &amp; 0xff000000;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    return value;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>  }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>  /**<a name="line.376"></a>
+<span class="sourceLineNo">377</span>   * Encode a 4-byte encoding, taking a byte array, the current index into<a name="line.377"></a>
+<span class="sourceLineNo">378</span>   * it, and the value to be encoded.<a name="line.378"></a>
+<span class="sourceLineNo">379</span>   *<a name="line.379"></a>
+<span class="sourceLineNo">380</span>   * @param code A byte array to contain the encoded value<a name="line.380"></a>
+<span class="sourceLineNo">381</span>   * @param index The current offset into the code array<a name="line.381"></a>
+<span class="sourceLineNo">382</span>   * @param value The value to be encoded<a name="line.382"></a>
+<span class="sourceLineNo">383</span>   * @return The updated index into the code array<a name="line.383"></a>
+<span class="sourceLineNo">384</span>   */<a name="line.384"></a>
+<span class="sourceLineNo">385</span>  private static int encodeLongEncoding(byte[] code, int index, int value) {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    code[index++] = (byte) ((value &amp; 0xff) | LONGENCODING_MASK);<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    value = value &gt;&gt;&gt; BITS_IN_BYTE;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>    code[index++] = (byte) (value &amp; 0xff);<a name="line.392"></a>
+<span class="sourceLineNo">393</span>    return index;<a name="line.393"></a>
+<span class="sourceLineNo">394</span>  }<a name="line.394"></a>
+<span class="sourceLineNo">395</span><a name="line.395"></a>
+<span class="sourceLineNo">396</span>}<a name="line.396"></a>
 
 
 

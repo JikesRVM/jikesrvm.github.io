@@ -57,221 +57,224 @@
 <span class="sourceLineNo">049</span> *  &lt;li&gt; Heap variables are represented implicitly. Each instruction<a name="line.49"></a>
 <span class="sourceLineNo">050</span> *       that reads or writes from the heap implicitly uses a Heap variable.<a name="line.50"></a>
 <span class="sourceLineNo">051</span> *       The particular heap variable for each instruction is cached<a name="line.51"></a>
-<span class="sourceLineNo">052</span> *       in {@link SSADictionary &lt;code&gt; ir.HIRInfo.dictionary &lt;/code&gt;}.<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *       dphi functions do &lt;em&gt; not &lt;/em&gt;<a name="line.53"></a>
-<span class="sourceLineNo">054</span> *       explicitly appear in the IR.<a name="line.54"></a>
-<span class="sourceLineNo">055</span> *  &lt;p&gt;<a name="line.55"></a>
-<span class="sourceLineNo">056</span> *  For example, consider the code:<a name="line.56"></a>
+<span class="sourceLineNo">052</span> *       in {@link org.jikesrvm.compilers.opt.ir.HIRInfo#dictionary} which<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *       is reachable via the IR object.<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *       dphi functions do &lt;em&gt; not &lt;/em&gt;<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *       explicitly appear in the IR.<a name="line.56"></a>
 <span class="sourceLineNo">057</span> *  &lt;p&gt;<a name="line.57"></a>
-<span class="sourceLineNo">058</span> *  &lt;pre&gt;<a name="line.58"></a>
-<span class="sourceLineNo">059</span> *              a.x = z;<a name="line.59"></a>
-<span class="sourceLineNo">060</span> *              b[100] = 5;<a name="line.60"></a>
-<span class="sourceLineNo">061</span> *              y = a.x;<a name="line.61"></a>
-<span class="sourceLineNo">062</span> *  &lt;/pre&gt;<a name="line.62"></a>
-<span class="sourceLineNo">063</span> *<a name="line.63"></a>
-<span class="sourceLineNo">064</span> *  &lt;p&gt;Logically, we translate to Array SSA form (before renumbering) as:<a name="line.64"></a>
-<span class="sourceLineNo">065</span> *  &lt;pre&gt;<a name="line.65"></a>
-<span class="sourceLineNo">066</span> *              HEAP_x[a] = z<a name="line.66"></a>
-<span class="sourceLineNo">067</span> *              HEAP_x = dphi(HEAP_x,HEAP_x)<a name="line.67"></a>
-<span class="sourceLineNo">068</span> *              HEAP_I[] = { &lt; b,100,5 &gt; }<a name="line.68"></a>
-<span class="sourceLineNo">069</span> *              HEAP_I[] = dphi(HEAP_I[], HEAP_I[])<a name="line.69"></a>
-<span class="sourceLineNo">070</span> *              y = HEAP_x[a]<a name="line.70"></a>
-<span class="sourceLineNo">071</span> *  &lt;/pre&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span> *<a name="line.72"></a>
-<span class="sourceLineNo">073</span> *  &lt;p&gt; However, the implementation does not actually modify the instruction<a name="line.73"></a>
-<span class="sourceLineNo">074</span> *      stream. Instead, we keep track of the following information with<a name="line.74"></a>
-<span class="sourceLineNo">075</span> *  &lt;code&gt; ir.HIRInfo.dictionary &lt;/code&gt;:<a name="line.75"></a>
-<span class="sourceLineNo">076</span> *  &lt;pre&gt;<a name="line.76"></a>
-<span class="sourceLineNo">077</span> *              a.x = z  (implicit: reads HEAP_x, writes HEAP_x)<a name="line.77"></a>
-<span class="sourceLineNo">078</span> *              b[100] =5 (implicit: reads HEAP_I[], writes HEAP_I[])<a name="line.78"></a>
-<span class="sourceLineNo">079</span> *              y = a.x   (implicit: reads HEAP_x)<a name="line.79"></a>
-<span class="sourceLineNo">080</span> *  &lt;/pre&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span> *<a name="line.81"></a>
-<span class="sourceLineNo">082</span> *  &lt;p&gt;Similarly, phi functions for the implicit heap<a name="line.82"></a>
-<span class="sourceLineNo">083</span> *  variables &lt;em&gt; will not &lt;/em&gt;<a name="line.83"></a>
-<span class="sourceLineNo">084</span> *  appear explicitly in the instruction stream. Instead, the<a name="line.84"></a>
-<span class="sourceLineNo">085</span> *  SSADictionary data structure keeps the heap control phi<a name="line.85"></a>
-<span class="sourceLineNo">086</span> *  functions for each basic block in a lookaside table.<a name="line.86"></a>
-<span class="sourceLineNo">087</span> *  &lt;/ul&gt;<a name="line.87"></a>
-<span class="sourceLineNo">088</span> *<a name="line.88"></a>
-<span class="sourceLineNo">089</span> * @see EnterSSA<a name="line.89"></a>
-<span class="sourceLineNo">090</span> * @see LeaveSSA<a name="line.90"></a>
-<span class="sourceLineNo">091</span> * @see SSADictionary<a name="line.91"></a>
-<span class="sourceLineNo">092</span> * @see org.jikesrvm.compilers.opt.ir.HIRInfo<a name="line.92"></a>
-<span class="sourceLineNo">093</span> */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>class SSA {<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  /**<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * Add a move instruction at the end of a basic block, renaming<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * with a temporary register if needed to protect conditional branches<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   * at the end of the block.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   *<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   * @param ir governing IR<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   * @param bb the basic block<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   * @param c  the move instruction to insert<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   * @param exp whether or not to respect exception control flow at the<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   *            end of the block<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   */<a name="line.106"></a>
-<span class="sourceLineNo">107</span>  static void addAtEnd(IR ir, BasicBlock bb, Instruction c, boolean exp) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    if (exp) {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>      bb.appendInstructionRespectingTerminalBranchOrPEI(c);<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    } else {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>      bb.appendInstructionRespectingTerminalBranch(c);<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    RegisterOperand aux = null;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    if (VM.VerifyAssertions) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      VM._assert(Move.conforms(c));<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    RegisterOperand lhs = Move.getResult(c);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    Instruction i = c.nextInstructionInCodeOrder();<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    while (!BBend.conforms(i)) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      Enumeration&lt;Operand&gt; os = i.getUses();<a name="line.120"></a>
-<span class="sourceLineNo">121</span>      while (os.hasMoreElements()) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        Operand op = os.nextElement();<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        if (lhs.similar(op)) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>          if (aux == null) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            aux = ir.regpool.makeTemp(lhs);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>            c.insertBefore(makeMoveInstruction(ir, aux.getRegister(), lhs.getRegister(), lhs.getType()));<a name="line.126"></a>
-<span class="sourceLineNo">127</span>          }<a name="line.127"></a>
-<span class="sourceLineNo">128</span>          op.asRegister().setRegister(aux.getRegister());<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        }<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>      i = i.nextInstructionInCodeOrder();<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
-<span class="sourceLineNo">133</span>  }<a name="line.133"></a>
-<span class="sourceLineNo">134</span><a name="line.134"></a>
-<span class="sourceLineNo">135</span>  /**<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * Print the instructions in SSA form.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   *<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * @param ir the IR, assumed to be in SSA form<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   */<a name="line.139"></a>
-<span class="sourceLineNo">140</span>  public static void printInstructions(IR ir) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    SSADictionary dictionary = ir.HIRInfo.dictionary;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    System.out.println("********* START OF IR DUMP in SSA FOR " + ir.method);<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    for (Enumeration&lt;BasicBlock&gt; be = ir.forwardBlockEnumerator(); be.hasMoreElements();) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>      BasicBlock bb = be.nextElement();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      // print the explicit instructions for basic block bb<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      for (Enumeration&lt;Instruction&gt; e = dictionary.getAllInstructions(bb); e.hasMoreElements();) {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        Instruction s = e.nextElement();<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        System.out.print(s.bcIndex + "\t" + s);<a name="line.148"></a>
-<span class="sourceLineNo">149</span>        if (dictionary.defsHeapVariable(s) &amp;&amp; s.operator != PHI) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>          System.out.print("  (Implicit Defs: ");<a name="line.150"></a>
-<span class="sourceLineNo">151</span>          HeapOperand&lt;?&gt;[] defs = dictionary.getHeapDefs(s);<a name="line.151"></a>
-<span class="sourceLineNo">152</span>          if (defs != null) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>            for (HeapOperand&lt;?&gt; def : defs) System.out.print(def + " ");<a name="line.153"></a>
-<span class="sourceLineNo">154</span>          }<a name="line.154"></a>
-<span class="sourceLineNo">155</span>          System.out.print(" )");<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        }<a name="line.156"></a>
-<span class="sourceLineNo">157</span>        if (dictionary.usesHeapVariable(s) &amp;&amp; s.operator != PHI) {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>          System.out.print("  (Implicit Uses: ");<a name="line.158"></a>
-<span class="sourceLineNo">159</span>          HeapOperand&lt;?&gt;[] uses = dictionary.getHeapUses(s);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>          if (uses != null) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>            for (HeapOperand&lt;?&gt; use : uses) System.out.print(use + " ");<a name="line.161"></a>
-<span class="sourceLineNo">162</span>          }<a name="line.162"></a>
-<span class="sourceLineNo">163</span>          System.out.print(" )");<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        }<a name="line.164"></a>
-<span class="sourceLineNo">165</span>        System.out.print("\n");<a name="line.165"></a>
-<span class="sourceLineNo">166</span>      }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    System.out.println("*********   END OF IR DUMP in SSA FOR " + ir.method);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * Create a move instruction r1 := r2.&lt;p&gt;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   *<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   * TODO: This utility function should be moved elsewhere.<a name="line.174"></a>
-<span class="sourceLineNo">175</span>   *<a name="line.175"></a>
-<span class="sourceLineNo">176</span>   * @param ir the governing ir<a name="line.176"></a>
-<span class="sourceLineNo">177</span>   * @param r1 the destination<a name="line.177"></a>
-<span class="sourceLineNo">178</span>   * @param r2 the source<a name="line.178"></a>
-<span class="sourceLineNo">179</span>   * @param t the type of r1 and r2.<a name="line.179"></a>
-<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
-<span class="sourceLineNo">181</span>  static Instruction makeMoveInstruction(IR ir, Register r1, Register r2, TypeReference t) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    Operator mv = IRTools.getMoveOp(t);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    RegisterOperand o1 = new RegisterOperand(r1, t);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    RegisterOperand o2 = new RegisterOperand(r2, t);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    Instruction s = Move.create(mv, o1, o2);<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    s.position = ir.gc.inlineSequence;<a name="line.186"></a>
-<span class="sourceLineNo">187</span>    s.bcIndex = SSA_SYNTH_BCI;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    return s;<a name="line.188"></a>
-<span class="sourceLineNo">189</span>  }<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>  /**<a name="line.191"></a>
-<span class="sourceLineNo">192</span>   * Create a move instruction r1 := c.&lt;p&gt;<a name="line.192"></a>
-<span class="sourceLineNo">193</span>   *<a name="line.193"></a>
-<span class="sourceLineNo">194</span>   * !!TODO: put this functionality elsewhere.<a name="line.194"></a>
+<span class="sourceLineNo">058</span> *  For example, consider the code:<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *  &lt;pre&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *              a.x = z;<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *              b[100] = 5;<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *              y = a.x;<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *  &lt;/pre&gt;<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *  &lt;p&gt;Logically, we translate to Array SSA form (before renumbering) as:<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *  &lt;pre&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> *              HEAP_x[a] = z<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *              HEAP_x = dphi(HEAP_x,HEAP_x)<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *              HEAP_I[] = { &amp;lt; b,100,5 &amp;gt; }<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *              HEAP_I[] = dphi(HEAP_I[], HEAP_I[])<a name="line.70"></a>
+<span class="sourceLineNo">071</span> *              y = HEAP_x[a]<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *  &lt;/pre&gt;<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *  &lt;p&gt; However, the implementation does not actually modify the instruction<a name="line.74"></a>
+<span class="sourceLineNo">075</span> *      stream. Instead, we keep track of the following information with<a name="line.75"></a>
+<span class="sourceLineNo">076</span> *  &lt;code&gt; ir.HIRInfo.dictionary &lt;/code&gt;:<a name="line.76"></a>
+<span class="sourceLineNo">077</span> *  &lt;pre&gt;<a name="line.77"></a>
+<span class="sourceLineNo">078</span> *              a.x = z  (implicit: reads HEAP_x, writes HEAP_x)<a name="line.78"></a>
+<span class="sourceLineNo">079</span> *              b[100] =5 (implicit: reads HEAP_I[], writes HEAP_I[])<a name="line.79"></a>
+<span class="sourceLineNo">080</span> *              y = a.x   (implicit: reads HEAP_x)<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *  &lt;/pre&gt;<a name="line.81"></a>
+<span class="sourceLineNo">082</span> *<a name="line.82"></a>
+<span class="sourceLineNo">083</span> *  &lt;p&gt;Similarly, phi functions for the implicit heap<a name="line.83"></a>
+<span class="sourceLineNo">084</span> *  variables &lt;em&gt; will not &lt;/em&gt;<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *  appear explicitly in the instruction stream. Instead, the<a name="line.85"></a>
+<span class="sourceLineNo">086</span> *  SSADictionary data structure keeps the heap control phi<a name="line.86"></a>
+<span class="sourceLineNo">087</span> *  functions for each basic block in a lookaside table.<a name="line.87"></a>
+<span class="sourceLineNo">088</span> *  &lt;/ul&gt;<a name="line.88"></a>
+<span class="sourceLineNo">089</span> *<a name="line.89"></a>
+<span class="sourceLineNo">090</span> * @see EnterSSA<a name="line.90"></a>
+<span class="sourceLineNo">091</span> * @see LeaveSSA<a name="line.91"></a>
+<span class="sourceLineNo">092</span> * @see SSADictionary<a name="line.92"></a>
+<span class="sourceLineNo">093</span> * @see org.jikesrvm.compilers.opt.ir.HIRInfo<a name="line.93"></a>
+<span class="sourceLineNo">094</span> */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>class SSA {<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * Add a move instruction at the end of a basic block, renaming<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * with a temporary register if needed to protect conditional branches<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * at the end of the block.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * @param ir governing IR<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * @param bb the basic block<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * @param c  the move instruction to insert<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   * @param exp whether or not to respect exception control flow at the<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   *            end of the block<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  static void addAtEnd(IR ir, BasicBlock bb, Instruction c, boolean exp) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    if (exp) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      bb.appendInstructionRespectingTerminalBranchOrPEI(c);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    } else {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      bb.appendInstructionRespectingTerminalBranch(c);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    RegisterOperand aux = null;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    if (VM.VerifyAssertions) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      VM._assert(Move.conforms(c));<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    RegisterOperand lhs = Move.getResult(c);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    Instruction i = c.nextInstructionInCodeOrder();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    while (!BBend.conforms(i)) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      Enumeration&lt;Operand&gt; os = i.getUses();<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      while (os.hasMoreElements()) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        Operand op = os.nextElement();<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        if (lhs.similar(op)) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>          if (aux == null) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>            aux = ir.regpool.makeTemp(lhs);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>            c.insertBefore(makeMoveInstruction(ir, aux.getRegister(), lhs.getRegister(), lhs.getType()));<a name="line.127"></a>
+<span class="sourceLineNo">128</span>          }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>          op.asRegister().setRegister(aux.getRegister());<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      i = i.nextInstructionInCodeOrder();<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  }<a name="line.134"></a>
+<span class="sourceLineNo">135</span><a name="line.135"></a>
+<span class="sourceLineNo">136</span>  /**<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   * Print the instructions in SSA form.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   *<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * @param ir the IR, assumed to be in SSA form<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public static void printInstructions(IR ir) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    SSADictionary dictionary = ir.HIRInfo.dictionary;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    System.out.println("********* START OF IR DUMP in SSA FOR " + ir.method);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    for (Enumeration&lt;BasicBlock&gt; be = ir.forwardBlockEnumerator(); be.hasMoreElements();) {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>      BasicBlock bb = be.nextElement();<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      // print the explicit instructions for basic block bb<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      for (Enumeration&lt;Instruction&gt; e = dictionary.getAllInstructions(bb); e.hasMoreElements();) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        Instruction s = e.nextElement();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>        System.out.print(s.bcIndex + "\t" + s);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        if (dictionary.defsHeapVariable(s) &amp;&amp; s.operator() != PHI) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>          System.out.print("  (Implicit Defs: ");<a name="line.151"></a>
+<span class="sourceLineNo">152</span>          HeapOperand&lt;?&gt;[] defs = dictionary.getHeapDefs(s);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          if (defs != null) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>            for (HeapOperand&lt;?&gt; def : defs) System.out.print(def + " ");<a name="line.154"></a>
+<span class="sourceLineNo">155</span>          }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          System.out.print(" )");<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        if (dictionary.usesHeapVariable(s) &amp;&amp; s.operator() != PHI) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>          System.out.print("  (Implicit Uses: ");<a name="line.159"></a>
+<span class="sourceLineNo">160</span>          HeapOperand&lt;?&gt;[] uses = dictionary.getHeapUses(s);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>          if (uses != null) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>            for (HeapOperand&lt;?&gt; use : uses) System.out.print(use + " ");<a name="line.162"></a>
+<span class="sourceLineNo">163</span>          }<a name="line.163"></a>
+<span class="sourceLineNo">164</span>          System.out.print(" )");<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        System.out.print('\n');<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      }<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    System.out.println("*********   END OF IR DUMP in SSA FOR " + ir.method);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>  /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * Create a move instruction r1 := r2.&lt;p&gt;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   *<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * TODO: This utility function should be moved elsewhere.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   *<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * @param ir the governing ir<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   * @param r1 the destination<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   * @param r2 the source<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   * @param t the type of r1 and r2.<a name="line.180"></a>
+<span class="sourceLineNo">181</span>   * @return the created move instruction<a name="line.181"></a>
+<span class="sourceLineNo">182</span>   */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  static Instruction makeMoveInstruction(IR ir, Register r1, Register r2, TypeReference t) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    Operator mv = IRTools.getMoveOp(t);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    RegisterOperand o1 = new RegisterOperand(r1, t);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    RegisterOperand o2 = new RegisterOperand(r2, t);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    Instruction s = Move.create(mv, o1, o2);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    s.position = ir.gc.getInlineSequence();<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    s.bcIndex = SSA_SYNTH_BCI;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    return s;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>  }<a name="line.191"></a>
+<span class="sourceLineNo">192</span><a name="line.192"></a>
+<span class="sourceLineNo">193</span>  /**<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   * Create a move instruction r1 := c.&lt;p&gt;<a name="line.194"></a>
 <span class="sourceLineNo">195</span>   *<a name="line.195"></a>
-<span class="sourceLineNo">196</span>   * @param ir the governing ir<a name="line.196"></a>
-<span class="sourceLineNo">197</span>   * @param r1 the destination<a name="line.197"></a>
-<span class="sourceLineNo">198</span>   * @param c the source<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   */<a name="line.199"></a>
-<span class="sourceLineNo">200</span>  static Instruction makeMoveInstruction(IR ir, Register r1, ConstantOperand c) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    Operator mv = IRTools.getMoveOp(c.getType());<a name="line.201"></a>
-<span class="sourceLineNo">202</span>    RegisterOperand o1 = new RegisterOperand(r1, c.getType());<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    Operand o2 = c.copy();<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    Instruction s = Move.create(mv, o1, o2);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    s.position = ir.gc.inlineSequence;<a name="line.205"></a>
-<span class="sourceLineNo">206</span>    s.bcIndex = SSA_SYNTH_BCI;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    return s;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>  }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>  /**<a name="line.210"></a>
-<span class="sourceLineNo">211</span>   * Fix up any PHI instructions in the given target block to reflect that<a name="line.211"></a>
-<span class="sourceLineNo">212</span>   * the given source block is no longer a predecessor of target.<a name="line.212"></a>
-<span class="sourceLineNo">213</span>   * The basic algorithm is to erase the PHI operands related to the edge<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   * from source to target by sliding the other PHI operands down as required.<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   *<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * @param source the source block to remove from PHIs in target<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   * @param target the target block that may contain PHIs to update.<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   */<a name="line.218"></a>
-<span class="sourceLineNo">219</span>  static void purgeBlockFromPHIs(BasicBlock source, BasicBlock target) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    for (Enumeration&lt;Instruction&gt; e = target.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>      Instruction s = e.nextElement();<a name="line.221"></a>
-<span class="sourceLineNo">222</span>      if (s.operator() != PHI) return; // all done (assume PHIs are first!)<a name="line.222"></a>
-<span class="sourceLineNo">223</span>      int numPairs = Phi.getNumberOfPreds(s);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>      int dst = 0;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>      for (int src = 0; src &lt; numPairs; src++) {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        BasicBlockOperand bbop = Phi.getPred(s, src);<a name="line.226"></a>
-<span class="sourceLineNo">227</span>        if (bbop.block == source) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>          Phi.setValue(s, src, null);<a name="line.228"></a>
-<span class="sourceLineNo">229</span>          Phi.setPred(s, src, null);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        } else {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>          if (src != dst) {<a name="line.231"></a>
-<span class="sourceLineNo">232</span>            Phi.setValue(s, dst, Phi.getClearValue(s, src));<a name="line.232"></a>
-<span class="sourceLineNo">233</span>            Phi.setPred(s, dst, Phi.getClearPred(s, src));<a name="line.233"></a>
-<span class="sourceLineNo">234</span>          }<a name="line.234"></a>
-<span class="sourceLineNo">235</span>          dst++;<a name="line.235"></a>
-<span class="sourceLineNo">236</span>        }<a name="line.236"></a>
-<span class="sourceLineNo">237</span>      }<a name="line.237"></a>
-<span class="sourceLineNo">238</span>      for (int i = dst; i &lt; numPairs; i++) {<a name="line.238"></a>
-<span class="sourceLineNo">239</span>        Phi.setValue(s, i, null);<a name="line.239"></a>
-<span class="sourceLineNo">240</span>        Phi.setPred(s, i, null);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>      }<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
-<span class="sourceLineNo">243</span>  }<a name="line.243"></a>
-<span class="sourceLineNo">244</span><a name="line.244"></a>
-<span class="sourceLineNo">245</span>  /**<a name="line.245"></a>
-<span class="sourceLineNo">246</span>   * Update PHI instructions in the target block so that any PHIs that<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   * come from basic block B1, now come from basic block B2.<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   *<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * @param target the target block that may contain PHIs to update.<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   * @param B1 the block to replace in the phi instructions<a name="line.250"></a>
-<span class="sourceLineNo">251</span>   * @param B2 the replacement block for B1<a name="line.251"></a>
-<span class="sourceLineNo">252</span>   */<a name="line.252"></a>
-<span class="sourceLineNo">253</span>  static void replaceBlockInPhis(BasicBlock target, BasicBlock B1, BasicBlock B2) {<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    for (Enumeration&lt;Instruction&gt; e = target.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>      Instruction s = e.nextElement();<a name="line.255"></a>
-<span class="sourceLineNo">256</span>      if (s.operator() != PHI) return; // all done (assume PHIs are first!)<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      int numPairs = Phi.getNumberOfPreds(s);<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      for (int src = 0; src &lt; numPairs; src++) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        BasicBlockOperand bbop = Phi.getPred(s, src);<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        if (bbop.block == B1) {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>          Phi.setPred(s, src, new BasicBlockOperand(B2));<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      }<a name="line.263"></a>
-<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  }<a name="line.265"></a>
-<span class="sourceLineNo">266</span>}<a name="line.266"></a>
+<span class="sourceLineNo">196</span>   * !!TODO: put this functionality elsewhere.<a name="line.196"></a>
+<span class="sourceLineNo">197</span>   *<a name="line.197"></a>
+<span class="sourceLineNo">198</span>   * @param ir the governing ir<a name="line.198"></a>
+<span class="sourceLineNo">199</span>   * @param r1 the destination<a name="line.199"></a>
+<span class="sourceLineNo">200</span>   * @param c the source<a name="line.200"></a>
+<span class="sourceLineNo">201</span>   * @return the created move instruction<a name="line.201"></a>
+<span class="sourceLineNo">202</span>   */<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  static Instruction makeMoveInstruction(IR ir, Register r1, ConstantOperand c) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    Operator mv = IRTools.getMoveOp(c.getType());<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    RegisterOperand o1 = new RegisterOperand(r1, c.getType());<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    Operand o2 = c.copy();<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    Instruction s = Move.create(mv, o1, o2);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    s.position = ir.gc.getInlineSequence();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    s.bcIndex = SSA_SYNTH_BCI;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    return s;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>  }<a name="line.211"></a>
+<span class="sourceLineNo">212</span><a name="line.212"></a>
+<span class="sourceLineNo">213</span>  /**<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   * Fix up any PHI instructions in the given target block to reflect that<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * the given source block is no longer a predecessor of target.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * The basic algorithm is to erase the PHI operands related to the edge<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * from source to target by sliding the other PHI operands down as required.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   *<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   * @param source the source block to remove from PHIs in target<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * @param target the target block that may contain PHIs to update.<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   */<a name="line.221"></a>
+<span class="sourceLineNo">222</span>  static void purgeBlockFromPHIs(BasicBlock source, BasicBlock target) {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    for (Enumeration&lt;Instruction&gt; e = target.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      Instruction s = e.nextElement();<a name="line.224"></a>
+<span class="sourceLineNo">225</span>      if (s.operator() != PHI) return; // all done (assume PHIs are first!)<a name="line.225"></a>
+<span class="sourceLineNo">226</span>      int numPairs = Phi.getNumberOfPreds(s);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>      int dst = 0;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>      for (int src = 0; src &lt; numPairs; src++) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        BasicBlockOperand bbop = Phi.getPred(s, src);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        if (bbop.block == source) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>          Phi.setValue(s, src, null);<a name="line.231"></a>
+<span class="sourceLineNo">232</span>          Phi.setPred(s, src, null);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>        } else {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>          if (src != dst) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>            Phi.setValue(s, dst, Phi.getClearValue(s, src));<a name="line.235"></a>
+<span class="sourceLineNo">236</span>            Phi.setPred(s, dst, Phi.getClearPred(s, src));<a name="line.236"></a>
+<span class="sourceLineNo">237</span>          }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>          dst++;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>        }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      }<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      for (int i = dst; i &lt; numPairs; i++) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        Phi.setValue(s, i, null);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        Phi.setPred(s, i, null);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    }<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>  /**<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   * Update PHI instructions in the target block so that any PHIs that<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * come from basic block B1, now come from basic block B2.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   *<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   * @param target the target block that may contain PHIs to update.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>   * @param B1 the block to replace in the phi instructions<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * @param B2 the replacement block for B1<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>  static void replaceBlockInPhis(BasicBlock target, BasicBlock B1, BasicBlock B2) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    for (Enumeration&lt;Instruction&gt; e = target.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      Instruction s = e.nextElement();<a name="line.258"></a>
+<span class="sourceLineNo">259</span>      if (s.operator() != PHI) return; // all done (assume PHIs are first!)<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      int numPairs = Phi.getNumberOfPreds(s);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      for (int src = 0; src &lt; numPairs; src++) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        BasicBlockOperand bbop = Phi.getPred(s, src);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>        if (bbop.block == B1) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>          Phi.setPred(s, src, new BasicBlockOperand(B2));<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        }<a name="line.265"></a>
+<span class="sourceLineNo">266</span>      }<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
+<span class="sourceLineNo">268</span>  }<a name="line.268"></a>
+<span class="sourceLineNo">269</span>}<a name="line.269"></a>
 
 
 

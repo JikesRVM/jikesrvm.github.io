@@ -86,59 +86,67 @@
 <span class="sourceLineNo">078</span><a name="line.78"></a>
 <span class="sourceLineNo">079</span>  @Override<a name="line.79"></a>
 <span class="sourceLineNo">080</span>  public String toString() {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    String tab = "";<a name="line.81"></a>
+<span class="sourceLineNo">081</span>    StringBuilder node = new StringBuilder();<a name="line.81"></a>
 <span class="sourceLineNo">082</span>    for (int i = 0; i &lt; depth; i++) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>      tab += "\t";<a name="line.83"></a>
+<span class="sourceLineNo">083</span>      node.append('\t');<a name="line.83"></a>
 <span class="sourceLineNo">084</span>    }<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    return tab + header + " " + loop + " " + loopExits + "\n";<a name="line.85"></a>
-<span class="sourceLineNo">086</span>  }<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>  public LSTNode getParent() {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    return (LSTNode) inNodes().nextElement();<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>  public Enumeration&lt;LSTNode&gt; getChildren() {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    return new Enumeration&lt;LSTNode&gt;() {<a name="line.93"></a>
-<span class="sourceLineNo">094</span>      private SpaceEffGraphEdge _edge = _outEdgeStart;<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>      @Override<a name="line.96"></a>
-<span class="sourceLineNo">097</span>      public boolean hasMoreElements() { return _edge != null; }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>      @Override<a name="line.99"></a>
-<span class="sourceLineNo">100</span>      public LSTNode nextElement() {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        SpaceEffGraphEdge e = _edge;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        _edge = e.getNextOut();<a name="line.102"></a>
-<span class="sourceLineNo">103</span>        return (LSTNode) e.toNode();<a name="line.103"></a>
-<span class="sourceLineNo">104</span>      }<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    };<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>  public void initializeLoopExits() {<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    loopExits = new ArrayList&lt;Edge&gt;();<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  }<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>  public void addLoopExit(BasicBlock source, BasicBlock target, float prob) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    loopExits.add(new Edge(source, target, prob));<a name="line.113"></a>
+<span class="sourceLineNo">085</span>    node.append(header);<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    node.append(' ');<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    node.append(loop);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    node.append(' ');<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    node.append(loopExits);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    node.append('\n');<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    return node.toString();<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>  public LSTNode getParent() {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    return (LSTNode) inNodes().nextElement();<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>  public Enumeration&lt;LSTNode&gt; getChildren() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    return new Enumeration&lt;LSTNode&gt;() {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      private SpaceEffGraphEdge _edge = _outEdgeStart;<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>      @Override<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      public boolean hasMoreElements() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        return _edge != null;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>      @Override<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      public LSTNode nextElement() {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>        SpaceEffGraphEdge e = _edge;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        _edge = e.getNextOut();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        return (LSTNode) e.toNode();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    };<a name="line.113"></a>
 <span class="sourceLineNo">114</span>  }<a name="line.114"></a>
 <span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>  static final class Edge {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    final BasicBlock source;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    final BasicBlock target;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    final float probability;<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>    Edge(BasicBlock s, BasicBlock t, float p) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>      source = s;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      target = t;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>      probability = p;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    @Override<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    public String toString() {<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      return source + "-&gt;" + target + " prob = " + probability;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>}<a name="line.133"></a>
+<span class="sourceLineNo">116</span>  public void initializeLoopExits() {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    loopExits = new ArrayList&lt;Edge&gt;();<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>  public void addLoopExit(BasicBlock source, BasicBlock target, float prob) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    loopExits.add(new Edge(source, target, prob));<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  static final class Edge {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    final BasicBlock source;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    final BasicBlock target;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    final float probability;<a name="line.127"></a>
+<span class="sourceLineNo">128</span><a name="line.128"></a>
+<span class="sourceLineNo">129</span>    Edge(BasicBlock s, BasicBlock t, float p) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      source = s;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      target = t;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      probability = p;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>    @Override<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    public String toString() {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      return source + "-&gt;" + target + " prob = " + probability;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  }<a name="line.139"></a>
+<span class="sourceLineNo">140</span><a name="line.140"></a>
+<span class="sourceLineNo">141</span>}<a name="line.141"></a>
 
 
 

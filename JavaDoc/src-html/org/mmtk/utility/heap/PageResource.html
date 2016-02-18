@@ -21,303 +21,308 @@
 <span class="sourceLineNo">013</span>package org.mmtk.utility.heap;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import org.mmtk.policy.Space;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.mmtk.utility.Constants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.mmtk.utility.options.ProtectOnRelease;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.mmtk.utility.options.Options;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.mmtk.vm.Lock;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.mmtk.vm.VM;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.vmmagic.pragma.*;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.*;<a name="line.24"></a>
-<span class="sourceLineNo">025</span><a name="line.25"></a>
-<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * This class manages the allocation of pages for a space.  When a<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * page is requested by the space both a page budget and the use of<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * virtual address space are checked.  If the request for space can't<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * be satisfied (for either reason) a GC may be triggered.&lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> *<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * This class is abstract, and is subclassed with monotone and<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * freelist variants, which reflect monotonic and ad hoc space usage<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * respectively.  Monotonic use is easier to manage, but is obviously<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * more restrictive (useful for copying collectors which allocate<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * monotonically before freeing the entire space and starting over).<a name="line.36"></a>
-<span class="sourceLineNo">037</span> */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>@Uninterruptible<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public abstract class PageResource implements Constants {<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>  /****************************************************************************<a name="line.41"></a>
-<span class="sourceLineNo">042</span>   *<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   * Class variables<a name="line.43"></a>
-<span class="sourceLineNo">044</span>   */<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>  /**<a name="line.46"></a>
-<span class="sourceLineNo">047</span>   *<a name="line.47"></a>
-<span class="sourceLineNo">048</span>   */<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  protected static final boolean ZERO_ON_RELEASE = false; // debugging<a name="line.49"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.utility.options.ProtectOnRelease;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.utility.options.Options;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.mmtk.vm.Lock;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.mmtk.vm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.vmmagic.pragma.*;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.vmmagic.unboxed.*;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>/**<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * This class manages the allocation of pages for a space.  When a<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * page is requested by the space both a page budget and the use of<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * virtual address space are checked.  If the request for space can't<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * be satisfied (for either reason) a GC may be triggered.&lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> *<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * This class is abstract, and is subclassed with monotone and<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * freelist variants, which reflect monotonic and ad hoc space usage<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * respectively.  Monotonic use is easier to manage, but is obviously<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * more restrictive (useful for copying collectors which allocate<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * monotonically before freeing the entire space and starting over).<a name="line.35"></a>
+<span class="sourceLineNo">036</span> */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>@Uninterruptible<a name="line.37"></a>
+<span class="sourceLineNo">038</span>public abstract class PageResource {<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>  /****************************************************************************<a name="line.40"></a>
+<span class="sourceLineNo">041</span>   *<a name="line.41"></a>
+<span class="sourceLineNo">042</span>   * Class variables<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   */<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  /** lock protecting count of total cumulative pages committed */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  private static final Lock classLock;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  /** cumulative count of pages ever committed */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  private static long cumulativeCommitted = 0;<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
 <span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>  private static final Lock classLock;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  private static long cumulativeCommitted = 0;<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>  /****************************************************************************<a name="line.55"></a>
-<span class="sourceLineNo">056</span>   *<a name="line.56"></a>
-<span class="sourceLineNo">057</span>   * Instance variables<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>  // page budgeting<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>  /**<a name="line.62"></a>
-<span class="sourceLineNo">063</span>   *<a name="line.63"></a>
-<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>  protected int reserved;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  protected int committed;<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>  protected final boolean contiguous;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>  protected final Space space;<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>  /** only for contiguous spaces */<a name="line.71"></a>
-<span class="sourceLineNo">072</span>  protected Address start;<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>  // locking<a name="line.74"></a>
-<span class="sourceLineNo">075</span>  private final Lock lock;<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>  // zeroing<a name="line.77"></a>
-<span class="sourceLineNo">078</span>  protected boolean zeroNT;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>  protected boolean zeroConcurrent;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  protected ConcurrentZeroingContext zeroingContext;<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>  /****************************************************************************<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   *<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   * Initialization<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>  static {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    classLock = VM.newLock("PageResource");<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    Options.protectOnRelease = new ProtectOnRelease();<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   * Constructor<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   *<a name="line.93"></a>
-<span class="sourceLineNo">094</span>   * @param space The space to which this resource is attached<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  private PageResource(Space space, boolean contiguous) {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    this.contiguous = contiguous;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    this.space = space;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    lock = VM.newLock(space.getName() + ".lock");<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  }<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>  /**<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   * Constructor for discontiguous spaces<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   *<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   * @param space The space to which this resource is attached<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   */<a name="line.106"></a>
-<span class="sourceLineNo">107</span>  PageResource(Space space) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    this(space, false);<a name="line.108"></a>
-<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>  /**<a name="line.111"></a>
-<span class="sourceLineNo">112</span>   * Constructor for contiguous spaces<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   *<a name="line.113"></a>
-<span class="sourceLineNo">114</span>   * @param space The space to which this resource is attached<a name="line.114"></a>
-<span class="sourceLineNo">115</span>   */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  PageResource(Space space, Address start) {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    this(space, true);<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    this.start = start;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>  }<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>  /**<a name="line.121"></a>
-<span class="sourceLineNo">122</span>   * Return the number of available physical pages for this resource.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>   * This includes all pages currently unused by this resource's page<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   * cursor. If the resource is using discontiguous space it also includes<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * currently unassigned discontiguous space.&lt;p&gt;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   *<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   * Note: This just considers physical pages (ie virtual memory pages<a name="line.127"></a>
-<span class="sourceLineNo">128</span>   * allocated for use by this resource). This calculation is orthogonal<a name="line.128"></a>
-<span class="sourceLineNo">129</span>   * to and does not consider any restrictions on the number of pages<a name="line.129"></a>
-<span class="sourceLineNo">130</span>   * this resource may actually use at any time (ie the number of<a name="line.130"></a>
-<span class="sourceLineNo">131</span>   * committed and reserved pages).&lt;p&gt;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>   *<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   * Note: The calculation is made on the assumption that all space that<a name="line.133"></a>
-<span class="sourceLineNo">134</span>   * could be assigned to this resource would be assigned to this resource<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   * (ie the unused discontiguous space could just as likely be assigned<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * to another competing resource).<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   *<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * @return The number of available physical pages for this resource.<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   */<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   public abstract int getAvailablePhysicalPages();<a name="line.140"></a>
-<span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>  /**<a name="line.142"></a>
-<span class="sourceLineNo">143</span>   * Reserve pages.&lt;p&gt;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>   *<a name="line.144"></a>
-<span class="sourceLineNo">145</span>   * The role of reserving pages is that it allows the request to be<a name="line.145"></a>
-<span class="sourceLineNo">146</span>   * noted as pending (the difference between committed and reserved<a name="line.146"></a>
-<span class="sourceLineNo">147</span>   * indicates pending requests).  If the request would exceed the<a name="line.147"></a>
-<span class="sourceLineNo">148</span>   * page budget then the caller must poll in case a GC is necessary.<a name="line.148"></a>
-<span class="sourceLineNo">149</span>   *<a name="line.149"></a>
-<span class="sourceLineNo">150</span>   * @param pages The number of pages requested<a name="line.150"></a>
-<span class="sourceLineNo">151</span>   * @return The actual number of pages reserved (including metadata, etc.)<a name="line.151"></a>
-<span class="sourceLineNo">152</span>   */<a name="line.152"></a>
-<span class="sourceLineNo">153</span>  @Inline<a name="line.153"></a>
-<span class="sourceLineNo">154</span>  public final int reservePages(int pages) {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    lock();<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    pages = adjustForMetaData(pages);<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    reserved += pages;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    unlock();<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    return pages;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>  /**<a name="line.162"></a>
-<span class="sourceLineNo">163</span>   * Remove a request to the space.<a name="line.163"></a>
-<span class="sourceLineNo">164</span>   *<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   * @param reservedPages The number of pages returned due to the request.<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   */<a name="line.166"></a>
-<span class="sourceLineNo">167</span>  @Inline<a name="line.167"></a>
-<span class="sourceLineNo">168</span>  public final void clearRequest(int reservedPages) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    lock();<a name="line.169"></a>
-<span class="sourceLineNo">170</span>    reserved -= reservedPages;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    unlock();<a name="line.171"></a>
-<span class="sourceLineNo">172</span>  }<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>  /**<a name="line.174"></a>
-<span class="sourceLineNo">175</span>   * Update the zeroing approach for this page resource.<a name="line.175"></a>
-<span class="sourceLineNo">176</span>   */<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  @Interruptible<a name="line.177"></a>
-<span class="sourceLineNo">178</span>  public void updateZeroingApproach(boolean nontemporal, boolean concurrent) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!concurrent || contiguous);<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    this.zeroNT = nontemporal;<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    this.zeroConcurrent = concurrent;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    if (concurrent) {<a name="line.182"></a>
-<span class="sourceLineNo">183</span>      this.zeroingContext = new ConcurrentZeroingContext(this);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>      VM.collection.spawnCollectorContext(zeroingContext);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>  }<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>  /**<a name="line.188"></a>
-<span class="sourceLineNo">189</span>   * Skip concurrent zeroing (fall back to bulk zeroing).<a name="line.189"></a>
-<span class="sourceLineNo">190</span>   */<a name="line.190"></a>
-<span class="sourceLineNo">191</span>  public void skipConcurrentZeroing() {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    // Clearing this flag has the effect of reverting back to bulk zeroing.<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    zeroConcurrent = false;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>  }<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>  /**<a name="line.196"></a>
-<span class="sourceLineNo">197</span>   * Trigger concurrent zeroing.<a name="line.197"></a>
-<span class="sourceLineNo">198</span>   */<a name="line.198"></a>
-<span class="sourceLineNo">199</span>  public void triggerConcurrentZeroing() {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>    zeroConcurrent = true;<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    this.zeroingContext.trigger();<a name="line.201"></a>
-<span class="sourceLineNo">202</span>  }<a name="line.202"></a>
-<span class="sourceLineNo">203</span><a name="line.203"></a>
-<span class="sourceLineNo">204</span>  /**<a name="line.204"></a>
-<span class="sourceLineNo">205</span>   * The entry point for the concurrent zeroing context.<a name="line.205"></a>
-<span class="sourceLineNo">206</span>   */<a name="line.206"></a>
-<span class="sourceLineNo">207</span>  public void concurrentZeroing() {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    VM.assertions.fail("This PageResource does not implement concurrent zeroing");<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  }<a name="line.209"></a>
-<span class="sourceLineNo">210</span><a name="line.210"></a>
-<span class="sourceLineNo">211</span>  abstract Address allocPages(int reservedPages, int requiredPages, boolean zeroed);<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>  /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   * Adjust a page request to include metadata requirements for a request<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   * of the given size. This must be a pure function, that is it does not<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * depend on the state of the PageResource.<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   *<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   * @param pages The size of the pending allocation in pages<a name="line.218"></a>
-<span class="sourceLineNo">219</span>   * @return The number of required pages, inclusive of any metadata<a name="line.219"></a>
-<span class="sourceLineNo">220</span>   */<a name="line.220"></a>
-<span class="sourceLineNo">221</span>  public abstract int adjustForMetaData(int pages);<a name="line.221"></a>
-<span class="sourceLineNo">222</span><a name="line.222"></a>
-<span class="sourceLineNo">223</span>  /**<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   * Allocate pages in virtual memory, returning zero on failure.&lt;p&gt;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>   *<a name="line.225"></a>
-<span class="sourceLineNo">226</span>   * If the request cannot be satisfied, zero is returned and it<a name="line.226"></a>
-<span class="sourceLineNo">227</span>   * falls to the caller to trigger the GC.<a name="line.227"></a>
-<span class="sourceLineNo">228</span>   *<a name="line.228"></a>
-<span class="sourceLineNo">229</span>   * Call &lt;code&gt;allocPages&lt;/code&gt; (subclass) to find the pages in<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   * virtual memory.  If successful then commit the pending page<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   * request and return the address of the first page.<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   *<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * @param pagesReserved The number of pages reserved by the initial request<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   * @param pages The number of pages requested<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   * @param zeroed If true allocated pages are zeroed.<a name="line.235"></a>
-<span class="sourceLineNo">236</span>   * @return The address of the first of &lt;code&gt;pages&lt;/code&gt; pages, or<a name="line.236"></a>
-<span class="sourceLineNo">237</span>   * zero on failure.<a name="line.237"></a>
-<span class="sourceLineNo">238</span>   */<a name="line.238"></a>
-<span class="sourceLineNo">239</span>  @Inline<a name="line.239"></a>
-<span class="sourceLineNo">240</span>  public final Address getNewPages(int pagesReserved, int pages, boolean zeroed) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    return allocPages(pagesReserved, pages, zeroed);<a name="line.241"></a>
-<span class="sourceLineNo">242</span>  }<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>  /**<a name="line.244"></a>
-<span class="sourceLineNo">245</span>   * Commit pages to the page budget.  This is called after<a name="line.245"></a>
-<span class="sourceLineNo">246</span>   * successfully determining that the request can be satisfied by<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   * both the page budget and virtual memory.  This simply accounts<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   * for the discrepancy between &lt;code&gt;committed&lt;/code&gt; and<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * &lt;code&gt;reserved&lt;/code&gt; while the request was pending.<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   *<a name="line.250"></a>
-<span class="sourceLineNo">251</span>   * This *MUST* be called by each PageResource during the<a name="line.251"></a>
-<span class="sourceLineNo">252</span>   * allocPages, and the caller must hold the lock.<a name="line.252"></a>
-<span class="sourceLineNo">253</span>   *<a name="line.253"></a>
-<span class="sourceLineNo">254</span>   * @param reservedPages The number of pages initially reserved due to this request<a name="line.254"></a>
-<span class="sourceLineNo">255</span>   * @param actualPages The number of pages actually allocated.<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   */<a name="line.256"></a>
-<span class="sourceLineNo">257</span>  protected void commitPages(int reservedPages, int actualPages) {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    int delta = actualPages - reservedPages;<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    reserved += delta;<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    committed += actualPages;<a name="line.260"></a>
-<span class="sourceLineNo">261</span>    if (VM.activePlan.isMutator()) {<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      // only count mutator pages<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      addToCommitted(actualPages);<a name="line.263"></a>
-<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  }<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>  /**<a name="line.267"></a>
-<span class="sourceLineNo">268</span>   * Return the number of reserved pages<a name="line.268"></a>
-<span class="sourceLineNo">269</span>   *<a name="line.269"></a>
-<span class="sourceLineNo">270</span>   * @return The number of reserved pages.<a name="line.270"></a>
-<span class="sourceLineNo">271</span>   */<a name="line.271"></a>
-<span class="sourceLineNo">272</span>  public final int reservedPages() { return reserved; }<a name="line.272"></a>
-<span class="sourceLineNo">273</span><a name="line.273"></a>
-<span class="sourceLineNo">274</span>  /**<a name="line.274"></a>
-<span class="sourceLineNo">275</span>   * Return the number of committed pages<a name="line.275"></a>
-<span class="sourceLineNo">276</span>   *<a name="line.276"></a>
-<span class="sourceLineNo">277</span>   * @return The number of committed pages.<a name="line.277"></a>
-<span class="sourceLineNo">278</span>   */<a name="line.278"></a>
-<span class="sourceLineNo">279</span>  public final int committedPages() { return committed; }<a name="line.279"></a>
-<span class="sourceLineNo">280</span><a name="line.280"></a>
-<span class="sourceLineNo">281</span>  /**<a name="line.281"></a>
-<span class="sourceLineNo">282</span>   * Return the cumulative number of committed pages<a name="line.282"></a>
-<span class="sourceLineNo">283</span>   *<a name="line.283"></a>
-<span class="sourceLineNo">284</span>   * @return The cumulative number of committed pages.<a name="line.284"></a>
-<span class="sourceLineNo">285</span>   */<a name="line.285"></a>
-<span class="sourceLineNo">286</span>  public static long cumulativeCommittedPages() { return cumulativeCommitted; }<a name="line.286"></a>
-<span class="sourceLineNo">287</span><a name="line.287"></a>
-<span class="sourceLineNo">288</span>  /**<a name="line.288"></a>
-<span class="sourceLineNo">289</span>   * Add to the total cumulative committed page count.<a name="line.289"></a>
-<span class="sourceLineNo">290</span>   *<a name="line.290"></a>
-<span class="sourceLineNo">291</span>   * @param pages The number of pages to be added.<a name="line.291"></a>
-<span class="sourceLineNo">292</span>   */<a name="line.292"></a>
-<span class="sourceLineNo">293</span>  private static void addToCommitted(int pages) {<a name="line.293"></a>
-<span class="sourceLineNo">294</span>    classLock.acquire();<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    cumulativeCommitted += pages;<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    classLock.release();<a name="line.296"></a>
-<span class="sourceLineNo">297</span>  }<a name="line.297"></a>
-<span class="sourceLineNo">298</span><a name="line.298"></a>
-<span class="sourceLineNo">299</span>  /**<a name="line.299"></a>
-<span class="sourceLineNo">300</span>   * Acquire the lock.<a name="line.300"></a>
-<span class="sourceLineNo">301</span>   */<a name="line.301"></a>
-<span class="sourceLineNo">302</span>  protected final void lock() {<a name="line.302"></a>
-<span class="sourceLineNo">303</span>    lock.acquire();<a name="line.303"></a>
-<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
-<span class="sourceLineNo">305</span><a name="line.305"></a>
-<span class="sourceLineNo">306</span>  /**<a name="line.306"></a>
-<span class="sourceLineNo">307</span>   * Release the lock.<a name="line.307"></a>
-<span class="sourceLineNo">308</span>   */<a name="line.308"></a>
-<span class="sourceLineNo">309</span>  protected final void unlock() {<a name="line.309"></a>
-<span class="sourceLineNo">310</span>    lock.release();<a name="line.310"></a>
-<span class="sourceLineNo">311</span>  }<a name="line.311"></a>
-<span class="sourceLineNo">312</span>}<a name="line.312"></a>
+<span class="sourceLineNo">051</span>  /****************************************************************************<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   *<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * Instance variables<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>  // page budgeting<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   *<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  protected int reserved;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  protected int committed;<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>  protected final boolean contiguous;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  protected final Space space;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>  /** only for contiguous spaces */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  protected Address start;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>  // locking<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  private final Lock lock;<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  // zeroing<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  protected boolean zeroNT;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  protected boolean zeroConcurrent;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  protected ConcurrentZeroingContext zeroingContext;<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /****************************************************************************<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   *<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * Initialization<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  static {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    classLock = VM.newLock("PageResource");<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    Options.protectOnRelease = new ProtectOnRelease();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * @param space The space to which this resource is attached<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * @param contiguous whether the space is contiguous or discontiguous<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  private PageResource(Space space, boolean contiguous) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    this.contiguous = contiguous;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    this.space = space;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    lock = VM.newLock(space.getName() + ".lock");<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * Constructor for discontiguous spaces.<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   *<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * @param space The space to which this resource is attached<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  PageResource(Space space) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    this(space, false);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * Constructor for contiguous spaces.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * @param space The space to which this resource is attached<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * @param start start address of the space<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  PageResource(Space space, Address start) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    this(space, true);<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    this.start = start;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>  /**<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * Return the number of available physical pages for this resource.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * This includes all pages currently unused by this resource's page<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * cursor. If the resource is using discontiguous space it also includes<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   * currently unassigned discontiguous space.&lt;p&gt;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   *<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   * Note: This just considers physical pages (ie virtual memory pages<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * allocated for use by this resource). This calculation is orthogonal<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * to and does not consider any restrictions on the number of pages<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * this resource may actually use at any time (ie the number of<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * committed and reserved pages).&lt;p&gt;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * Note: The calculation is made on the assumption that all space that<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * could be assigned to this resource would be assigned to this resource<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * (ie the unused discontiguous space could just as likely be assigned<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * to another competing resource).<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   *<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * @return The number of available physical pages for this resource.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   public abstract int getAvailablePhysicalPages();<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>  /**<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * Reserve pages.&lt;p&gt;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * The role of reserving pages is that it allows the request to be<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * noted as pending (the difference between committed and reserved<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * indicates pending requests).  If the request would exceed the<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * page budget then the caller must poll in case a GC is necessary.<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   *<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   * @param pages The number of pages requested<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   * @return The actual number of pages reserved (including metadata, etc.)<a name="line.147"></a>
+<span class="sourceLineNo">148</span>   */<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  @Inline<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  public final int reservePages(int pages) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    lock();<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    pages = adjustForMetaData(pages);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    reserved += pages;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    unlock();<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    return pages;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>  /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   * Remove a request to the space.<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   *<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   * @param reservedPages The number of pages returned due to the request.<a name="line.161"></a>
+<span class="sourceLineNo">162</span>   */<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  @Inline<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  public final void clearRequest(int reservedPages) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    lock();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    reserved -= reservedPages;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    unlock();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  }<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>  /**<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   * Update the zeroing approach for this page resource.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   *<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @param nontemporal whether to use non-temporal instructions for zeroing<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * @param concurrent whether to do the zeroing concurrently<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  @Interruptible<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  public void updateZeroingApproach(boolean nontemporal, boolean concurrent) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!concurrent || contiguous);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    this.zeroNT = nontemporal;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    this.zeroConcurrent = concurrent;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    if (concurrent) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>      this.zeroingContext = new ConcurrentZeroingContext(this);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      VM.collection.spawnCollectorContext(zeroingContext);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  }<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>  /**<a name="line.187"></a>
+<span class="sourceLineNo">188</span>   * Skip concurrent zeroing (fall back to bulk zeroing).<a name="line.188"></a>
+<span class="sourceLineNo">189</span>   */<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  public void skipConcurrentZeroing() {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    // Clearing this flag has the effect of reverting back to bulk zeroing.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    zeroConcurrent = false;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>  }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>  /**<a name="line.195"></a>
+<span class="sourceLineNo">196</span>   * Trigger concurrent zeroing.<a name="line.196"></a>
+<span class="sourceLineNo">197</span>   */<a name="line.197"></a>
+<span class="sourceLineNo">198</span>  public void triggerConcurrentZeroing() {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    zeroConcurrent = true;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    this.zeroingContext.trigger();<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>  /**<a name="line.203"></a>
+<span class="sourceLineNo">204</span>   * The entry point for the concurrent zeroing context.<a name="line.204"></a>
+<span class="sourceLineNo">205</span>   */<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  public void concurrentZeroing() {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    VM.assertions.fail("This PageResource does not implement concurrent zeroing");<a name="line.207"></a>
+<span class="sourceLineNo">208</span>  }<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>  abstract Address allocPages(int reservedPages, int requiredPages, boolean zeroed);<a name="line.210"></a>
+<span class="sourceLineNo">211</span><a name="line.211"></a>
+<span class="sourceLineNo">212</span>  /**<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   * Adjust a page request to include metadata requirements for a request<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   * of the given size. This must be a pure function, that is it does not<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * depend on the state of the PageResource.<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   *<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * @param pages The size of the pending allocation in pages<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   * @return The number of required pages, inclusive of any metadata<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public abstract int adjustForMetaData(int pages);<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>  /**<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   * Allocate pages in virtual memory, returning zero on failure.&lt;p&gt;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>   * If the request cannot be satisfied, zero is returned and it<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   * falls to the caller to trigger the GC.<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   *<a name="line.227"></a>
+<span class="sourceLineNo">228</span>   * Call &lt;code&gt;allocPages&lt;/code&gt; (subclass) to find the pages in<a name="line.228"></a>
+<span class="sourceLineNo">229</span>   * virtual memory.  If successful then commit the pending page<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   * request and return the address of the first page.<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   *<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * @param pagesReserved The number of pages reserved by the initial request<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @param pages The number of pages requested<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * @param zeroed If true allocated pages are zeroed.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @return The address of the first of &lt;code&gt;pages&lt;/code&gt; pages, or<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * zero on failure.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   */<a name="line.237"></a>
+<span class="sourceLineNo">238</span>  @Inline<a name="line.238"></a>
+<span class="sourceLineNo">239</span>  public final Address getNewPages(int pagesReserved, int pages, boolean zeroed) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    return allocPages(pagesReserved, pages, zeroed);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>  }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>  /**<a name="line.243"></a>
+<span class="sourceLineNo">244</span>   * Commit pages to the page budget.  This is called after<a name="line.244"></a>
+<span class="sourceLineNo">245</span>   * successfully determining that the request can be satisfied by<a name="line.245"></a>
+<span class="sourceLineNo">246</span>   * both the page budget and virtual memory.  This simply accounts<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   * for the discrepancy between &lt;code&gt;committed&lt;/code&gt; and<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   * &lt;code&gt;reserved&lt;/code&gt; while the request was pending.<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   *<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * This *MUST* be called by each PageResource during the<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   * allocPages, and the caller must hold the lock.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   *<a name="line.252"></a>
+<span class="sourceLineNo">253</span>   * @param reservedPages The number of pages initially reserved due to this request<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * @param actualPages The number of pages actually allocated.<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>  protected void commitPages(int reservedPages, int actualPages) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    int delta = actualPages - reservedPages;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    reserved += delta;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    committed += actualPages;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    if (VM.activePlan.isMutator()) {<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      // only count mutator pages<a name="line.261"></a>
+<span class="sourceLineNo">262</span>      addToCommitted(actualPages);<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>  /**<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * Return the number of reserved pages<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   *<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   * @return The number of reserved pages.<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>  public final int reservedPages() {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    return reserved;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>  }<a name="line.273"></a>
+<span class="sourceLineNo">274</span><a name="line.274"></a>
+<span class="sourceLineNo">275</span>  /**<a name="line.275"></a>
+<span class="sourceLineNo">276</span>   * Return the number of committed pages<a name="line.276"></a>
+<span class="sourceLineNo">277</span>   *<a name="line.277"></a>
+<span class="sourceLineNo">278</span>   * @return The number of committed pages.<a name="line.278"></a>
+<span class="sourceLineNo">279</span>   */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  public final int committedPages() {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    return committed;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>  /**<a name="line.284"></a>
+<span class="sourceLineNo">285</span>   * Return the cumulative number of committed pages<a name="line.285"></a>
+<span class="sourceLineNo">286</span>   *<a name="line.286"></a>
+<span class="sourceLineNo">287</span>   * @return The cumulative number of committed pages.<a name="line.287"></a>
+<span class="sourceLineNo">288</span>   */<a name="line.288"></a>
+<span class="sourceLineNo">289</span>  public static long cumulativeCommittedPages() {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    return cumulativeCommitted;<a name="line.290"></a>
+<span class="sourceLineNo">291</span>  }<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>  /**<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * Add to the total cumulative committed page count.<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   *<a name="line.295"></a>
+<span class="sourceLineNo">296</span>   * @param pages The number of pages to be added.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   */<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  private static void addToCommitted(int pages) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    classLock.acquire();<a name="line.299"></a>
+<span class="sourceLineNo">300</span>    cumulativeCommitted += pages;<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    classLock.release();<a name="line.301"></a>
+<span class="sourceLineNo">302</span>  }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>  /**<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   * Acquire the lock.<a name="line.305"></a>
+<span class="sourceLineNo">306</span>   */<a name="line.306"></a>
+<span class="sourceLineNo">307</span>  protected final void lock() {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    lock.acquire();<a name="line.308"></a>
+<span class="sourceLineNo">309</span>  }<a name="line.309"></a>
+<span class="sourceLineNo">310</span><a name="line.310"></a>
+<span class="sourceLineNo">311</span>  /**<a name="line.311"></a>
+<span class="sourceLineNo">312</span>   * Release the lock.<a name="line.312"></a>
+<span class="sourceLineNo">313</span>   */<a name="line.313"></a>
+<span class="sourceLineNo">314</span>  protected final void unlock() {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    lock.release();<a name="line.315"></a>
+<span class="sourceLineNo">316</span>  }<a name="line.316"></a>
+<span class="sourceLineNo">317</span>}<a name="line.317"></a>
 
 
 

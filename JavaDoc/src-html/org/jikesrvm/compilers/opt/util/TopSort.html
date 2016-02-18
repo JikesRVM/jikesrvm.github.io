@@ -58,75 +58,76 @@
 <span class="sourceLineNo">050</span>   * @param forward should we treat edges as forward?<a name="line.50"></a>
 <span class="sourceLineNo">051</span>   *  This is the second version of the implementation<a name="line.51"></a>
 <span class="sourceLineNo">052</span>   *   (see CVS file for older one)<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>  public static SortedGraphNode buildTopological(TopSortInterface graph, boolean forward) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>    SortedGraphNode start = graph.startNode(forward);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    TopSort sorter = new TopSort();<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    sorter.sortMarker = SortedGraphNode.getNewSortMarker(start);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    sorter.forward = forward;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    sorter.DFS(start, graph.numberOfNodes());<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    return sorter.lastNumberedNode;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>  /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   * Depth-first numbering in a non-recursive manner<a name="line.65"></a>
-<span class="sourceLineNo">066</span>   * @param node the root node<a name="line.66"></a>
-<span class="sourceLineNo">067</span>   * @param numNodes the number of nodes in this graph<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>  private void DFS(SortedGraphNode node, int numNodes) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>    // push node on to the emulated activation stack<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    push(node);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    @SuppressWarnings("unchecked") // the java generic array problem<a name="line.73"></a>
-<span class="sourceLineNo">074</span>        Enumeration&lt;? extends SortedGraphNode&gt;[] nodeEnum = new Enumeration[numNodes];<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    recurse:<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    while (!empty()) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>      node = peek();<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>      // check if we were already processing this node, if so we would have<a name="line.81"></a>
-<span class="sourceLineNo">082</span>      // saved the state of the enumeration in the loop below<a name="line.82"></a>
-<span class="sourceLineNo">083</span>      Enumeration&lt;? extends SortedGraphNode&gt; _enum = nodeEnum[node.getNumber()];<a name="line.83"></a>
-<span class="sourceLineNo">084</span>      if (_enum == null) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        // mark node as visited<a name="line.85"></a>
-<span class="sourceLineNo">086</span>        node.setSortMarker(sortMarker);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        if (forward) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>          _enum = node.getOutNodes();<a name="line.88"></a>
-<span class="sourceLineNo">089</span>        } else {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>          _enum = node.getInNodes();<a name="line.90"></a>
-<span class="sourceLineNo">091</span>        }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>      }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>      while (_enum.hasMoreElements()) {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>        SortedGraphNode target = _enum.nextElement();<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>        // have we visited target?<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        if (target.getSortMarker() != sortMarker) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>          // simulate a recursive call<a name="line.99"></a>
-<span class="sourceLineNo">100</span>          // but first save the enumeration state for resumption later<a name="line.100"></a>
-<span class="sourceLineNo">101</span>          nodeEnum[node.getNumber()] = _enum;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>          push(target);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>          continue recurse;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
-<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>      // give node the next smallest number<a name="line.107"></a>
-<span class="sourceLineNo">108</span>      node.setSortNumber(sortNumber--, forward);<a name="line.108"></a>
-<span class="sourceLineNo">109</span>      // link it to the previous smallest node, even if that node is null<a name="line.109"></a>
-<span class="sourceLineNo">110</span>      node.setSortedNext(lastNumberedNode, forward);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>      // update the smallest node<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      lastNumberedNode = node;<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>      // "Pop" from the emulated activiation stack<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      pop();<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>  }<a name="line.117"></a>
-<span class="sourceLineNo">118</span>}<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">053</span>   * @return the last sorted node<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  public static SortedGraphNode buildTopological(TopSortInterface graph, boolean forward) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span><a name="line.56"></a>
+<span class="sourceLineNo">057</span>    SortedGraphNode start = graph.startNode(forward);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    TopSort sorter = new TopSort();<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    sorter.sortMarker = SortedGraphNode.getNewSortMarker(start);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    sorter.forward = forward;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    sorter.DFS(start, graph.numberOfNodes());<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    return sorter.lastNumberedNode;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * Depth-first numbering in a non-recursive manner<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * @param node the root node<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * @param numNodes the number of nodes in this graph<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  private void DFS(SortedGraphNode node, int numNodes) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>    // push node on to the emulated activation stack<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    push(node);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    @SuppressWarnings("unchecked") // the java generic array problem<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        Enumeration&lt;? extends SortedGraphNode&gt;[] nodeEnum = new Enumeration[numNodes];<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    recurse:<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    while (!empty()) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>      node = peek();<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>      // check if we were already processing this node, if so we would have<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      // saved the state of the enumeration in the loop below<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      Enumeration&lt;? extends SortedGraphNode&gt; _enum = nodeEnum[node.getNumber()];<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      if (_enum == null) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>        // mark node as visited<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        node.setSortMarker(sortMarker);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        if (forward) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>          _enum = node.getOutNodes();<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        } else {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>          _enum = node.getInNodes();<a name="line.91"></a>
+<span class="sourceLineNo">092</span>        }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>      while (_enum.hasMoreElements()) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        SortedGraphNode target = _enum.nextElement();<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        // have we visited target?<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        if (target.getSortMarker() != sortMarker) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>          // simulate a recursive call<a name="line.100"></a>
+<span class="sourceLineNo">101</span>          // but first save the enumeration state for resumption later<a name="line.101"></a>
+<span class="sourceLineNo">102</span>          nodeEnum[node.getNumber()] = _enum;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>          push(target);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>          continue recurse;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      }<a name="line.106"></a>
+<span class="sourceLineNo">107</span><a name="line.107"></a>
+<span class="sourceLineNo">108</span>      // give node the next smallest number<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      node.setSortNumber(sortNumber--, forward);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      // link it to the previous smallest node, even if that node is null<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      node.setSortedNext(lastNumberedNode, forward);<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      // update the smallest node<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      lastNumberedNode = node;<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>      // "Pop" from the emulated activiation stack<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      pop();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span>}<a name="line.119"></a>
 <span class="sourceLineNo">120</span><a name="line.120"></a>
 <span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
 
 
 

@@ -20,35 +20,50 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.driver;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Class that holds miscellaneous constants used in the opt compiler<a name="line.16"></a>
-<span class="sourceLineNo">017</span> */<a name="line.17"></a>
-<span class="sourceLineNo">018</span>public interface OptConstants {<a name="line.18"></a>
-<span class="sourceLineNo">019</span>  // the following constants are dummy bytecode indices,<a name="line.19"></a>
-<span class="sourceLineNo">020</span>  // used to mark IR instructions that do not correspond<a name="line.20"></a>
-<span class="sourceLineNo">021</span>  // to any original bytecode<a name="line.21"></a>
-<span class="sourceLineNo">022</span>  int UNKNOWN_BCI = -1;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>  int PROLOGUE_BCI = -2;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>  int EPILOGUE_BCI = -3;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>  int RECTIFY_BCI = -4;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>  int SYNTH_CATCH_BCI = -5;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>  int SYNCHRONIZED_MONITORENTER_BCI = -6;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>  int SYNCHRONIZED_MONITOREXIT_BCI = -7;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  int METHOD_COUNTER_BCI = -8;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  int SSA_SYNTH_BCI = -9;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  int INSTRUMENTATION_BCI = -10;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>  int RUNTIME_SERVICES_BCI = -11;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>  int EXTANT_ANALYSIS_BCI = -12;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>  int PROLOGUE_BLOCK_BCI = -13;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  int EPILOGUE_BLOCK_BCI = -14;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  int OSR_PROLOGUE = -15;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  int SYNTH_LOOP_VERSIONING_BCI = -16;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>  // The following are used as trinary return values in OptCompiler code<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  byte NO = 0;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>  byte YES = 1;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  byte MAYBE = 2;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>}<a name="line.43"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.ir.Operators.INT_LOAD;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.compilers.opt.ir.Operators.LONG_LOAD;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.VM;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.classloader.TypeReference;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.Operator;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * Class that holds miscellaneous constants used in the opt compiler<a name="line.23"></a>
+<span class="sourceLineNo">024</span> */<a name="line.24"></a>
+<span class="sourceLineNo">025</span>public final class OptConstants {<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  // the following constants are dummy bytecode indices,<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  // used to mark IR instructions that do not correspond<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  // to any original bytecode<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  public static final int UNKNOWN_BCI = -1;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public static final int PROLOGUE_BCI = -2;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  public static final int EPILOGUE_BCI = -3;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  public static final int RECTIFY_BCI = -4;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  public static final int SYNTH_CATCH_BCI = -5;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static final int SYNCHRONIZED_MONITORENTER_BCI = -6;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static final int SYNCHRONIZED_MONITOREXIT_BCI = -7;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static final int METHOD_COUNTER_BCI = -8;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static final int SSA_SYNTH_BCI = -9;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static final int INSTRUMENTATION_BCI = -10;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public static final int RUNTIME_SERVICES_BCI = -11;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final int EXTANT_ANALYSIS_BCI = -12;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static final int PROLOGUE_BLOCK_BCI = -13;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  public static final int EPILOGUE_BLOCK_BCI = -14;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  public static final int OSR_PROLOGUE = -15;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  public static final int SYNTH_LOOP_VERSIONING_BCI = -16;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  // The following are used as trinary return values in OptCompiler code<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public static final byte NO = 0;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final byte YES = 1;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public static final byte MAYBE = 2;<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static final Operator IA32_REF_LOAD = VM.BuildFor32Addr ? INT_LOAD : LONG_LOAD;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static final TypeReference PRIMITIVE_TYPE_FOR_WORD =<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    VM.BuildFor32Addr ? TypeReference.Int : TypeReference.Long;<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>  private OptConstants() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    // prevent instantiation<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>}<a name="line.58"></a>
 
 
 

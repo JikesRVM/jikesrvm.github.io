@@ -20,29 +20,29 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.Constants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.classloader.Atom;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.classloader.RVMClass;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.MethodReference;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.classloader.TypeReference;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.bc2ir.IRGenOptions;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.driver.OptConstants;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.operand.ClassConstantOperand;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.operand.DoubleConstantOperand;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.operand.FloatConstantOperand;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.operand.LongConstantOperand;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.operand.StringConstantOperand;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.util.Stack;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.jikesrvm.runtime.RuntimeEntrypoints;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.jikesrvm.runtime.Statics;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.vmmagic.unboxed.Offset;<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>/**<a name="line.35"></a>
-<span class="sourceLineNo">036</span> **/<a name="line.36"></a>
-<span class="sourceLineNo">037</span>public final class ClassLoaderProxy implements Constants, OptConstants {<a name="line.37"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.bc2ir.IRGenOptions.DBG_TYPE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.compilers.opt.driver.OptConstants.MAYBE;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.compilers.opt.driver.OptConstants.NO;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.compilers.opt.driver.OptConstants.YES;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.classloader.Atom;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.classloader.MethodReference;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.classloader.RVMClass;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.classloader.TypeReference;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.operand.ClassConstantOperand;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.ir.operand.DoubleConstantOperand;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.compilers.opt.ir.operand.FloatConstantOperand;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.ir.operand.IntConstantOperand;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.ir.operand.LongConstantOperand;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.ir.operand.StringConstantOperand;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.util.Stack;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.runtime.RuntimeEntrypoints;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.runtime.Statics;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.vmmagic.unboxed.Offset;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>public final class ClassLoaderProxy {<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
 <span class="sourceLineNo">039</span>  /**<a name="line.39"></a>
 <span class="sourceLineNo">040</span>   * Returns a common superclass of the two types.<a name="line.40"></a>
@@ -91,7 +91,7 @@
 <span class="sourceLineNo">083</span>      return t1;<a name="line.83"></a>
 <span class="sourceLineNo">084</span>    }<a name="line.84"></a>
 <span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>    if (IRGenOptions.DBG_TYPE) {<a name="line.86"></a>
+<span class="sourceLineNo">086</span>    if (DBG_TYPE) {<a name="line.86"></a>
 <span class="sourceLineNo">087</span>      VM.sysWrite("finding common supertype of " + t1 + " and " + t2);<a name="line.87"></a>
 <span class="sourceLineNo">088</span>    }<a name="line.88"></a>
 <span class="sourceLineNo">089</span><a name="line.89"></a>
@@ -120,7 +120,7 @@
 <span class="sourceLineNo">112</span>      while (arrayDimensions-- &gt; 0) {<a name="line.112"></a>
 <span class="sourceLineNo">113</span>        type = type.getArrayTypeForElementType();<a name="line.113"></a>
 <span class="sourceLineNo">114</span>      }<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      if (IRGenOptions.DBG_TYPE) {<a name="line.115"></a>
+<span class="sourceLineNo">115</span>      if (DBG_TYPE) {<a name="line.115"></a>
 <span class="sourceLineNo">116</span>        VM.sysWrite("one is a primitive array, so supertype is " + type);<a name="line.116"></a>
 <span class="sourceLineNo">117</span>      }<a name="line.117"></a>
 <span class="sourceLineNo">118</span>      return type;<a name="line.118"></a>
@@ -136,7 +136,7 @@
 <span class="sourceLineNo">128</span>      while (arrayDimensions-- &gt; 0) {<a name="line.128"></a>
 <span class="sourceLineNo">129</span>        type = type.getArrayTypeForElementType();<a name="line.129"></a>
 <span class="sourceLineNo">130</span>      }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>      if (IRGenOptions.DBG_TYPE) {<a name="line.131"></a>
+<span class="sourceLineNo">131</span>      if (DBG_TYPE) {<a name="line.131"></a>
 <span class="sourceLineNo">132</span>        VM.sysWrite("differing dimensionalities for arrays, so supertype is " + type);<a name="line.132"></a>
 <span class="sourceLineNo">133</span>      }<a name="line.133"></a>
 <span class="sourceLineNo">134</span>      return type;<a name="line.134"></a>
@@ -159,10 +159,10 @@
 <span class="sourceLineNo">151</span>        s2.push(c2);<a name="line.151"></a>
 <span class="sourceLineNo">152</span>        c2 = c2.getSuperClass();<a name="line.152"></a>
 <span class="sourceLineNo">153</span>      } while (c2 != null);<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      if (IRGenOptions.DBG_TYPE) {<a name="line.154"></a>
+<span class="sourceLineNo">154</span>      if (DBG_TYPE) {<a name="line.154"></a>
 <span class="sourceLineNo">155</span>        VM.sysWrite("stack 1: " + s1);<a name="line.155"></a>
 <span class="sourceLineNo">156</span>      }<a name="line.156"></a>
-<span class="sourceLineNo">157</span>      if (IRGenOptions.DBG_TYPE) {<a name="line.157"></a>
+<span class="sourceLineNo">157</span>      if (DBG_TYPE) {<a name="line.157"></a>
 <span class="sourceLineNo">158</span>        VM.sysWrite("stack 2: " + s2);<a name="line.158"></a>
 <span class="sourceLineNo">159</span>      }<a name="line.159"></a>
 <span class="sourceLineNo">160</span>      TypeReference best = TypeReference.JavaLangObject;<a name="line.160"></a>
@@ -174,7 +174,7 @@
 <span class="sourceLineNo">166</span>          break;<a name="line.166"></a>
 <span class="sourceLineNo">167</span>        }<a name="line.167"></a>
 <span class="sourceLineNo">168</span>      }<a name="line.168"></a>
-<span class="sourceLineNo">169</span>      if (IRGenOptions.DBG_TYPE) {<a name="line.169"></a>
+<span class="sourceLineNo">169</span>      if (DBG_TYPE) {<a name="line.169"></a>
 <span class="sourceLineNo">170</span>        VM.sysWrite("common supertype of the two classes is " + best);<a name="line.170"></a>
 <span class="sourceLineNo">171</span>      }<a name="line.171"></a>
 <span class="sourceLineNo">172</span>      while (arrayDimensions-- &gt; 0) {<a name="line.172"></a>
@@ -182,10 +182,10 @@
 <span class="sourceLineNo">174</span>      }<a name="line.174"></a>
 <span class="sourceLineNo">175</span>      return best;<a name="line.175"></a>
 <span class="sourceLineNo">176</span>    } else {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>      if (IRGenOptions.DBG_TYPE &amp;&amp; c1 == null) {<a name="line.177"></a>
+<span class="sourceLineNo">177</span>      if (DBG_TYPE &amp;&amp; c1 == null) {<a name="line.177"></a>
 <span class="sourceLineNo">178</span>        VM.sysWrite(c1 + " is not loaded, using Object as common supertype");<a name="line.178"></a>
 <span class="sourceLineNo">179</span>      }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>      if (IRGenOptions.DBG_TYPE &amp;&amp; c2 == null) {<a name="line.180"></a>
+<span class="sourceLineNo">180</span>      if (DBG_TYPE &amp;&amp; c2 == null) {<a name="line.180"></a>
 <span class="sourceLineNo">181</span>        VM.sysWrite(c2 + " is not loaded, using Object as common supertype");<a name="line.181"></a>
 <span class="sourceLineNo">182</span>      }<a name="line.182"></a>
 <span class="sourceLineNo">183</span>      TypeReference common = TypeReference.JavaLangObject;<a name="line.183"></a>
@@ -320,7 +320,7 @@
 <span class="sourceLineNo">312</span>      } catch (Throwable e) {<a name="line.312"></a>
 <span class="sourceLineNo">313</span>        e.printStackTrace();<a name="line.313"></a>
 <span class="sourceLineNo">314</span>        OptimizingCompilerException.UNREACHABLE();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>        return MAYBE;            // placate jikes.<a name="line.315"></a>
+<span class="sourceLineNo">315</span>        return MAYBE;<a name="line.315"></a>
 <span class="sourceLineNo">316</span>      }<a name="line.316"></a>
 <span class="sourceLineNo">317</span>    }<a name="line.317"></a>
 <span class="sourceLineNo">318</span>  }<a name="line.318"></a>
@@ -331,94 +331,74 @@
 <span class="sourceLineNo">323</span><a name="line.323"></a>
 <span class="sourceLineNo">324</span>  /**<a name="line.324"></a>
 <span class="sourceLineNo">325</span>   * Find the method of the given class that matches the given descriptor.<a name="line.325"></a>
-<span class="sourceLineNo">326</span>   */<a name="line.326"></a>
-<span class="sourceLineNo">327</span>  public static RVMMethod lookupMethod(RVMClass cls, MethodReference ref) {<a name="line.327"></a>
-<span class="sourceLineNo">328</span>    RVMMethod newmeth = null;<a name="line.328"></a>
-<span class="sourceLineNo">329</span>    if (cls.isResolved() &amp;&amp; !cls.isInterface()) {<a name="line.329"></a>
-<span class="sourceLineNo">330</span>      Atom mn = ref.getName();<a name="line.330"></a>
-<span class="sourceLineNo">331</span>      Atom md = ref.getDescriptor();<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      for (; (newmeth == null) &amp;&amp; (cls != null); cls = cls.getSuperClass()) {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        newmeth = cls.findDeclaredMethod(mn, md);<a name="line.333"></a>
-<span class="sourceLineNo">334</span>      }<a name="line.334"></a>
-<span class="sourceLineNo">335</span>    }<a name="line.335"></a>
-<span class="sourceLineNo">336</span>    return newmeth;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>  }<a name="line.337"></a>
-<span class="sourceLineNo">338</span><a name="line.338"></a>
-<span class="sourceLineNo">339</span>  // --------------------------------------------------------------------------<a name="line.339"></a>
-<span class="sourceLineNo">340</span>  // Constant pool access<a name="line.340"></a>
-<span class="sourceLineNo">341</span>  // --------------------------------------------------------------------------<a name="line.341"></a>
+<span class="sourceLineNo">326</span>   *<a name="line.326"></a>
+<span class="sourceLineNo">327</span>   * @param cls the method's class<a name="line.327"></a>
+<span class="sourceLineNo">328</span>   * @param ref name and descriptor of the method<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * @return a matching method or {@code null} if none was found<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   */<a name="line.330"></a>
+<span class="sourceLineNo">331</span>  public static RVMMethod lookupMethod(RVMClass cls, MethodReference ref) {<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    RVMMethod newmeth = null;<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    if (cls.isResolved() &amp;&amp; !cls.isInterface()) {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>      Atom mn = ref.getName();<a name="line.334"></a>
+<span class="sourceLineNo">335</span>      Atom md = ref.getDescriptor();<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      for (; (newmeth == null) &amp;&amp; (cls != null); cls = cls.getSuperClass()) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        newmeth = cls.findDeclaredMethod(mn, md);<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      }<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    }<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    return newmeth;<a name="line.340"></a>
+<span class="sourceLineNo">341</span>  }<a name="line.341"></a>
 <span class="sourceLineNo">342</span><a name="line.342"></a>
-<span class="sourceLineNo">343</span>  /**<a name="line.343"></a>
-<span class="sourceLineNo">344</span>   * Get the integer stored at a particular index of a class's constant<a name="line.344"></a>
-<span class="sourceLineNo">345</span>   * pool.<a name="line.345"></a>
-<span class="sourceLineNo">346</span>   */<a name="line.346"></a>
+<span class="sourceLineNo">343</span>  // --------------------------------------------------------------------------<a name="line.343"></a>
+<span class="sourceLineNo">344</span>  // Constant pool access<a name="line.344"></a>
+<span class="sourceLineNo">345</span>  // --------------------------------------------------------------------------<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
 <span class="sourceLineNo">347</span>  public static IntConstantOperand getIntFromConstantPool(RVMClass klass, int index) {<a name="line.347"></a>
 <span class="sourceLineNo">348</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.348"></a>
 <span class="sourceLineNo">349</span>    int val = Statics.getSlotContentsAsInt(offset);<a name="line.349"></a>
 <span class="sourceLineNo">350</span>    return new IntConstantOperand(val);<a name="line.350"></a>
 <span class="sourceLineNo">351</span>  }<a name="line.351"></a>
 <span class="sourceLineNo">352</span><a name="line.352"></a>
-<span class="sourceLineNo">353</span>  /**<a name="line.353"></a>
-<span class="sourceLineNo">354</span>   * Get the double stored at a particular index of a class's constant<a name="line.354"></a>
-<span class="sourceLineNo">355</span>   * pool.<a name="line.355"></a>
-<span class="sourceLineNo">356</span>   */<a name="line.356"></a>
-<span class="sourceLineNo">357</span>  public static DoubleConstantOperand getDoubleFromConstantPool(RVMClass klass, int index) {<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.358"></a>
-<span class="sourceLineNo">359</span>    long val_raw = Statics.getSlotContentsAsLong(offset);<a name="line.359"></a>
-<span class="sourceLineNo">360</span>    double val = Double.longBitsToDouble(val_raw);<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    return new DoubleConstantOperand(val, offset);<a name="line.361"></a>
-<span class="sourceLineNo">362</span>  }<a name="line.362"></a>
-<span class="sourceLineNo">363</span><a name="line.363"></a>
-<span class="sourceLineNo">364</span>  /**<a name="line.364"></a>
-<span class="sourceLineNo">365</span>   * Get the float stored at a particular index of a class's constant<a name="line.365"></a>
-<span class="sourceLineNo">366</span>   * pool.<a name="line.366"></a>
-<span class="sourceLineNo">367</span>   */<a name="line.367"></a>
-<span class="sourceLineNo">368</span>  public static FloatConstantOperand getFloatFromConstantPool(RVMClass klass, int index) {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    int val_raw = Statics.getSlotContentsAsInt(offset);<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    float val = Float.intBitsToFloat(val_raw);<a name="line.371"></a>
-<span class="sourceLineNo">372</span>    return new FloatConstantOperand(val, offset);<a name="line.372"></a>
-<span class="sourceLineNo">373</span>  }<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>  /**<a name="line.375"></a>
-<span class="sourceLineNo">376</span>   * Get the long stored at a particular index of a class's constant<a name="line.376"></a>
-<span class="sourceLineNo">377</span>   * pool.<a name="line.377"></a>
-<span class="sourceLineNo">378</span>   */<a name="line.378"></a>
-<span class="sourceLineNo">379</span>  public static LongConstantOperand getLongFromConstantPool(RVMClass klass, int index) {<a name="line.379"></a>
-<span class="sourceLineNo">380</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    long val = Statics.getSlotContentsAsLong(offset);<a name="line.381"></a>
-<span class="sourceLineNo">382</span>    return new LongConstantOperand(val, offset);<a name="line.382"></a>
-<span class="sourceLineNo">383</span>  }<a name="line.383"></a>
-<span class="sourceLineNo">384</span><a name="line.384"></a>
-<span class="sourceLineNo">385</span>  /**<a name="line.385"></a>
-<span class="sourceLineNo">386</span>   * Get the String stored at a particular index of a class's constant<a name="line.386"></a>
-<span class="sourceLineNo">387</span>   * pool.<a name="line.387"></a>
-<span class="sourceLineNo">388</span>   */<a name="line.388"></a>
-<span class="sourceLineNo">389</span>  public static StringConstantOperand getStringFromConstantPool(RVMClass klass, int index) {<a name="line.389"></a>
-<span class="sourceLineNo">390</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.390"></a>
-<span class="sourceLineNo">391</span>    try {<a name="line.391"></a>
-<span class="sourceLineNo">392</span>      String val;<a name="line.392"></a>
-<span class="sourceLineNo">393</span>      val = (String) Statics.getSlotContentsAsObject(offset);<a name="line.393"></a>
-<span class="sourceLineNo">394</span>      return new StringConstantOperand(val, offset);<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    } catch (ClassCastException e) {<a name="line.395"></a>
-<span class="sourceLineNo">396</span>      throw new Error("Corrupt JTOC at offset " + offset.toInt(), e);<a name="line.396"></a>
-<span class="sourceLineNo">397</span>    }<a name="line.397"></a>
-<span class="sourceLineNo">398</span>  }<a name="line.398"></a>
-<span class="sourceLineNo">399</span><a name="line.399"></a>
-<span class="sourceLineNo">400</span>  /**<a name="line.400"></a>
-<span class="sourceLineNo">401</span>   * Get the Class stored at a particular index of a class's constant<a name="line.401"></a>
-<span class="sourceLineNo">402</span>   * pool.<a name="line.402"></a>
-<span class="sourceLineNo">403</span>   */<a name="line.403"></a>
-<span class="sourceLineNo">404</span>  public static ClassConstantOperand getClassFromConstantPool(RVMClass klass, int index) {<a name="line.404"></a>
-<span class="sourceLineNo">405</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    try {<a name="line.406"></a>
-<span class="sourceLineNo">407</span>      Class&lt;?&gt; val = (Class&lt;?&gt;) Statics.getSlotContentsAsObject(offset);<a name="line.407"></a>
-<span class="sourceLineNo">408</span>      return new ClassConstantOperand(val, offset);<a name="line.408"></a>
-<span class="sourceLineNo">409</span>    } catch (ClassCastException e) {<a name="line.409"></a>
-<span class="sourceLineNo">410</span>      throw new Error("Corrupt JTOC at offset " + offset.toInt(), e);<a name="line.410"></a>
-<span class="sourceLineNo">411</span>    }<a name="line.411"></a>
-<span class="sourceLineNo">412</span>  }<a name="line.412"></a>
-<span class="sourceLineNo">413</span>}<a name="line.413"></a>
+<span class="sourceLineNo">353</span>  public static DoubleConstantOperand getDoubleFromConstantPool(RVMClass klass, int index) {<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.354"></a>
+<span class="sourceLineNo">355</span>    long val_raw = Statics.getSlotContentsAsLong(offset);<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    double val = Double.longBitsToDouble(val_raw);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    return new DoubleConstantOperand(val, offset);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>  }<a name="line.358"></a>
+<span class="sourceLineNo">359</span><a name="line.359"></a>
+<span class="sourceLineNo">360</span>  public static FloatConstantOperand getFloatFromConstantPool(RVMClass klass, int index) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    int val_raw = Statics.getSlotContentsAsInt(offset);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    float val = Float.intBitsToFloat(val_raw);<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    return new FloatConstantOperand(val, offset);<a name="line.364"></a>
+<span class="sourceLineNo">365</span>  }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>  public static LongConstantOperand getLongFromConstantPool(RVMClass klass, int index) {<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    long val = Statics.getSlotContentsAsLong(offset);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    return new LongConstantOperand(val);<a name="line.370"></a>
+<span class="sourceLineNo">371</span>  }<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>  public static StringConstantOperand getStringFromConstantPool(RVMClass klass, int index) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    try {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>      String val;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>      val = (String) Statics.getSlotContentsAsObject(offset);<a name="line.377"></a>
+<span class="sourceLineNo">378</span>      return new StringConstantOperand(val, offset);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>    } catch (ClassCastException e) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>      throw new Error("Corrupt JTOC at offset " + offset.toInt(), e);<a name="line.380"></a>
+<span class="sourceLineNo">381</span>    }<a name="line.381"></a>
+<span class="sourceLineNo">382</span>  }<a name="line.382"></a>
+<span class="sourceLineNo">383</span><a name="line.383"></a>
+<span class="sourceLineNo">384</span>  public static ClassConstantOperand getClassFromConstantPool(RVMClass klass, int index) {<a name="line.384"></a>
+<span class="sourceLineNo">385</span>    Offset offset = klass.getLiteralOffset(index);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>    try {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>      Class&lt;?&gt; val = (Class&lt;?&gt;) Statics.getSlotContentsAsObject(offset);<a name="line.387"></a>
+<span class="sourceLineNo">388</span>      return new ClassConstantOperand(val, offset);<a name="line.388"></a>
+<span class="sourceLineNo">389</span>    } catch (ClassCastException e) {<a name="line.389"></a>
+<span class="sourceLineNo">390</span>      throw new Error("Corrupt JTOC at offset " + offset.toInt(), e);<a name="line.390"></a>
+<span class="sourceLineNo">391</span>    }<a name="line.391"></a>
+<span class="sourceLineNo">392</span>  }<a name="line.392"></a>
+<span class="sourceLineNo">393</span>}<a name="line.393"></a>
 
 
 

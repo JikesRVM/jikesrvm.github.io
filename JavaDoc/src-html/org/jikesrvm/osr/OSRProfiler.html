@@ -21,18 +21,18 @@
 <span class="sourceLineNo">013</span>package org.jikesrvm.osr;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.Callbacks;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.adaptive.controller.ControllerMemory;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.adaptive.controller.ControllerPlan;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.adaptive.recompilation.InvocationCounts;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.adaptive.util.AOSLogging;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.adaptive.util.CompilerAdviceAttribute;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.common.RuntimeCompiler;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.driver.CompilationPlan;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod;<a name="line.27"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.adaptive.controller.ControllerMemory;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.adaptive.controller.ControllerPlan;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.adaptive.recompilation.InvocationCounts;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.adaptive.util.AOSLogging;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.adaptive.util.CompilerAdviceAttribute;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.common.RuntimeCompiler;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.driver.CompilationPlan;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.runtime.Callbacks;<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
 <span class="sourceLineNo">029</span>/**<a name="line.29"></a>
 <span class="sourceLineNo">030</span> * Maintain statistic information about on stack replacement events<a name="line.30"></a>
@@ -128,44 +128,50 @@
 <span class="sourceLineNo">120</span>        }<a name="line.120"></a>
 <span class="sourceLineNo">121</span>      }<a name="line.121"></a>
 <span class="sourceLineNo">122</span>      if (cmplplan != null) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>        if (VM.VerifyAssertions) {VM._assert(cmplplan.getMethod() == state.meth);}<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>        // for invalidated method, we do not perform OSR guarded inlining anymore.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>        // the Options object may be shared by several methods,<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        // we have to reset it back<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        boolean savedOsr = cmplplan.options.OSR_GUARDED_INLINING;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        cmplplan.options.OSR_GUARDED_INLINING = false;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        int newcmid = RuntimeCompiler.recompileWithOpt(cmplplan);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        cmplplan.options.OSR_GUARDED_INLINING = savedOsr;<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>        if (newcmid != -1) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>          AOSLogging.logger.debug("recompiling state with opt succeeded " + state.cmid);<a name="line.134"></a>
-<span class="sourceLineNo">135</span>          AOSLogging.logger.debug("new cmid " + newcmid);<a name="line.135"></a>
-<span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>          // transfer hotness to the new cmid<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          double oldSamples = Controller.methodSamples.getData(state.cmid);<a name="line.138"></a>
-<span class="sourceLineNo">139</span>          Controller.methodSamples.reset(state.cmid);<a name="line.139"></a>
-<span class="sourceLineNo">140</span>          Controller.methodSamples.augmentData(newcmid, oldSamples);<a name="line.140"></a>
-<span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>          recmplsucc = true;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>          if (VM.TraceOnStackReplacement) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            VM.sysWriteln("  recompile " + state.meth + " at -O" + cmplplan.options.getOptLevel());<a name="line.144"></a>
-<span class="sourceLineNo">145</span>          }<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>      }<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>    if (!recmplsucc) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>      int newcmid = RuntimeCompiler.recompileWithOpt(state.meth);<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      if (newcmid == -1) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        if (VM.TraceOnStackReplacement) {VM.sysWriteln("  opt recompilation failed!");}<a name="line.153"></a>
-<span class="sourceLineNo">154</span>        state.meth.invalidateCompiledMethod(mostRecentlyCompiledMethod);<a name="line.154"></a>
-<span class="sourceLineNo">155</span>      }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>    if (VM.TraceOnStackReplacement) {VM.sysWriteln("  opt recompilation done!");}<a name="line.158"></a>
-<span class="sourceLineNo">159</span>  }<a name="line.159"></a>
-<span class="sourceLineNo">160</span>}<a name="line.160"></a>
+<span class="sourceLineNo">123</span>        if (VM.VerifyAssertions) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>          VM._assert(cmplplan.getMethod() == state.meth);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>        // for invalidated method, we do not perform OSR guarded inlining anymore.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>        // the Options object may be shared by several methods,<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        // we have to reset it back<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        boolean savedOsr = cmplplan.options.OSR_GUARDED_INLINING;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        cmplplan.options.OSR_GUARDED_INLINING = false;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        int newcmid = RuntimeCompiler.recompileWithOpt(cmplplan);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        cmplplan.options.OSR_GUARDED_INLINING = savedOsr;<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>        if (newcmid != -1) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>          AOSLogging.logger.debug("recompiling state with opt succeeded " + state.cmid);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>          AOSLogging.logger.debug("new cmid " + newcmid);<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>          // transfer hotness to the new cmid<a name="line.139"></a>
+<span class="sourceLineNo">140</span>          double oldSamples = Controller.methodSamples.getData(state.cmid);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>          Controller.methodSamples.reset(state.cmid);<a name="line.141"></a>
+<span class="sourceLineNo">142</span>          Controller.methodSamples.augmentData(newcmid, oldSamples);<a name="line.142"></a>
+<span class="sourceLineNo">143</span><a name="line.143"></a>
+<span class="sourceLineNo">144</span>          recmplsucc = true;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>          if (VM.TraceOnStackReplacement) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            VM.sysWriteln("  recompile " + state.meth + " at -O" + cmplplan.options.getOptLevel());<a name="line.146"></a>
+<span class="sourceLineNo">147</span>          }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        }<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>    if (!recmplsucc) {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>      int newcmid = RuntimeCompiler.recompileWithOpt(state.meth);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>      if (newcmid == -1) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        if (VM.TraceOnStackReplacement) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          VM.sysWriteln("  opt recompilation failed!");<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        state.meth.invalidateCompiledMethod(mostRecentlyCompiledMethod);<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>    if (VM.TraceOnStackReplacement) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>      VM.sysWriteln("  opt recompilation done!");<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>}<a name="line.166"></a>
 
 
 

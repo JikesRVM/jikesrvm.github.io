@@ -82,7 +82,7 @@
 <span class="sourceLineNo">074</span>   * Set up the system of dataflow equations.<a name="line.74"></a>
 <span class="sourceLineNo">075</span>   * @param _ir the IR<a name="line.75"></a>
 <span class="sourceLineNo">076</span>   */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>  public IndexPropagationSystem(IR _ir) {<a name="line.77"></a>
+<span class="sourceLineNo">077</span>  IndexPropagationSystem(IR _ir) {<a name="line.77"></a>
 <span class="sourceLineNo">078</span>    ir = _ir;<a name="line.78"></a>
 <span class="sourceLineNo">079</span>    ssa = ir.HIRInfo.dictionary;<a name="line.79"></a>
 <span class="sourceLineNo">080</span>    valueNumbers = ir.HIRInfo.valueNumbers;<a name="line.80"></a>
@@ -201,11 +201,11 @@
 <span class="sourceLineNo">193</span>          processCall(s);<a name="line.193"></a>
 <span class="sourceLineNo">194</span>        } else if (Phi.conforms(s)) {<a name="line.194"></a>
 <span class="sourceLineNo">195</span>          processPhi(s);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        } else if (s.operator == READ_CEILING) {<a name="line.196"></a>
+<span class="sourceLineNo">196</span>        } else if (s.operator() == READ_CEILING) {<a name="line.196"></a>
 <span class="sourceLineNo">197</span>          processCall(s);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>        } else if (s.operator == WRITE_FLOOR) {<a name="line.198"></a>
+<span class="sourceLineNo">198</span>        } else if (s.operator() == WRITE_FLOOR) {<a name="line.198"></a>
 <span class="sourceLineNo">199</span>          processCall(s);<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        } else if (s.operator == FENCE) {<a name="line.200"></a>
+<span class="sourceLineNo">200</span>        } else if (s.operator() == FENCE) {<a name="line.200"></a>
 <span class="sourceLineNo">201</span>          processCall(s);<a name="line.201"></a>
 <span class="sourceLineNo">202</span>        }<a name="line.202"></a>
 <span class="sourceLineNo">203</span>      }<a name="line.203"></a>
@@ -441,7 +441,7 @@
 <span class="sourceLineNo">433</span>  /**<a name="line.433"></a>
 <span class="sourceLineNo">434</span>   * Add an equation to the system of the form<a name="line.434"></a>
 <span class="sourceLineNo">435</span>   * &lt;pre&gt;<a name="line.435"></a>
-<span class="sourceLineNo">436</span>   * L(A1) = updateDef(L(A2), &lt;VALNUM(array),VALNUM(index)&gt;)<a name="line.436"></a>
+<span class="sourceLineNo">436</span>   * L(A1) = updateDef(L(A2), &amp;lt;VALNUM(array),VALNUM(index)&amp;gt;)<a name="line.436"></a>
 <span class="sourceLineNo">437</span>   * &lt;/pre&gt;<a name="line.437"></a>
 <span class="sourceLineNo">438</span>   *<a name="line.438"></a>
 <span class="sourceLineNo">439</span>   * @param A1 variable in the equation<a name="line.439"></a>
@@ -461,7 +461,7 @@
 <span class="sourceLineNo">453</span>  /**<a name="line.453"></a>
 <span class="sourceLineNo">454</span>   * Add an equation to the system of the form<a name="line.454"></a>
 <span class="sourceLineNo">455</span>   * &lt;pre&gt;<a name="line.455"></a>
-<span class="sourceLineNo">456</span>   * L(A1) = updateUse(L(A2), &lt;VALNUM(array),VALNUM(index)&gt;)<a name="line.456"></a>
+<span class="sourceLineNo">456</span>   * L(A1) = updateUse(L(A2), &amp;lt;VALNUM(array),VALNUM(index)&amp;gt;)<a name="line.456"></a>
 <span class="sourceLineNo">457</span>   * &lt;/pre&gt;<a name="line.457"></a>
 <span class="sourceLineNo">458</span>   *<a name="line.458"></a>
 <span class="sourceLineNo">459</span>   * @param A1 variable in the equation<a name="line.459"></a>
@@ -487,188 +487,188 @@
 <span class="sourceLineNo">479</span>     * @return "MEET"<a name="line.479"></a>
 <span class="sourceLineNo">480</span>     */<a name="line.480"></a>
 <span class="sourceLineNo">481</span>    @Override<a name="line.481"></a>
-<span class="sourceLineNo">482</span>    public String toString() { return "MEET"; }<a name="line.482"></a>
-<span class="sourceLineNo">483</span><a name="line.483"></a>
-<span class="sourceLineNo">484</span>    /**<a name="line.484"></a>
-<span class="sourceLineNo">485</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.485"></a>
-<span class="sourceLineNo">486</span>     * @param operands the operands of the dataflow equation<a name="line.486"></a>
-<span class="sourceLineNo">487</span>     * @return true iff the value of the lhs changes<a name="line.487"></a>
-<span class="sourceLineNo">488</span>     */<a name="line.488"></a>
-<span class="sourceLineNo">489</span>    @Override<a name="line.489"></a>
-<span class="sourceLineNo">490</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.490"></a>
-<span class="sourceLineNo">491</span>      DF_LatticeCell lhs = operands[0];<a name="line.491"></a>
-<span class="sourceLineNo">492</span>      if (lhs instanceof ObjectCell) {<a name="line.492"></a>
-<span class="sourceLineNo">493</span>        return evaluateObjectMeet(operands);<a name="line.493"></a>
-<span class="sourceLineNo">494</span>      } else {<a name="line.494"></a>
-<span class="sourceLineNo">495</span>        return evaluateArrayMeet(operands);<a name="line.495"></a>
-<span class="sourceLineNo">496</span>      }<a name="line.496"></a>
-<span class="sourceLineNo">497</span>    }<a name="line.497"></a>
-<span class="sourceLineNo">498</span><a name="line.498"></a>
-<span class="sourceLineNo">499</span>    /**<a name="line.499"></a>
-<span class="sourceLineNo">500</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.500"></a>
-<span class="sourceLineNo">501</span>     * for lattice cells representing field heap variables.<a name="line.501"></a>
-<span class="sourceLineNo">502</span>     * @param operands the operands of the dataflow equation<a name="line.502"></a>
-<span class="sourceLineNo">503</span>     * @return true iff the value of the lhs changes<a name="line.503"></a>
-<span class="sourceLineNo">504</span>     */<a name="line.504"></a>
-<span class="sourceLineNo">505</span>    boolean evaluateObjectMeet(DF_LatticeCell[] operands) {<a name="line.505"></a>
-<span class="sourceLineNo">506</span>      ObjectCell lhs = (ObjectCell) operands[0];<a name="line.506"></a>
-<span class="sourceLineNo">507</span><a name="line.507"></a>
-<span class="sourceLineNo">508</span>      // short-circuit if lhs is already bottom<a name="line.508"></a>
-<span class="sourceLineNo">509</span>      if (lhs.isBOTTOM()) {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>        return false;<a name="line.510"></a>
-<span class="sourceLineNo">511</span>      }<a name="line.511"></a>
-<span class="sourceLineNo">512</span><a name="line.512"></a>
-<span class="sourceLineNo">513</span>      // short-circuit if any rhs is bottom<a name="line.513"></a>
-<span class="sourceLineNo">514</span>      for (int j = 1; j &lt; operands.length; j++) {<a name="line.514"></a>
-<span class="sourceLineNo">515</span>        ObjectCell r = (ObjectCell) operands[j];<a name="line.515"></a>
-<span class="sourceLineNo">516</span>        if (r.isBOTTOM()) {<a name="line.516"></a>
-<span class="sourceLineNo">517</span>          // from the previous short-circuit, we know lhs was not already bottom, so ...<a name="line.517"></a>
-<span class="sourceLineNo">518</span>          lhs.setBOTTOM();<a name="line.518"></a>
-<span class="sourceLineNo">519</span>          return true;<a name="line.519"></a>
-<span class="sourceLineNo">520</span>        }<a name="line.520"></a>
-<span class="sourceLineNo">521</span>      }<a name="line.521"></a>
-<span class="sourceLineNo">522</span><a name="line.522"></a>
-<span class="sourceLineNo">523</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.523"></a>
-<span class="sourceLineNo">524</span>      int[] oldNumbers = null;<a name="line.524"></a>
-<span class="sourceLineNo">525</span><a name="line.525"></a>
-<span class="sourceLineNo">526</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.526"></a>
+<span class="sourceLineNo">482</span>    public String toString() {<a name="line.482"></a>
+<span class="sourceLineNo">483</span>      return "MEET";<a name="line.483"></a>
+<span class="sourceLineNo">484</span>    }<a name="line.484"></a>
+<span class="sourceLineNo">485</span><a name="line.485"></a>
+<span class="sourceLineNo">486</span>    /**<a name="line.486"></a>
+<span class="sourceLineNo">487</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.487"></a>
+<span class="sourceLineNo">488</span>     * @param operands the operands of the dataflow equation<a name="line.488"></a>
+<span class="sourceLineNo">489</span>     * @return true iff the value of the lhs changes<a name="line.489"></a>
+<span class="sourceLineNo">490</span>     */<a name="line.490"></a>
+<span class="sourceLineNo">491</span>    @Override<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.492"></a>
+<span class="sourceLineNo">493</span>      DF_LatticeCell lhs = operands[0];<a name="line.493"></a>
+<span class="sourceLineNo">494</span>      if (lhs instanceof ObjectCell) {<a name="line.494"></a>
+<span class="sourceLineNo">495</span>        return evaluateObjectMeet(operands);<a name="line.495"></a>
+<span class="sourceLineNo">496</span>      } else {<a name="line.496"></a>
+<span class="sourceLineNo">497</span>        return evaluateArrayMeet(operands);<a name="line.497"></a>
+<span class="sourceLineNo">498</span>      }<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    }<a name="line.499"></a>
+<span class="sourceLineNo">500</span><a name="line.500"></a>
+<span class="sourceLineNo">501</span>    /**<a name="line.501"></a>
+<span class="sourceLineNo">502</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.502"></a>
+<span class="sourceLineNo">503</span>     * for lattice cells representing field heap variables.<a name="line.503"></a>
+<span class="sourceLineNo">504</span>     * @param operands the operands of the dataflow equation<a name="line.504"></a>
+<span class="sourceLineNo">505</span>     * @return true iff the value of the lhs changes<a name="line.505"></a>
+<span class="sourceLineNo">506</span>     */<a name="line.506"></a>
+<span class="sourceLineNo">507</span>    boolean evaluateObjectMeet(DF_LatticeCell[] operands) {<a name="line.507"></a>
+<span class="sourceLineNo">508</span>      ObjectCell lhs = (ObjectCell) operands[0];<a name="line.508"></a>
+<span class="sourceLineNo">509</span><a name="line.509"></a>
+<span class="sourceLineNo">510</span>      // short-circuit if lhs is already bottom<a name="line.510"></a>
+<span class="sourceLineNo">511</span>      if (lhs.isBOTTOM()) {<a name="line.511"></a>
+<span class="sourceLineNo">512</span>        return false;<a name="line.512"></a>
+<span class="sourceLineNo">513</span>      }<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>      // short-circuit if any rhs is bottom<a name="line.515"></a>
+<span class="sourceLineNo">516</span>      for (int j = 1; j &lt; operands.length; j++) {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>        ObjectCell r = (ObjectCell) operands[j];<a name="line.517"></a>
+<span class="sourceLineNo">518</span>        if (r.isBOTTOM()) {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>          // from the previous short-circuit, we know lhs was not already bottom, so ...<a name="line.519"></a>
+<span class="sourceLineNo">520</span>          lhs.setBOTTOM();<a name="line.520"></a>
+<span class="sourceLineNo">521</span>          return true;<a name="line.521"></a>
+<span class="sourceLineNo">522</span>        }<a name="line.522"></a>
+<span class="sourceLineNo">523</span>      }<a name="line.523"></a>
+<span class="sourceLineNo">524</span><a name="line.524"></a>
+<span class="sourceLineNo">525</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.525"></a>
+<span class="sourceLineNo">526</span>      int[] oldNumbers = null;<a name="line.526"></a>
 <span class="sourceLineNo">527</span><a name="line.527"></a>
-<span class="sourceLineNo">528</span>      lhs.clear();<a name="line.528"></a>
-<span class="sourceLineNo">529</span>      // perform the intersections<a name="line.529"></a>
-<span class="sourceLineNo">530</span>      if (operands.length &gt; 1) {<a name="line.530"></a>
-<span class="sourceLineNo">531</span>        int firstNonTopRHS = -1;<a name="line.531"></a>
-<span class="sourceLineNo">532</span>        // find the first RHS lattice cell that is not TOP<a name="line.532"></a>
-<span class="sourceLineNo">533</span>        for (int j = 1; j &lt; operands.length; j++) {<a name="line.533"></a>
-<span class="sourceLineNo">534</span>          ObjectCell r = (ObjectCell) operands[j];<a name="line.534"></a>
-<span class="sourceLineNo">535</span>          if (!r.isTOP()) {<a name="line.535"></a>
-<span class="sourceLineNo">536</span>            firstNonTopRHS = j;<a name="line.536"></a>
-<span class="sourceLineNo">537</span>            break;<a name="line.537"></a>
-<span class="sourceLineNo">538</span>          }<a name="line.538"></a>
-<span class="sourceLineNo">539</span>        }<a name="line.539"></a>
-<span class="sourceLineNo">540</span>        // if we did not find ANY non-top cell, then simply set<a name="line.540"></a>
-<span class="sourceLineNo">541</span>        // lhs to top and return<a name="line.541"></a>
-<span class="sourceLineNo">542</span>        if (firstNonTopRHS == -1) {<a name="line.542"></a>
-<span class="sourceLineNo">543</span>          lhs.setTOP(true);<a name="line.543"></a>
-<span class="sourceLineNo">544</span>          return false;<a name="line.544"></a>
-<span class="sourceLineNo">545</span>        }<a name="line.545"></a>
-<span class="sourceLineNo">546</span>        // if we get here, we found a non-top cell. Start merging<a name="line.546"></a>
-<span class="sourceLineNo">547</span>        // here<a name="line.547"></a>
-<span class="sourceLineNo">548</span>        int[] rhsNumbers = ((ObjectCell) operands[firstNonTopRHS]).copyValueNumbers();<a name="line.548"></a>
-<span class="sourceLineNo">549</span><a name="line.549"></a>
-<span class="sourceLineNo">550</span>        if (rhsNumbers != null) {<a name="line.550"></a>
-<span class="sourceLineNo">551</span>          for (int v : rhsNumbers) {<a name="line.551"></a>
-<span class="sourceLineNo">552</span>            lhs.add(v);<a name="line.552"></a>
-<span class="sourceLineNo">553</span>            for (int j = firstNonTopRHS + 1; j &lt; operands.length; j++) {<a name="line.553"></a>
-<span class="sourceLineNo">554</span>              ObjectCell r = (ObjectCell) operands[j];<a name="line.554"></a>
-<span class="sourceLineNo">555</span>              if (!r.contains(v)) {<a name="line.555"></a>
-<span class="sourceLineNo">556</span>                lhs.remove(v);<a name="line.556"></a>
-<span class="sourceLineNo">557</span>                break;<a name="line.557"></a>
-<span class="sourceLineNo">558</span>              }<a name="line.558"></a>
-<span class="sourceLineNo">559</span>            }<a name="line.559"></a>
-<span class="sourceLineNo">560</span>          }<a name="line.560"></a>
-<span class="sourceLineNo">561</span>        }<a name="line.561"></a>
-<span class="sourceLineNo">562</span>      }<a name="line.562"></a>
-<span class="sourceLineNo">563</span>      // check if anything has changed<a name="line.563"></a>
-<span class="sourceLineNo">564</span>      if (lhsWasTOP) return true;<a name="line.564"></a>
-<span class="sourceLineNo">565</span>      int[] newNumbers = lhs.copyValueNumbers();<a name="line.565"></a>
-<span class="sourceLineNo">566</span><a name="line.566"></a>
-<span class="sourceLineNo">567</span>      return ObjectCell.setsDiffer(oldNumbers, newNumbers);<a name="line.567"></a>
-<span class="sourceLineNo">568</span>    }<a name="line.568"></a>
-<span class="sourceLineNo">569</span><a name="line.569"></a>
-<span class="sourceLineNo">570</span>    /**<a name="line.570"></a>
-<span class="sourceLineNo">571</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.571"></a>
-<span class="sourceLineNo">572</span>     * for lattice cells representing array heap variables.<a name="line.572"></a>
-<span class="sourceLineNo">573</span>     * @param operands the operands of the dataflow equation<a name="line.573"></a>
-<span class="sourceLineNo">574</span>     * @return true iff the value of the lhs changes<a name="line.574"></a>
-<span class="sourceLineNo">575</span>     */<a name="line.575"></a>
-<span class="sourceLineNo">576</span>    boolean evaluateArrayMeet(DF_LatticeCell[] operands) {<a name="line.576"></a>
-<span class="sourceLineNo">577</span>      ArrayCell lhs = (ArrayCell) operands[0];<a name="line.577"></a>
-<span class="sourceLineNo">578</span><a name="line.578"></a>
-<span class="sourceLineNo">579</span>      // short-circuit if lhs is already bottom<a name="line.579"></a>
-<span class="sourceLineNo">580</span>      if (lhs.isBOTTOM()) {<a name="line.580"></a>
-<span class="sourceLineNo">581</span>        return false;<a name="line.581"></a>
-<span class="sourceLineNo">582</span>      }<a name="line.582"></a>
-<span class="sourceLineNo">583</span><a name="line.583"></a>
-<span class="sourceLineNo">584</span>      // short-circuit if any rhs is bottom<a name="line.584"></a>
-<span class="sourceLineNo">585</span>      for (int j = 1; j &lt; operands.length; j++) {<a name="line.585"></a>
-<span class="sourceLineNo">586</span>        ArrayCell r = (ArrayCell) operands[j];<a name="line.586"></a>
-<span class="sourceLineNo">587</span>        if (r.isBOTTOM()) {<a name="line.587"></a>
-<span class="sourceLineNo">588</span>          // from the previous short-circuit, we know lhs was not already bottom, so ...<a name="line.588"></a>
-<span class="sourceLineNo">589</span>          lhs.setBOTTOM();<a name="line.589"></a>
-<span class="sourceLineNo">590</span>          return true;<a name="line.590"></a>
-<span class="sourceLineNo">591</span>        }<a name="line.591"></a>
-<span class="sourceLineNo">592</span>      }<a name="line.592"></a>
-<span class="sourceLineNo">593</span><a name="line.593"></a>
-<span class="sourceLineNo">594</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.594"></a>
-<span class="sourceLineNo">595</span>      ValueNumberPair[] oldNumbers = null;<a name="line.595"></a>
-<span class="sourceLineNo">596</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.596"></a>
-<span class="sourceLineNo">597</span><a name="line.597"></a>
-<span class="sourceLineNo">598</span>      lhs.clear();<a name="line.598"></a>
-<span class="sourceLineNo">599</span>      // perform the intersections<a name="line.599"></a>
-<span class="sourceLineNo">600</span>      if (operands.length &gt; 1) {<a name="line.600"></a>
-<span class="sourceLineNo">601</span>        int firstNonTopRHS = -1;<a name="line.601"></a>
-<span class="sourceLineNo">602</span>        // find the first RHS lattice cell that is not TOP<a name="line.602"></a>
-<span class="sourceLineNo">603</span>        for (int j = 1; j &lt; operands.length; j++) {<a name="line.603"></a>
-<span class="sourceLineNo">604</span>          ArrayCell r = (ArrayCell) operands[j];<a name="line.604"></a>
-<span class="sourceLineNo">605</span>          if (!r.isTOP()) {<a name="line.605"></a>
-<span class="sourceLineNo">606</span>            firstNonTopRHS = j;<a name="line.606"></a>
-<span class="sourceLineNo">607</span>            break;<a name="line.607"></a>
-<span class="sourceLineNo">608</span>          }<a name="line.608"></a>
-<span class="sourceLineNo">609</span>        }<a name="line.609"></a>
-<span class="sourceLineNo">610</span>        // if we did not find ANY non-top cell, then simply set<a name="line.610"></a>
-<span class="sourceLineNo">611</span>        // lhs to top and return<a name="line.611"></a>
-<span class="sourceLineNo">612</span>        if (firstNonTopRHS == -1) {<a name="line.612"></a>
-<span class="sourceLineNo">613</span>          lhs.setTOP(true);<a name="line.613"></a>
-<span class="sourceLineNo">614</span>          return false;<a name="line.614"></a>
-<span class="sourceLineNo">615</span>        }<a name="line.615"></a>
-<span class="sourceLineNo">616</span>        // if we get here, we found a non-top cell. Start merging<a name="line.616"></a>
-<span class="sourceLineNo">617</span>        // here<a name="line.617"></a>
-<span class="sourceLineNo">618</span>        ValueNumberPair[] rhsNumbers = ((ArrayCell) operands[firstNonTopRHS]).copyValueNumbers();<a name="line.618"></a>
-<span class="sourceLineNo">619</span>        if (rhsNumbers != null) {<a name="line.619"></a>
-<span class="sourceLineNo">620</span>          for (ValueNumberPair pair : rhsNumbers) {<a name="line.620"></a>
-<span class="sourceLineNo">621</span>            int v1 = pair.v1;<a name="line.621"></a>
-<span class="sourceLineNo">622</span>            int v2 = pair.v2;<a name="line.622"></a>
-<span class="sourceLineNo">623</span>            lhs.add(v1, v2);<a name="line.623"></a>
-<span class="sourceLineNo">624</span>            for (int j = firstNonTopRHS + 1; j &lt; operands.length; j++) {<a name="line.624"></a>
-<span class="sourceLineNo">625</span>              ArrayCell r = (ArrayCell) operands[j];<a name="line.625"></a>
-<span class="sourceLineNo">626</span>              if (!r.contains(v1, v2)) {<a name="line.626"></a>
-<span class="sourceLineNo">627</span>                lhs.remove(v1, v2);<a name="line.627"></a>
-<span class="sourceLineNo">628</span>                break;<a name="line.628"></a>
-<span class="sourceLineNo">629</span>              }<a name="line.629"></a>
-<span class="sourceLineNo">630</span>            }<a name="line.630"></a>
-<span class="sourceLineNo">631</span>          }<a name="line.631"></a>
-<span class="sourceLineNo">632</span>        }<a name="line.632"></a>
-<span class="sourceLineNo">633</span>      }<a name="line.633"></a>
-<span class="sourceLineNo">634</span>      // check if anything has changed<a name="line.634"></a>
-<span class="sourceLineNo">635</span>      if (lhsWasTOP) return true;<a name="line.635"></a>
-<span class="sourceLineNo">636</span>      ValueNumberPair[] newNumbers = lhs.copyValueNumbers();<a name="line.636"></a>
-<span class="sourceLineNo">637</span><a name="line.637"></a>
-<span class="sourceLineNo">638</span>      return ArrayCell.setsDiffer(oldNumbers, newNumbers);<a name="line.638"></a>
-<span class="sourceLineNo">639</span>    }<a name="line.639"></a>
-<span class="sourceLineNo">640</span>  }<a name="line.640"></a>
-<span class="sourceLineNo">641</span><a name="line.641"></a>
-<span class="sourceLineNo">642</span>  /**<a name="line.642"></a>
-<span class="sourceLineNo">643</span>   * Represents an UPDATE_DEF function over two ObjectCells.<a name="line.643"></a>
-<span class="sourceLineNo">644</span>   * &lt;p&gt; Given a value number v, this function updates a heap variable<a name="line.644"></a>
-<span class="sourceLineNo">645</span>   * lattice cell to indicate that element at address v is<a name="line.645"></a>
-<span class="sourceLineNo">646</span>   * available, but kills any available indices that are not DD from v<a name="line.646"></a>
-<span class="sourceLineNo">647</span>   */<a name="line.647"></a>
-<span class="sourceLineNo">648</span>  class UpdateDefObjectOperator extends DF_Operator {<a name="line.648"></a>
-<span class="sourceLineNo">649</span>    /**<a name="line.649"></a>
-<span class="sourceLineNo">650</span>     * The value number used in the dataflow equation.<a name="line.650"></a>
-<span class="sourceLineNo">651</span>     */<a name="line.651"></a>
-<span class="sourceLineNo">652</span>    private final int valueNumber;<a name="line.652"></a>
-<span class="sourceLineNo">653</span><a name="line.653"></a>
-<span class="sourceLineNo">654</span>    /**<a name="line.654"></a>
-<span class="sourceLineNo">655</span>     * @return a String representation<a name="line.655"></a>
-<span class="sourceLineNo">656</span>     */<a name="line.656"></a>
-<span class="sourceLineNo">657</span>    @Override<a name="line.657"></a>
-<span class="sourceLineNo">658</span>    public String toString() { return "UPDATE-DEF&lt;" + valueNumber + "&gt;"; }<a name="line.658"></a>
-<span class="sourceLineNo">659</span><a name="line.659"></a>
-<span class="sourceLineNo">660</span>    /**<a name="line.660"></a>
-<span class="sourceLineNo">661</span>     * Create an operator with a given value number<a name="line.661"></a>
-<span class="sourceLineNo">662</span>     * @param     valueNumber<a name="line.662"></a>
-<span class="sourceLineNo">663</span>     */<a name="line.663"></a>
+<span class="sourceLineNo">528</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.528"></a>
+<span class="sourceLineNo">529</span><a name="line.529"></a>
+<span class="sourceLineNo">530</span>      lhs.clear();<a name="line.530"></a>
+<span class="sourceLineNo">531</span>      // perform the intersections<a name="line.531"></a>
+<span class="sourceLineNo">532</span>      if (operands.length &gt; 1) {<a name="line.532"></a>
+<span class="sourceLineNo">533</span>        int firstNonTopRHS = -1;<a name="line.533"></a>
+<span class="sourceLineNo">534</span>        // find the first RHS lattice cell that is not TOP<a name="line.534"></a>
+<span class="sourceLineNo">535</span>        for (int j = 1; j &lt; operands.length; j++) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>          ObjectCell r = (ObjectCell) operands[j];<a name="line.536"></a>
+<span class="sourceLineNo">537</span>          if (!r.isTOP()) {<a name="line.537"></a>
+<span class="sourceLineNo">538</span>            firstNonTopRHS = j;<a name="line.538"></a>
+<span class="sourceLineNo">539</span>            break;<a name="line.539"></a>
+<span class="sourceLineNo">540</span>          }<a name="line.540"></a>
+<span class="sourceLineNo">541</span>        }<a name="line.541"></a>
+<span class="sourceLineNo">542</span>        // if we did not find ANY non-top cell, then simply set<a name="line.542"></a>
+<span class="sourceLineNo">543</span>        // lhs to top and return<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        if (firstNonTopRHS == -1) {<a name="line.544"></a>
+<span class="sourceLineNo">545</span>          lhs.setTOP(true);<a name="line.545"></a>
+<span class="sourceLineNo">546</span>          return false;<a name="line.546"></a>
+<span class="sourceLineNo">547</span>        }<a name="line.547"></a>
+<span class="sourceLineNo">548</span>        // if we get here, we found a non-top cell. Start merging<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        // here<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        int[] rhsNumbers = ((ObjectCell) operands[firstNonTopRHS]).copyValueNumbers();<a name="line.550"></a>
+<span class="sourceLineNo">551</span><a name="line.551"></a>
+<span class="sourceLineNo">552</span>        if (rhsNumbers != null) {<a name="line.552"></a>
+<span class="sourceLineNo">553</span>          for (int v : rhsNumbers) {<a name="line.553"></a>
+<span class="sourceLineNo">554</span>            lhs.add(v);<a name="line.554"></a>
+<span class="sourceLineNo">555</span>            for (int j = firstNonTopRHS + 1; j &lt; operands.length; j++) {<a name="line.555"></a>
+<span class="sourceLineNo">556</span>              ObjectCell r = (ObjectCell) operands[j];<a name="line.556"></a>
+<span class="sourceLineNo">557</span>              if (!r.contains(v)) {<a name="line.557"></a>
+<span class="sourceLineNo">558</span>                lhs.remove(v);<a name="line.558"></a>
+<span class="sourceLineNo">559</span>                break;<a name="line.559"></a>
+<span class="sourceLineNo">560</span>              }<a name="line.560"></a>
+<span class="sourceLineNo">561</span>            }<a name="line.561"></a>
+<span class="sourceLineNo">562</span>          }<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        }<a name="line.563"></a>
+<span class="sourceLineNo">564</span>      }<a name="line.564"></a>
+<span class="sourceLineNo">565</span>      // check if anything has changed<a name="line.565"></a>
+<span class="sourceLineNo">566</span>      if (lhsWasTOP) return true;<a name="line.566"></a>
+<span class="sourceLineNo">567</span>      int[] newNumbers = lhs.copyValueNumbers();<a name="line.567"></a>
+<span class="sourceLineNo">568</span><a name="line.568"></a>
+<span class="sourceLineNo">569</span>      return ObjectCell.setsDiffer(oldNumbers, newNumbers);<a name="line.569"></a>
+<span class="sourceLineNo">570</span>    }<a name="line.570"></a>
+<span class="sourceLineNo">571</span><a name="line.571"></a>
+<span class="sourceLineNo">572</span>    /**<a name="line.572"></a>
+<span class="sourceLineNo">573</span>     * Evaluate a dataflow equation with the MEET operator<a name="line.573"></a>
+<span class="sourceLineNo">574</span>     * for lattice cells representing array heap variables.<a name="line.574"></a>
+<span class="sourceLineNo">575</span>     * @param operands the operands of the dataflow equation<a name="line.575"></a>
+<span class="sourceLineNo">576</span>     * @return true iff the value of the lhs changes<a name="line.576"></a>
+<span class="sourceLineNo">577</span>     */<a name="line.577"></a>
+<span class="sourceLineNo">578</span>    boolean evaluateArrayMeet(DF_LatticeCell[] operands) {<a name="line.578"></a>
+<span class="sourceLineNo">579</span>      ArrayCell lhs = (ArrayCell) operands[0];<a name="line.579"></a>
+<span class="sourceLineNo">580</span><a name="line.580"></a>
+<span class="sourceLineNo">581</span>      // short-circuit if lhs is already bottom<a name="line.581"></a>
+<span class="sourceLineNo">582</span>      if (lhs.isBOTTOM()) {<a name="line.582"></a>
+<span class="sourceLineNo">583</span>        return false;<a name="line.583"></a>
+<span class="sourceLineNo">584</span>      }<a name="line.584"></a>
+<span class="sourceLineNo">585</span><a name="line.585"></a>
+<span class="sourceLineNo">586</span>      // short-circuit if any rhs is bottom<a name="line.586"></a>
+<span class="sourceLineNo">587</span>      for (int j = 1; j &lt; operands.length; j++) {<a name="line.587"></a>
+<span class="sourceLineNo">588</span>        ArrayCell r = (ArrayCell) operands[j];<a name="line.588"></a>
+<span class="sourceLineNo">589</span>        if (r.isBOTTOM()) {<a name="line.589"></a>
+<span class="sourceLineNo">590</span>          // from the previous short-circuit, we know lhs was not already bottom, so ...<a name="line.590"></a>
+<span class="sourceLineNo">591</span>          lhs.setBOTTOM();<a name="line.591"></a>
+<span class="sourceLineNo">592</span>          return true;<a name="line.592"></a>
+<span class="sourceLineNo">593</span>        }<a name="line.593"></a>
+<span class="sourceLineNo">594</span>      }<a name="line.594"></a>
+<span class="sourceLineNo">595</span><a name="line.595"></a>
+<span class="sourceLineNo">596</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.596"></a>
+<span class="sourceLineNo">597</span>      ValueNumberPair[] oldNumbers = null;<a name="line.597"></a>
+<span class="sourceLineNo">598</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.598"></a>
+<span class="sourceLineNo">599</span><a name="line.599"></a>
+<span class="sourceLineNo">600</span>      lhs.clear();<a name="line.600"></a>
+<span class="sourceLineNo">601</span>      // perform the intersections<a name="line.601"></a>
+<span class="sourceLineNo">602</span>      if (operands.length &gt; 1) {<a name="line.602"></a>
+<span class="sourceLineNo">603</span>        int firstNonTopRHS = -1;<a name="line.603"></a>
+<span class="sourceLineNo">604</span>        // find the first RHS lattice cell that is not TOP<a name="line.604"></a>
+<span class="sourceLineNo">605</span>        for (int j = 1; j &lt; operands.length; j++) {<a name="line.605"></a>
+<span class="sourceLineNo">606</span>          ArrayCell r = (ArrayCell) operands[j];<a name="line.606"></a>
+<span class="sourceLineNo">607</span>          if (!r.isTOP()) {<a name="line.607"></a>
+<span class="sourceLineNo">608</span>            firstNonTopRHS = j;<a name="line.608"></a>
+<span class="sourceLineNo">609</span>            break;<a name="line.609"></a>
+<span class="sourceLineNo">610</span>          }<a name="line.610"></a>
+<span class="sourceLineNo">611</span>        }<a name="line.611"></a>
+<span class="sourceLineNo">612</span>        // if we did not find ANY non-top cell, then simply set<a name="line.612"></a>
+<span class="sourceLineNo">613</span>        // lhs to top and return<a name="line.613"></a>
+<span class="sourceLineNo">614</span>        if (firstNonTopRHS == -1) {<a name="line.614"></a>
+<span class="sourceLineNo">615</span>          lhs.setTOP(true);<a name="line.615"></a>
+<span class="sourceLineNo">616</span>          return false;<a name="line.616"></a>
+<span class="sourceLineNo">617</span>        }<a name="line.617"></a>
+<span class="sourceLineNo">618</span>        // if we get here, we found a non-top cell. Start merging<a name="line.618"></a>
+<span class="sourceLineNo">619</span>        // here<a name="line.619"></a>
+<span class="sourceLineNo">620</span>        ValueNumberPair[] rhsNumbers = ((ArrayCell) operands[firstNonTopRHS]).copyValueNumbers();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>        if (rhsNumbers != null) {<a name="line.621"></a>
+<span class="sourceLineNo">622</span>          for (ValueNumberPair pair : rhsNumbers) {<a name="line.622"></a>
+<span class="sourceLineNo">623</span>            int v1 = pair.v1;<a name="line.623"></a>
+<span class="sourceLineNo">624</span>            int v2 = pair.v2;<a name="line.624"></a>
+<span class="sourceLineNo">625</span>            lhs.add(v1, v2);<a name="line.625"></a>
+<span class="sourceLineNo">626</span>            for (int j = firstNonTopRHS + 1; j &lt; operands.length; j++) {<a name="line.626"></a>
+<span class="sourceLineNo">627</span>              ArrayCell r = (ArrayCell) operands[j];<a name="line.627"></a>
+<span class="sourceLineNo">628</span>              if (!r.contains(v1, v2)) {<a name="line.628"></a>
+<span class="sourceLineNo">629</span>                lhs.remove(v1, v2);<a name="line.629"></a>
+<span class="sourceLineNo">630</span>                break;<a name="line.630"></a>
+<span class="sourceLineNo">631</span>              }<a name="line.631"></a>
+<span class="sourceLineNo">632</span>            }<a name="line.632"></a>
+<span class="sourceLineNo">633</span>          }<a name="line.633"></a>
+<span class="sourceLineNo">634</span>        }<a name="line.634"></a>
+<span class="sourceLineNo">635</span>      }<a name="line.635"></a>
+<span class="sourceLineNo">636</span>      // check if anything has changed<a name="line.636"></a>
+<span class="sourceLineNo">637</span>      if (lhsWasTOP) return true;<a name="line.637"></a>
+<span class="sourceLineNo">638</span>      ValueNumberPair[] newNumbers = lhs.copyValueNumbers();<a name="line.638"></a>
+<span class="sourceLineNo">639</span><a name="line.639"></a>
+<span class="sourceLineNo">640</span>      return ArrayCell.setsDiffer(oldNumbers, newNumbers);<a name="line.640"></a>
+<span class="sourceLineNo">641</span>    }<a name="line.641"></a>
+<span class="sourceLineNo">642</span>  }<a name="line.642"></a>
+<span class="sourceLineNo">643</span><a name="line.643"></a>
+<span class="sourceLineNo">644</span>  /**<a name="line.644"></a>
+<span class="sourceLineNo">645</span>   * Represents an UPDATE_DEF function over two ObjectCells.<a name="line.645"></a>
+<span class="sourceLineNo">646</span>   * &lt;p&gt; Given a value number v, this function updates a heap variable<a name="line.646"></a>
+<span class="sourceLineNo">647</span>   * lattice cell to indicate that element at address v is<a name="line.647"></a>
+<span class="sourceLineNo">648</span>   * available, but kills any available indices that are not DD from v<a name="line.648"></a>
+<span class="sourceLineNo">649</span>   */<a name="line.649"></a>
+<span class="sourceLineNo">650</span>  class UpdateDefObjectOperator extends DF_Operator {<a name="line.650"></a>
+<span class="sourceLineNo">651</span>    /**<a name="line.651"></a>
+<span class="sourceLineNo">652</span>     * The value number used in the dataflow equation.<a name="line.652"></a>
+<span class="sourceLineNo">653</span>     */<a name="line.653"></a>
+<span class="sourceLineNo">654</span>    private final int valueNumber;<a name="line.654"></a>
+<span class="sourceLineNo">655</span><a name="line.655"></a>
+<span class="sourceLineNo">656</span>    /**<a name="line.656"></a>
+<span class="sourceLineNo">657</span>     * @return a String representation<a name="line.657"></a>
+<span class="sourceLineNo">658</span>     */<a name="line.658"></a>
+<span class="sourceLineNo">659</span>    @Override<a name="line.659"></a>
+<span class="sourceLineNo">660</span>    public String toString() {<a name="line.660"></a>
+<span class="sourceLineNo">661</span>      return "UPDATE-DEF&lt;" + valueNumber + "&gt;";<a name="line.661"></a>
+<span class="sourceLineNo">662</span>    }<a name="line.662"></a>
+<span class="sourceLineNo">663</span><a name="line.663"></a>
 <span class="sourceLineNo">664</span>    UpdateDefObjectOperator(int valueNumber) {<a name="line.664"></a>
 <span class="sourceLineNo">665</span>      this.valueNumber = valueNumber;<a name="line.665"></a>
 <span class="sourceLineNo">666</span>    }<a name="line.666"></a>
@@ -730,71 +730,71 @@
 <span class="sourceLineNo">722</span>     * @return "UPDATE-USE"<a name="line.722"></a>
 <span class="sourceLineNo">723</span>     */<a name="line.723"></a>
 <span class="sourceLineNo">724</span>    @Override<a name="line.724"></a>
-<span class="sourceLineNo">725</span>    public String toString() { return "UPDATE-USE&lt;" + valueNumber + "&gt;"; }<a name="line.725"></a>
-<span class="sourceLineNo">726</span><a name="line.726"></a>
-<span class="sourceLineNo">727</span>    /**<a name="line.727"></a>
-<span class="sourceLineNo">728</span>     * Create an operator with a given value number<a name="line.728"></a>
-<span class="sourceLineNo">729</span>     * @param     valueNumber<a name="line.729"></a>
-<span class="sourceLineNo">730</span>     */<a name="line.730"></a>
-<span class="sourceLineNo">731</span>    UpdateUseObjectOperator(int valueNumber) {<a name="line.731"></a>
-<span class="sourceLineNo">732</span>      this.valueNumber = valueNumber;<a name="line.732"></a>
-<span class="sourceLineNo">733</span>    }<a name="line.733"></a>
-<span class="sourceLineNo">734</span><a name="line.734"></a>
-<span class="sourceLineNo">735</span>    /**<a name="line.735"></a>
-<span class="sourceLineNo">736</span>     * Evaluate the dataflow equation with this operator.<a name="line.736"></a>
-<span class="sourceLineNo">737</span>     * @param operands operands in the dataflow equation<a name="line.737"></a>
-<span class="sourceLineNo">738</span>     * @return true iff the lhs changes from this evaluation<a name="line.738"></a>
-<span class="sourceLineNo">739</span>     */<a name="line.739"></a>
-<span class="sourceLineNo">740</span>    @Override<a name="line.740"></a>
-<span class="sourceLineNo">741</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.741"></a>
-<span class="sourceLineNo">742</span>      ObjectCell lhs = (ObjectCell) operands[0];<a name="line.742"></a>
-<span class="sourceLineNo">743</span><a name="line.743"></a>
-<span class="sourceLineNo">744</span>      if (lhs.isBOTTOM()) {<a name="line.744"></a>
-<span class="sourceLineNo">745</span>        return false;<a name="line.745"></a>
-<span class="sourceLineNo">746</span>      }<a name="line.746"></a>
-<span class="sourceLineNo">747</span><a name="line.747"></a>
-<span class="sourceLineNo">748</span>      ObjectCell rhs = (ObjectCell) operands[1];<a name="line.748"></a>
-<span class="sourceLineNo">749</span>      int[] oldNumbers = null;<a name="line.749"></a>
-<span class="sourceLineNo">750</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.750"></a>
-<span class="sourceLineNo">751</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.751"></a>
-<span class="sourceLineNo">752</span>      lhs.clear();<a name="line.752"></a>
-<span class="sourceLineNo">753</span>      if (rhs.isTOP()) {<a name="line.753"></a>
-<span class="sourceLineNo">754</span>        throw new OptimizingCompilerException("Unexpected lattice operation");<a name="line.754"></a>
-<span class="sourceLineNo">755</span>      }<a name="line.755"></a>
-<span class="sourceLineNo">756</span>      int[] numbers = rhs.copyValueNumbers();<a name="line.756"></a>
-<span class="sourceLineNo">757</span>      // add all rhs numbers<a name="line.757"></a>
-<span class="sourceLineNo">758</span>      if (numbers != null) {<a name="line.758"></a>
-<span class="sourceLineNo">759</span>        for (int number : numbers) {<a name="line.759"></a>
-<span class="sourceLineNo">760</span>          lhs.add(number);<a name="line.760"></a>
-<span class="sourceLineNo">761</span>        }<a name="line.761"></a>
-<span class="sourceLineNo">762</span>      }<a name="line.762"></a>
-<span class="sourceLineNo">763</span>      // add value number generated by this update<a name="line.763"></a>
-<span class="sourceLineNo">764</span>      lhs.add(valueNumber);<a name="line.764"></a>
-<span class="sourceLineNo">765</span>      // check if anything has changed<a name="line.765"></a>
-<span class="sourceLineNo">766</span>      if (lhsWasTOP) return true;<a name="line.766"></a>
-<span class="sourceLineNo">767</span>      int[] newNumbers = lhs.copyValueNumbers();<a name="line.767"></a>
-<span class="sourceLineNo">768</span><a name="line.768"></a>
-<span class="sourceLineNo">769</span>      return ObjectCell.setsDiffer(oldNumbers, newNumbers);<a name="line.769"></a>
-<span class="sourceLineNo">770</span>    }<a name="line.770"></a>
-<span class="sourceLineNo">771</span>  }<a name="line.771"></a>
-<span class="sourceLineNo">772</span><a name="line.772"></a>
-<span class="sourceLineNo">773</span>  /**<a name="line.773"></a>
-<span class="sourceLineNo">774</span>   * Represents an UPDATE_DEF function over two ArrayCells.<a name="line.774"></a>
-<span class="sourceLineNo">775</span>   * Given two value numbers v1, v2, this function updates a heap variable<a name="line.775"></a>
-<span class="sourceLineNo">776</span>   * lattice cell to indicate that element for array v1 at address v2 is<a name="line.776"></a>
-<span class="sourceLineNo">777</span>   * available, but kills any available indices that are not DD from &lt;v1,v2&gt;<a name="line.777"></a>
-<span class="sourceLineNo">778</span>   */<a name="line.778"></a>
-<span class="sourceLineNo">779</span>  class UpdateDefArrayOperator extends DF_Operator {<a name="line.779"></a>
-<span class="sourceLineNo">780</span>    /**<a name="line.780"></a>
-<span class="sourceLineNo">781</span>     * The value number pair used in the dataflow equation.<a name="line.781"></a>
-<span class="sourceLineNo">782</span>     */<a name="line.782"></a>
-<span class="sourceLineNo">783</span>    private final ValueNumberPair v;<a name="line.783"></a>
-<span class="sourceLineNo">784</span><a name="line.784"></a>
-<span class="sourceLineNo">785</span>    /**<a name="line.785"></a>
-<span class="sourceLineNo">786</span>     * @return "UPDATE-DEF"<a name="line.786"></a>
-<span class="sourceLineNo">787</span>     */<a name="line.787"></a>
-<span class="sourceLineNo">788</span>    @Override<a name="line.788"></a>
-<span class="sourceLineNo">789</span>    public String toString() { return "UPDATE-DEF&lt;" + v + "&gt;"; }<a name="line.789"></a>
+<span class="sourceLineNo">725</span>    public String toString() {<a name="line.725"></a>
+<span class="sourceLineNo">726</span>      return "UPDATE-USE&lt;" + valueNumber + "&gt;";<a name="line.726"></a>
+<span class="sourceLineNo">727</span>    }<a name="line.727"></a>
+<span class="sourceLineNo">728</span><a name="line.728"></a>
+<span class="sourceLineNo">729</span>    UpdateUseObjectOperator(int valueNumber) {<a name="line.729"></a>
+<span class="sourceLineNo">730</span>      this.valueNumber = valueNumber;<a name="line.730"></a>
+<span class="sourceLineNo">731</span>    }<a name="line.731"></a>
+<span class="sourceLineNo">732</span><a name="line.732"></a>
+<span class="sourceLineNo">733</span>    /**<a name="line.733"></a>
+<span class="sourceLineNo">734</span>     * Evaluate the dataflow equation with this operator.<a name="line.734"></a>
+<span class="sourceLineNo">735</span>     * @param operands operands in the dataflow equation<a name="line.735"></a>
+<span class="sourceLineNo">736</span>     * @return true iff the lhs changes from this evaluation<a name="line.736"></a>
+<span class="sourceLineNo">737</span>     */<a name="line.737"></a>
+<span class="sourceLineNo">738</span>    @Override<a name="line.738"></a>
+<span class="sourceLineNo">739</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.739"></a>
+<span class="sourceLineNo">740</span>      ObjectCell lhs = (ObjectCell) operands[0];<a name="line.740"></a>
+<span class="sourceLineNo">741</span><a name="line.741"></a>
+<span class="sourceLineNo">742</span>      if (lhs.isBOTTOM()) {<a name="line.742"></a>
+<span class="sourceLineNo">743</span>        return false;<a name="line.743"></a>
+<span class="sourceLineNo">744</span>      }<a name="line.744"></a>
+<span class="sourceLineNo">745</span><a name="line.745"></a>
+<span class="sourceLineNo">746</span>      ObjectCell rhs = (ObjectCell) operands[1];<a name="line.746"></a>
+<span class="sourceLineNo">747</span>      int[] oldNumbers = null;<a name="line.747"></a>
+<span class="sourceLineNo">748</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.748"></a>
+<span class="sourceLineNo">749</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.749"></a>
+<span class="sourceLineNo">750</span>      lhs.clear();<a name="line.750"></a>
+<span class="sourceLineNo">751</span>      if (rhs.isTOP()) {<a name="line.751"></a>
+<span class="sourceLineNo">752</span>        throw new OptimizingCompilerException("Unexpected lattice operation");<a name="line.752"></a>
+<span class="sourceLineNo">753</span>      }<a name="line.753"></a>
+<span class="sourceLineNo">754</span>      int[] numbers = rhs.copyValueNumbers();<a name="line.754"></a>
+<span class="sourceLineNo">755</span>      // add all rhs numbers<a name="line.755"></a>
+<span class="sourceLineNo">756</span>      if (numbers != null) {<a name="line.756"></a>
+<span class="sourceLineNo">757</span>        for (int number : numbers) {<a name="line.757"></a>
+<span class="sourceLineNo">758</span>          lhs.add(number);<a name="line.758"></a>
+<span class="sourceLineNo">759</span>        }<a name="line.759"></a>
+<span class="sourceLineNo">760</span>      }<a name="line.760"></a>
+<span class="sourceLineNo">761</span>      // add value number generated by this update<a name="line.761"></a>
+<span class="sourceLineNo">762</span>      lhs.add(valueNumber);<a name="line.762"></a>
+<span class="sourceLineNo">763</span>      // check if anything has changed<a name="line.763"></a>
+<span class="sourceLineNo">764</span>      if (lhsWasTOP) return true;<a name="line.764"></a>
+<span class="sourceLineNo">765</span>      int[] newNumbers = lhs.copyValueNumbers();<a name="line.765"></a>
+<span class="sourceLineNo">766</span><a name="line.766"></a>
+<span class="sourceLineNo">767</span>      return ObjectCell.setsDiffer(oldNumbers, newNumbers);<a name="line.767"></a>
+<span class="sourceLineNo">768</span>    }<a name="line.768"></a>
+<span class="sourceLineNo">769</span>  }<a name="line.769"></a>
+<span class="sourceLineNo">770</span><a name="line.770"></a>
+<span class="sourceLineNo">771</span>  /**<a name="line.771"></a>
+<span class="sourceLineNo">772</span>   * Represents an UPDATE_DEF function over two ArrayCells.<a name="line.772"></a>
+<span class="sourceLineNo">773</span>   * Given two value numbers v1, v2, this function updates a heap variable<a name="line.773"></a>
+<span class="sourceLineNo">774</span>   * lattice cell to indicate that element for array v1 at address v2 is<a name="line.774"></a>
+<span class="sourceLineNo">775</span>   * available, but kills any available indices that are not DD from &amp;lt;v1,v2&amp;gt;<a name="line.775"></a>
+<span class="sourceLineNo">776</span>   */<a name="line.776"></a>
+<span class="sourceLineNo">777</span>  class UpdateDefArrayOperator extends DF_Operator {<a name="line.777"></a>
+<span class="sourceLineNo">778</span>    /**<a name="line.778"></a>
+<span class="sourceLineNo">779</span>     * The value number pair used in the dataflow equation.<a name="line.779"></a>
+<span class="sourceLineNo">780</span>     */<a name="line.780"></a>
+<span class="sourceLineNo">781</span>    private final ValueNumberPair v;<a name="line.781"></a>
+<span class="sourceLineNo">782</span><a name="line.782"></a>
+<span class="sourceLineNo">783</span>    /**<a name="line.783"></a>
+<span class="sourceLineNo">784</span>     * @return "UPDATE-DEF"<a name="line.784"></a>
+<span class="sourceLineNo">785</span>     */<a name="line.785"></a>
+<span class="sourceLineNo">786</span>    @Override<a name="line.786"></a>
+<span class="sourceLineNo">787</span>    public String toString() {<a name="line.787"></a>
+<span class="sourceLineNo">788</span>      return "UPDATE-DEF&lt;" + v + "&gt;";<a name="line.788"></a>
+<span class="sourceLineNo">789</span>    }<a name="line.789"></a>
 <span class="sourceLineNo">790</span><a name="line.790"></a>
 <span class="sourceLineNo">791</span>    /**<a name="line.791"></a>
 <span class="sourceLineNo">792</span>     * Create an operator with a given value number pair<a name="line.792"></a>
@@ -865,57 +865,59 @@
 <span class="sourceLineNo">857</span>     * @return "UPDATE-USE"<a name="line.857"></a>
 <span class="sourceLineNo">858</span>     */<a name="line.858"></a>
 <span class="sourceLineNo">859</span>    @Override<a name="line.859"></a>
-<span class="sourceLineNo">860</span>    public String toString() { return "UPDATE-USE&lt;" + v + "&gt;"; }<a name="line.860"></a>
-<span class="sourceLineNo">861</span><a name="line.861"></a>
-<span class="sourceLineNo">862</span>    /**<a name="line.862"></a>
-<span class="sourceLineNo">863</span>     * Create an operator with a given value number pair<a name="line.863"></a>
-<span class="sourceLineNo">864</span>     * @param     v1 first value number in the pair<a name="line.864"></a>
-<span class="sourceLineNo">865</span>     * @param     v2 second value number in the pair<a name="line.865"></a>
-<span class="sourceLineNo">866</span>     */<a name="line.866"></a>
-<span class="sourceLineNo">867</span>    UpdateUseArrayOperator(int v1, int v2) {<a name="line.867"></a>
-<span class="sourceLineNo">868</span>      v = new ValueNumberPair(v1, v2);<a name="line.868"></a>
-<span class="sourceLineNo">869</span>    }<a name="line.869"></a>
-<span class="sourceLineNo">870</span><a name="line.870"></a>
-<span class="sourceLineNo">871</span>    /**<a name="line.871"></a>
-<span class="sourceLineNo">872</span>     * Evaluate the dataflow equation with this operator.<a name="line.872"></a>
-<span class="sourceLineNo">873</span>     * @param operands operands in the dataflow equation<a name="line.873"></a>
-<span class="sourceLineNo">874</span>     * @return true iff the lhs changes from this evaluation<a name="line.874"></a>
-<span class="sourceLineNo">875</span>     */<a name="line.875"></a>
-<span class="sourceLineNo">876</span>    @Override<a name="line.876"></a>
-<span class="sourceLineNo">877</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.877"></a>
-<span class="sourceLineNo">878</span>      ArrayCell lhs = (ArrayCell) operands[0];<a name="line.878"></a>
-<span class="sourceLineNo">879</span><a name="line.879"></a>
-<span class="sourceLineNo">880</span>      if (lhs.isBOTTOM()) {<a name="line.880"></a>
-<span class="sourceLineNo">881</span>        return false;<a name="line.881"></a>
-<span class="sourceLineNo">882</span>      }<a name="line.882"></a>
-<span class="sourceLineNo">883</span><a name="line.883"></a>
-<span class="sourceLineNo">884</span>      ArrayCell rhs = (ArrayCell) operands[1];<a name="line.884"></a>
-<span class="sourceLineNo">885</span>      ValueNumberPair[] oldNumbers = null;<a name="line.885"></a>
-<span class="sourceLineNo">886</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.886"></a>
-<span class="sourceLineNo">887</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.887"></a>
-<span class="sourceLineNo">888</span>      lhs.clear();<a name="line.888"></a>
-<span class="sourceLineNo">889</span>      if (rhs.isTOP()) {<a name="line.889"></a>
-<span class="sourceLineNo">890</span>        throw new OptimizingCompilerException("Unexpected lattice operation");<a name="line.890"></a>
-<span class="sourceLineNo">891</span>      }<a name="line.891"></a>
-<span class="sourceLineNo">892</span>      ValueNumberPair[] numbers = rhs.copyValueNumbers();<a name="line.892"></a>
-<span class="sourceLineNo">893</span>      // add all rhs numbers<a name="line.893"></a>
-<span class="sourceLineNo">894</span>      if (numbers != null) {<a name="line.894"></a>
-<span class="sourceLineNo">895</span>        for (ValueNumberPair number : numbers) {<a name="line.895"></a>
-<span class="sourceLineNo">896</span>          lhs.add(number.v1, number.v2);<a name="line.896"></a>
-<span class="sourceLineNo">897</span>        }<a name="line.897"></a>
-<span class="sourceLineNo">898</span>      }<a name="line.898"></a>
-<span class="sourceLineNo">899</span>      // add value number generated by this update<a name="line.899"></a>
-<span class="sourceLineNo">900</span>      lhs.add(v.v1, v.v2);<a name="line.900"></a>
-<span class="sourceLineNo">901</span>      // check if anything has changed<a name="line.901"></a>
-<span class="sourceLineNo">902</span>      if (lhsWasTOP) {<a name="line.902"></a>
-<span class="sourceLineNo">903</span>        return true;<a name="line.903"></a>
-<span class="sourceLineNo">904</span>      }<a name="line.904"></a>
-<span class="sourceLineNo">905</span>      ValueNumberPair[] newNumbers = lhs.copyValueNumbers();<a name="line.905"></a>
-<span class="sourceLineNo">906</span><a name="line.906"></a>
-<span class="sourceLineNo">907</span>      return ArrayCell.setsDiffer(oldNumbers, newNumbers);<a name="line.907"></a>
-<span class="sourceLineNo">908</span>    }<a name="line.908"></a>
-<span class="sourceLineNo">909</span>  }<a name="line.909"></a>
-<span class="sourceLineNo">910</span>}<a name="line.910"></a>
+<span class="sourceLineNo">860</span>    public String toString() {<a name="line.860"></a>
+<span class="sourceLineNo">861</span>      return "UPDATE-USE&lt;" + v + "&gt;";<a name="line.861"></a>
+<span class="sourceLineNo">862</span>    }<a name="line.862"></a>
+<span class="sourceLineNo">863</span><a name="line.863"></a>
+<span class="sourceLineNo">864</span>    /**<a name="line.864"></a>
+<span class="sourceLineNo">865</span>     * Create an operator with a given value number pair<a name="line.865"></a>
+<span class="sourceLineNo">866</span>     * @param     v1 first value number in the pair<a name="line.866"></a>
+<span class="sourceLineNo">867</span>     * @param     v2 second value number in the pair<a name="line.867"></a>
+<span class="sourceLineNo">868</span>     */<a name="line.868"></a>
+<span class="sourceLineNo">869</span>    UpdateUseArrayOperator(int v1, int v2) {<a name="line.869"></a>
+<span class="sourceLineNo">870</span>      v = new ValueNumberPair(v1, v2);<a name="line.870"></a>
+<span class="sourceLineNo">871</span>    }<a name="line.871"></a>
+<span class="sourceLineNo">872</span><a name="line.872"></a>
+<span class="sourceLineNo">873</span>    /**<a name="line.873"></a>
+<span class="sourceLineNo">874</span>     * Evaluate the dataflow equation with this operator.<a name="line.874"></a>
+<span class="sourceLineNo">875</span>     * @param operands operands in the dataflow equation<a name="line.875"></a>
+<span class="sourceLineNo">876</span>     * @return true iff the lhs changes from this evaluation<a name="line.876"></a>
+<span class="sourceLineNo">877</span>     */<a name="line.877"></a>
+<span class="sourceLineNo">878</span>    @Override<a name="line.878"></a>
+<span class="sourceLineNo">879</span>    public boolean evaluate(DF_LatticeCell[] operands) {<a name="line.879"></a>
+<span class="sourceLineNo">880</span>      ArrayCell lhs = (ArrayCell) operands[0];<a name="line.880"></a>
+<span class="sourceLineNo">881</span><a name="line.881"></a>
+<span class="sourceLineNo">882</span>      if (lhs.isBOTTOM()) {<a name="line.882"></a>
+<span class="sourceLineNo">883</span>        return false;<a name="line.883"></a>
+<span class="sourceLineNo">884</span>      }<a name="line.884"></a>
+<span class="sourceLineNo">885</span><a name="line.885"></a>
+<span class="sourceLineNo">886</span>      ArrayCell rhs = (ArrayCell) operands[1];<a name="line.886"></a>
+<span class="sourceLineNo">887</span>      ValueNumberPair[] oldNumbers = null;<a name="line.887"></a>
+<span class="sourceLineNo">888</span>      boolean lhsWasTOP = lhs.isTOP();<a name="line.888"></a>
+<span class="sourceLineNo">889</span>      if (!lhsWasTOP) oldNumbers = lhs.copyValueNumbers();<a name="line.889"></a>
+<span class="sourceLineNo">890</span>      lhs.clear();<a name="line.890"></a>
+<span class="sourceLineNo">891</span>      if (rhs.isTOP()) {<a name="line.891"></a>
+<span class="sourceLineNo">892</span>        throw new OptimizingCompilerException("Unexpected lattice operation");<a name="line.892"></a>
+<span class="sourceLineNo">893</span>      }<a name="line.893"></a>
+<span class="sourceLineNo">894</span>      ValueNumberPair[] numbers = rhs.copyValueNumbers();<a name="line.894"></a>
+<span class="sourceLineNo">895</span>      // add all rhs numbers<a name="line.895"></a>
+<span class="sourceLineNo">896</span>      if (numbers != null) {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>        for (ValueNumberPair number : numbers) {<a name="line.897"></a>
+<span class="sourceLineNo">898</span>          lhs.add(number.v1, number.v2);<a name="line.898"></a>
+<span class="sourceLineNo">899</span>        }<a name="line.899"></a>
+<span class="sourceLineNo">900</span>      }<a name="line.900"></a>
+<span class="sourceLineNo">901</span>      // add value number generated by this update<a name="line.901"></a>
+<span class="sourceLineNo">902</span>      lhs.add(v.v1, v.v2);<a name="line.902"></a>
+<span class="sourceLineNo">903</span>      // check if anything has changed<a name="line.903"></a>
+<span class="sourceLineNo">904</span>      if (lhsWasTOP) {<a name="line.904"></a>
+<span class="sourceLineNo">905</span>        return true;<a name="line.905"></a>
+<span class="sourceLineNo">906</span>      }<a name="line.906"></a>
+<span class="sourceLineNo">907</span>      ValueNumberPair[] newNumbers = lhs.copyValueNumbers();<a name="line.907"></a>
+<span class="sourceLineNo">908</span><a name="line.908"></a>
+<span class="sourceLineNo">909</span>      return ArrayCell.setsDiffer(oldNumbers, newNumbers);<a name="line.909"></a>
+<span class="sourceLineNo">910</span>    }<a name="line.910"></a>
+<span class="sourceLineNo">911</span>  }<a name="line.911"></a>
+<span class="sourceLineNo">912</span>}<a name="line.912"></a>
 
 
 

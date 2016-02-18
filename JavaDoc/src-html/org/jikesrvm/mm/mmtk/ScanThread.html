@@ -20,767 +20,781 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.mm.mmtk;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.ArchitectureSpecific;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.Constants;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.mm.mminterface.Selected;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.mm.mminterface.DebugUtil;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.mm.mminterface.GCMapIterator;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.mm.mminterface.GCMapIteratorGroup;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.mm.mminterface.MemoryManager;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.runtime.Magic;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.runtime.RuntimeEntrypoints;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jikesrvm.scheduler.RVMThread;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.mmtk.plan.TraceLocal;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.mmtk.utility.Log;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.vmmagic.pragma.Inline;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.vmmagic.pragma.Untraced;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.vmmagic.unboxed.Address;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.vmmagic.unboxed.ObjectReference;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>import org.vmmagic.unboxed.Offset;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import org.jikesrvm.ArchitectureSpecific.Registers;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>/**<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * Class that supports scanning thread stacks for references during<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * collections. References are located using GCMapIterators and are<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * inserted into a set of root locations.  Optionally, a set of<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * interior pointer locations associated with the object is created.&lt;p&gt;<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * Threads, stacks, jni environments, and register objects have a<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * complex interaction in terms of scanning.  The operation of<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * scanning the stack reveals not only roots inside the stack but also<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * the state of the register objects's gprs and the JNI refs array.<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * They are all associated via the thread object, making it natural<a name="line.49"></a>
-<span class="sourceLineNo">050</span> * for scanThread to be considered a single operation with the method<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * directly accessing these objects via the thread object's<a name="line.51"></a>
-<span class="sourceLineNo">052</span> * fields. &lt;p&gt;<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *<a name="line.53"></a>
-<span class="sourceLineNo">054</span> * One pitfall occurs when scanning the thread object (plus<a name="line.54"></a>
-<span class="sourceLineNo">055</span> * dependents) when not all of the objects have been copied.  Then it<a name="line.55"></a>
-<span class="sourceLineNo">056</span> * may be that the innards of the register object has not been copied<a name="line.56"></a>
-<span class="sourceLineNo">057</span> * while the stack object has.  The result is that an inconsistent set<a name="line.57"></a>
-<span class="sourceLineNo">058</span> * of slots is reported.  In this case, the copied register object may<a name="line.58"></a>
-<span class="sourceLineNo">059</span> * not be correct if the copy occurs after the root locations are<a name="line.59"></a>
-<span class="sourceLineNo">060</span> * discovered but before those locations are processed. In essence,<a name="line.60"></a>
-<span class="sourceLineNo">061</span> * all of these objects form one logical unit but are physically<a name="line.61"></a>
-<span class="sourceLineNo">062</span> * separated so that sometimes only part of it has been copied causing<a name="line.62"></a>
-<span class="sourceLineNo">063</span> * the scan to be incorrect. &lt;p&gt;<a name="line.63"></a>
-<span class="sourceLineNo">064</span> *<a name="line.64"></a>
-<span class="sourceLineNo">065</span> * The caller of the stack scanning routine must ensure that all of<a name="line.65"></a>
-<span class="sourceLineNo">066</span> * these components's descendants are consistent (all copied) when<a name="line.66"></a>
-<span class="sourceLineNo">067</span> * this method is called. &lt;p&gt;<a name="line.67"></a>
-<span class="sourceLineNo">068</span> *<a name="line.68"></a>
-<span class="sourceLineNo">069</span> * &lt;i&gt;Code locations:&lt;/i&gt; Identifying pointers &lt;i&gt;into&lt;/i&gt; code<a name="line.69"></a>
-<span class="sourceLineNo">070</span> * objects is essential if code objects are allowed to move (and if<a name="line.70"></a>
-<span class="sourceLineNo">071</span> * the code objects were not otherwise kept alive, it would be<a name="line.71"></a>
-<span class="sourceLineNo">072</span> * necessary to ensure the liveness of the code objects). A code<a name="line.72"></a>
-<span class="sourceLineNo">073</span> * pointer is the only case in which we have interior pointers<a name="line.73"></a>
-<span class="sourceLineNo">074</span> * (pointers into the inside of objects).  For such pointers, two<a name="line.74"></a>
-<span class="sourceLineNo">075</span> * things must occur: first the pointed to object must be kept alive,<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * and second, if the pointed to object is moved by a copying<a name="line.76"></a>
-<span class="sourceLineNo">077</span> * collector, the pointer into the object must be adjusted so it now<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * points into the newly copied object.&lt;p&gt;<a name="line.78"></a>
-<span class="sourceLineNo">079</span> */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>@Uninterruptible public final class ScanThread implements Constants {<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>  /***********************************************************************<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   *<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   * Class variables<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   */<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>  /** quietly validates each ref reported by map iterators */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  static final boolean VALIDATE_REFS = VM.VerifyAssertions;<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>  /*<a name="line.90"></a>
-<span class="sourceLineNo">091</span>   * debugging options to produce printout during scanStack<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   * use these when running with PROCESSORS=1<a name="line.93"></a>
-<span class="sourceLineNo">094</span>   */<a name="line.94"></a>
-<span class="sourceLineNo">095</span>  private static final int DEFAULT_VERBOSITY = 0 /*0*/;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  private static final int FAILURE_VERBOSITY = 4;<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>  /***********************************************************************<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   *<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   * Instance variables<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
-<span class="sourceLineNo">102</span><a name="line.102"></a>
-<span class="sourceLineNo">103</span>  /**<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   *<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   */<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  private final GCMapIteratorGroup iteratorGroup = new GCMapIteratorGroup();<a name="line.106"></a>
-<span class="sourceLineNo">107</span>  @Untraced<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  private GCMapIterator iterator;<a name="line.108"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.architecture.AbstractRegisters;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.architecture.StackFrameLayout;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.common.CompiledMethods;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.mm.mminterface.DebugUtil;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.mm.mminterface.GCMapIterator;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.mm.mminterface.GCMapIteratorGroup;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.mm.mminterface.MemoryManager;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.mm.mminterface.Selected;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.Magic;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.runtime.RuntimeEntrypoints;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.scheduler.RVMThread;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.mmtk.plan.TraceLocal;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.mmtk.utility.Log;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.mmtk.utility.options.Options;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.vmmagic.pragma.Inline;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.vmmagic.pragma.Untraced;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.vmmagic.unboxed.Address;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.vmmagic.unboxed.ObjectReference;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.vmmagic.unboxed.Offset;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * Class that supports scanning thread stacks for references during<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * collections. References are located using GCMapIterators and are<a name="line.43"></a>
+<span class="sourceLineNo">044</span> * inserted into a set of root locations.  Optionally, a set of<a name="line.44"></a>
+<span class="sourceLineNo">045</span> * interior pointer locations associated with the object is created.&lt;p&gt;<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * Threads, stacks, jni environments, and register objects have a<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * complex interaction in terms of scanning.  The operation of<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * scanning the stack reveals not only roots inside the stack but also<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * the state of the register objects's gprs and the JNI refs array.<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * They are all associated via the thread object, making it natural<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * for scanThread to be considered a single operation with the method<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * directly accessing these objects via the thread object's<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * fields. &lt;p&gt;<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * One pitfall occurs when scanning the thread object (plus<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * dependents) when not all of the objects have been copied.  Then it<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * may be that the innards of the register object has not been copied<a name="line.58"></a>
+<span class="sourceLineNo">059</span> * while the stack object has.  The result is that an inconsistent set<a name="line.59"></a>
+<span class="sourceLineNo">060</span> * of slots is reported.  In this case, the copied register object may<a name="line.60"></a>
+<span class="sourceLineNo">061</span> * not be correct if the copy occurs after the root locations are<a name="line.61"></a>
+<span class="sourceLineNo">062</span> * discovered but before those locations are processed. In essence,<a name="line.62"></a>
+<span class="sourceLineNo">063</span> * all of these objects form one logical unit but are physically<a name="line.63"></a>
+<span class="sourceLineNo">064</span> * separated so that sometimes only part of it has been copied causing<a name="line.64"></a>
+<span class="sourceLineNo">065</span> * the scan to be incorrect. &lt;p&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> *<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * The caller of the stack scanning routine must ensure that all of<a name="line.67"></a>
+<span class="sourceLineNo">068</span> * these components's descendants are consistent (all copied) when<a name="line.68"></a>
+<span class="sourceLineNo">069</span> * this method is called. &lt;p&gt;<a name="line.69"></a>
+<span class="sourceLineNo">070</span> *<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * &lt;i&gt;Code locations:&lt;/i&gt; Identifying pointers &lt;i&gt;into&lt;/i&gt; code<a name="line.71"></a>
+<span class="sourceLineNo">072</span> * objects is essential if code objects are allowed to move (and if<a name="line.72"></a>
+<span class="sourceLineNo">073</span> * the code objects were not otherwise kept alive, it would be<a name="line.73"></a>
+<span class="sourceLineNo">074</span> * necessary to ensure the liveness of the code objects). A code<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * pointer is the only case in which we have interior pointers<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * (pointers into the inside of objects).  For such pointers, two<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * things must occur: first the pointed to object must be kept alive,<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * and second, if the pointed to object is moved by a copying<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * collector, the pointer into the object must be adjusted so it now<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * points into the newly copied object<a name="line.80"></a>
+<span class="sourceLineNo">081</span> */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>@Uninterruptible public final class ScanThread {<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  /***********************************************************************<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   *<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * Class variables<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>  /** quietly validates each ref reported by map iterators */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  static final boolean VALIDATE_REFS = VM.VerifyAssertions;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  /*<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * debugging options to produce printout during scanStack<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * MULTIPLE GC THREADS WILL PRODUCE SCRAMBLED OUTPUT so only<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * use these when running with PROCESSORS=1<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  private static final int DEFAULT_VERBOSITY = 0 /*0*/;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  private static final int FAILURE_VERBOSITY = 4;<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>  /***********************************************************************<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   *<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * Instance variables<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>  /**<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   *<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  private final GCMapIteratorGroup iteratorGroup = new GCMapIteratorGroup();<a name="line.108"></a>
 <span class="sourceLineNo">109</span>  @Untraced<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  private TraceLocal trace;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  private boolean processCodeLocations;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>  @Untraced<a name="line.112"></a>
-<span class="sourceLineNo">113</span>  private RVMThread thread;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  private Address ip, fp, prevFp, initialIPLoc, topFrame;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>  @Untraced<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  private CompiledMethod compiledMethod;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>  private int compiledMethodType;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>  private boolean failed;<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>  /***********************************************************************<a name="line.120"></a>
-<span class="sourceLineNo">121</span>   *<a name="line.121"></a>
-<span class="sourceLineNo">122</span>   * Thread scanning<a name="line.122"></a>
-<span class="sourceLineNo">123</span>   */<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * Scan a thread, placing the addresses of pointers into supplied buffers.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   *<a name="line.127"></a>
-<span class="sourceLineNo">128</span>   * @param thread The thread to be scanned<a name="line.128"></a>
-<span class="sourceLineNo">129</span>   * @param trace The trace instance to use for reporting references.<a name="line.129"></a>
-<span class="sourceLineNo">130</span>   * @param processCodeLocations Should code locations be processed?<a name="line.130"></a>
-<span class="sourceLineNo">131</span>   */<a name="line.131"></a>
-<span class="sourceLineNo">132</span>  public static void scanThread(RVMThread thread, TraceLocal trace,<a name="line.132"></a>
-<span class="sourceLineNo">133</span>                                boolean processCodeLocations) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    if (DEFAULT_VERBOSITY&gt;=1) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>      VM.sysWriteln("scanning ",thread.getThreadSlot());<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>    /* get the gprs associated with this thread */<a name="line.138"></a>
-<span class="sourceLineNo">139</span>    Registers regs=thread.getContextRegisters();<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    Address gprs = Magic.objectAsAddress(regs.gprs);<a name="line.140"></a>
+<span class="sourceLineNo">110</span>  private GCMapIterator iterator;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  @Untraced<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  private TraceLocal trace;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  private boolean processCodeLocations;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  @Untraced<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  private RVMThread thread;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  private Address ip, fp, prevFp, initialIPLoc, topFrame;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  @Untraced<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  private CompiledMethod compiledMethod;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  private int compiledMethodType;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  private boolean failed;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  private boolean reinstallReturnBarrier;<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>  /***********************************************************************<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   *<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * Thread scanning<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   */<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>  /**<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * Scan a thread, placing the addresses of pointers into supplied buffers.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   *<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * @param thread The thread to be scanned<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * @param trace The trace instance to use for reporting references.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * @param processCodeLocations Should code locations be processed?<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * @param newRootsSufficient Is a partial stack scan sufficient, or must we do a full scan?<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   */<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  public static void scanThread(RVMThread thread, TraceLocal trace,<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                                boolean processCodeLocations, boolean newRootsSufficient) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    if (DEFAULT_VERBOSITY &gt;= 1) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      VM.sysWriteln("scanning ",thread.getThreadSlot());<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
 <span class="sourceLineNo">141</span><a name="line.141"></a>
-<span class="sourceLineNo">142</span>    Address ip=regs.getInnermostInstructionAddress();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    Address fp=regs.getInnermostFramePointer();<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    regs.clear();<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    regs.setInnermost(ip,fp);<a name="line.145"></a>
-<span class="sourceLineNo">146</span><a name="line.146"></a>
-<span class="sourceLineNo">147</span>    scanThread(thread, trace, processCodeLocations, gprs, Address.zero());<a name="line.147"></a>
-<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>   * Wrapper for {@link TraceLocal#reportDelayedRootEdge(Address)} that allows<a name="line.151"></a>
-<span class="sourceLineNo">152</span>   * sanity checking of the address.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>   */<a name="line.153"></a>
-<span class="sourceLineNo">154</span>  private static void reportDelayedRootEdge(TraceLocal trace, Address addr) {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    if (VALIDATE_REFS) checkReference(addr);<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    trace.reportDelayedRootEdge(addr);<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
-<span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>  /**<a name="line.159"></a>
-<span class="sourceLineNo">160</span>   * A more general interface to thread scanning, which permits the<a name="line.160"></a>
-<span class="sourceLineNo">161</span>   * scanning of stack segments which are dislocated from the thread<a name="line.161"></a>
-<span class="sourceLineNo">162</span>   * structure.<a name="line.162"></a>
-<span class="sourceLineNo">163</span>   *<a name="line.163"></a>
-<span class="sourceLineNo">164</span>   * @param thread The thread to be scanned<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   * @param trace The trace instance to use for reporting references.<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   * @param processCodeLocations Should code locations be processed?<a name="line.166"></a>
-<span class="sourceLineNo">167</span>   * @param gprs The general purpose registers associated with the<a name="line.167"></a>
-<span class="sourceLineNo">168</span>   * stack being scanned (normally extracted from the thread).<a name="line.168"></a>
-<span class="sourceLineNo">169</span>   * @param topFrame The top frame of the stack being scanned, or zero<a name="line.169"></a>
-<span class="sourceLineNo">170</span>   * if this is to be inferred from the thread (normally the case).<a name="line.170"></a>
-<span class="sourceLineNo">171</span>   */<a name="line.171"></a>
-<span class="sourceLineNo">172</span>  private static void scanThread(RVMThread thread, TraceLocal trace,<a name="line.172"></a>
-<span class="sourceLineNo">173</span>                                 boolean processCodeLocations,<a name="line.173"></a>
-<span class="sourceLineNo">174</span>                                 Address gprs, Address topFrame) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    // figure out if the thread should be scanned at all; if not, exit<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    if (thread.getExecStatus()==RVMThread.NEW || thread.getIsAboutToTerminate()) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>      return;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    /* establish ip and fp for the stack to be scanned */<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    Address ip, fp, initialIPLoc;<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    if (topFrame.isZero()) { /* implicit top of stack, inferred from thread */<a name="line.181"></a>
-<span class="sourceLineNo">182</span>      ip = thread.getContextRegisters().getInnermostInstructionAddress();<a name="line.182"></a>
-<span class="sourceLineNo">183</span>      fp = thread.getContextRegisters().getInnermostFramePointer();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>      initialIPLoc = thread.getContextRegisters().getIPLocation();<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    } else {                 /* top frame explicitly defined */<a name="line.185"></a>
-<span class="sourceLineNo">186</span>      ip = Magic.getReturnAddress(topFrame, thread);<a name="line.186"></a>
-<span class="sourceLineNo">187</span>      fp = Magic.getCallerFramePointer(topFrame);<a name="line.187"></a>
-<span class="sourceLineNo">188</span>      initialIPLoc = thread.getContextRegisters().getIPLocation(); // FIXME<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    }<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    /* Grab the ScanThread instance associated with this thread */<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    ScanThread scanner = RVMThread.getCurrentThread().getCollectorThread().getThreadScanner();<a name="line.192"></a>
-<span class="sourceLineNo">193</span><a name="line.193"></a>
-<span class="sourceLineNo">194</span>    /* scan the stack */<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    scanner.startScan(trace, processCodeLocations, thread, gprs, ip, fp, initialIPLoc, topFrame);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>  }<a name="line.196"></a>
-<span class="sourceLineNo">197</span><a name="line.197"></a>
-<span class="sourceLineNo">198</span>  /**<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   * Initializes a ScanThread instance, and then scans a stack<a name="line.199"></a>
-<span class="sourceLineNo">200</span>   * associated with a thread, and places references in deques (one for<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * object pointers, one for interior code pointers).  If the thread<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   * scan fails, the thread is rescanned verbosely and a failure<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   * occurs.&lt;p&gt;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>   *<a name="line.204"></a>
-<span class="sourceLineNo">205</span>   * The various state associated with stack scanning is captured by<a name="line.205"></a>
-<span class="sourceLineNo">206</span>   * instance variables of this type, which are initialized here.<a name="line.206"></a>
-<span class="sourceLineNo">207</span>   *<a name="line.207"></a>
-<span class="sourceLineNo">208</span>   * @param trace The trace instance to use for reporting locations.<a name="line.208"></a>
-<span class="sourceLineNo">209</span>   * @param thread Thread for the thread whose stack is being scanned<a name="line.209"></a>
-<span class="sourceLineNo">210</span>   * @param gprs The general purpose registers associated with the<a name="line.210"></a>
-<span class="sourceLineNo">211</span>   * stack being scanned (normally extracted from the thread).<a name="line.211"></a>
-<span class="sourceLineNo">212</span>   * @param ip The instruction pointer for the top frame of the stack<a name="line.212"></a>
-<span class="sourceLineNo">213</span>   * we're about to scan.<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   * @param fp The frame pointer for the top frame of the stack we're<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   * about to scan.<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   */<a name="line.216"></a>
-<span class="sourceLineNo">217</span>  private void startScan(TraceLocal trace,<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                         boolean processCodeLocations,<a name="line.218"></a>
-<span class="sourceLineNo">219</span>                         RVMThread thread, Address gprs, Address ip,<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                         Address fp, Address initialIPLoc, Address topFrame) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    this.trace = trace;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    this.processCodeLocations = processCodeLocations;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    this.thread = thread;<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    this.failed = false;<a name="line.224"></a>
-<span class="sourceLineNo">225</span>    this.ip = ip;<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    this.fp = fp;<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    this.initialIPLoc = initialIPLoc;<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    this.topFrame = topFrame;<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    scanThreadInternal(gprs, DEFAULT_VERBOSITY);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>    if (failed) {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>       /* reinitialize and rescan verbosly on failure */<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      this.ip = ip;<a name="line.232"></a>
-<span class="sourceLineNo">233</span>      this.fp = fp;<a name="line.233"></a>
-<span class="sourceLineNo">234</span>      this.topFrame = topFrame;<a name="line.234"></a>
-<span class="sourceLineNo">235</span>      scanThreadInternal(gprs, FAILURE_VERBOSITY);<a name="line.235"></a>
-<span class="sourceLineNo">236</span>      VM.sysFail("Error encountered while scanning stack");<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    }<a name="line.237"></a>
-<span class="sourceLineNo">238</span>  }<a name="line.238"></a>
-<span class="sourceLineNo">239</span><a name="line.239"></a>
-<span class="sourceLineNo">240</span>  /**<a name="line.240"></a>
-<span class="sourceLineNo">241</span>   * The main stack scanning loop.&lt;p&gt;<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   *<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   * Walk the stack one frame at a time, top (lo) to bottom (hi),&lt;p&gt;<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   *<a name="line.244"></a>
-<span class="sourceLineNo">245</span>   * @param gprs The general purpose registers associated with the<a name="line.245"></a>
-<span class="sourceLineNo">246</span>   * stack being scanned (normally extracted from the thread).<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   * @param verbosity The level of verbosity to be used when<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   * performing the scan.<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   */<a name="line.249"></a>
-<span class="sourceLineNo">250</span>  private void scanThreadInternal(Address gprs, int verbosity) {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    if (false) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>      VM.sysWriteln("Scanning thread ",thread.getThreadSlot()," from thread ",RVMThread.getCurrentThreadSlot());<a name="line.252"></a>
-<span class="sourceLineNo">253</span>    }<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    if (verbosity &gt;= 2) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>      Log.writeln("--- Start Of Stack Scan ---\n");<a name="line.255"></a>
-<span class="sourceLineNo">256</span>      Log.write("Thread #");<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      Log.writeln(thread.getThreadSlot());<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    }<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    if (VM.VerifyAssertions) assertImmovableInCurrentCollection();<a name="line.259"></a>
-<span class="sourceLineNo">260</span><a name="line.260"></a>
-<span class="sourceLineNo">261</span>    /* first find any references to exception handlers in the registers */<a name="line.261"></a>
-<span class="sourceLineNo">262</span>    getHWExceptionRegisters();<a name="line.262"></a>
-<span class="sourceLineNo">263</span><a name="line.263"></a>
-<span class="sourceLineNo">264</span>    /* reinitialize the stack iterator group */<a name="line.264"></a>
-<span class="sourceLineNo">265</span>    iteratorGroup.newStackWalk(thread, gprs);<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>    if (verbosity &gt;= 2) dumpTopFrameInfo(verbosity);<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>    /* scan each frame if a non-empty stack */<a name="line.269"></a>
-<span class="sourceLineNo">270</span>    if (fp.NE(ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP)) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>      prevFp = Address.zero();<a name="line.271"></a>
-<span class="sourceLineNo">272</span>      /* At start of loop:<a name="line.272"></a>
-<span class="sourceLineNo">273</span>         fp -&gt; frame for method invocation being processed<a name="line.273"></a>
-<span class="sourceLineNo">274</span>         ip -&gt; instruction pointer in the method (normally a call site) */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>      while (Magic.getCallerFramePointer(fp).NE(ArchitectureSpecific.StackframeLayoutConstants.STACKFRAME_SENTINEL_FP)) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>        if (false) {<a name="line.276"></a>
-<span class="sourceLineNo">277</span>          VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>        }<a name="line.278"></a>
-<span class="sourceLineNo">279</span>        prevFp = scanFrame(verbosity);<a name="line.279"></a>
-<span class="sourceLineNo">280</span>        ip = Magic.getReturnAddress(fp, thread);<a name="line.280"></a>
-<span class="sourceLineNo">281</span>        fp = Magic.getCallerFramePointer(fp);<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      }<a name="line.282"></a>
-<span class="sourceLineNo">283</span>    }<a name="line.283"></a>
-<span class="sourceLineNo">284</span><a name="line.284"></a>
-<span class="sourceLineNo">285</span>    /* If a thread started via createVM or attachVM, base may need scaning */<a name="line.285"></a>
-<span class="sourceLineNo">286</span>    checkJNIBase();<a name="line.286"></a>
-<span class="sourceLineNo">287</span><a name="line.287"></a>
-<span class="sourceLineNo">288</span>    if (verbosity &gt;= 2) Log.writeln("--- End Of Stack Scan ---\n");<a name="line.288"></a>
-<span class="sourceLineNo">289</span>  }<a name="line.289"></a>
-<span class="sourceLineNo">290</span><a name="line.290"></a>
-<span class="sourceLineNo">291</span>  /**<a name="line.291"></a>
-<span class="sourceLineNo">292</span>   * When an exception occurs, registers are saved temporarily.  If<a name="line.292"></a>
-<span class="sourceLineNo">293</span>   * the stack being scanned is in this state, we need to scan those<a name="line.293"></a>
-<span class="sourceLineNo">294</span>   * registers for code pointers.  If the codeLocations deque is null,<a name="line.294"></a>
-<span class="sourceLineNo">295</span>   * then scanning for code pointers is not required, so we don't need<a name="line.295"></a>
-<span class="sourceLineNo">296</span>   * to do anything. (SB: Why only code pointers?).<a name="line.296"></a>
-<span class="sourceLineNo">297</span>   *<a name="line.297"></a>
-<span class="sourceLineNo">298</span>   * Dave G:  The contents of the GPRs of the exceptionRegisters<a name="line.298"></a>
-<span class="sourceLineNo">299</span>   * are handled during normal stack scanning<a name="line.299"></a>
-<span class="sourceLineNo">300</span>   * (@see org.jikesrvm.runtime.compilers.common.HardwareTrapCompiledMethod.<a name="line.300"></a>
-<span class="sourceLineNo">301</span>   * It looks to me like the main goal of this method is to ensure that the<a name="line.301"></a>
-<span class="sourceLineNo">302</span>   * method in which the trap happened isn't treated as dead code and collected<a name="line.302"></a>
-<span class="sourceLineNo">303</span>   * (if it's been marked as obsolete, we are setting its activeOnStackFlag below).<a name="line.303"></a>
-<span class="sourceLineNo">304</span>   *<a name="line.304"></a>
-<span class="sourceLineNo">305</span>   */<a name="line.305"></a>
-<span class="sourceLineNo">306</span>  private void getHWExceptionRegisters() {<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    ArchitectureSpecific.Registers exReg = thread.getExceptionRegisters();<a name="line.307"></a>
-<span class="sourceLineNo">308</span>    if (processCodeLocations &amp;&amp; exReg.inuse) {<a name="line.308"></a>
-<span class="sourceLineNo">309</span>      Address ip = exReg.ip;<a name="line.309"></a>
-<span class="sourceLineNo">310</span>      CompiledMethod compiledMethod = CompiledMethods.findMethodForInstruction(ip);<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      if (VM.VerifyAssertions) {<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        VM._assert(compiledMethod != null);<a name="line.312"></a>
-<span class="sourceLineNo">313</span>        VM._assert(compiledMethod.containsReturnAddress(ip));<a name="line.313"></a>
-<span class="sourceLineNo">314</span>      }<a name="line.314"></a>
-<span class="sourceLineNo">315</span>      compiledMethod.setActiveOnStack();<a name="line.315"></a>
-<span class="sourceLineNo">316</span>      ObjectReference code = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.316"></a>
-<span class="sourceLineNo">317</span>      Address ipLoc = exReg.getIPLocation();<a name="line.317"></a>
-<span class="sourceLineNo">318</span>      if (VM.VerifyAssertions) VM._assert(ip == ipLoc.loadAddress());<a name="line.318"></a>
-<span class="sourceLineNo">319</span>      processCodeLocation(code, ipLoc);<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    }<a name="line.320"></a>
-<span class="sourceLineNo">321</span>  }<a name="line.321"></a>
-<span class="sourceLineNo">322</span><a name="line.322"></a>
-<span class="sourceLineNo">323</span>  /**<a name="line.323"></a>
-<span class="sourceLineNo">324</span>   * Push a code pointer location onto the code locations deque,<a name="line.324"></a>
-<span class="sourceLineNo">325</span>   * optionally performing a sanity check first.&lt;p&gt;<a name="line.325"></a>
-<span class="sourceLineNo">326</span>   *<a name="line.326"></a>
-<span class="sourceLineNo">327</span>   * @param code The code object into which this interior pointer points<a name="line.327"></a>
-<span class="sourceLineNo">328</span>   * @param ipLoc The location of the pointer into this code object<a name="line.328"></a>
-<span class="sourceLineNo">329</span>   */<a name="line.329"></a>
-<span class="sourceLineNo">330</span>  @Inline<a name="line.330"></a>
-<span class="sourceLineNo">331</span>  private void processCodeLocation(ObjectReference code, Address ipLoc) {<a name="line.331"></a>
-<span class="sourceLineNo">332</span>    if (VALIDATE_REFS) {<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      Address ip = ipLoc.loadAddress();<a name="line.333"></a>
-<span class="sourceLineNo">334</span>      Offset offset = ip.diff(code.toAddress());<a name="line.334"></a>
-<span class="sourceLineNo">335</span><a name="line.335"></a>
-<span class="sourceLineNo">336</span>      if (offset.sLT(Offset.zero()) ||<a name="line.336"></a>
-<span class="sourceLineNo">337</span>          offset.sGT(Offset.fromIntZeroExtend(ObjectModel.getObjectSize(code)))) {<a name="line.337"></a>
-<span class="sourceLineNo">338</span>        Log.writeln("ERROR: Suspiciously large offset of interior pointer from object base");<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        Log.write("       object base = "); Log.writeln(code);<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        Log.write("       interior reference = "); Log.writeln(ip);<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        Log.write("       offset = "); Log.writeln(offset);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>        Log.write("       interior ref loc = "); Log.writeln(ipLoc);<a name="line.342"></a>
-<span class="sourceLineNo">343</span>        if (!failed) failed = true;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      }<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
-<span class="sourceLineNo">346</span>    trace.processInteriorEdge(code, ipLoc, true);<a name="line.346"></a>
-<span class="sourceLineNo">347</span>  }<a name="line.347"></a>
-<span class="sourceLineNo">348</span><a name="line.348"></a>
-<span class="sourceLineNo">349</span>  /***********************************************************************<a name="line.349"></a>
-<span class="sourceLineNo">350</span>   *<a name="line.350"></a>
-<span class="sourceLineNo">351</span>   * Frame scanning methods<a name="line.351"></a>
-<span class="sourceLineNo">352</span>   */<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>  /**<a name="line.354"></a>
-<span class="sourceLineNo">355</span>   * Scan the current stack frame.&lt;p&gt;<a name="line.355"></a>
-<span class="sourceLineNo">356</span>   *<a name="line.356"></a>
-<span class="sourceLineNo">357</span>   * First the various iterators are set up, then the frame is scanned<a name="line.357"></a>
-<span class="sourceLineNo">358</span>   * for regular pointers, before scanning for code pointers.  The<a name="line.358"></a>
-<span class="sourceLineNo">359</span>   * iterators are then cleaned up, and native frames skipped if<a name="line.359"></a>
-<span class="sourceLineNo">360</span>   * necessary.<a name="line.360"></a>
-<span class="sourceLineNo">361</span>   *<a name="line.361"></a>
-<span class="sourceLineNo">362</span>   * @param verbosity The level of verbosity to be used when<a name="line.362"></a>
-<span class="sourceLineNo">363</span>   * performing the scan.<a name="line.363"></a>
-<span class="sourceLineNo">364</span>   */<a name="line.364"></a>
-<span class="sourceLineNo">365</span>  private Address scanFrame(int verbosity) {<a name="line.365"></a>
-<span class="sourceLineNo">366</span>    /* set up iterators etc, and skip the frame if appropriate */<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    if (!setUpFrame(verbosity)) return fp;<a name="line.367"></a>
-<span class="sourceLineNo">368</span><a name="line.368"></a>
-<span class="sourceLineNo">369</span>    /* scan the frame for object pointers */<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    scanFrameForObjects(verbosity);<a name="line.370"></a>
-<span class="sourceLineNo">371</span><a name="line.371"></a>
-<span class="sourceLineNo">372</span>    /* scan the frame for pointers to code */<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    if (processCodeLocations &amp;&amp; compiledMethodType != CompiledMethod.TRAP)<a name="line.373"></a>
-<span class="sourceLineNo">374</span>      processFrameForCode(verbosity);<a name="line.374"></a>
+<span class="sourceLineNo">142</span>    /* get the gprs associated with this thread */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    AbstractRegisters regs = thread.getContextRegisters();<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    Address gprs = Magic.objectAsAddress(regs.getGPRs());<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>    Address ip = regs.getInnermostInstructionAddress();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    Address fp = regs.getInnermostFramePointer();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    regs.clear();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    regs.setInnermost(ip,fp);<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    scanThread(thread, trace, processCodeLocations, gprs, Address.zero(), newRootsSufficient);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  }<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>  /**<a name="line.154"></a>
+<span class="sourceLineNo">155</span>   * Wrapper for {@link TraceLocal#reportDelayedRootEdge(Address)} that allows<a name="line.155"></a>
+<span class="sourceLineNo">156</span>   * sanity checking of the address.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   *<a name="line.157"></a>
+<span class="sourceLineNo">158</span>   * @param trace the trace on which {@link TraceLocal#reportDelayedRootEdge(Address)}<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   *  will be called<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   * @param addr see JavaDoc of {@link TraceLocal#reportDelayedRootEdge(Address)}<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  private static void reportDelayedRootEdge(TraceLocal trace, Address addr) {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    if (VALIDATE_REFS) checkReference(addr);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    trace.reportDelayedRootEdge(addr);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  }<a name="line.165"></a>
+<span class="sourceLineNo">166</span><a name="line.166"></a>
+<span class="sourceLineNo">167</span>  /**<a name="line.167"></a>
+<span class="sourceLineNo">168</span>   * A more general interface to thread scanning, which permits the<a name="line.168"></a>
+<span class="sourceLineNo">169</span>   * scanning of stack segments which are dislocated from the thread<a name="line.169"></a>
+<span class="sourceLineNo">170</span>   * structure.<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   *<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   * @param thread The thread to be scanned<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @param trace The trace instance to use for reporting references.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * @param processCodeLocations Should code locations be processed?<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * @param gprs The general purpose registers associated with the<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * stack being scanned (normally extracted from the thread).<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * @param topFrame The top frame of the stack being scanned, or zero<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   * if this is to be inferred from the thread (normally the case).<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   * @param newRootsSufficent Is a partial stack scan sufficient, or must we do a full scan?<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  private static void scanThread(RVMThread thread, TraceLocal trace,<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                                 boolean processCodeLocations,<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                                 Address gprs, Address topFrame, boolean newRootsSufficent) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    // figure out if the thread should be scanned at all; if not, exit<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    if (thread.getExecStatus() == RVMThread.NEW || thread.getIsAboutToTerminate()) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      return;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    /* establish ip and fp for the stack to be scanned */<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    Address ip, fp, initialIPLoc;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    if (topFrame.isZero()) { /* implicit top of stack, inferred from thread */<a name="line.190"></a>
+<span class="sourceLineNo">191</span>      ip = thread.getContextRegisters().getInnermostInstructionAddress();<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      fp = thread.getContextRegisters().getInnermostFramePointer();<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      initialIPLoc = thread.getContextRegisters().getIPLocation();<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    } else {                 /* top frame explicitly defined */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      ip = Magic.getReturnAddress(topFrame, thread);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      fp = Magic.getCallerFramePointer(topFrame);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      initialIPLoc = thread.getContextRegisters().getIPLocation(); // FIXME<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">199</span><a name="line.199"></a>
+<span class="sourceLineNo">200</span>    /* Grab the ScanThread instance associated with this thread */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    ScanThread scanner = RVMThread.getCurrentThread().getCollectorThread().getThreadScanner();<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>    /* Expicitly establish the stopping point for this scan (not necessarily the bottom of stack) */<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    Address sentinalFp = newRootsSufficent &amp;&amp; Options.useShortStackScans.getValue() ? thread.getNextUnencounteredFrame() : StackFrameLayout.getStackFrameSentinelFP();<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>    /* stack trampoline will be freshly reinstalled at end of thread scan */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    if (Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue()) {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>      thread.deInstallStackTrampoline();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>    /* scan the stack */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    scanner.startScan(trace, processCodeLocations, thread, gprs, ip, fp, initialIPLoc, topFrame, sentinalFp);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>  /**<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * Initializes a ScanThread instance, and then scans a stack<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * associated with a thread, and places references in deques (one for<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   * object pointers, one for interior code pointers).  If the thread<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   * scan fails, the thread is rescanned verbosely and a failure<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * occurs.&lt;p&gt;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   *<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   * The various state associated with stack scanning is captured by<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   * instance variables of this type, which are initialized here.<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   *<a name="line.224"></a>
+<span class="sourceLineNo">225</span>   * @param trace The trace instance to use for reporting locations.<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   * @param processCodeLocations whether to process parts of the thread<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   *  that could point to code (e.g. exception registers).<a name="line.227"></a>
+<span class="sourceLineNo">228</span>   * @param thread Thread for the thread whose stack is being scanned<a name="line.228"></a>
+<span class="sourceLineNo">229</span>   * @param gprs The general purpose registers associated with the<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   * stack being scanned (normally extracted from the thread).<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   * @param ip The instruction pointer for the top frame of the stack<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * we're about to scan.<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @param fp The frame pointer for the top frame of the stack we're<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * about to scan.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @param initialIPLoc the address of the initial location of the instruction<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   *  pointer<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   * @param topFrame The top frame of the stack being scanned, or zero<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * if this is to be inferred from the thread (normally the case).<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   * @param sentinelFp The frame pointer at which the stack scan should stop.<a name="line.239"></a>
+<span class="sourceLineNo">240</span>   */<a name="line.240"></a>
+<span class="sourceLineNo">241</span>  private void startScan(TraceLocal trace,<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                         boolean processCodeLocations,<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                         RVMThread thread, Address gprs, Address ip,<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                         Address fp, Address initialIPLoc, Address topFrame,<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                         Address sentinelFp) {<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    this.trace = trace;<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    this.processCodeLocations = processCodeLocations;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    this.thread = thread;<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    this.failed = false;<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    this.ip = ip;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    this.fp = fp;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    this.initialIPLoc = initialIPLoc;<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    this.topFrame = topFrame;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    scanThreadInternal(gprs, DEFAULT_VERBOSITY, sentinelFp);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    if (failed) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>       /* reinitialize and rescan verbosely on failure */<a name="line.256"></a>
+<span class="sourceLineNo">257</span>      this.ip = ip;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      this.fp = fp;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>      this.topFrame = topFrame;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      scanThreadInternal(gprs, FAILURE_VERBOSITY, sentinelFp);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      VM.sysFail("Error encountered while scanning stack");<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  }<a name="line.263"></a>
+<span class="sourceLineNo">264</span><a name="line.264"></a>
+<span class="sourceLineNo">265</span>  /**<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   * The main stack scanning loop.&lt;p&gt;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   *<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   * Walk the stack one frame at a time, top (lo) to bottom (hi),&lt;p&gt;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   *<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * @param gprs The general purpose registers associated with the<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   * stack being scanned (normally extracted from the thread).<a name="line.271"></a>
+<span class="sourceLineNo">272</span>   * @param verbosity The level of verbosity to be used when<a name="line.272"></a>
+<span class="sourceLineNo">273</span>   * performing the scan.<a name="line.273"></a>
+<span class="sourceLineNo">274</span>   * @param sentinelFp the frame pointer at which the stack scan should stop<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  private void scanThreadInternal(Address gprs, int verbosity, Address sentinelFp) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    if (false) {<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      VM.sysWriteln("Scanning thread ",thread.getThreadSlot()," from thread ",RVMThread.getCurrentThreadSlot());<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    if (verbosity &gt;= 2) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      Log.writeln("--- Start Of Stack Scan ---\n");<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      Log.write("Thread #");<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      Log.writeln(thread.getThreadSlot());<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    }<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    if (VM.VerifyAssertions) assertImmovableInCurrentCollection();<a name="line.285"></a>
+<span class="sourceLineNo">286</span><a name="line.286"></a>
+<span class="sourceLineNo">287</span>    /* first find any references to exception handlers in the registers */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    getHWExceptionRegisters();<a name="line.288"></a>
+<span class="sourceLineNo">289</span><a name="line.289"></a>
+<span class="sourceLineNo">290</span>    /* reinitialize the stack iterator group */<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    iteratorGroup.newStackWalk(thread, gprs);<a name="line.291"></a>
+<span class="sourceLineNo">292</span><a name="line.292"></a>
+<span class="sourceLineNo">293</span>    if (verbosity &gt;= 2) dumpTopFrameInfo(verbosity);<a name="line.293"></a>
+<span class="sourceLineNo">294</span><a name="line.294"></a>
+<span class="sourceLineNo">295</span>    /* scan each frame if a non-empty stack */<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    if (fp.NE(StackFrameLayout.getStackFrameSentinelFP())) {<a name="line.296"></a>
+<span class="sourceLineNo">297</span>      prevFp = Address.zero();<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      reinstallReturnBarrier = Options.useReturnBarrier.getValue() || Options.useShortStackScans.getValue();<a name="line.298"></a>
+<span class="sourceLineNo">299</span>      /* At start of loop:<a name="line.299"></a>
+<span class="sourceLineNo">300</span>         fp -&gt; frame for method invocation being processed<a name="line.300"></a>
+<span class="sourceLineNo">301</span>         ip -&gt; instruction pointer in the method (normally a call site) */<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      while (Magic.getCallerFramePointer(fp).NE(sentinelFp)) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>        if (false) {<a name="line.303"></a>
+<span class="sourceLineNo">304</span>          VM.sysWriteln("Thread ",RVMThread.getCurrentThreadSlot()," at fp = ",fp);<a name="line.304"></a>
+<span class="sourceLineNo">305</span>        }<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        prevFp = scanFrame(verbosity);<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        ip = Magic.getReturnAddress(fp, thread);<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        fp = Magic.getCallerFramePointer(fp);<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      }<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>    /* If a thread started via createVM or attachVM, base may need scaning */<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    // TODO implement this if necessary. It was previously only implemented for<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    // AIX which is no longer supported.<a name="line.314"></a>
+<span class="sourceLineNo">315</span><a name="line.315"></a>
+<span class="sourceLineNo">316</span>    if (verbosity &gt;= 2) Log.writeln("--- End Of Stack Scan ---\n");<a name="line.316"></a>
+<span class="sourceLineNo">317</span>  }<a name="line.317"></a>
+<span class="sourceLineNo">318</span><a name="line.318"></a>
+<span class="sourceLineNo">319</span>  /**<a name="line.319"></a>
+<span class="sourceLineNo">320</span>   * When an exception occurs, registers are saved temporarily.  If<a name="line.320"></a>
+<span class="sourceLineNo">321</span>   * the stack being scanned is in this state, we need to scan those<a name="line.321"></a>
+<span class="sourceLineNo">322</span>   * registers for code pointers.  If the codeLocations deque is null,<a name="line.322"></a>
+<span class="sourceLineNo">323</span>   * then scanning for code pointers is not required, so we don't need<a name="line.323"></a>
+<span class="sourceLineNo">324</span>   * to do anything. (SB: Why only code pointers?).<a name="line.324"></a>
+<span class="sourceLineNo">325</span>   * &lt;p&gt;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>   * Dave G:  The contents of the GPRs of the exceptionRegisters<a name="line.326"></a>
+<span class="sourceLineNo">327</span>   * are handled during normal stack scanning<a name="line.327"></a>
+<span class="sourceLineNo">328</span>   * (@see org.jikesrvm.runtime.compilers.common.HardwareTrapCompiledMethod.<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * It looks to me like the main goal of this method is to ensure that the<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * method in which the trap happened isn't treated as dead code and collected<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * (if it's been marked as obsolete, we are setting its activeOnStackFlag below).<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   */<a name="line.332"></a>
+<span class="sourceLineNo">333</span>  private void getHWExceptionRegisters() {<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    AbstractRegisters exReg = thread.getExceptionRegisters();<a name="line.334"></a>
+<span class="sourceLineNo">335</span>    if (processCodeLocations &amp;&amp; exReg.getInUse()) {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      Address ip = exReg.getIP();<a name="line.336"></a>
+<span class="sourceLineNo">337</span>      CompiledMethod compiledMethod = CompiledMethods.findMethodForInstruction(ip);<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      if (VM.VerifyAssertions) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        VM._assert(compiledMethod != null);<a name="line.339"></a>
+<span class="sourceLineNo">340</span>        VM._assert(compiledMethod.containsReturnAddress(ip));<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      }<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      compiledMethod.setActiveOnStack();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      ObjectReference code = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      Address ipLoc = exReg.getIPLocation();<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      if (VM.VerifyAssertions) VM._assert(ip.EQ(ipLoc.loadAddress()));<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      processCodeLocation(code, ipLoc);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>  }<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>  /**<a name="line.350"></a>
+<span class="sourceLineNo">351</span>   * Push a code pointer location onto the code locations deque,<a name="line.351"></a>
+<span class="sourceLineNo">352</span>   * optionally performing a sanity check first.&lt;p&gt;<a name="line.352"></a>
+<span class="sourceLineNo">353</span>   *<a name="line.353"></a>
+<span class="sourceLineNo">354</span>   * @param code The code object into which this interior pointer points<a name="line.354"></a>
+<span class="sourceLineNo">355</span>   * @param ipLoc The location of the pointer into this code object<a name="line.355"></a>
+<span class="sourceLineNo">356</span>   */<a name="line.356"></a>
+<span class="sourceLineNo">357</span>  @Inline<a name="line.357"></a>
+<span class="sourceLineNo">358</span>  private void processCodeLocation(ObjectReference code, Address ipLoc) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    if (VALIDATE_REFS) {<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      Address ip = ipLoc.loadAddress();<a name="line.360"></a>
+<span class="sourceLineNo">361</span>      Offset offset = ip.diff(code.toAddress());<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>      if (offset.sLT(Offset.zero()) ||<a name="line.363"></a>
+<span class="sourceLineNo">364</span>          offset.sGT(Offset.fromIntZeroExtend(ObjectModel.getObjectSize(code)))) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        Log.writeln("ERROR: Suspiciously large offset of interior pointer from object base");<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        Log.write("       object base = "); Log.writeln(code);<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        Log.write("       interior reference = "); Log.writeln(ip);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        Log.write("       offset = "); Log.writeln(offset);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        Log.write("       interior ref loc = "); Log.writeln(ipLoc);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>        if (!failed) failed = true;<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      }<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    }<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    trace.processInteriorEdge(code, ipLoc, true);<a name="line.373"></a>
+<span class="sourceLineNo">374</span>  }<a name="line.374"></a>
 <span class="sourceLineNo">375</span><a name="line.375"></a>
-<span class="sourceLineNo">376</span>    iterator.cleanupPointers();<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>    /* skip preceeding native frames if this frame is a native bridge */<a name="line.378"></a>
-<span class="sourceLineNo">379</span>    if (compiledMethodType != CompiledMethod.TRAP &amp;&amp;<a name="line.379"></a>
-<span class="sourceLineNo">380</span>        compiledMethod.getMethod().getDeclaringClass().hasBridgeFromNativeAnnotation()) {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>      fp = RuntimeEntrypoints.unwindNativeStackFrameForGC(fp);<a name="line.381"></a>
-<span class="sourceLineNo">382</span>      if (verbosity &gt;= 2) Log.write("scanFrame skipping native C frames\n");<a name="line.382"></a>
-<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
-<span class="sourceLineNo">384</span>    return fp;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>  }<a name="line.385"></a>
-<span class="sourceLineNo">386</span><a name="line.386"></a>
-<span class="sourceLineNo">387</span>  /**<a name="line.387"></a>
-<span class="sourceLineNo">388</span>   * Set up to scan the current stack frame.  This means examining the<a name="line.388"></a>
-<span class="sourceLineNo">389</span>   * frame to discover the method being invoked and then retrieving<a name="line.389"></a>
-<span class="sourceLineNo">390</span>   * the associated metadata (stack maps etc).  Certain frames should<a name="line.390"></a>
-<span class="sourceLineNo">391</span>   * not be scanned---these are identified and skipped.<a name="line.391"></a>
-<span class="sourceLineNo">392</span>   *<a name="line.392"></a>
-<span class="sourceLineNo">393</span>   * @param verbosity The level of verbosity to be used when<a name="line.393"></a>
-<span class="sourceLineNo">394</span>   * performing the scan.<a name="line.394"></a>
-<span class="sourceLineNo">395</span>   * @return True if the frame should be scanned, false if it should<a name="line.395"></a>
-<span class="sourceLineNo">396</span>   * be skipped.<a name="line.396"></a>
-<span class="sourceLineNo">397</span>   */<a name="line.397"></a>
-<span class="sourceLineNo">398</span>  private boolean setUpFrame(int verbosity) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>    /* get the compiled method ID for this frame */<a name="line.399"></a>
-<span class="sourceLineNo">400</span>    int compiledMethodId = Magic.getCompiledMethodID(fp);<a name="line.400"></a>
-<span class="sourceLineNo">401</span><a name="line.401"></a>
-<span class="sourceLineNo">402</span>    /* skip "invisible" transition frames generated by reflection and JNI) */<a name="line.402"></a>
-<span class="sourceLineNo">403</span>    if (compiledMethodId == ArchitectureSpecific.ArchConstants.INVISIBLE_METHOD_ID) {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>      if (verbosity &gt;= 2) Log.writeln("\n--- METHOD &lt;invisible method&gt;");<a name="line.404"></a>
-<span class="sourceLineNo">405</span>      return false;<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    }<a name="line.406"></a>
-<span class="sourceLineNo">407</span><a name="line.407"></a>
-<span class="sourceLineNo">408</span>    /* establish the compiled method */<a name="line.408"></a>
-<span class="sourceLineNo">409</span>    compiledMethod = CompiledMethods.getCompiledMethod(compiledMethodId);<a name="line.409"></a>
-<span class="sourceLineNo">410</span>    compiledMethod.setActiveOnStack();  // prevents code from being collected<a name="line.410"></a>
-<span class="sourceLineNo">411</span><a name="line.411"></a>
-<span class="sourceLineNo">412</span>    compiledMethodType = compiledMethod.getCompilerType();<a name="line.412"></a>
-<span class="sourceLineNo">413</span><a name="line.413"></a>
-<span class="sourceLineNo">414</span>    if (verbosity &gt;= 2) printMethodHeader();<a name="line.414"></a>
-<span class="sourceLineNo">415</span><a name="line.415"></a>
-<span class="sourceLineNo">416</span>    /* get the code associated with this frame */<a name="line.416"></a>
-<span class="sourceLineNo">417</span>    if (RVMThread.DEBUG_STACK_TRAMPOLINE) VM.sysWriteln(thread.getId(), fp, compiledMethod.getMethod());<a name="line.417"></a>
-<span class="sourceLineNo">418</span>    Offset offset = compiledMethod.getInstructionOffset(ip);<a name="line.418"></a>
-<span class="sourceLineNo">419</span><a name="line.419"></a>
-<span class="sourceLineNo">420</span>    /* initialize MapIterator for this frame */<a name="line.420"></a>
-<span class="sourceLineNo">421</span>    iterator = iteratorGroup.selectIterator(compiledMethod);<a name="line.421"></a>
-<span class="sourceLineNo">422</span>    iterator.setupIterator(compiledMethod, offset, fp);<a name="line.422"></a>
-<span class="sourceLineNo">423</span><a name="line.423"></a>
-<span class="sourceLineNo">424</span>    if (verbosity &gt;= 3) dumpStackFrame(verbosity);<a name="line.424"></a>
-<span class="sourceLineNo">425</span>    if (verbosity &gt;= 4) Log.writeln("--- Refs Reported By GCMap Iterator ---");<a name="line.425"></a>
-<span class="sourceLineNo">426</span><a name="line.426"></a>
-<span class="sourceLineNo">427</span>    return true;<a name="line.427"></a>
-<span class="sourceLineNo">428</span>  }<a name="line.428"></a>
-<span class="sourceLineNo">429</span><a name="line.429"></a>
-<span class="sourceLineNo">430</span>  /**<a name="line.430"></a>
-<span class="sourceLineNo">431</span>   * Identify all the object pointers stored as local variables<a name="line.431"></a>
-<span class="sourceLineNo">432</span>   * associated with (though not necessarily strictly within!) the<a name="line.432"></a>
-<span class="sourceLineNo">433</span>   * current frame.  Loop through the GC map iterator, getting the<a name="line.433"></a>
-<span class="sourceLineNo">434</span>   * address of each object pointer, adding them to the root locations<a name="line.434"></a>
-<span class="sourceLineNo">435</span>   * deque.&lt;p&gt;<a name="line.435"></a>
-<span class="sourceLineNo">436</span>   *<a name="line.436"></a>
-<span class="sourceLineNo">437</span>   * NOTE: Because of the callee save policy of the optimizing<a name="line.437"></a>
-<span class="sourceLineNo">438</span>   * compiler, references associated with a given frame may be in<a name="line.438"></a>
-<span class="sourceLineNo">439</span>   * callee stack frames (lower memory), &lt;i&gt;outside&lt;/i&gt; the current<a name="line.439"></a>
-<span class="sourceLineNo">440</span>   * frame.  So the iterator may return locations that are outside the<a name="line.440"></a>
-<span class="sourceLineNo">441</span>   * frame being scanned.<a name="line.441"></a>
-<span class="sourceLineNo">442</span>   *<a name="line.442"></a>
-<span class="sourceLineNo">443</span>   * @param verbosity The level of verbosity to be used when<a name="line.443"></a>
-<span class="sourceLineNo">444</span>   * performing the scan.<a name="line.444"></a>
-<span class="sourceLineNo">445</span>   */<a name="line.445"></a>
-<span class="sourceLineNo">446</span>  private void scanFrameForObjects(int verbosity) {<a name="line.446"></a>
-<span class="sourceLineNo">447</span>    for (Address refaddr = iterator.getNextReferenceAddress();<a name="line.447"></a>
-<span class="sourceLineNo">448</span>         !refaddr.isZero();<a name="line.448"></a>
-<span class="sourceLineNo">449</span>         refaddr = iterator.getNextReferenceAddress()) {<a name="line.449"></a>
-<span class="sourceLineNo">450</span>      if (VALIDATE_REFS) checkReference(refaddr, verbosity);<a name="line.450"></a>
-<span class="sourceLineNo">451</span>      if (verbosity &gt;= 4) dumpRef(refaddr, verbosity);<a name="line.451"></a>
-<span class="sourceLineNo">452</span>      reportDelayedRootEdge(trace, refaddr);<a name="line.452"></a>
-<span class="sourceLineNo">453</span>    }<a name="line.453"></a>
-<span class="sourceLineNo">454</span>  }<a name="line.454"></a>
-<span class="sourceLineNo">455</span><a name="line.455"></a>
-<span class="sourceLineNo">456</span>  /**<a name="line.456"></a>
-<span class="sourceLineNo">457</span>   * Identify all pointers into code pointers associated with a frame.<a name="line.457"></a>
-<span class="sourceLineNo">458</span>   * There are two cases to be considered: a) the instruction pointer<a name="line.458"></a>
-<span class="sourceLineNo">459</span>   * associated with each frame (stored in the thread's metadata for<a name="line.459"></a>
-<span class="sourceLineNo">460</span>   * the top frame and as a return address for all subsequent frames),<a name="line.460"></a>
-<span class="sourceLineNo">461</span>   * and b) local variables on the stack which happen to be pointers<a name="line.461"></a>
-<span class="sourceLineNo">462</span>   * to code.&lt;p&gt;<a name="line.462"></a>
-<span class="sourceLineNo">463</span>   *<a name="line.463"></a>
-<span class="sourceLineNo">464</span>   * FIXME: SB: Why is it that JNI frames are skipped when considering<a name="line.464"></a>
-<span class="sourceLineNo">465</span>   * top of stack frames, while boot image frames are skipped when<a name="line.465"></a>
-<span class="sourceLineNo">466</span>   * considering other frames.  Shouldn't they both be considered in<a name="line.466"></a>
-<span class="sourceLineNo">467</span>   * both cases?<a name="line.467"></a>
-<span class="sourceLineNo">468</span>   *<a name="line.468"></a>
-<span class="sourceLineNo">469</span>   * @param verbosity The level of verbosity to be used when<a name="line.469"></a>
-<span class="sourceLineNo">470</span>   * performing the scan.<a name="line.470"></a>
-<span class="sourceLineNo">471</span>   */<a name="line.471"></a>
-<span class="sourceLineNo">472</span>  private void processFrameForCode(int verbosity) {<a name="line.472"></a>
-<span class="sourceLineNo">473</span>    /* get the code object associated with this frame */<a name="line.473"></a>
-<span class="sourceLineNo">474</span>    ObjectReference code = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.474"></a>
-<span class="sourceLineNo">475</span><a name="line.475"></a>
-<span class="sourceLineNo">476</span>    pushFrameIP(code, verbosity);<a name="line.476"></a>
-<span class="sourceLineNo">477</span>    scanFrameForCode(code);<a name="line.477"></a>
-<span class="sourceLineNo">478</span>  }<a name="line.478"></a>
-<span class="sourceLineNo">479</span><a name="line.479"></a>
-<span class="sourceLineNo">480</span>  /**<a name="line.480"></a>
-<span class="sourceLineNo">481</span>   * Push the instruction pointer associated with this frame onto the<a name="line.481"></a>
-<span class="sourceLineNo">482</span>   * code locations deque.&lt;p&gt;<a name="line.482"></a>
-<span class="sourceLineNo">483</span>   *<a name="line.483"></a>
-<span class="sourceLineNo">484</span>   * A stack frame represents an execution context, and thus has an<a name="line.484"></a>
-<span class="sourceLineNo">485</span>   * instruction pointer associated with it.  In the case of the top<a name="line.485"></a>
-<span class="sourceLineNo">486</span>   * frame, the instruction pointer is captured by the IP register,<a name="line.486"></a>
-<span class="sourceLineNo">487</span>   * which is preserved in the thread data structure at thread switch<a name="line.487"></a>
-<span class="sourceLineNo">488</span>   * time.  In the case of all non-top frames, the next instruction<a name="line.488"></a>
-<span class="sourceLineNo">489</span>   * pointer is stored as the return address for the &lt;i&gt;previous&lt;/i&gt;<a name="line.489"></a>
-<span class="sourceLineNo">490</span>   * frame.&lt;p&gt;<a name="line.490"></a>
-<span class="sourceLineNo">491</span>   *<a name="line.491"></a>
-<span class="sourceLineNo">492</span>   * The address of the code pointer is pushed onto the code locations<a name="line.492"></a>
-<span class="sourceLineNo">493</span>   * deque along with the address of the code object into which it<a name="line.493"></a>
-<span class="sourceLineNo">494</span>   * points (both are required since the former is an internal<a name="line.494"></a>
-<span class="sourceLineNo">495</span>   * pointer).&lt;p&gt;<a name="line.495"></a>
-<span class="sourceLineNo">496</span>   *<a name="line.496"></a>
-<span class="sourceLineNo">497</span>   * The code pointers are updated later (after stack scanning) when<a name="line.497"></a>
-<span class="sourceLineNo">498</span>   * the code locations deque is processed. The pointer from RVMMethod<a name="line.498"></a>
-<span class="sourceLineNo">499</span>   * to the code object is not updated until after stack scanning, so<a name="line.499"></a>
-<span class="sourceLineNo">500</span>   * the pointer to the (uncopied) code object is available throughout<a name="line.500"></a>
-<span class="sourceLineNo">501</span>   * the stack scanning process, which enables interior pointer<a name="line.501"></a>
-<span class="sourceLineNo">502</span>   * offsets to be correctly computed.<a name="line.502"></a>
+<span class="sourceLineNo">376</span>  /***********************************************************************<a name="line.376"></a>
+<span class="sourceLineNo">377</span>   *<a name="line.377"></a>
+<span class="sourceLineNo">378</span>   * Frame scanning methods<a name="line.378"></a>
+<span class="sourceLineNo">379</span>   */<a name="line.379"></a>
+<span class="sourceLineNo">380</span><a name="line.380"></a>
+<span class="sourceLineNo">381</span>  /**<a name="line.381"></a>
+<span class="sourceLineNo">382</span>   * Scan the current stack frame.&lt;p&gt;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>   *<a name="line.383"></a>
+<span class="sourceLineNo">384</span>   * First the various iterators are set up, then the frame is scanned<a name="line.384"></a>
+<span class="sourceLineNo">385</span>   * for regular pointers, before scanning for code pointers.  The<a name="line.385"></a>
+<span class="sourceLineNo">386</span>   * iterators are then cleaned up, and native frames skipped if<a name="line.386"></a>
+<span class="sourceLineNo">387</span>   * necessary.<a name="line.387"></a>
+<span class="sourceLineNo">388</span>   *<a name="line.388"></a>
+<span class="sourceLineNo">389</span>   * @param verbosity The level of verbosity to be used when<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * performing the scan.<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * @return the frame pointer of the frame that was just scanned<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   */<a name="line.392"></a>
+<span class="sourceLineNo">393</span>  private Address scanFrame(int verbosity) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    /* set up iterators etc, and skip the frame if appropriate */<a name="line.394"></a>
+<span class="sourceLineNo">395</span>    if (!setUpFrame(verbosity)) return fp;<a name="line.395"></a>
+<span class="sourceLineNo">396</span><a name="line.396"></a>
+<span class="sourceLineNo">397</span>    /* scan the frame for object pointers */<a name="line.397"></a>
+<span class="sourceLineNo">398</span>    scanFrameForObjects(verbosity);<a name="line.398"></a>
+<span class="sourceLineNo">399</span><a name="line.399"></a>
+<span class="sourceLineNo">400</span>    /* scan the frame for pointers to code */<a name="line.400"></a>
+<span class="sourceLineNo">401</span>    if (processCodeLocations &amp;&amp; compiledMethodType != CompiledMethod.TRAP)<a name="line.401"></a>
+<span class="sourceLineNo">402</span>      processFrameForCode(verbosity);<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>    iterator.cleanupPointers();<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>    if (compiledMethodType != CompiledMethod.TRAP) {<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      /* skip preceding native frames if this frame is a native bridge */<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      if (compiledMethod.getMethod().getDeclaringClass().hasBridgeFromNativeAnnotation()) {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        fp = RuntimeEntrypoints.unwindNativeStackFrameForGC(fp);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        if (verbosity &gt;= 2) Log.write("scanFrame skipping native C frames\n");<a name="line.410"></a>
+<span class="sourceLineNo">411</span>      }<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>      /* reinstall the return barrier if necessary (and verbosity indicates that this is a regular scan) */<a name="line.413"></a>
+<span class="sourceLineNo">414</span>      if (reinstallReturnBarrier &amp;&amp; verbosity == DEFAULT_VERBOSITY) {<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        thread.installStackTrampolineBridge(fp);<a name="line.415"></a>
+<span class="sourceLineNo">416</span>        reinstallReturnBarrier = false;<a name="line.416"></a>
+<span class="sourceLineNo">417</span>      }<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    }<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    return fp;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>  }<a name="line.420"></a>
+<span class="sourceLineNo">421</span><a name="line.421"></a>
+<span class="sourceLineNo">422</span>  /**<a name="line.422"></a>
+<span class="sourceLineNo">423</span>   * Set up to scan the current stack frame.  This means examining the<a name="line.423"></a>
+<span class="sourceLineNo">424</span>   * frame to discover the method being invoked and then retrieving<a name="line.424"></a>
+<span class="sourceLineNo">425</span>   * the associated metadata (stack maps etc).  Certain frames should<a name="line.425"></a>
+<span class="sourceLineNo">426</span>   * not be scanned---these are identified and skipped.<a name="line.426"></a>
+<span class="sourceLineNo">427</span>   *<a name="line.427"></a>
+<span class="sourceLineNo">428</span>   * @param verbosity The level of verbosity to be used when<a name="line.428"></a>
+<span class="sourceLineNo">429</span>   * performing the scan.<a name="line.429"></a>
+<span class="sourceLineNo">430</span>   * @return True if the frame should be scanned, false if it should<a name="line.430"></a>
+<span class="sourceLineNo">431</span>   * be skipped.<a name="line.431"></a>
+<span class="sourceLineNo">432</span>   */<a name="line.432"></a>
+<span class="sourceLineNo">433</span>  private boolean setUpFrame(int verbosity) {<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    /* get the compiled method ID for this frame */<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    int compiledMethodId = Magic.getCompiledMethodID(fp);<a name="line.435"></a>
+<span class="sourceLineNo">436</span><a name="line.436"></a>
+<span class="sourceLineNo">437</span>    /* skip "invisible" transition frames generated by reflection and JNI) */<a name="line.437"></a>
+<span class="sourceLineNo">438</span>    if (compiledMethodId == StackFrameLayout.getInvisibleMethodID()) {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>      if (verbosity &gt;= 2) Log.writeln("\n--- METHOD &lt;invisible method&gt;");<a name="line.439"></a>
+<span class="sourceLineNo">440</span>      return false;<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>    /* establish the compiled method */<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    compiledMethod = CompiledMethods.getCompiledMethod(compiledMethodId);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>    compiledMethod.setActiveOnStack();  // prevents code from being collected<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
+<span class="sourceLineNo">447</span>    compiledMethodType = compiledMethod.getCompilerType();<a name="line.447"></a>
+<span class="sourceLineNo">448</span><a name="line.448"></a>
+<span class="sourceLineNo">449</span>    if (verbosity &gt;= 2) printMethodHeader();<a name="line.449"></a>
+<span class="sourceLineNo">450</span><a name="line.450"></a>
+<span class="sourceLineNo">451</span>    /* get the code associated with this frame */<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    if (RVMThread.DEBUG_STACK_TRAMPOLINE) VM.sysWriteln(thread.getId(), fp, compiledMethod.getMethod());<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    Offset offset = compiledMethod.getInstructionOffset(ip);<a name="line.453"></a>
+<span class="sourceLineNo">454</span><a name="line.454"></a>
+<span class="sourceLineNo">455</span>    /* initialize MapIterator for this frame */<a name="line.455"></a>
+<span class="sourceLineNo">456</span>    iterator = iteratorGroup.selectIterator(compiledMethod);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>    iterator.setupIterator(compiledMethod, offset, fp);<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>    if (verbosity &gt;= 3) dumpStackFrame(verbosity);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>    if (verbosity &gt;= 4) Log.writeln("--- Refs Reported By GCMap Iterator ---");<a name="line.460"></a>
+<span class="sourceLineNo">461</span><a name="line.461"></a>
+<span class="sourceLineNo">462</span>    return true;<a name="line.462"></a>
+<span class="sourceLineNo">463</span>  }<a name="line.463"></a>
+<span class="sourceLineNo">464</span><a name="line.464"></a>
+<span class="sourceLineNo">465</span>  /**<a name="line.465"></a>
+<span class="sourceLineNo">466</span>   * Identify all the object pointers stored as local variables<a name="line.466"></a>
+<span class="sourceLineNo">467</span>   * associated with (though not necessarily strictly within!) the<a name="line.467"></a>
+<span class="sourceLineNo">468</span>   * current frame.  Loop through the GC map iterator, getting the<a name="line.468"></a>
+<span class="sourceLineNo">469</span>   * address of each object pointer, adding them to the root locations<a name="line.469"></a>
+<span class="sourceLineNo">470</span>   * deque.&lt;p&gt;<a name="line.470"></a>
+<span class="sourceLineNo">471</span>   *<a name="line.471"></a>
+<span class="sourceLineNo">472</span>   * NOTE: Because of the callee save policy of the optimizing<a name="line.472"></a>
+<span class="sourceLineNo">473</span>   * compiler, references associated with a given frame may be in<a name="line.473"></a>
+<span class="sourceLineNo">474</span>   * callee stack frames (lower memory), &lt;i&gt;outside&lt;/i&gt; the current<a name="line.474"></a>
+<span class="sourceLineNo">475</span>   * frame.  So the iterator may return locations that are outside the<a name="line.475"></a>
+<span class="sourceLineNo">476</span>   * frame being scanned.<a name="line.476"></a>
+<span class="sourceLineNo">477</span>   *<a name="line.477"></a>
+<span class="sourceLineNo">478</span>   * @param verbosity The level of verbosity to be used when<a name="line.478"></a>
+<span class="sourceLineNo">479</span>   * performing the scan.<a name="line.479"></a>
+<span class="sourceLineNo">480</span>   */<a name="line.480"></a>
+<span class="sourceLineNo">481</span>  private void scanFrameForObjects(int verbosity) {<a name="line.481"></a>
+<span class="sourceLineNo">482</span>    for (Address refaddr = iterator.getNextReferenceAddress();<a name="line.482"></a>
+<span class="sourceLineNo">483</span>         !refaddr.isZero();<a name="line.483"></a>
+<span class="sourceLineNo">484</span>         refaddr = iterator.getNextReferenceAddress()) {<a name="line.484"></a>
+<span class="sourceLineNo">485</span>      if (VALIDATE_REFS) checkReference(refaddr, verbosity);<a name="line.485"></a>
+<span class="sourceLineNo">486</span>      if (verbosity &gt;= 4) dumpRef(refaddr, verbosity);<a name="line.486"></a>
+<span class="sourceLineNo">487</span>      reportDelayedRootEdge(trace, refaddr);<a name="line.487"></a>
+<span class="sourceLineNo">488</span>    }<a name="line.488"></a>
+<span class="sourceLineNo">489</span>  }<a name="line.489"></a>
+<span class="sourceLineNo">490</span><a name="line.490"></a>
+<span class="sourceLineNo">491</span>  /**<a name="line.491"></a>
+<span class="sourceLineNo">492</span>   * Identify all pointers into code pointers associated with a frame.<a name="line.492"></a>
+<span class="sourceLineNo">493</span>   * There are two cases to be considered: a) the instruction pointer<a name="line.493"></a>
+<span class="sourceLineNo">494</span>   * associated with each frame (stored in the thread's metadata for<a name="line.494"></a>
+<span class="sourceLineNo">495</span>   * the top frame and as a return address for all subsequent frames),<a name="line.495"></a>
+<span class="sourceLineNo">496</span>   * and b) local variables on the stack which happen to be pointers<a name="line.496"></a>
+<span class="sourceLineNo">497</span>   * to code.&lt;p&gt;<a name="line.497"></a>
+<span class="sourceLineNo">498</span>   *<a name="line.498"></a>
+<span class="sourceLineNo">499</span>   * FIXME: SB: Why is it that JNI frames are skipped when considering<a name="line.499"></a>
+<span class="sourceLineNo">500</span>   * top of stack frames, while boot image frames are skipped when<a name="line.500"></a>
+<span class="sourceLineNo">501</span>   * considering other frames.  Shouldn't they both be considered in<a name="line.501"></a>
+<span class="sourceLineNo">502</span>   * both cases?<a name="line.502"></a>
 <span class="sourceLineNo">503</span>   *<a name="line.503"></a>
 <span class="sourceLineNo">504</span>   * @param verbosity The level of verbosity to be used when<a name="line.504"></a>
 <span class="sourceLineNo">505</span>   * performing the scan.<a name="line.505"></a>
 <span class="sourceLineNo">506</span>   */<a name="line.506"></a>
-<span class="sourceLineNo">507</span>  private void pushFrameIP(ObjectReference code, int verbosity) {<a name="line.507"></a>
-<span class="sourceLineNo">508</span>    if (prevFp.isZero()) {  /* top of stack: IP in thread state */<a name="line.508"></a>
-<span class="sourceLineNo">509</span>      if (verbosity &gt;= 3) {<a name="line.509"></a>
-<span class="sourceLineNo">510</span>        Log.write(" t.contextRegisters.ip    = ");<a name="line.510"></a>
-<span class="sourceLineNo">511</span>        Log.writeln(thread.getContextRegisters().ip);<a name="line.511"></a>
-<span class="sourceLineNo">512</span>        Log.write("*t.contextRegisters.iploc = ");<a name="line.512"></a>
-<span class="sourceLineNo">513</span>        Log.writeln(thread.getContextRegisters().getIPLocation().loadAddress());<a name="line.513"></a>
-<span class="sourceLineNo">514</span>      }<a name="line.514"></a>
-<span class="sourceLineNo">515</span>      /* skip native code, as it is not (cannot be) moved */<a name="line.515"></a>
-<span class="sourceLineNo">516</span>      if (compiledMethodType != CompiledMethod.JNI)<a name="line.516"></a>
-<span class="sourceLineNo">517</span>        processCodeLocation(code, initialIPLoc);<a name="line.517"></a>
-<span class="sourceLineNo">518</span>      else if (verbosity &gt;= 4) {<a name="line.518"></a>
-<span class="sourceLineNo">519</span>        Log.writeln("GC Warning: SKIPPING return address for JNI code");<a name="line.519"></a>
-<span class="sourceLineNo">520</span>      }<a name="line.520"></a>
-<span class="sourceLineNo">521</span>    } else {  /* below top of stack: IP is return address, in prev frame */<a name="line.521"></a>
-<span class="sourceLineNo">522</span>      Address returnAddressLoc = Magic.getReturnAddressLocation(prevFp);<a name="line.522"></a>
-<span class="sourceLineNo">523</span>      Address returnAddress = returnAddressLoc.loadAddress();<a name="line.523"></a>
-<span class="sourceLineNo">524</span>      if (verbosity &gt;= 4) {<a name="line.524"></a>
-<span class="sourceLineNo">525</span>        Log.write("--- Processing return address "); Log.write(returnAddress);<a name="line.525"></a>
-<span class="sourceLineNo">526</span>        Log.write(" located at "); Log.writeln(returnAddressLoc);<a name="line.526"></a>
-<span class="sourceLineNo">527</span>      }<a name="line.527"></a>
-<span class="sourceLineNo">528</span>      /* skip boot image code, as it is not (cannot be) moved */<a name="line.528"></a>
-<span class="sourceLineNo">529</span>      if (!DebugUtil.addrInBootImage(returnAddress))<a name="line.529"></a>
-<span class="sourceLineNo">530</span>        processCodeLocation(code, returnAddressLoc);<a name="line.530"></a>
-<span class="sourceLineNo">531</span>    }<a name="line.531"></a>
-<span class="sourceLineNo">532</span>  }<a name="line.532"></a>
-<span class="sourceLineNo">533</span><a name="line.533"></a>
-<span class="sourceLineNo">534</span>  /**<a name="line.534"></a>
-<span class="sourceLineNo">535</span>   * Scan this frame for internal code pointers.  The GC map iterator<a name="line.535"></a>
-<span class="sourceLineNo">536</span>   * is used to identify any local variables (stored on the stack)<a name="line.536"></a>
-<span class="sourceLineNo">537</span>   * which happen to be pointers into code.&lt;p&gt;<a name="line.537"></a>
+<span class="sourceLineNo">507</span>  private void processFrameForCode(int verbosity) {<a name="line.507"></a>
+<span class="sourceLineNo">508</span>    /* get the code object associated with this frame */<a name="line.508"></a>
+<span class="sourceLineNo">509</span>    ObjectReference code = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>    pushFrameIP(code, verbosity);<a name="line.511"></a>
+<span class="sourceLineNo">512</span>    scanFrameForCode(code);<a name="line.512"></a>
+<span class="sourceLineNo">513</span>  }<a name="line.513"></a>
+<span class="sourceLineNo">514</span><a name="line.514"></a>
+<span class="sourceLineNo">515</span>  /**<a name="line.515"></a>
+<span class="sourceLineNo">516</span>   * Push the instruction pointer associated with this frame onto the<a name="line.516"></a>
+<span class="sourceLineNo">517</span>   * code locations deque.&lt;p&gt;<a name="line.517"></a>
+<span class="sourceLineNo">518</span>   *<a name="line.518"></a>
+<span class="sourceLineNo">519</span>   * A stack frame represents an execution context, and thus has an<a name="line.519"></a>
+<span class="sourceLineNo">520</span>   * instruction pointer associated with it.  In the case of the top<a name="line.520"></a>
+<span class="sourceLineNo">521</span>   * frame, the instruction pointer is captured by the IP register,<a name="line.521"></a>
+<span class="sourceLineNo">522</span>   * which is preserved in the thread data structure at thread switch<a name="line.522"></a>
+<span class="sourceLineNo">523</span>   * time.  In the case of all non-top frames, the next instruction<a name="line.523"></a>
+<span class="sourceLineNo">524</span>   * pointer is stored as the return address for the &lt;i&gt;previous&lt;/i&gt;<a name="line.524"></a>
+<span class="sourceLineNo">525</span>   * frame.&lt;p&gt;<a name="line.525"></a>
+<span class="sourceLineNo">526</span>   *<a name="line.526"></a>
+<span class="sourceLineNo">527</span>   * The address of the code pointer is pushed onto the code locations<a name="line.527"></a>
+<span class="sourceLineNo">528</span>   * deque along with the address of the code object into which it<a name="line.528"></a>
+<span class="sourceLineNo">529</span>   * points (both are required since the former is an internal<a name="line.529"></a>
+<span class="sourceLineNo">530</span>   * pointer).&lt;p&gt;<a name="line.530"></a>
+<span class="sourceLineNo">531</span>   *<a name="line.531"></a>
+<span class="sourceLineNo">532</span>   * The code pointers are updated later (after stack scanning) when<a name="line.532"></a>
+<span class="sourceLineNo">533</span>   * the code locations deque is processed. The pointer from RVMMethod<a name="line.533"></a>
+<span class="sourceLineNo">534</span>   * to the code object is not updated until after stack scanning, so<a name="line.534"></a>
+<span class="sourceLineNo">535</span>   * the pointer to the (uncopied) code object is available throughout<a name="line.535"></a>
+<span class="sourceLineNo">536</span>   * the stack scanning process, which enables interior pointer<a name="line.536"></a>
+<span class="sourceLineNo">537</span>   * offsets to be correctly computed.<a name="line.537"></a>
 <span class="sourceLineNo">538</span>   *<a name="line.538"></a>
-<span class="sourceLineNo">539</span>   * @param code The code object associated with this frame.<a name="line.539"></a>
-<span class="sourceLineNo">540</span>   */<a name="line.540"></a>
-<span class="sourceLineNo">541</span>  private void scanFrameForCode(ObjectReference code) {<a name="line.541"></a>
-<span class="sourceLineNo">542</span>    iterator.reset();<a name="line.542"></a>
-<span class="sourceLineNo">543</span>    for (Address retaddrLoc = iterator.getNextReturnAddressAddress();<a name="line.543"></a>
-<span class="sourceLineNo">544</span>         !retaddrLoc.isZero();<a name="line.544"></a>
-<span class="sourceLineNo">545</span>         retaddrLoc = iterator.getNextReturnAddressAddress())<a name="line.545"></a>
-<span class="sourceLineNo">546</span>      processCodeLocation(code, retaddrLoc);<a name="line.546"></a>
-<span class="sourceLineNo">547</span>  }<a name="line.547"></a>
-<span class="sourceLineNo">548</span><a name="line.548"></a>
-<span class="sourceLineNo">549</span><a name="line.549"></a>
-<span class="sourceLineNo">550</span>  /**<a name="line.550"></a>
-<span class="sourceLineNo">551</span>   * AIX-specific code.&lt;p&gt;<a name="line.551"></a>
-<span class="sourceLineNo">552</span>   *<a name="line.552"></a>
-<span class="sourceLineNo">553</span>   * If we are scanning the stack of a thread that entered the VM via<a name="line.553"></a>
-<span class="sourceLineNo">554</span>   * a createVM or attachVM then the "bottom" of the stack had native<a name="line.554"></a>
-<span class="sourceLineNo">555</span>   * C frames instead of the usual java frames.  The JNIEnv for the<a name="line.555"></a>
-<span class="sourceLineNo">556</span>   * thread may still contain jniRefs that have been returned to the<a name="line.556"></a>
-<span class="sourceLineNo">557</span>   * native C code, but have not been reported for GC.  calling<a name="line.557"></a>
-<span class="sourceLineNo">558</span>   * getNextReferenceAddress without first calling setup... will<a name="line.558"></a>
-<span class="sourceLineNo">559</span>   * report the remaining jniRefs in the current "frame" of the<a name="line.559"></a>
-<span class="sourceLineNo">560</span>   * jniRefs stack.  (this should be the bottom frame)&lt;p&gt;<a name="line.560"></a>
-<span class="sourceLineNo">561</span>   *<a name="line.561"></a>
-<span class="sourceLineNo">562</span>   * FIXME: SB: Why is this AIX specific?  Why depend on the<a name="line.562"></a>
-<span class="sourceLineNo">563</span>   * preprocessor?<a name="line.563"></a>
-<span class="sourceLineNo">564</span>   *<a name="line.564"></a>
-<span class="sourceLineNo">565</span>   */<a name="line.565"></a>
-<span class="sourceLineNo">566</span>  private void checkJNIBase() {<a name="line.566"></a>
-<span class="sourceLineNo">567</span>    if (VM.BuildForAix) {<a name="line.567"></a>
-<span class="sourceLineNo">568</span>      GCMapIterator iterator = iteratorGroup.getJniIterator();<a name="line.568"></a>
-<span class="sourceLineNo">569</span>      Address refaddr =  iterator.getNextReferenceAddress();<a name="line.569"></a>
-<span class="sourceLineNo">570</span>      while(!refaddr.isZero()) {<a name="line.570"></a>
-<span class="sourceLineNo">571</span>        reportDelayedRootEdge(trace, refaddr);<a name="line.571"></a>
-<span class="sourceLineNo">572</span>        refaddr = iterator.getNextReferenceAddress();<a name="line.572"></a>
-<span class="sourceLineNo">573</span>      }<a name="line.573"></a>
-<span class="sourceLineNo">574</span>    }<a name="line.574"></a>
-<span class="sourceLineNo">575</span>  }<a name="line.575"></a>
-<span class="sourceLineNo">576</span><a name="line.576"></a>
-<span class="sourceLineNo">577</span><a name="line.577"></a>
-<span class="sourceLineNo">578</span>  /***********************************************************************<a name="line.578"></a>
-<span class="sourceLineNo">579</span>   *<a name="line.579"></a>
-<span class="sourceLineNo">580</span>   * Debugging etc<a name="line.580"></a>
-<span class="sourceLineNo">581</span>   */<a name="line.581"></a>
-<span class="sourceLineNo">582</span><a name="line.582"></a>
-<span class="sourceLineNo">583</span>  /**<a name="line.583"></a>
-<span class="sourceLineNo">584</span>   * Assert that the stack is immovable.&lt;p&gt;<a name="line.584"></a>
-<span class="sourceLineNo">585</span>   *<a name="line.585"></a>
-<span class="sourceLineNo">586</span>   * Currently we do not allow stacks to be moved within the heap.  If<a name="line.586"></a>
-<span class="sourceLineNo">587</span>   * a stack contains native stack frames, then it is impossible for<a name="line.587"></a>
-<span class="sourceLineNo">588</span>   * us to safely move it.  Prior to the implementation of JNI, Jikes<a name="line.588"></a>
-<span class="sourceLineNo">589</span>   * RVM did allow the GC system to move thread stacks, and called a<a name="line.589"></a>
-<span class="sourceLineNo">590</span>   * special fixup routine, thread.fixupMovedStack to adjust all of<a name="line.590"></a>
-<span class="sourceLineNo">591</span>   * the special interior pointers (SP, FP).  If we implement split C<a name="line.591"></a>
-<span class="sourceLineNo">592</span>   * &amp; Java stacks then we could allow the Java stacks to be moved,<a name="line.592"></a>
-<span class="sourceLineNo">593</span>   * but we can't move the native stack.<a name="line.593"></a>
-<span class="sourceLineNo">594</span>   */<a name="line.594"></a>
-<span class="sourceLineNo">595</span>  private void assertImmovableInCurrentCollection() {<a name="line.595"></a>
-<span class="sourceLineNo">596</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));<a name="line.596"></a>
-<span class="sourceLineNo">597</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread)));<a name="line.597"></a>
-<span class="sourceLineNo">598</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));<a name="line.598"></a>
-<span class="sourceLineNo">599</span>    VM._assert(thread.getJNIEnv() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv())));<a name="line.599"></a>
-<span class="sourceLineNo">600</span>    VM._assert(thread.getJNIEnv() == null || thread.getJNIEnv().refsArray() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv().refsArray())));<a name="line.600"></a>
-<span class="sourceLineNo">601</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters())));<a name="line.601"></a>
-<span class="sourceLineNo">602</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters().gprs)));<a name="line.602"></a>
-<span class="sourceLineNo">603</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getExceptionRegisters())));<a name="line.603"></a>
-<span class="sourceLineNo">604</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getExceptionRegisters().gprs)));<a name="line.604"></a>
-<span class="sourceLineNo">605</span>  }<a name="line.605"></a>
-<span class="sourceLineNo">606</span><a name="line.606"></a>
-<span class="sourceLineNo">607</span>  /**<a name="line.607"></a>
-<span class="sourceLineNo">608</span>   * Print out the basic information associated with the top frame on<a name="line.608"></a>
-<span class="sourceLineNo">609</span>   * the stack.<a name="line.609"></a>
-<span class="sourceLineNo">610</span>   *<a name="line.610"></a>
-<span class="sourceLineNo">611</span>   * @param verbosity The level of verbosity to be used when<a name="line.611"></a>
-<span class="sourceLineNo">612</span>   * performing the scan.<a name="line.612"></a>
-<span class="sourceLineNo">613</span>   */<a name="line.613"></a>
-<span class="sourceLineNo">614</span>  private void dumpTopFrameInfo(int verbosity) {<a name="line.614"></a>
-<span class="sourceLineNo">615</span>    Log.write("   topFrame = "); Log.writeln(topFrame);<a name="line.615"></a>
-<span class="sourceLineNo">616</span>    Log.write("         ip = "); Log.writeln(ip);<a name="line.616"></a>
-<span class="sourceLineNo">617</span>    Log.write("         fp = "); Log.writeln(fp);<a name="line.617"></a>
-<span class="sourceLineNo">618</span>    Log.write("  registers.ip = "); Log.writeln(thread.getContextRegisters().ip);<a name="line.618"></a>
-<span class="sourceLineNo">619</span>    if (verbosity &gt;= 3 &amp;&amp; thread.getJNIEnv() != null)<a name="line.619"></a>
-<span class="sourceLineNo">620</span>      thread.getJNIEnv().dumpJniRefsStack();<a name="line.620"></a>
-<span class="sourceLineNo">621</span>  }<a name="line.621"></a>
-<span class="sourceLineNo">622</span><a name="line.622"></a>
-<span class="sourceLineNo">623</span>  /**<a name="line.623"></a>
-<span class="sourceLineNo">624</span>   * Print out information associated with a reference.<a name="line.624"></a>
-<span class="sourceLineNo">625</span>   *<a name="line.625"></a>
-<span class="sourceLineNo">626</span>   * @param refaddr The address of the reference in question.<a name="line.626"></a>
-<span class="sourceLineNo">627</span>   * @param verbosity The level of verbosity to be used when<a name="line.627"></a>
-<span class="sourceLineNo">628</span>   * performing the scan.<a name="line.628"></a>
-<span class="sourceLineNo">629</span>   */<a name="line.629"></a>
-<span class="sourceLineNo">630</span>  private void dumpRef(Address refaddr, int verbosity) {<a name="line.630"></a>
-<span class="sourceLineNo">631</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.631"></a>
-<span class="sourceLineNo">632</span>    VM.sysWrite(refaddr);<a name="line.632"></a>
-<span class="sourceLineNo">633</span>    if (verbosity &gt;= 5) {<a name="line.633"></a>
-<span class="sourceLineNo">634</span>      VM.sysWrite(":"); MemoryManager.dumpRef(ref);<a name="line.634"></a>
-<span class="sourceLineNo">635</span>    } else<a name="line.635"></a>
-<span class="sourceLineNo">636</span>      VM.sysWriteln();<a name="line.636"></a>
-<span class="sourceLineNo">637</span>  }<a name="line.637"></a>
-<span class="sourceLineNo">638</span><a name="line.638"></a>
-<span class="sourceLineNo">639</span>  /**<a name="line.639"></a>
-<span class="sourceLineNo">640</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.640"></a>
-<span class="sourceLineNo">641</span>   * the reference is invalid, dump stack and die.<a name="line.641"></a>
-<span class="sourceLineNo">642</span>   *<a name="line.642"></a>
-<span class="sourceLineNo">643</span>   * @param refaddr The address of the reference in question.<a name="line.643"></a>
-<span class="sourceLineNo">644</span>   * @param verbosity The level of verbosity to be used when<a name="line.644"></a>
-<span class="sourceLineNo">645</span>   * performing the scan.<a name="line.645"></a>
-<span class="sourceLineNo">646</span>   */<a name="line.646"></a>
-<span class="sourceLineNo">647</span>  private void checkReference(Address refaddr, int verbosity) {<a name="line.647"></a>
-<span class="sourceLineNo">648</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.648"></a>
-<span class="sourceLineNo">649</span>    if (!MemoryManager.validRef(ref)) {<a name="line.649"></a>
-<span class="sourceLineNo">650</span>      Log.writeln();<a name="line.650"></a>
-<span class="sourceLineNo">651</span>      Log.writeln("Invalid ref reported while scanning stack");<a name="line.651"></a>
-<span class="sourceLineNo">652</span>      printMethodHeader();<a name="line.652"></a>
-<span class="sourceLineNo">653</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.653"></a>
-<span class="sourceLineNo">654</span>      dumpStackFrame(verbosity);<a name="line.654"></a>
-<span class="sourceLineNo">655</span>      Log.writeln();<a name="line.655"></a>
-<span class="sourceLineNo">656</span>      Log.writeln("Dumping stack starting at frame with bad ref:");<a name="line.656"></a>
-<span class="sourceLineNo">657</span>      RVMThread.dumpStack(ip, fp);<a name="line.657"></a>
-<span class="sourceLineNo">658</span>      /* dump stack starting at top */<a name="line.658"></a>
-<span class="sourceLineNo">659</span>      Address top_ip = thread.getContextRegisters().getInnermostInstructionAddress();<a name="line.659"></a>
-<span class="sourceLineNo">660</span>      Address top_fp = thread.getContextRegisters().getInnermostFramePointer();<a name="line.660"></a>
-<span class="sourceLineNo">661</span>      RVMThread.dumpStack(top_ip, top_fp);<a name="line.661"></a>
-<span class="sourceLineNo">662</span>      Log.writeln("Failing iterators:");<a name="line.662"></a>
-<span class="sourceLineNo">663</span>      Offset offset = compiledMethod.getInstructionOffset(ip);<a name="line.663"></a>
-<span class="sourceLineNo">664</span>      iterator = iteratorGroup.selectIterator(compiledMethod);<a name="line.664"></a>
-<span class="sourceLineNo">665</span>      iterator.setupIterator(compiledMethod, offset, fp);<a name="line.665"></a>
-<span class="sourceLineNo">666</span>      int i=0;<a name="line.666"></a>
-<span class="sourceLineNo">667</span>      for (Address addr = iterator.getNextReferenceAddress();<a name="line.667"></a>
-<span class="sourceLineNo">668</span>           !addr.isZero();<a name="line.668"></a>
-<span class="sourceLineNo">669</span>           addr = iterator.getNextReferenceAddress()) {<a name="line.669"></a>
-<span class="sourceLineNo">670</span>        ObjectReference ref2 = addr.loadObjectReference();<a name="line.670"></a>
-<span class="sourceLineNo">671</span>        Log.write("Iterator "); Log.write(i++); Log.write(": "); Log.write(addr);<a name="line.671"></a>
-<span class="sourceLineNo">672</span>        Log.write(": "); Log.flush(); MemoryManager.dumpRef(ref2);<a name="line.672"></a>
-<span class="sourceLineNo">673</span>      }<a name="line.673"></a>
-<span class="sourceLineNo">674</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.674"></a>
-<span class="sourceLineNo">675</span>    }<a name="line.675"></a>
-<span class="sourceLineNo">676</span>  }<a name="line.676"></a>
-<span class="sourceLineNo">677</span><a name="line.677"></a>
-<span class="sourceLineNo">678</span>  /**<a name="line.678"></a>
-<span class="sourceLineNo">679</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.679"></a>
-<span class="sourceLineNo">680</span>   * the reference is invalid, dump stack and die.<a name="line.680"></a>
-<span class="sourceLineNo">681</span>   *<a name="line.681"></a>
-<span class="sourceLineNo">682</span>   * @param refaddr The address of the reference in question.<a name="line.682"></a>
-<span class="sourceLineNo">683</span>   */<a name="line.683"></a>
-<span class="sourceLineNo">684</span>  private static void checkReference(Address refaddr) {<a name="line.684"></a>
-<span class="sourceLineNo">685</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.685"></a>
-<span class="sourceLineNo">686</span>    if (!MemoryManager.validRef(ref)) {<a name="line.686"></a>
-<span class="sourceLineNo">687</span>      Log.writeln();<a name="line.687"></a>
-<span class="sourceLineNo">688</span>      Log.writeln("Invalid ref reported while scanning stack");<a name="line.688"></a>
-<span class="sourceLineNo">689</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.689"></a>
-<span class="sourceLineNo">690</span>      Log.writeln();<a name="line.690"></a>
-<span class="sourceLineNo">691</span>      Log.writeln("Dumping stack:");<a name="line.691"></a>
-<span class="sourceLineNo">692</span>      RVMThread.dumpStack();<a name="line.692"></a>
-<span class="sourceLineNo">693</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.693"></a>
-<span class="sourceLineNo">694</span>    }<a name="line.694"></a>
-<span class="sourceLineNo">695</span>  }<a name="line.695"></a>
-<span class="sourceLineNo">696</span>  /**<a name="line.696"></a>
-<span class="sourceLineNo">697</span>   * Print out the name of a method<a name="line.697"></a>
-<span class="sourceLineNo">698</span>   *<a name="line.698"></a>
-<span class="sourceLineNo">699</span>   * @param m The method to be printed<a name="line.699"></a>
-<span class="sourceLineNo">700</span>   */<a name="line.700"></a>
-<span class="sourceLineNo">701</span>  private void printMethod(RVMMethod m) {<a name="line.701"></a>
-<span class="sourceLineNo">702</span>    Log.write(m.getMemberRef().getType().getName().toByteArray()); Log.write(".");<a name="line.702"></a>
-<span class="sourceLineNo">703</span>    Log.write(m.getMemberRef().getName().toByteArray()); Log.write(" ");<a name="line.703"></a>
-<span class="sourceLineNo">704</span>    Log.write(m.getMemberRef().getDescriptor().toByteArray());<a name="line.704"></a>
-<span class="sourceLineNo">705</span>  }<a name="line.705"></a>
-<span class="sourceLineNo">706</span><a name="line.706"></a>
-<span class="sourceLineNo">707</span>  /**<a name="line.707"></a>
-<span class="sourceLineNo">708</span>   * Print out the method header for the method associated with the<a name="line.708"></a>
-<span class="sourceLineNo">709</span>   * current frame<a name="line.709"></a>
-<span class="sourceLineNo">710</span>   */<a name="line.710"></a>
-<span class="sourceLineNo">711</span>  private void printMethodHeader() {<a name="line.711"></a>
-<span class="sourceLineNo">712</span>    RVMMethod method = compiledMethod.getMethod();<a name="line.712"></a>
-<span class="sourceLineNo">713</span><a name="line.713"></a>
-<span class="sourceLineNo">714</span>    Log.write("\n--- METHOD (");<a name="line.714"></a>
-<span class="sourceLineNo">715</span>    Log.write(CompiledMethod.compilerTypeToString(compiledMethodType));<a name="line.715"></a>
-<span class="sourceLineNo">716</span>    Log.write(") ");<a name="line.716"></a>
-<span class="sourceLineNo">717</span>    if (method == null)<a name="line.717"></a>
-<span class="sourceLineNo">718</span>        Log.write("null method");<a name="line.718"></a>
-<span class="sourceLineNo">719</span>    else<a name="line.719"></a>
-<span class="sourceLineNo">720</span>        printMethod(method);<a name="line.720"></a>
-<span class="sourceLineNo">721</span>    Log.writeln();<a name="line.721"></a>
-<span class="sourceLineNo">722</span>    Log.write("--- fp = ");<a name="line.722"></a>
-<span class="sourceLineNo">723</span>    Log.write(fp);<a name="line.723"></a>
-<span class="sourceLineNo">724</span>    if (compiledMethod.isCompiled()) {<a name="line.724"></a>
-<span class="sourceLineNo">725</span>        ObjectReference codeBase = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.725"></a>
-<span class="sourceLineNo">726</span>        Log.write("     code base = ");<a name="line.726"></a>
-<span class="sourceLineNo">727</span>        Log.write(codeBase);<a name="line.727"></a>
-<span class="sourceLineNo">728</span>        Log.write("     code offset = ");<a name="line.728"></a>
-<span class="sourceLineNo">729</span>        Log.writeln(ip.diff(codeBase.toAddress()));<a name="line.729"></a>
-<span class="sourceLineNo">730</span>        Log.write("     line number = ");<a name="line.730"></a>
-<span class="sourceLineNo">731</span>        Log.writeln(compiledMethod.findLineNumberForInstruction(ip.diff(codeBase.toAddress())));<a name="line.731"></a>
-<span class="sourceLineNo">732</span>    } else {<a name="line.732"></a>
-<span class="sourceLineNo">733</span>      Log.write("   Method is uncompiled - ip = ");<a name="line.733"></a>
-<span class="sourceLineNo">734</span>      Log.writeln(ip);<a name="line.734"></a>
-<span class="sourceLineNo">735</span>    }<a name="line.735"></a>
-<span class="sourceLineNo">736</span>  }<a name="line.736"></a>
-<span class="sourceLineNo">737</span><a name="line.737"></a>
-<span class="sourceLineNo">738</span>  /**<a name="line.738"></a>
-<span class="sourceLineNo">739</span>   * Dump the contents of a stack frame. Attempts to interpret each<a name="line.739"></a>
-<span class="sourceLineNo">740</span>   * word as an object reference<a name="line.740"></a>
-<span class="sourceLineNo">741</span>   *<a name="line.741"></a>
-<span class="sourceLineNo">742</span>   * @param verbosity The level of verbosity to be used when<a name="line.742"></a>
-<span class="sourceLineNo">743</span>   * performing the scan.<a name="line.743"></a>
-<span class="sourceLineNo">744</span>   */<a name="line.744"></a>
-<span class="sourceLineNo">745</span>  private void dumpStackFrame(int verbosity) {<a name="line.745"></a>
-<span class="sourceLineNo">746</span>    Address start,end;<a name="line.746"></a>
-<span class="sourceLineNo">747</span>    if (VM.BuildForIA32) {<a name="line.747"></a>
-<span class="sourceLineNo">748</span>      if (prevFp.isZero()) {<a name="line.748"></a>
-<span class="sourceLineNo">749</span>        start = fp.minus(20*BYTES_IN_ADDRESS);<a name="line.749"></a>
-<span class="sourceLineNo">750</span>        Log.writeln("--- 20 words of stack frame with fp = ", fp);<a name="line.750"></a>
-<span class="sourceLineNo">751</span>      } else {<a name="line.751"></a>
-<span class="sourceLineNo">752</span>        start = prevFp;    // start at callee fp<a name="line.752"></a>
-<span class="sourceLineNo">753</span>      }<a name="line.753"></a>
-<span class="sourceLineNo">754</span>      end = fp;            // end at fp<a name="line.754"></a>
-<span class="sourceLineNo">755</span>    } else {<a name="line.755"></a>
-<span class="sourceLineNo">756</span>      start = fp;                         // start at fp<a name="line.756"></a>
-<span class="sourceLineNo">757</span>      end = fp.loadAddress();   // stop at callers fp<a name="line.757"></a>
-<span class="sourceLineNo">758</span>    }<a name="line.758"></a>
-<span class="sourceLineNo">759</span><a name="line.759"></a>
-<span class="sourceLineNo">760</span>    for (Address loc = start; loc.LT(end); loc = loc.plus(BYTES_IN_ADDRESS)) {<a name="line.760"></a>
-<span class="sourceLineNo">761</span>      Log.write(loc); Log.write(" (");<a name="line.761"></a>
-<span class="sourceLineNo">762</span>      Log.write(loc.diff(start));<a name="line.762"></a>
-<span class="sourceLineNo">763</span>      Log.write("):   ");<a name="line.763"></a>
-<span class="sourceLineNo">764</span>      ObjectReference value = Selected.Plan.get().loadObjectReference(loc);<a name="line.764"></a>
-<span class="sourceLineNo">765</span>      Log.write(value);<a name="line.765"></a>
-<span class="sourceLineNo">766</span>      Log.write(" ");<a name="line.766"></a>
-<span class="sourceLineNo">767</span>      Log.flush();<a name="line.767"></a>
-<span class="sourceLineNo">768</span>      if (verbosity &gt;= 4 &amp;&amp; MemoryManager.objectInVM(value) &amp;&amp; loc.NE(start) &amp;&amp; loc.NE(end))<a name="line.768"></a>
-<span class="sourceLineNo">769</span>        MemoryManager.dumpRef(value);<a name="line.769"></a>
-<span class="sourceLineNo">770</span>      else<a name="line.770"></a>
-<span class="sourceLineNo">771</span>        Log.writeln();<a name="line.771"></a>
+<span class="sourceLineNo">539</span>   * @param code start address of the machine code array associated<a name="line.539"></a>
+<span class="sourceLineNo">540</span>   *  with the method<a name="line.540"></a>
+<span class="sourceLineNo">541</span>   * @param verbosity The level of verbosity to be used when<a name="line.541"></a>
+<span class="sourceLineNo">542</span>   * performing the scan.<a name="line.542"></a>
+<span class="sourceLineNo">543</span>   */<a name="line.543"></a>
+<span class="sourceLineNo">544</span>  private void pushFrameIP(ObjectReference code, int verbosity) {<a name="line.544"></a>
+<span class="sourceLineNo">545</span>    if (prevFp.isZero()) {  /* top of stack: IP in thread state */<a name="line.545"></a>
+<span class="sourceLineNo">546</span>      if (verbosity &gt;= 3) {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>        Log.write(" t.contextRegisters.ip    = ");<a name="line.547"></a>
+<span class="sourceLineNo">548</span>        Log.writeln(thread.getContextRegisters().getIP());<a name="line.548"></a>
+<span class="sourceLineNo">549</span>        Log.write("*t.contextRegisters.iploc = ");<a name="line.549"></a>
+<span class="sourceLineNo">550</span>        Log.writeln(thread.getContextRegisters().getIPLocation().loadAddress());<a name="line.550"></a>
+<span class="sourceLineNo">551</span>      }<a name="line.551"></a>
+<span class="sourceLineNo">552</span>      /* skip native code, as it is not (cannot be) moved */<a name="line.552"></a>
+<span class="sourceLineNo">553</span>      if (compiledMethodType != CompiledMethod.JNI)<a name="line.553"></a>
+<span class="sourceLineNo">554</span>        processCodeLocation(code, initialIPLoc);<a name="line.554"></a>
+<span class="sourceLineNo">555</span>      else if (verbosity &gt;= 4) {<a name="line.555"></a>
+<span class="sourceLineNo">556</span>        Log.writeln("GC Warning: SKIPPING return address for JNI code");<a name="line.556"></a>
+<span class="sourceLineNo">557</span>      }<a name="line.557"></a>
+<span class="sourceLineNo">558</span>    } else {  /* below top of stack: IP is return address, in prev frame */<a name="line.558"></a>
+<span class="sourceLineNo">559</span>      Address returnAddressLoc = Magic.getReturnAddressLocation(prevFp);<a name="line.559"></a>
+<span class="sourceLineNo">560</span>      Address returnAddress = returnAddressLoc.loadAddress();<a name="line.560"></a>
+<span class="sourceLineNo">561</span>      if (verbosity &gt;= 4) {<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        Log.write("--- Processing return address "); Log.write(returnAddress);<a name="line.562"></a>
+<span class="sourceLineNo">563</span>        Log.write(" located at "); Log.writeln(returnAddressLoc);<a name="line.563"></a>
+<span class="sourceLineNo">564</span>      }<a name="line.564"></a>
+<span class="sourceLineNo">565</span>      /* skip boot image code, as it is not (cannot be) moved */<a name="line.565"></a>
+<span class="sourceLineNo">566</span>      if (!DebugUtil.addrInBootImage(returnAddress))<a name="line.566"></a>
+<span class="sourceLineNo">567</span>        processCodeLocation(code, returnAddressLoc);<a name="line.567"></a>
+<span class="sourceLineNo">568</span>    }<a name="line.568"></a>
+<span class="sourceLineNo">569</span>  }<a name="line.569"></a>
+<span class="sourceLineNo">570</span><a name="line.570"></a>
+<span class="sourceLineNo">571</span>  /**<a name="line.571"></a>
+<span class="sourceLineNo">572</span>   * Scan this frame for internal code pointers.  The GC map iterator<a name="line.572"></a>
+<span class="sourceLineNo">573</span>   * is used to identify any local variables (stored on the stack)<a name="line.573"></a>
+<span class="sourceLineNo">574</span>   * which happen to be pointers into code.&lt;p&gt;<a name="line.574"></a>
+<span class="sourceLineNo">575</span>   *<a name="line.575"></a>
+<span class="sourceLineNo">576</span>   * @param code The code object associated with this frame.<a name="line.576"></a>
+<span class="sourceLineNo">577</span>   */<a name="line.577"></a>
+<span class="sourceLineNo">578</span>  private void scanFrameForCode(ObjectReference code) {<a name="line.578"></a>
+<span class="sourceLineNo">579</span>    iterator.reset();<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    for (Address retaddrLoc = iterator.getNextReturnAddressAddress();<a name="line.580"></a>
+<span class="sourceLineNo">581</span>         !retaddrLoc.isZero();<a name="line.581"></a>
+<span class="sourceLineNo">582</span>         retaddrLoc = iterator.getNextReturnAddressAddress())<a name="line.582"></a>
+<span class="sourceLineNo">583</span>      processCodeLocation(code, retaddrLoc);<a name="line.583"></a>
+<span class="sourceLineNo">584</span>  }<a name="line.584"></a>
+<span class="sourceLineNo">585</span><a name="line.585"></a>
+<span class="sourceLineNo">586</span>  /***********************************************************************<a name="line.586"></a>
+<span class="sourceLineNo">587</span>   *<a name="line.587"></a>
+<span class="sourceLineNo">588</span>   * Debugging etc<a name="line.588"></a>
+<span class="sourceLineNo">589</span>   */<a name="line.589"></a>
+<span class="sourceLineNo">590</span><a name="line.590"></a>
+<span class="sourceLineNo">591</span>  /**<a name="line.591"></a>
+<span class="sourceLineNo">592</span>   * Assert that the stack is immovable.&lt;p&gt;<a name="line.592"></a>
+<span class="sourceLineNo">593</span>   *<a name="line.593"></a>
+<span class="sourceLineNo">594</span>   * Currently we do not allow stacks to be moved within the heap.  If<a name="line.594"></a>
+<span class="sourceLineNo">595</span>   * a stack contains native stack frames, then it is impossible for<a name="line.595"></a>
+<span class="sourceLineNo">596</span>   * us to safely move it.  Prior to the implementation of JNI, Jikes<a name="line.596"></a>
+<span class="sourceLineNo">597</span>   * RVM did allow the GC system to move thread stacks, and called a<a name="line.597"></a>
+<span class="sourceLineNo">598</span>   * special fixup routine, thread.fixupMovedStack to adjust all of<a name="line.598"></a>
+<span class="sourceLineNo">599</span>   * the special interior pointers (SP, FP).  If we implement split C<a name="line.599"></a>
+<span class="sourceLineNo">600</span>   * &amp;amp; Java stacks then we could allow the Java stacks to be moved,<a name="line.600"></a>
+<span class="sourceLineNo">601</span>   * but we can't move the native stack.<a name="line.601"></a>
+<span class="sourceLineNo">602</span>   */<a name="line.602"></a>
+<span class="sourceLineNo">603</span>  private void assertImmovableInCurrentCollection() {<a name="line.603"></a>
+<span class="sourceLineNo">604</span>    // This method is guarded by VM.VerifyAssertions. Our Checkstyle assertion<a name="line.604"></a>
+<span class="sourceLineNo">605</span>    // plugin does not recognize this because it does not track calls. Therefore,<a name="line.605"></a>
+<span class="sourceLineNo">606</span>    // switch off Checkstyle for this method.<a name="line.606"></a>
+<span class="sourceLineNo">607</span><a name="line.607"></a>
+<span class="sourceLineNo">608</span>    //CHECKSTYLE:OFF<a name="line.608"></a>
+<span class="sourceLineNo">609</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));<a name="line.609"></a>
+<span class="sourceLineNo">610</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread)));<a name="line.610"></a>
+<span class="sourceLineNo">611</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getStack())));<a name="line.611"></a>
+<span class="sourceLineNo">612</span>    VM._assert(thread.getJNIEnv() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv())));<a name="line.612"></a>
+<span class="sourceLineNo">613</span>    VM._assert(thread.getJNIEnv() == null || thread.getJNIEnv().refsArray() == null || trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getJNIEnv().refsArray())));<a name="line.613"></a>
+<span class="sourceLineNo">614</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters())));<a name="line.614"></a>
+<span class="sourceLineNo">615</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getContextRegisters().getGPRs())));<a name="line.615"></a>
+<span class="sourceLineNo">616</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getExceptionRegisters())));<a name="line.616"></a>
+<span class="sourceLineNo">617</span>    VM._assert(trace.willNotMoveInCurrentCollection(ObjectReference.fromObject(thread.getExceptionRegisters().getGPRs())));<a name="line.617"></a>
+<span class="sourceLineNo">618</span>    //CHECKSTYLE:ON<a name="line.618"></a>
+<span class="sourceLineNo">619</span>  }<a name="line.619"></a>
+<span class="sourceLineNo">620</span><a name="line.620"></a>
+<span class="sourceLineNo">621</span>  /**<a name="line.621"></a>
+<span class="sourceLineNo">622</span>   * Print out the basic information associated with the top frame on<a name="line.622"></a>
+<span class="sourceLineNo">623</span>   * the stack.<a name="line.623"></a>
+<span class="sourceLineNo">624</span>   *<a name="line.624"></a>
+<span class="sourceLineNo">625</span>   * @param verbosity The level of verbosity to be used when<a name="line.625"></a>
+<span class="sourceLineNo">626</span>   * performing the scan.<a name="line.626"></a>
+<span class="sourceLineNo">627</span>   */<a name="line.627"></a>
+<span class="sourceLineNo">628</span>  private void dumpTopFrameInfo(int verbosity) {<a name="line.628"></a>
+<span class="sourceLineNo">629</span>    Log.write("   topFrame = "); Log.writeln(topFrame);<a name="line.629"></a>
+<span class="sourceLineNo">630</span>    Log.write("         ip = "); Log.writeln(ip);<a name="line.630"></a>
+<span class="sourceLineNo">631</span>    Log.write("         fp = "); Log.writeln(fp);<a name="line.631"></a>
+<span class="sourceLineNo">632</span>    Log.write("  registers.ip = "); Log.writeln(thread.getContextRegisters().getIP());<a name="line.632"></a>
+<span class="sourceLineNo">633</span>    if (verbosity &gt;= 3 &amp;&amp; thread.getJNIEnv() != null)<a name="line.633"></a>
+<span class="sourceLineNo">634</span>      thread.getJNIEnv().dumpJniRefsStack();<a name="line.634"></a>
+<span class="sourceLineNo">635</span>  }<a name="line.635"></a>
+<span class="sourceLineNo">636</span><a name="line.636"></a>
+<span class="sourceLineNo">637</span>  /**<a name="line.637"></a>
+<span class="sourceLineNo">638</span>   * Print out information associated with a reference.<a name="line.638"></a>
+<span class="sourceLineNo">639</span>   *<a name="line.639"></a>
+<span class="sourceLineNo">640</span>   * @param refaddr The address of the reference in question.<a name="line.640"></a>
+<span class="sourceLineNo">641</span>   * @param verbosity The level of verbosity to be used when<a name="line.641"></a>
+<span class="sourceLineNo">642</span>   * performing the scan.<a name="line.642"></a>
+<span class="sourceLineNo">643</span>   */<a name="line.643"></a>
+<span class="sourceLineNo">644</span>  private void dumpRef(Address refaddr, int verbosity) {<a name="line.644"></a>
+<span class="sourceLineNo">645</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.645"></a>
+<span class="sourceLineNo">646</span>    VM.sysWrite(refaddr);<a name="line.646"></a>
+<span class="sourceLineNo">647</span>    if (verbosity &gt;= 5) {<a name="line.647"></a>
+<span class="sourceLineNo">648</span>      VM.sysWrite(":"); MemoryManager.dumpRef(ref);<a name="line.648"></a>
+<span class="sourceLineNo">649</span>    } else<a name="line.649"></a>
+<span class="sourceLineNo">650</span>      VM.sysWriteln();<a name="line.650"></a>
+<span class="sourceLineNo">651</span>  }<a name="line.651"></a>
+<span class="sourceLineNo">652</span><a name="line.652"></a>
+<span class="sourceLineNo">653</span>  /**<a name="line.653"></a>
+<span class="sourceLineNo">654</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.654"></a>
+<span class="sourceLineNo">655</span>   * the reference is invalid, dump stack and die.<a name="line.655"></a>
+<span class="sourceLineNo">656</span>   *<a name="line.656"></a>
+<span class="sourceLineNo">657</span>   * @param refaddr The address of the reference in question.<a name="line.657"></a>
+<span class="sourceLineNo">658</span>   * @param verbosity The level of verbosity to be used when<a name="line.658"></a>
+<span class="sourceLineNo">659</span>   * performing the scan.<a name="line.659"></a>
+<span class="sourceLineNo">660</span>   */<a name="line.660"></a>
+<span class="sourceLineNo">661</span>  private void checkReference(Address refaddr, int verbosity) {<a name="line.661"></a>
+<span class="sourceLineNo">662</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.662"></a>
+<span class="sourceLineNo">663</span>    if (!MemoryManager.validRef(ref)) {<a name="line.663"></a>
+<span class="sourceLineNo">664</span>      Log.writeln();<a name="line.664"></a>
+<span class="sourceLineNo">665</span>      Log.writeln("Invalid ref reported while scanning stack");<a name="line.665"></a>
+<span class="sourceLineNo">666</span>      printMethodHeader();<a name="line.666"></a>
+<span class="sourceLineNo">667</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.667"></a>
+<span class="sourceLineNo">668</span>      dumpStackFrame(verbosity);<a name="line.668"></a>
+<span class="sourceLineNo">669</span>      Log.writeln();<a name="line.669"></a>
+<span class="sourceLineNo">670</span>      Log.writeln("Dumping stack starting at frame with bad ref:");<a name="line.670"></a>
+<span class="sourceLineNo">671</span>      RVMThread.dumpStack(ip, fp);<a name="line.671"></a>
+<span class="sourceLineNo">672</span>      /* dump stack starting at top */<a name="line.672"></a>
+<span class="sourceLineNo">673</span>      Address top_ip = thread.getContextRegisters().getInnermostInstructionAddress();<a name="line.673"></a>
+<span class="sourceLineNo">674</span>      Address top_fp = thread.getContextRegisters().getInnermostFramePointer();<a name="line.674"></a>
+<span class="sourceLineNo">675</span>      RVMThread.dumpStack(top_ip, top_fp);<a name="line.675"></a>
+<span class="sourceLineNo">676</span>      Log.writeln("Failing iterators:");<a name="line.676"></a>
+<span class="sourceLineNo">677</span>      Offset offset = compiledMethod.getInstructionOffset(ip);<a name="line.677"></a>
+<span class="sourceLineNo">678</span>      iterator = iteratorGroup.selectIterator(compiledMethod);<a name="line.678"></a>
+<span class="sourceLineNo">679</span>      iterator.setupIterator(compiledMethod, offset, fp);<a name="line.679"></a>
+<span class="sourceLineNo">680</span>      int i = 0;<a name="line.680"></a>
+<span class="sourceLineNo">681</span>      for (Address addr = iterator.getNextReferenceAddress();<a name="line.681"></a>
+<span class="sourceLineNo">682</span>           !addr.isZero();<a name="line.682"></a>
+<span class="sourceLineNo">683</span>           addr = iterator.getNextReferenceAddress()) {<a name="line.683"></a>
+<span class="sourceLineNo">684</span>        ObjectReference ref2 = addr.loadObjectReference();<a name="line.684"></a>
+<span class="sourceLineNo">685</span>        Log.write("Iterator "); Log.write(i++); Log.write(": "); Log.write(addr);<a name="line.685"></a>
+<span class="sourceLineNo">686</span>        Log.write(": "); Log.flush(); MemoryManager.dumpRef(ref2);<a name="line.686"></a>
+<span class="sourceLineNo">687</span>      }<a name="line.687"></a>
+<span class="sourceLineNo">688</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.688"></a>
+<span class="sourceLineNo">689</span>    }<a name="line.689"></a>
+<span class="sourceLineNo">690</span>  }<a name="line.690"></a>
+<span class="sourceLineNo">691</span><a name="line.691"></a>
+<span class="sourceLineNo">692</span>  /**<a name="line.692"></a>
+<span class="sourceLineNo">693</span>   * Check that a reference encountered during scanning is valid.  If<a name="line.693"></a>
+<span class="sourceLineNo">694</span>   * the reference is invalid, dump stack and die.<a name="line.694"></a>
+<span class="sourceLineNo">695</span>   *<a name="line.695"></a>
+<span class="sourceLineNo">696</span>   * @param refaddr The address of the reference in question.<a name="line.696"></a>
+<span class="sourceLineNo">697</span>   */<a name="line.697"></a>
+<span class="sourceLineNo">698</span>  private static void checkReference(Address refaddr) {<a name="line.698"></a>
+<span class="sourceLineNo">699</span>    ObjectReference ref = refaddr.loadObjectReference();<a name="line.699"></a>
+<span class="sourceLineNo">700</span>    if (!MemoryManager.validRef(ref)) {<a name="line.700"></a>
+<span class="sourceLineNo">701</span>      Log.writeln();<a name="line.701"></a>
+<span class="sourceLineNo">702</span>      Log.writeln("Invalid ref reported while scanning stack");<a name="line.702"></a>
+<span class="sourceLineNo">703</span>      Log.write(refaddr); Log.write(":"); Log.flush(); MemoryManager.dumpRef(ref);<a name="line.703"></a>
+<span class="sourceLineNo">704</span>      Log.writeln();<a name="line.704"></a>
+<span class="sourceLineNo">705</span>      Log.writeln("Dumping stack:");<a name="line.705"></a>
+<span class="sourceLineNo">706</span>      RVMThread.dumpStack();<a name="line.706"></a>
+<span class="sourceLineNo">707</span>      VM.sysFail("\n\nScanStack: Detected bad GC map; exiting RVM with fatal error");<a name="line.707"></a>
+<span class="sourceLineNo">708</span>    }<a name="line.708"></a>
+<span class="sourceLineNo">709</span>  }<a name="line.709"></a>
+<span class="sourceLineNo">710</span>  /**<a name="line.710"></a>
+<span class="sourceLineNo">711</span>   * Print out the name of a method<a name="line.711"></a>
+<span class="sourceLineNo">712</span>   *<a name="line.712"></a>
+<span class="sourceLineNo">713</span>   * @param m The method to be printed<a name="line.713"></a>
+<span class="sourceLineNo">714</span>   */<a name="line.714"></a>
+<span class="sourceLineNo">715</span>  private void printMethod(RVMMethod m) {<a name="line.715"></a>
+<span class="sourceLineNo">716</span>    Log.write(m.getMemberRef().getType().getName().toByteArray()); Log.write(".");<a name="line.716"></a>
+<span class="sourceLineNo">717</span>    Log.write(m.getMemberRef().getName().toByteArray()); Log.write(" ");<a name="line.717"></a>
+<span class="sourceLineNo">718</span>    Log.write(m.getMemberRef().getDescriptor().toByteArray());<a name="line.718"></a>
+<span class="sourceLineNo">719</span>  }<a name="line.719"></a>
+<span class="sourceLineNo">720</span><a name="line.720"></a>
+<span class="sourceLineNo">721</span>  /**<a name="line.721"></a>
+<span class="sourceLineNo">722</span>   * Print out the method header for the method associated with the<a name="line.722"></a>
+<span class="sourceLineNo">723</span>   * current frame<a name="line.723"></a>
+<span class="sourceLineNo">724</span>   */<a name="line.724"></a>
+<span class="sourceLineNo">725</span>  private void printMethodHeader() {<a name="line.725"></a>
+<span class="sourceLineNo">726</span>    RVMMethod method = compiledMethod.getMethod();<a name="line.726"></a>
+<span class="sourceLineNo">727</span><a name="line.727"></a>
+<span class="sourceLineNo">728</span>    Log.write("\n--- METHOD (");<a name="line.728"></a>
+<span class="sourceLineNo">729</span>    Log.write(CompiledMethod.compilerTypeToString(compiledMethodType));<a name="line.729"></a>
+<span class="sourceLineNo">730</span>    Log.write(") ");<a name="line.730"></a>
+<span class="sourceLineNo">731</span>    if (method == null)<a name="line.731"></a>
+<span class="sourceLineNo">732</span>        Log.write("null method");<a name="line.732"></a>
+<span class="sourceLineNo">733</span>    else<a name="line.733"></a>
+<span class="sourceLineNo">734</span>        printMethod(method);<a name="line.734"></a>
+<span class="sourceLineNo">735</span>    Log.writeln();<a name="line.735"></a>
+<span class="sourceLineNo">736</span>    Log.write("--- fp = ");<a name="line.736"></a>
+<span class="sourceLineNo">737</span>    Log.write(fp);<a name="line.737"></a>
+<span class="sourceLineNo">738</span>    if (compiledMethod.isCompiled()) {<a name="line.738"></a>
+<span class="sourceLineNo">739</span>        ObjectReference codeBase = ObjectReference.fromObject(compiledMethod.getEntryCodeArray());<a name="line.739"></a>
+<span class="sourceLineNo">740</span>        Log.write("     code base = ");<a name="line.740"></a>
+<span class="sourceLineNo">741</span>        Log.write(codeBase);<a name="line.741"></a>
+<span class="sourceLineNo">742</span>        Log.write("     code offset = ");<a name="line.742"></a>
+<span class="sourceLineNo">743</span>        Log.writeln(ip.diff(codeBase.toAddress()));<a name="line.743"></a>
+<span class="sourceLineNo">744</span>        Log.write("     line number = ");<a name="line.744"></a>
+<span class="sourceLineNo">745</span>        Log.writeln(compiledMethod.findLineNumberForInstruction(ip.diff(codeBase.toAddress())));<a name="line.745"></a>
+<span class="sourceLineNo">746</span>    } else {<a name="line.746"></a>
+<span class="sourceLineNo">747</span>      Log.write("   Method is uncompiled - ip = ");<a name="line.747"></a>
+<span class="sourceLineNo">748</span>      Log.writeln(ip);<a name="line.748"></a>
+<span class="sourceLineNo">749</span>    }<a name="line.749"></a>
+<span class="sourceLineNo">750</span>  }<a name="line.750"></a>
+<span class="sourceLineNo">751</span><a name="line.751"></a>
+<span class="sourceLineNo">752</span>  /**<a name="line.752"></a>
+<span class="sourceLineNo">753</span>   * Dump the contents of a stack frame. Attempts to interpret each<a name="line.753"></a>
+<span class="sourceLineNo">754</span>   * word as an object reference<a name="line.754"></a>
+<span class="sourceLineNo">755</span>   *<a name="line.755"></a>
+<span class="sourceLineNo">756</span>   * @param verbosity The level of verbosity to be used when<a name="line.756"></a>
+<span class="sourceLineNo">757</span>   * performing the scan.<a name="line.757"></a>
+<span class="sourceLineNo">758</span>   */<a name="line.758"></a>
+<span class="sourceLineNo">759</span>  private void dumpStackFrame(int verbosity) {<a name="line.759"></a>
+<span class="sourceLineNo">760</span>    Address start,end;<a name="line.760"></a>
+<span class="sourceLineNo">761</span>    if (VM.BuildForIA32) {<a name="line.761"></a>
+<span class="sourceLineNo">762</span>      if (prevFp.isZero()) {<a name="line.762"></a>
+<span class="sourceLineNo">763</span>        start = fp.minus(20 * BYTES_IN_ADDRESS);<a name="line.763"></a>
+<span class="sourceLineNo">764</span>        Log.writeln("--- 20 words of stack frame with fp = ", fp);<a name="line.764"></a>
+<span class="sourceLineNo">765</span>      } else {<a name="line.765"></a>
+<span class="sourceLineNo">766</span>        start = prevFp;    // start at callee fp<a name="line.766"></a>
+<span class="sourceLineNo">767</span>      }<a name="line.767"></a>
+<span class="sourceLineNo">768</span>      end = fp;            // end at fp<a name="line.768"></a>
+<span class="sourceLineNo">769</span>    } else {<a name="line.769"></a>
+<span class="sourceLineNo">770</span>      start = fp;                         // start at fp<a name="line.770"></a>
+<span class="sourceLineNo">771</span>      end = fp.loadAddress();   // stop at callers fp<a name="line.771"></a>
 <span class="sourceLineNo">772</span>    }<a name="line.772"></a>
-<span class="sourceLineNo">773</span>    Log.writeln();<a name="line.773"></a>
-<span class="sourceLineNo">774</span>  }<a name="line.774"></a>
-<span class="sourceLineNo">775</span>}<a name="line.775"></a>
+<span class="sourceLineNo">773</span><a name="line.773"></a>
+<span class="sourceLineNo">774</span>    for (Address loc = start; loc.LT(end); loc = loc.plus(BYTES_IN_ADDRESS)) {<a name="line.774"></a>
+<span class="sourceLineNo">775</span>      Log.write(loc); Log.write(" (");<a name="line.775"></a>
+<span class="sourceLineNo">776</span>      Log.write(loc.diff(start));<a name="line.776"></a>
+<span class="sourceLineNo">777</span>      Log.write("):   ");<a name="line.777"></a>
+<span class="sourceLineNo">778</span>      ObjectReference value = Selected.Plan.get().loadObjectReference(loc);<a name="line.778"></a>
+<span class="sourceLineNo">779</span>      Log.write(value);<a name="line.779"></a>
+<span class="sourceLineNo">780</span>      Log.write(" ");<a name="line.780"></a>
+<span class="sourceLineNo">781</span>      Log.flush();<a name="line.781"></a>
+<span class="sourceLineNo">782</span>      if (verbosity &gt;= 4 &amp;&amp; MemoryManager.objectInVM(value) &amp;&amp; loc.NE(start) &amp;&amp; loc.NE(end))<a name="line.782"></a>
+<span class="sourceLineNo">783</span>        MemoryManager.dumpRef(value);<a name="line.783"></a>
+<span class="sourceLineNo">784</span>      else<a name="line.784"></a>
+<span class="sourceLineNo">785</span>        Log.writeln();<a name="line.785"></a>
+<span class="sourceLineNo">786</span>    }<a name="line.786"></a>
+<span class="sourceLineNo">787</span>    Log.writeln();<a name="line.787"></a>
+<span class="sourceLineNo">788</span>  }<a name="line.788"></a>
+<span class="sourceLineNo">789</span>}<a name="line.789"></a>
 
 
 

@@ -90,322 +90,336 @@
 <span class="sourceLineNo">082</span>  /** Global debugging switch */<a name="line.82"></a>
 <span class="sourceLineNo">083</span>  public static final boolean DEBUG;<a name="line.83"></a>
 <span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>  /*<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * VM-specific functionality captured in a series of singleton classs<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  @Untraced<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  public static final ActivePlan activePlan;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  @Untraced<a name="line.90"></a>
-<span class="sourceLineNo">091</span>  public static final Assert assertions;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>  @Untraced<a name="line.92"></a>
-<span class="sourceLineNo">093</span>  public static final Barriers barriers;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  @Untraced<a name="line.94"></a>
-<span class="sourceLineNo">095</span>  public static final Collection collection;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  @Untraced<a name="line.96"></a>
-<span class="sourceLineNo">097</span>  public static final Config config;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>  @Untraced<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  public static final Memory memory;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  @Untraced<a name="line.100"></a>
-<span class="sourceLineNo">101</span>  public static final ObjectModel objectModel;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  @Untraced<a name="line.102"></a>
-<span class="sourceLineNo">103</span>  public static final ReferenceProcessor weakReferences;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  @Untraced<a name="line.104"></a>
-<span class="sourceLineNo">105</span>  public static final ReferenceProcessor softReferences;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  @Untraced<a name="line.106"></a>
-<span class="sourceLineNo">107</span>  public static final ReferenceProcessor phantomReferences;<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  @Untraced<a name="line.108"></a>
-<span class="sourceLineNo">109</span>  public static final FinalizableProcessor finalizableProcessor;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  @Untraced<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  public static final Scanning scanning;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>  @Untraced<a name="line.112"></a>
-<span class="sourceLineNo">113</span>  public static final Statistics statistics;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  @Untraced<a name="line.114"></a>
-<span class="sourceLineNo">115</span>  public static final Strings strings;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  @Untraced<a name="line.116"></a>
-<span class="sourceLineNo">117</span>  public static final TraceInterface traceInterface;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>  @Untraced<a name="line.118"></a>
-<span class="sourceLineNo">119</span>  public static final MMTk_Events events;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>  @Untraced<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  public static final Debug debugging;<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>  /*<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   * The remainder is does the static initialization of the<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * above, reflectively binding to the appropriate host jvm<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * classes.<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>  private static final Factory factory;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>  private static final String vmFactory;<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>  /**<a name="line.131"></a>
-<span class="sourceLineNo">132</span>   * This class initializer establishes a VM-specific factory class<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   * using reflection, and then uses that to create VM-specific concrete<a name="line.133"></a>
-<span class="sourceLineNo">134</span>   * instances of all of the vm classes, initializing the singltons in<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   * this class.  Finally the constants declared in this class are<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * initialized using the VM-specific singletons.<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   */<a name="line.137"></a>
-<span class="sourceLineNo">138</span>  static {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>    /* Identify the VM-specific factory using reflection */<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    vmFactory = System.getProperty("mmtk.hostjvm");<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    Factory xfa = null;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    try {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>      xfa = (Factory) Class.forName(vmFactory).newInstance();<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    } catch (Exception e) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      e.printStackTrace();<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      System.exit(-1);     // we must *not* go on if the above has failed<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    factory = xfa;<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>    /* Now instantiate the singletons using the factory */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    activePlan = factory.newActivePlan();<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    assertions = factory.newAssert();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    barriers = factory.newBarriers();<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    collection = factory.newCollection();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    memory = factory.newMemory();<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    objectModel = factory.newObjectModel();<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    Options.set = factory.getOptionSet();<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    weakReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.WEAK);<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    softReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.SOFT);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    phantomReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.PHANTOM);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    finalizableProcessor = factory.newFinalizableProcessor();<a name="line.161"></a>
-<span class="sourceLineNo">162</span>    scanning = factory.newScanning();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>    statistics = factory.newStatistics();<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    strings = factory.newStrings();<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    traceInterface = factory.newTraceInterface();<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    events = factory.newEvents();<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    debugging = factory.newDebug();<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    config = new Config(factory.newBuildTimeConfig());<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>    /* Now initialize the constants using the vm-specific singletons */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    VERIFY_ASSERTIONS = Assert.verifyAssertionsTrapdoor(assertions);<a name="line.171"></a>
-<span class="sourceLineNo">172</span>    HEAP_START = Memory.heapStartTrapdoor(memory);<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    HEAP_END = Memory.heapEndTrapdoor(memory);<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    AVAILABLE_START = Memory.availableStartTrapdoor(memory);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    AVAILABLE_END = Memory.availableEndTrapdoor(memory);<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    LOG_BYTES_IN_ADDRESS = Memory.logBytesInAddressTrapdoor(memory);<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    LOG_BYTES_IN_WORD = Memory.logBytesInWordTrapdoor(memory);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    LOG_BYTES_IN_PAGE = Memory.logBytesInPageTrapdoor(memory);<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    LOG_MIN_ALIGNMENT = Memory.logMinAlignmentTrapdoor(memory);<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    MAX_ALIGNMENT_SHIFT = Memory.maxAlignmentShiftTrapdoor(memory);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    MAX_BYTES_PADDING = Memory.maxBytesPaddingTrapdoor(memory);<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    ALIGNMENT_VALUE = Memory.alignmentValueTrapdoor(memory);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    ARRAY_BASE_OFFSET = ObjectModel.arrayBaseOffsetTrapdoor(objectModel);<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    DEBUG = Debug.isEnabledTrapdoor(debugging);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>  }<a name="line.185"></a>
-<span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>  /**<a name="line.187"></a>
-<span class="sourceLineNo">188</span>   * Create a new Lock instance using the appropriate VM-specific<a name="line.188"></a>
-<span class="sourceLineNo">189</span>   * concrete Lock sub-class.<a name="line.189"></a>
-<span class="sourceLineNo">190</span>   *<a name="line.190"></a>
-<span class="sourceLineNo">191</span>   * @see Lock<a name="line.191"></a>
-<span class="sourceLineNo">192</span>   *<a name="line.192"></a>
-<span class="sourceLineNo">193</span>   * @param name The string to be associated with this lock instance<a name="line.193"></a>
-<span class="sourceLineNo">194</span>   * @return A concrete VM-specific Lock instance.<a name="line.194"></a>
-<span class="sourceLineNo">195</span>   */<a name="line.195"></a>
-<span class="sourceLineNo">196</span>  public static Lock newLock(String name) {<a name="line.196"></a>
-<span class="sourceLineNo">197</span>    return factory.newLock(name);<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  }<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>  /**<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * Create a new HeavyCondLock instance using the appropriate VM-specific<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   * concrete Lock sub-class.<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   *<a name="line.203"></a>
-<span class="sourceLineNo">204</span>   * @see Monitor<a name="line.204"></a>
-<span class="sourceLineNo">205</span>   *<a name="line.205"></a>
-<span class="sourceLineNo">206</span>   * @param name The string to be associated with this instance<a name="line.206"></a>
-<span class="sourceLineNo">207</span>   * @return A concrete VM-specific HeavyCondLock instance.<a name="line.207"></a>
-<span class="sourceLineNo">208</span>   */<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  public static Monitor newHeavyCondLock(String name) {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>    return factory.newMonitor(name);<a name="line.210"></a>
-<span class="sourceLineNo">211</span>  }<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>  /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   * Create a new SynchronizedCounter instance using the appropriate<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   * VM-specific concrete SynchronizedCounter sub-class.<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   *<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   * @see SynchronizedCounter<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   *<a name="line.218"></a>
-<span class="sourceLineNo">219</span>   * @return A concrete VM-specific SynchronizedCounter instance.<a name="line.219"></a>
-<span class="sourceLineNo">220</span>   */<a name="line.220"></a>
-<span class="sourceLineNo">221</span>  public static SynchronizedCounter newSynchronizedCounter() {<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    return factory.newSynchronizedCounter();<a name="line.222"></a>
-<span class="sourceLineNo">223</span>  }<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>  /**********************************************************************<a name="line.225"></a>
-<span class="sourceLineNo">226</span>   * GCspy methods<a name="line.226"></a>
-<span class="sourceLineNo">227</span>   */<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>  /**<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   * Create a new Util instance using the appropriate<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   * VM-specific concrete Util sub-class.<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   *<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * @see Util<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   *<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   * @return A concrete VM-specific Util instance.<a name="line.235"></a>
-<span class="sourceLineNo">236</span>   */<a name="line.236"></a>
-<span class="sourceLineNo">237</span>  public static Util newGCspyUtil() {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>    return factory.newGCspyUtil();<a name="line.238"></a>
-<span class="sourceLineNo">239</span>  }<a name="line.239"></a>
-<span class="sourceLineNo">240</span><a name="line.240"></a>
-<span class="sourceLineNo">241</span>  /**<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   * Create a new ServerInterpreter instance using the appropriate<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   * VM-specific concrete ServerInterpreter sub-class.<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   *<a name="line.244"></a>
-<span class="sourceLineNo">245</span>   * @see ServerInterpreter<a name="line.245"></a>
-<span class="sourceLineNo">246</span>   *<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   * @return A concrete VM-specific ServerInterpreter instance.<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   */<a name="line.248"></a>
-<span class="sourceLineNo">249</span>  public static ServerInterpreter newGCspyServerInterpreter() {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    return factory.newGCspyServerInterpreter();<a name="line.250"></a>
-<span class="sourceLineNo">251</span>  }<a name="line.251"></a>
-<span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>  /**<a name="line.253"></a>
-<span class="sourceLineNo">254</span>   * Create a new ServerInterpreter instance using the appropriate<a name="line.254"></a>
-<span class="sourceLineNo">255</span>   * VM-specific concrete ServerInterpreter sub-class.<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   *<a name="line.256"></a>
-<span class="sourceLineNo">257</span>   * @see ServerInterpreter<a name="line.257"></a>
-<span class="sourceLineNo">258</span>   *<a name="line.258"></a>
-<span class="sourceLineNo">259</span>   * @return A concrete VM-specific ServerInterpreter instance.<a name="line.259"></a>
-<span class="sourceLineNo">260</span>   */<a name="line.260"></a>
-<span class="sourceLineNo">261</span>  public static ServerSpace newGCspyServerSpace(<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      ServerInterpreter serverInterpreter,<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      String serverName,<a name="line.263"></a>
-<span class="sourceLineNo">264</span>      String driverName,<a name="line.264"></a>
-<span class="sourceLineNo">265</span>      String title,<a name="line.265"></a>
-<span class="sourceLineNo">266</span>      String blockInfo,<a name="line.266"></a>
-<span class="sourceLineNo">267</span>      int tileNum,<a name="line.267"></a>
-<span class="sourceLineNo">268</span>      String unused,<a name="line.268"></a>
-<span class="sourceLineNo">269</span>      boolean mainSpace) {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>    return factory.newGCspyServerSpace(serverInterpreter, serverName, driverName,<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                                       title, blockInfo, tileNum, unused,<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                                       mainSpace);<a name="line.272"></a>
-<span class="sourceLineNo">273</span>  }<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>  /**<a name="line.275"></a>
-<span class="sourceLineNo">276</span>   * Create a new ByteStream instance using the appropriate<a name="line.276"></a>
-<span class="sourceLineNo">277</span>   * VM-specific concrete ByteStream sub-class.<a name="line.277"></a>
-<span class="sourceLineNo">278</span>   *<a name="line.278"></a>
-<span class="sourceLineNo">279</span>   * @param driver        The driver that owns this Stream<a name="line.279"></a>
-<span class="sourceLineNo">280</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.280"></a>
-<span class="sourceLineNo">281</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.281"></a>
-<span class="sourceLineNo">282</span>   *                       Values less than this will be represented as "minValue-"<a name="line.282"></a>
-<span class="sourceLineNo">283</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.283"></a>
-<span class="sourceLineNo">284</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.284"></a>
-<span class="sourceLineNo">285</span>   * @param zeroValue      The zero value for this stream<a name="line.285"></a>
-<span class="sourceLineNo">286</span>   * @param defaultValue   The default value for this stream<a name="line.286"></a>
-<span class="sourceLineNo">287</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.287"></a>
-<span class="sourceLineNo">288</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.288"></a>
-<span class="sourceLineNo">289</span>   * @param presentation   How a stream value is to be presented.<a name="line.289"></a>
-<span class="sourceLineNo">290</span>   * @param paintStyle     How the value is to be painted.<a name="line.290"></a>
-<span class="sourceLineNo">291</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.291"></a>
-<span class="sourceLineNo">292</span>   * @param colour         The default colour for tiles of this stream<a name="line.292"></a>
-<span class="sourceLineNo">293</span>   * @see IntStream<a name="line.293"></a>
-<span class="sourceLineNo">294</span>   *<a name="line.294"></a>
-<span class="sourceLineNo">295</span>   * @return A concrete VM-specific ByteStream instance.<a name="line.295"></a>
-<span class="sourceLineNo">296</span>   */<a name="line.296"></a>
-<span class="sourceLineNo">297</span>  public static ByteStream newGCspyByteStream(<a name="line.297"></a>
-<span class="sourceLineNo">298</span>      AbstractDriver driver,<a name="line.298"></a>
-<span class="sourceLineNo">299</span>      String name,<a name="line.299"></a>
-<span class="sourceLineNo">300</span>      byte minValue,<a name="line.300"></a>
-<span class="sourceLineNo">301</span>      byte maxValue,<a name="line.301"></a>
-<span class="sourceLineNo">302</span>      byte zeroValue,<a name="line.302"></a>
-<span class="sourceLineNo">303</span>      byte defaultValue,<a name="line.303"></a>
-<span class="sourceLineNo">304</span>      String stringPre,<a name="line.304"></a>
-<span class="sourceLineNo">305</span>      String stringPost,<a name="line.305"></a>
-<span class="sourceLineNo">306</span>      int presentation,<a name="line.306"></a>
-<span class="sourceLineNo">307</span>      int paintStyle,<a name="line.307"></a>
-<span class="sourceLineNo">308</span>      int indexMaxStream,<a name="line.308"></a>
-<span class="sourceLineNo">309</span>      Color colour,<a name="line.309"></a>
-<span class="sourceLineNo">310</span>      boolean summary) {<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    return factory.newGCspyByteStream(driver, name, minValue,  maxValue,<a name="line.311"></a>
-<span class="sourceLineNo">312</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                                     colour, summary);<a name="line.314"></a>
-<span class="sourceLineNo">315</span>  }<a name="line.315"></a>
-<span class="sourceLineNo">316</span><a name="line.316"></a>
-<span class="sourceLineNo">317</span>  /**<a name="line.317"></a>
-<span class="sourceLineNo">318</span>   * Create a new IntStream instance using the appropriate<a name="line.318"></a>
-<span class="sourceLineNo">319</span>   * VM-specific concrete IntStream sub-class.<a name="line.319"></a>
-<span class="sourceLineNo">320</span>   *<a name="line.320"></a>
-<span class="sourceLineNo">321</span>   * @param driver        The driver that owns this Stream<a name="line.321"></a>
-<span class="sourceLineNo">322</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.322"></a>
-<span class="sourceLineNo">323</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.323"></a>
-<span class="sourceLineNo">324</span>   *                       Values less than this will be represented as "minValue-"<a name="line.324"></a>
-<span class="sourceLineNo">325</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.325"></a>
-<span class="sourceLineNo">326</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.326"></a>
-<span class="sourceLineNo">327</span>   * @param zeroValue      The zero value for this stream<a name="line.327"></a>
-<span class="sourceLineNo">328</span>   * @param defaultValue   The default value for this stream<a name="line.328"></a>
-<span class="sourceLineNo">329</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.329"></a>
-<span class="sourceLineNo">330</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.330"></a>
-<span class="sourceLineNo">331</span>   * @param presentation   How a stream value is to be presented.<a name="line.331"></a>
-<span class="sourceLineNo">332</span>   * @param paintStyle     How the value is to be painted.<a name="line.332"></a>
-<span class="sourceLineNo">333</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.333"></a>
-<span class="sourceLineNo">334</span>   * @param colour         The default colour for tiles of this stream<a name="line.334"></a>
-<span class="sourceLineNo">335</span>   * @see IntStream<a name="line.335"></a>
-<span class="sourceLineNo">336</span>   *<a name="line.336"></a>
-<span class="sourceLineNo">337</span>   * @return A concrete VM-specific IntStream instance.<a name="line.337"></a>
-<span class="sourceLineNo">338</span>   */<a name="line.338"></a>
-<span class="sourceLineNo">339</span>  public static IntStream newGCspyIntStream(<a name="line.339"></a>
-<span class="sourceLineNo">340</span>      AbstractDriver driver,<a name="line.340"></a>
-<span class="sourceLineNo">341</span>      String name,<a name="line.341"></a>
-<span class="sourceLineNo">342</span>      int minValue,<a name="line.342"></a>
-<span class="sourceLineNo">343</span>      int maxValue,<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      int zeroValue,<a name="line.344"></a>
-<span class="sourceLineNo">345</span>      int defaultValue,<a name="line.345"></a>
-<span class="sourceLineNo">346</span>      String stringPre,<a name="line.346"></a>
-<span class="sourceLineNo">347</span>      String stringPost,<a name="line.347"></a>
-<span class="sourceLineNo">348</span>      int presentation,<a name="line.348"></a>
-<span class="sourceLineNo">349</span>      int paintStyle,<a name="line.349"></a>
-<span class="sourceLineNo">350</span>      int indexMaxStream,<a name="line.350"></a>
-<span class="sourceLineNo">351</span>      Color colour,<a name="line.351"></a>
-<span class="sourceLineNo">352</span>      boolean summary) {<a name="line.352"></a>
-<span class="sourceLineNo">353</span>    return factory.newGCspyIntStream(driver, name, minValue,  maxValue,<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                                     colour, summary);<a name="line.356"></a>
-<span class="sourceLineNo">357</span>  }<a name="line.357"></a>
-<span class="sourceLineNo">358</span><a name="line.358"></a>
-<span class="sourceLineNo">359</span>  /**<a name="line.359"></a>
-<span class="sourceLineNo">360</span>   * Create a new ShortStream instance using the appropriate<a name="line.360"></a>
-<span class="sourceLineNo">361</span>   * VM-specific concrete ShortStream sub-class.<a name="line.361"></a>
-<span class="sourceLineNo">362</span>   *<a name="line.362"></a>
-<span class="sourceLineNo">363</span>   * @param driver        The driver that owns this Stream<a name="line.363"></a>
-<span class="sourceLineNo">364</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.364"></a>
-<span class="sourceLineNo">365</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.365"></a>
-<span class="sourceLineNo">366</span>   *                       Values less than this will be represented as "minValue-"<a name="line.366"></a>
-<span class="sourceLineNo">367</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.367"></a>
-<span class="sourceLineNo">368</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.368"></a>
-<span class="sourceLineNo">369</span>   * @param zeroValue      The zero value for this stream<a name="line.369"></a>
-<span class="sourceLineNo">370</span>   * @param defaultValue   The default value for this stream<a name="line.370"></a>
-<span class="sourceLineNo">371</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.371"></a>
-<span class="sourceLineNo">372</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.372"></a>
-<span class="sourceLineNo">373</span>   * @param presentation   How a stream value is to be presented.<a name="line.373"></a>
-<span class="sourceLineNo">374</span>   * @param paintStyle     How the value is to be painted.<a name="line.374"></a>
-<span class="sourceLineNo">375</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.375"></a>
-<span class="sourceLineNo">376</span>   * @param colour         The default colour for tiles of this stream<a name="line.376"></a>
-<span class="sourceLineNo">377</span>   * @see IntStream<a name="line.377"></a>
-<span class="sourceLineNo">378</span>   *<a name="line.378"></a>
-<span class="sourceLineNo">379</span>   * @return A concrete VM-specific IntStream instance.<a name="line.379"></a>
-<span class="sourceLineNo">380</span>   */<a name="line.380"></a>
-<span class="sourceLineNo">381</span>  public static ShortStream newGCspyShortStream(<a name="line.381"></a>
-<span class="sourceLineNo">382</span>      AbstractDriver driver,<a name="line.382"></a>
-<span class="sourceLineNo">383</span>      String name,<a name="line.383"></a>
-<span class="sourceLineNo">384</span>      short minValue,<a name="line.384"></a>
-<span class="sourceLineNo">385</span>      short maxValue,<a name="line.385"></a>
-<span class="sourceLineNo">386</span>      short zeroValue,<a name="line.386"></a>
-<span class="sourceLineNo">387</span>      short defaultValue,<a name="line.387"></a>
-<span class="sourceLineNo">388</span>      String stringPre,<a name="line.388"></a>
-<span class="sourceLineNo">389</span>      String stringPost,<a name="line.389"></a>
-<span class="sourceLineNo">390</span>      int presentation,<a name="line.390"></a>
-<span class="sourceLineNo">391</span>      int paintStyle,<a name="line.391"></a>
-<span class="sourceLineNo">392</span>      int indexMaxStream,<a name="line.392"></a>
-<span class="sourceLineNo">393</span>      Color colour,<a name="line.393"></a>
-<span class="sourceLineNo">394</span>      boolean summary) {<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    return factory.newGCspyShortStream(driver, name, minValue,  maxValue,<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.397"></a>
-<span class="sourceLineNo">398</span>                                     colour, summary);<a name="line.398"></a>
-<span class="sourceLineNo">399</span>  }<a name="line.399"></a>
-<span class="sourceLineNo">400</span>}<a name="line.400"></a>
+<span class="sourceLineNo">085</span>  /** Exit code to pass if reflection for querying or creating important objects fails. */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  public static final int EXIT_CODE_REFLECTION_FAILURE = 2;<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>  /*<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * VM-specific functionality captured in a series of singleton classs<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  @Untraced<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  public static final ActivePlan activePlan;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  @Untraced<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  public static final Assert assertions;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  @Untraced<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  public static final Barriers barriers;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  @Untraced<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  public static final Collection collection;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  @Untraced<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  public static final Config config;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  @Untraced<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  public static final Memory memory;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  @Untraced<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public static final ObjectModel objectModel;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  @Untraced<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  public static final ReferenceProcessor weakReferences;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  @Untraced<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  public static final ReferenceProcessor softReferences;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  @Untraced<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  public static final ReferenceProcessor phantomReferences;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  @Untraced<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  public static final FinalizableProcessor finalizableProcessor;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  @Untraced<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  public static final Scanning scanning;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  @Untraced<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  public static final Statistics statistics;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  @Untraced<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  public static final Strings strings;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  @Untraced<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  public static final TraceInterface traceInterface;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  @Untraced<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public static final MMTk_Events events;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  @Untraced<a name="line.123"></a>
+<span class="sourceLineNo">124</span>  public static final Debug debugging;<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>  /*<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * The remainder is does the static initialization of the<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * above, reflectively binding to the appropriate host jvm<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * classes.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  private static final Factory factory;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  private static final String vmFactory;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>  /**<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * This class initializer establishes a VM-specific factory class<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   * using reflection, and then uses that to create VM-specific concrete<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   * instances of all of the vm classes, initializing the singltons in<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   * this class.  Finally the constants declared in this class are<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * initialized using the VM-specific singletons.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  static {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    /* Identify the VM-specific factory using reflection */<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    vmFactory = System.getProperty("mmtk.hostjvm");<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    Factory xfa = null;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    try {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      xfa = (Factory) Class.forName(vmFactory).newInstance();<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    } catch (Exception e) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      e.printStackTrace();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      System.exit(EXIT_CODE_REFLECTION_FAILURE);     // we must *not* go on if the above has failed<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    factory = xfa;<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>    /* Now instantiate the singletons using the factory */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    activePlan = factory.newActivePlan();<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    assertions = factory.newAssert();<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    barriers = factory.newBarriers();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    collection = factory.newCollection();<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    memory = factory.newMemory();<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    objectModel = factory.newObjectModel();<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    Options.set = factory.getOptionSet();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    weakReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.WEAK);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    softReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.SOFT);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    phantomReferences = factory.newReferenceProcessor(ReferenceProcessor.Semantics.PHANTOM);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    finalizableProcessor = factory.newFinalizableProcessor();<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    scanning = factory.newScanning();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    statistics = factory.newStatistics();<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    strings = factory.newStrings();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    traceInterface = factory.newTraceInterface();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    events = factory.newEvents();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    debugging = factory.newDebug();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    config = new Config(factory.newBuildTimeConfig());<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    /* Now initialize the constants using the vm-specific singletons */<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    VERIFY_ASSERTIONS = Assert.verifyAssertionsTrapdoor(assertions);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    HEAP_START = Memory.heapStartTrapdoor(memory);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    HEAP_END = Memory.heapEndTrapdoor(memory);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    AVAILABLE_START = Memory.availableStartTrapdoor(memory);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    AVAILABLE_END = Memory.availableEndTrapdoor(memory);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    LOG_BYTES_IN_ADDRESS = Memory.logBytesInAddressTrapdoor(memory);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    LOG_BYTES_IN_WORD = Memory.logBytesInWordTrapdoor(memory);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    LOG_BYTES_IN_PAGE = Memory.logBytesInPageTrapdoor(memory);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    LOG_MIN_ALIGNMENT = Memory.logMinAlignmentTrapdoor(memory);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    MAX_ALIGNMENT_SHIFT = Memory.maxAlignmentShiftTrapdoor(memory);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    MAX_BYTES_PADDING = Memory.maxBytesPaddingTrapdoor(memory);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    ALIGNMENT_VALUE = Memory.alignmentValueTrapdoor(memory);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    ARRAY_BASE_OFFSET = ObjectModel.arrayBaseOffsetTrapdoor(objectModel);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    DEBUG = Debug.isEnabledTrapdoor(debugging);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  }<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>  /**<a name="line.190"></a>
+<span class="sourceLineNo">191</span>   * Create a new Lock instance using the appropriate VM-specific<a name="line.191"></a>
+<span class="sourceLineNo">192</span>   * concrete Lock sub-class.<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   * @see Lock<a name="line.194"></a>
+<span class="sourceLineNo">195</span>   *<a name="line.195"></a>
+<span class="sourceLineNo">196</span>   * @param name The string to be associated with this lock instance<a name="line.196"></a>
+<span class="sourceLineNo">197</span>   * @return A concrete VM-specific Lock instance.<a name="line.197"></a>
+<span class="sourceLineNo">198</span>   */<a name="line.198"></a>
+<span class="sourceLineNo">199</span>  public static Lock newLock(String name) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    return factory.newLock(name);<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>  /**<a name="line.203"></a>
+<span class="sourceLineNo">204</span>   * Create a new HeavyCondLock instance using the appropriate VM-specific<a name="line.204"></a>
+<span class="sourceLineNo">205</span>   * concrete Lock sub-class.<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   *<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * @see Monitor<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   *<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * @param name The string to be associated with this instance<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * @return A concrete VM-specific HeavyCondLock instance.<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  public static Monitor newHeavyCondLock(String name) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    return factory.newMonitor(name);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  }<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>  /**<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * Create a new SynchronizedCounter instance using the appropriate<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   * VM-specific concrete SynchronizedCounter sub-class.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   *<a name="line.219"></a>
+<span class="sourceLineNo">220</span>   * @see SynchronizedCounter<a name="line.220"></a>
+<span class="sourceLineNo">221</span>   *<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   * @return A concrete VM-specific SynchronizedCounter instance.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   */<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public static SynchronizedCounter newSynchronizedCounter() {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    return factory.newSynchronizedCounter();<a name="line.225"></a>
+<span class="sourceLineNo">226</span>  }<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span>  /**********************************************************************<a name="line.228"></a>
+<span class="sourceLineNo">229</span>   * GCspy methods<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   */<a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>  /**<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * Create a new Util instance using the appropriate<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * VM-specific concrete Util sub-class.<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   *<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * @see Util<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   *<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * @return A concrete VM-specific Util instance.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   */<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  public static Util newGCspyUtil() {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    return factory.newGCspyUtil();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>  }<a name="line.242"></a>
+<span class="sourceLineNo">243</span><a name="line.243"></a>
+<span class="sourceLineNo">244</span>  /**<a name="line.244"></a>
+<span class="sourceLineNo">245</span>   * Create a new ServerInterpreter instance using the appropriate<a name="line.245"></a>
+<span class="sourceLineNo">246</span>   * VM-specific concrete ServerInterpreter sub-class.<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   *<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   * @see ServerInterpreter<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   *<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * @return A concrete VM-specific ServerInterpreter instance.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  public static ServerInterpreter newGCspyServerInterpreter() {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    return factory.newGCspyServerInterpreter();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>  }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>  /**<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   * Create a new ServerSpace instance using the appropriate VM-specific<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * concrete ServerSpace sub-class.<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   *<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * @param serverInterpreter The server that owns this space<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * @param serverName The server's name<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   * @param driverName The space driver's name<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   * @param title Title for the space<a name="line.263"></a>
+<span class="sourceLineNo">264</span>   * @param blockInfo A label for each block<a name="line.264"></a>
+<span class="sourceLineNo">265</span>   * @param tileNum Max number of tiles in this space<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   * @param unused A label for unused blocks<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * @param mainSpace Whether this space is the main space<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   *<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   * @see ServerSpace<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * @return A concrete VM-specific ServerSpace instance.<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  public static ServerSpace newGCspyServerSpace(<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      ServerInterpreter serverInterpreter,<a name="line.273"></a>
+<span class="sourceLineNo">274</span>      String serverName,<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      String driverName,<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      String title,<a name="line.276"></a>
+<span class="sourceLineNo">277</span>      String blockInfo,<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      int tileNum,<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      String unused,<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      boolean mainSpace) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    return factory.newGCspyServerSpace(serverInterpreter, serverName, driverName,<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                                       title, blockInfo, tileNum, unused,<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                                       mainSpace);<a name="line.283"></a>
+<span class="sourceLineNo">284</span>  }<a name="line.284"></a>
+<span class="sourceLineNo">285</span><a name="line.285"></a>
+<span class="sourceLineNo">286</span>  /**<a name="line.286"></a>
+<span class="sourceLineNo">287</span>   * Create a new ByteStream instance using the appropriate<a name="line.287"></a>
+<span class="sourceLineNo">288</span>   * VM-specific concrete ByteStream sub-class.<a name="line.288"></a>
+<span class="sourceLineNo">289</span>   *<a name="line.289"></a>
+<span class="sourceLineNo">290</span>   * @param driver        The driver that owns this Stream<a name="line.290"></a>
+<span class="sourceLineNo">291</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.291"></a>
+<span class="sourceLineNo">292</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.292"></a>
+<span class="sourceLineNo">293</span>   *                       Values less than this will be represented as "minValue-"<a name="line.293"></a>
+<span class="sourceLineNo">294</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.294"></a>
+<span class="sourceLineNo">295</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.295"></a>
+<span class="sourceLineNo">296</span>   * @param zeroValue      The zero value for this stream<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   * @param defaultValue   The default value for this stream<a name="line.297"></a>
+<span class="sourceLineNo">298</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.298"></a>
+<span class="sourceLineNo">299</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.299"></a>
+<span class="sourceLineNo">300</span>   * @param presentation   How a stream value is to be presented.<a name="line.300"></a>
+<span class="sourceLineNo">301</span>   * @param paintStyle     How the value is to be painted.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.302"></a>
+<span class="sourceLineNo">303</span>   * @param colour         The default colour for tiles of this stream<a name="line.303"></a>
+<span class="sourceLineNo">304</span>   * @param summary        Is a summary enabled?<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   * @see IntStream<a name="line.305"></a>
+<span class="sourceLineNo">306</span>   *<a name="line.306"></a>
+<span class="sourceLineNo">307</span>   * @return A concrete VM-specific ByteStream instance.<a name="line.307"></a>
+<span class="sourceLineNo">308</span>   */<a name="line.308"></a>
+<span class="sourceLineNo">309</span>  public static ByteStream newGCspyByteStream(<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      AbstractDriver driver,<a name="line.310"></a>
+<span class="sourceLineNo">311</span>      String name,<a name="line.311"></a>
+<span class="sourceLineNo">312</span>      byte minValue,<a name="line.312"></a>
+<span class="sourceLineNo">313</span>      byte maxValue,<a name="line.313"></a>
+<span class="sourceLineNo">314</span>      byte zeroValue,<a name="line.314"></a>
+<span class="sourceLineNo">315</span>      byte defaultValue,<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      String stringPre,<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      String stringPost,<a name="line.317"></a>
+<span class="sourceLineNo">318</span>      int presentation,<a name="line.318"></a>
+<span class="sourceLineNo">319</span>      int paintStyle,<a name="line.319"></a>
+<span class="sourceLineNo">320</span>      int indexMaxStream,<a name="line.320"></a>
+<span class="sourceLineNo">321</span>      Color colour,<a name="line.321"></a>
+<span class="sourceLineNo">322</span>      boolean summary) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    return factory.newGCspyByteStream(driver, name, minValue,  maxValue,<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                                     colour, summary);<a name="line.326"></a>
+<span class="sourceLineNo">327</span>  }<a name="line.327"></a>
+<span class="sourceLineNo">328</span><a name="line.328"></a>
+<span class="sourceLineNo">329</span>  /**<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * Create a new IntStream instance using the appropriate<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * VM-specific concrete IntStream sub-class.<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   *<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   * @param driver        The driver that owns this Stream<a name="line.333"></a>
+<span class="sourceLineNo">334</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.334"></a>
+<span class="sourceLineNo">335</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.335"></a>
+<span class="sourceLineNo">336</span>   *                       Values less than this will be represented as "minValue-"<a name="line.336"></a>
+<span class="sourceLineNo">337</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.337"></a>
+<span class="sourceLineNo">338</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.338"></a>
+<span class="sourceLineNo">339</span>   * @param zeroValue      The zero value for this stream<a name="line.339"></a>
+<span class="sourceLineNo">340</span>   * @param defaultValue   The default value for this stream<a name="line.340"></a>
+<span class="sourceLineNo">341</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.341"></a>
+<span class="sourceLineNo">342</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.342"></a>
+<span class="sourceLineNo">343</span>   * @param presentation   How a stream value is to be presented.<a name="line.343"></a>
+<span class="sourceLineNo">344</span>   * @param paintStyle     How the value is to be painted.<a name="line.344"></a>
+<span class="sourceLineNo">345</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.345"></a>
+<span class="sourceLineNo">346</span>   * @param colour         The default colour for tiles of this stream<a name="line.346"></a>
+<span class="sourceLineNo">347</span>   * @param summary        Is a summary enabled?<a name="line.347"></a>
+<span class="sourceLineNo">348</span>   * @see IntStream<a name="line.348"></a>
+<span class="sourceLineNo">349</span>   *<a name="line.349"></a>
+<span class="sourceLineNo">350</span>   * @return A concrete VM-specific IntStream instance.<a name="line.350"></a>
+<span class="sourceLineNo">351</span>   */<a name="line.351"></a>
+<span class="sourceLineNo">352</span>  public static IntStream newGCspyIntStream(<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      AbstractDriver driver,<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      String name,<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      int minValue,<a name="line.355"></a>
+<span class="sourceLineNo">356</span>      int maxValue,<a name="line.356"></a>
+<span class="sourceLineNo">357</span>      int zeroValue,<a name="line.357"></a>
+<span class="sourceLineNo">358</span>      int defaultValue,<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      String stringPre,<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      String stringPost,<a name="line.360"></a>
+<span class="sourceLineNo">361</span>      int presentation,<a name="line.361"></a>
+<span class="sourceLineNo">362</span>      int paintStyle,<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      int indexMaxStream,<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      Color colour,<a name="line.364"></a>
+<span class="sourceLineNo">365</span>      boolean summary) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>    return factory.newGCspyIntStream(driver, name, minValue,  maxValue,<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                                     colour, summary);<a name="line.369"></a>
+<span class="sourceLineNo">370</span>  }<a name="line.370"></a>
+<span class="sourceLineNo">371</span><a name="line.371"></a>
+<span class="sourceLineNo">372</span>  /**<a name="line.372"></a>
+<span class="sourceLineNo">373</span>   * Create a new ShortStream instance using the appropriate<a name="line.373"></a>
+<span class="sourceLineNo">374</span>   * VM-specific concrete ShortStream sub-class.<a name="line.374"></a>
+<span class="sourceLineNo">375</span>   *<a name="line.375"></a>
+<span class="sourceLineNo">376</span>   * @param driver        The driver that owns this Stream<a name="line.376"></a>
+<span class="sourceLineNo">377</span>   * @param name           The name of the stream (e.g. "Used space")<a name="line.377"></a>
+<span class="sourceLineNo">378</span>   * @param minValue       The minimum value for any item in this stream.<a name="line.378"></a>
+<span class="sourceLineNo">379</span>   *                       Values less than this will be represented as "minValue-"<a name="line.379"></a>
+<span class="sourceLineNo">380</span>   * @param maxValue       The maximum value for any item in this stream.<a name="line.380"></a>
+<span class="sourceLineNo">381</span>   *                       Values greater than this will be represented as "maxValue+"<a name="line.381"></a>
+<span class="sourceLineNo">382</span>   * @param zeroValue      The zero value for this stream<a name="line.382"></a>
+<span class="sourceLineNo">383</span>   * @param defaultValue   The default value for this stream<a name="line.383"></a>
+<span class="sourceLineNo">384</span>   * @param stringPre      A string to prefix values (e.g. "Used: ")<a name="line.384"></a>
+<span class="sourceLineNo">385</span>   * @param stringPost     A string to suffix values (e.g. " bytes.")<a name="line.385"></a>
+<span class="sourceLineNo">386</span>   * @param presentation   How a stream value is to be presented.<a name="line.386"></a>
+<span class="sourceLineNo">387</span>   * @param paintStyle     How the value is to be painted.<a name="line.387"></a>
+<span class="sourceLineNo">388</span>   * @param indexMaxStream The index of the maximum stream if the presentation is *_VAR.<a name="line.388"></a>
+<span class="sourceLineNo">389</span>   * @param colour         The default colour for tiles of this stream<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * @param summary        Is a summary enabled?<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * @see IntStream<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   *<a name="line.392"></a>
+<span class="sourceLineNo">393</span>   * @return A concrete VM-specific IntStream instance.<a name="line.393"></a>
+<span class="sourceLineNo">394</span>   */<a name="line.394"></a>
+<span class="sourceLineNo">395</span>  public static ShortStream newGCspyShortStream(<a name="line.395"></a>
+<span class="sourceLineNo">396</span>      AbstractDriver driver,<a name="line.396"></a>
+<span class="sourceLineNo">397</span>      String name,<a name="line.397"></a>
+<span class="sourceLineNo">398</span>      short minValue,<a name="line.398"></a>
+<span class="sourceLineNo">399</span>      short maxValue,<a name="line.399"></a>
+<span class="sourceLineNo">400</span>      short zeroValue,<a name="line.400"></a>
+<span class="sourceLineNo">401</span>      short defaultValue,<a name="line.401"></a>
+<span class="sourceLineNo">402</span>      String stringPre,<a name="line.402"></a>
+<span class="sourceLineNo">403</span>      String stringPost,<a name="line.403"></a>
+<span class="sourceLineNo">404</span>      int presentation,<a name="line.404"></a>
+<span class="sourceLineNo">405</span>      int paintStyle,<a name="line.405"></a>
+<span class="sourceLineNo">406</span>      int indexMaxStream,<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      Color colour,<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      boolean summary) {<a name="line.408"></a>
+<span class="sourceLineNo">409</span>    return factory.newGCspyShortStream(driver, name, minValue,  maxValue,<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                                     zeroValue, defaultValue, stringPre, stringPost,<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                                     presentation, paintStyle, indexMaxStream,<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                                     colour, summary);<a name="line.412"></a>
+<span class="sourceLineNo">413</span>  }<a name="line.413"></a>
+<span class="sourceLineNo">414</span>}<a name="line.414"></a>
 
 
 

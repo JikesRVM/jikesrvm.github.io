@@ -20,458 +20,470 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.ir;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.util.Enumeration;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.util.Iterator;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.ArchitectureSpecificOpt;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.ArchitectureSpecificOpt.PhysicalDefUse;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.classloader.TypeReference;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.operand.HeapOperand;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.22"></a>
-<span class="sourceLineNo">023</span><a name="line.23"></a>
-<span class="sourceLineNo">024</span>import static org.jikesrvm.compilers.opt.ir.Operators.PHI;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.vmmagic.pragma.NoInline;<a name="line.25"></a>
-<span class="sourceLineNo">026</span><a name="line.26"></a>
-<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * This class is not meant to be instantiated.&lt;p&gt;<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * It simply serves as a place to collect the implementation of<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * primitive IR enumerations.&lt;p&gt;<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * None of these functions are meant to be called directly from<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * anywhere except IR, Instruction, and BasicBlock.&lt;p&gt;<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * General clients should use the higher level interfaces provided<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * by those classes.<a name="line.34"></a>
-<span class="sourceLineNo">035</span> */<a name="line.35"></a>
-<span class="sourceLineNo">036</span>public abstract class IREnumeration {<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>  /**<a name="line.38"></a>
-<span class="sourceLineNo">039</span>   * Forward intra basic block instruction enumerations from<a name="line.39"></a>
-<span class="sourceLineNo">040</span>   * from start...last inclusive.&lt;p&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>   *<a name="line.41"></a>
-<span class="sourceLineNo">042</span>   * NB: start and last _must_ be in the same basic block<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   *     and must be in the proper relative order.<a name="line.43"></a>
-<span class="sourceLineNo">044</span>   *     This code does _not_ check this invariant, and will<a name="line.44"></a>
-<span class="sourceLineNo">045</span>   *     simply fail by eventually thowing a NoSuchElementException<a name="line.45"></a>
-<span class="sourceLineNo">046</span>   *     if it is not met. Caller's must be sure the invariants are met.<a name="line.46"></a>
-<span class="sourceLineNo">047</span>   *<a name="line.47"></a>
-<span class="sourceLineNo">048</span>   * @param start the instruction to start with<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * @param end   the instruction to end with<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   * @return an enumeration of the instructions from start to end<a name="line.50"></a>
-<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  public static Enumeration&lt;Instruction&gt; forwardIntraBlockIE(final Instruction start, final Instruction end) {<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>      private Instruction current = start;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>      private final Instruction last = end;<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>      @Override<a name="line.57"></a>
-<span class="sourceLineNo">058</span>      public boolean hasMoreElements() { return current != null; }<a name="line.58"></a>
-<span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>      @Override<a name="line.60"></a>
-<span class="sourceLineNo">061</span>      public Instruction nextElement() {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        Instruction res = current;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>        if (current == last) {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>          current = null;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        } else {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>          try {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            current = current.getNext();<a name="line.67"></a>
-<span class="sourceLineNo">068</span>          } catch (NullPointerException e) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>            fail("forwardIntraBlockIE");<a name="line.69"></a>
-<span class="sourceLineNo">070</span>          }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        }<a name="line.71"></a>
-<span class="sourceLineNo">072</span>        return res;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>      }<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    };<a name="line.74"></a>
-<span class="sourceLineNo">075</span>  }<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>  /**<a name="line.77"></a>
-<span class="sourceLineNo">078</span>   * Reverse intra basic block instruction enumerations from<a name="line.78"></a>
-<span class="sourceLineNo">079</span>   * from start...last inclusive.&lt;p&gt;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>   *<a name="line.80"></a>
-<span class="sourceLineNo">081</span>   * NB: start and last _must_ be in the same basic block<a name="line.81"></a>
-<span class="sourceLineNo">082</span>   *     and must be in the proper relative order.<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   *     This code does _not_ check this invariant, and will<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   *     simply fail by eventually thowing a NoSuchElementException<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   *     if it is not met. Caller's must be sure the invariants are met.<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   *<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   * @param start the instruction to start with<a name="line.87"></a>
-<span class="sourceLineNo">088</span>   * @param end   the instruction to end with<a name="line.88"></a>
-<span class="sourceLineNo">089</span>   * @return an enumeration of the instructions from start to end<a name="line.89"></a>
-<span class="sourceLineNo">090</span>   */<a name="line.90"></a>
-<span class="sourceLineNo">091</span>  public static Enumeration&lt;Instruction&gt; reverseIntraBlockIE(final Instruction start, final Instruction end) {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>      private Instruction current = start;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>      private final Instruction last = end;<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>      @Override<a name="line.96"></a>
-<span class="sourceLineNo">097</span>      public boolean hasMoreElements() { return current != null; }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>      @Override<a name="line.99"></a>
-<span class="sourceLineNo">100</span>      public Instruction nextElement() {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        Instruction res = current;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>        if (current == last) {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>          current = null;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        } else {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>          try {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>            current = current.getPrev();<a name="line.106"></a>
-<span class="sourceLineNo">107</span>          } catch (NullPointerException e) {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>            fail("reverseIntraBlockIE");<a name="line.108"></a>
-<span class="sourceLineNo">109</span>          }<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
-<span class="sourceLineNo">111</span>        return res;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      }<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    };<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>  /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>   * A forward enumeration of all the instructions in the IR.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>   *<a name="line.118"></a>
-<span class="sourceLineNo">119</span>   * @param ir the IR to walk over<a name="line.119"></a>
-<span class="sourceLineNo">120</span>   * @return a forward enumeration of the insturctions in ir<a name="line.120"></a>
-<span class="sourceLineNo">121</span>   */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  public static Enumeration&lt;Instruction&gt; forwardGlobalIE(final IR ir) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>      private Instruction current = ir.firstInstructionInCodeOrder();<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>      @Override<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      public boolean hasMoreElements() { return current != null; }<a name="line.127"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.compilers.opt.ir.Operators.PHI;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import java.util.Enumeration;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import java.util.Iterator;<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.TypeReference;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.ir.operand.HeapOperand;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.vmmagic.pragma.NoInline;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>/**<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * This class is not meant to be instantiated.&lt;p&gt;<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * It simply serves as a place to collect the implementation of<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * primitive IR enumerations.&lt;p&gt;<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * None of these functions are meant to be called directly from<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * anywhere except IR, Instruction, and BasicBlock.&lt;p&gt;<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * General clients should use the higher level interfaces provided<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * by those classes.<a name="line.33"></a>
+<span class="sourceLineNo">034</span> */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>public abstract class IREnumeration {<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>  /**<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   * Forward intra basic block instruction enumerations from<a name="line.38"></a>
+<span class="sourceLineNo">039</span>   * from start...last inclusive.&lt;p&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>   *<a name="line.40"></a>
+<span class="sourceLineNo">041</span>   * NB: start and last _must_ be in the same basic block<a name="line.41"></a>
+<span class="sourceLineNo">042</span>   *     and must be in the proper relative order.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   *     This code does _not_ check this invariant, and will<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   *     simply fail by eventually thowing a NoSuchElementException<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   *     if it is not met. Caller's must be sure the invariants are met.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   *<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   * @param start the instruction to start with<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * @param end   the instruction to end with<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   * @return an enumeration of the instructions from start to end<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static Enumeration&lt;Instruction&gt; forwardIntraBlockIE(final Instruction start, final Instruction end) {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>      private Instruction current = start;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      private final Instruction last = end;<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>      @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>      public boolean hasMoreElements() {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        return current != null;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>      @Override<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      public Instruction nextElement() {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        Instruction res = current;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        if (current == last) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>          current = null;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        } else {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>          try {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>            current = current.getNext();<a name="line.68"></a>
+<span class="sourceLineNo">069</span>          } catch (NullPointerException e) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>            fail("forwardIntraBlockIE");<a name="line.70"></a>
+<span class="sourceLineNo">071</span>          }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        return res;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>      }<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    };<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  /**<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * Reverse intra basic block instruction enumerations from<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * from start...last inclusive.&lt;p&gt;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   *<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * NB: start and last _must_ be in the same basic block<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   *     and must be in the proper relative order.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   *     This code does _not_ check this invariant, and will<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   *     simply fail by eventually thowing a NoSuchElementException<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   *     if it is not met. Caller's must be sure the invariants are met.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * @param start the instruction to start with<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * @param end   the instruction to end with<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   * @return an enumeration of the instructions from start to end<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   */<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  public static Enumeration&lt;Instruction&gt; reverseIntraBlockIE(final Instruction start, final Instruction end) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      private Instruction current = start;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      private final Instruction last = end;<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>      @Override<a name="line.97"></a>
+<span class="sourceLineNo">098</span>      public boolean hasMoreElements() {<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return current != null;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>      @Override<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      public Instruction nextElement() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        Instruction res = current;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        if (current == last) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>          current = null;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>        } else {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>          try {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            current = current.getPrev();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>          } catch (NullPointerException e) {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>            fail("reverseIntraBlockIE");<a name="line.111"></a>
+<span class="sourceLineNo">112</span>          }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        return res;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      }<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    };<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>  /**<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * A forward enumeration of all the instructions in the IR.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   *<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   * @param ir the IR to walk over<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   * @return a forward enumeration of the insturctions in ir<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   */<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  public static Enumeration&lt;Instruction&gt; forwardGlobalIE(final IR ir) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      private Instruction current = ir.firstInstructionInCodeOrder();<a name="line.127"></a>
 <span class="sourceLineNo">128</span><a name="line.128"></a>
 <span class="sourceLineNo">129</span>      @Override<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      public Instruction nextElement() {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        try {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>          Instruction res = current;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>          current = current.nextInstructionInCodeOrder();<a name="line.133"></a>
-<span class="sourceLineNo">134</span>          return res;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>        } catch (NullPointerException e) {<a name="line.135"></a>
-<span class="sourceLineNo">136</span>          fail("forwardGlobalIR");<a name="line.136"></a>
-<span class="sourceLineNo">137</span>          return null; // placate jikes<a name="line.137"></a>
-<span class="sourceLineNo">138</span>        }<a name="line.138"></a>
-<span class="sourceLineNo">139</span>      }<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    };<a name="line.140"></a>
-<span class="sourceLineNo">141</span>  }<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>  /**<a name="line.143"></a>
-<span class="sourceLineNo">144</span>   * A reverse enumeration of all the instructions in the IR.<a name="line.144"></a>
-<span class="sourceLineNo">145</span>   *<a name="line.145"></a>
-<span class="sourceLineNo">146</span>   * @param ir the IR to walk over<a name="line.146"></a>
-<span class="sourceLineNo">147</span>   * @return a forward enumeration of the insturctions in ir<a name="line.147"></a>
-<span class="sourceLineNo">148</span>   */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>  public static Enumeration&lt;Instruction&gt; reverseGlobalIE(final IR ir) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>      private Instruction current = ir.lastInstructionInCodeOrder();<a name="line.151"></a>
-<span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>      @Override<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      public boolean hasMoreElements() { return current != null; }<a name="line.154"></a>
-<span class="sourceLineNo">155</span><a name="line.155"></a>
-<span class="sourceLineNo">156</span>      @Override<a name="line.156"></a>
-<span class="sourceLineNo">157</span>      public Instruction nextElement() {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>        try {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>          Instruction res = current;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>          current = current.prevInstructionInCodeOrder();<a name="line.160"></a>
-<span class="sourceLineNo">161</span>          return res;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        } catch (NullPointerException e) {<a name="line.162"></a>
-<span class="sourceLineNo">163</span>          fail("forwardGlobalIR");<a name="line.163"></a>
-<span class="sourceLineNo">164</span>          return null; // placate jikes<a name="line.164"></a>
-<span class="sourceLineNo">165</span>        }<a name="line.165"></a>
-<span class="sourceLineNo">166</span>      }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    };<a name="line.167"></a>
-<span class="sourceLineNo">168</span>  }<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>  /**<a name="line.170"></a>
-<span class="sourceLineNo">171</span>   * A forward enumeration of all the basic blocks in the IR.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   *<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * @param ir the IR to walk over<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   * @return a forward enumeration of the basic blocks in ir<a name="line.174"></a>
-<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
-<span class="sourceLineNo">176</span>  public static Enumeration&lt;BasicBlock&gt; forwardBE(final IR ir) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    return new Enumeration&lt;BasicBlock&gt;() {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>      private BasicBlock current = ir.firstBasicBlockInCodeOrder();<a name="line.178"></a>
-<span class="sourceLineNo">179</span><a name="line.179"></a>
-<span class="sourceLineNo">180</span>      @Override<a name="line.180"></a>
-<span class="sourceLineNo">181</span>      public boolean hasMoreElements() { return current != null; }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>      @Override<a name="line.183"></a>
-<span class="sourceLineNo">184</span>      public BasicBlock nextElement() {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        try {<a name="line.185"></a>
-<span class="sourceLineNo">186</span>          BasicBlock res = current;<a name="line.186"></a>
-<span class="sourceLineNo">187</span>          current = current.nextBasicBlockInCodeOrder();<a name="line.187"></a>
-<span class="sourceLineNo">188</span>          return res;<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        } catch (NullPointerException e) {<a name="line.189"></a>
-<span class="sourceLineNo">190</span>          fail("forwardBE");<a name="line.190"></a>
-<span class="sourceLineNo">191</span>          return null; // placate jikes<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
-<span class="sourceLineNo">193</span>      }<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    };<a name="line.194"></a>
-<span class="sourceLineNo">195</span>  }<a name="line.195"></a>
-<span class="sourceLineNo">196</span><a name="line.196"></a>
-<span class="sourceLineNo">197</span>  /**<a name="line.197"></a>
-<span class="sourceLineNo">198</span>   * A reverse enumeration of all the basic blocks in the IR.<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   *<a name="line.199"></a>
-<span class="sourceLineNo">200</span>   * @param ir the IR to walk over<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * @return a reverse enumeration of the basic blocks in ir<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   */<a name="line.202"></a>
-<span class="sourceLineNo">203</span>  public static Enumeration&lt;BasicBlock&gt; reverseBE(final IR ir) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    return new Enumeration&lt;BasicBlock&gt;() {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>      private BasicBlock current = ir.lastBasicBlockInCodeOrder();<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>      @Override<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      public boolean hasMoreElements() { return current != null; }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>      @Override<a name="line.210"></a>
-<span class="sourceLineNo">211</span>      public BasicBlock nextElement() {<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        try {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>          BasicBlock res = current;<a name="line.213"></a>
-<span class="sourceLineNo">214</span>          current = current.prevBasicBlockInCodeOrder();<a name="line.214"></a>
-<span class="sourceLineNo">215</span>          return res;<a name="line.215"></a>
-<span class="sourceLineNo">216</span>        } catch (NullPointerException e) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>          fail("forwardBE");<a name="line.217"></a>
-<span class="sourceLineNo">218</span>          return null; // placate jikes<a name="line.218"></a>
-<span class="sourceLineNo">219</span>        }<a name="line.219"></a>
-<span class="sourceLineNo">220</span>      }<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    };<a name="line.221"></a>
-<span class="sourceLineNo">222</span>  }<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
-<span class="sourceLineNo">224</span>  /**<a name="line.224"></a>
-<span class="sourceLineNo">225</span>   * This class implements an enumeration of instructions over<a name="line.225"></a>
-<span class="sourceLineNo">226</span>   * all instructions for a basic block. This enumeration includes<a name="line.226"></a>
-<span class="sourceLineNo">227</span>   * explicit instructions in the IR and implicit phi instructions for<a name="line.227"></a>
-<span class="sourceLineNo">228</span>   * heap variables, which are stored only in this lookaside<a name="line.228"></a>
-<span class="sourceLineNo">229</span>   * structure.<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   */<a name="line.231"></a>
-<span class="sourceLineNo">232</span>  public static final class AllInstructionsEnum implements Enumeration&lt;Instruction&gt; {<a name="line.232"></a>
-<span class="sourceLineNo">233</span>    /**<a name="line.233"></a>
-<span class="sourceLineNo">234</span>     * An enumeration of the explicit instructions in the IR for a<a name="line.234"></a>
-<span class="sourceLineNo">235</span>     * basic block<a name="line.235"></a>
-<span class="sourceLineNo">236</span>     */<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    private final Enumeration&lt;Instruction&gt; explicitInstructions;<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>    /**<a name="line.239"></a>
-<span class="sourceLineNo">240</span>     * An enumeration of the implicit instructions in the IR for a<a name="line.240"></a>
-<span class="sourceLineNo">241</span>     * basic block.  These instructions appear only in the SSA<a name="line.241"></a>
-<span class="sourceLineNo">242</span>     * dictionary lookaside structure.<a name="line.242"></a>
-<span class="sourceLineNo">243</span>     */<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    private final Iterator&lt;Instruction&gt; implicitInstructions;<a name="line.244"></a>
-<span class="sourceLineNo">245</span><a name="line.245"></a>
-<span class="sourceLineNo">246</span>    /**<a name="line.246"></a>
-<span class="sourceLineNo">247</span>     * The label instruction for the basic block - the label is<a name="line.247"></a>
-<span class="sourceLineNo">248</span>     * special as we want it to appear in the enumeration before the<a name="line.248"></a>
-<span class="sourceLineNo">249</span>     * implicit SSA instructions<a name="line.249"></a>
-<span class="sourceLineNo">250</span>     */<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    private Instruction labelInstruction;<a name="line.251"></a>
-<span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>    /**<a name="line.253"></a>
-<span class="sourceLineNo">254</span>     * Construct an enumeration for all instructions, both implicit and<a name="line.254"></a>
-<span class="sourceLineNo">255</span>     * explicit in the IR, for a given basic block<a name="line.255"></a>
-<span class="sourceLineNo">256</span>     *<a name="line.256"></a>
-<span class="sourceLineNo">257</span>     * @param block the basic block whose instructions this enumerates<a name="line.257"></a>
-<span class="sourceLineNo">258</span>     */<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    public AllInstructionsEnum(IR ir, BasicBlock block) {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>      explicitInstructions = block.forwardInstrEnumerator();<a name="line.260"></a>
-<span class="sourceLineNo">261</span>      if (ir.inSSAForm()) {<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        implicitInstructions = ir.HIRInfo.dictionary.getHeapPhiInstructions(block);<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      } else {<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        implicitInstructions = null;<a name="line.264"></a>
-<span class="sourceLineNo">265</span>      }<a name="line.265"></a>
-<span class="sourceLineNo">266</span>      labelInstruction = explicitInstructions.nextElement();<a name="line.266"></a>
-<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>    /**<a name="line.269"></a>
-<span class="sourceLineNo">270</span>     * Are there more elements in the enumeration?<a name="line.270"></a>
-<span class="sourceLineNo">271</span>     *<a name="line.271"></a>
-<span class="sourceLineNo">272</span>     * @return {@code true} or {@code false}<a name="line.272"></a>
-<span class="sourceLineNo">273</span>     */<a name="line.273"></a>
-<span class="sourceLineNo">274</span>    @Override<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    public boolean hasMoreElements() {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>      return (((implicitInstructions != null) &amp;&amp; implicitInstructions.hasNext()) ||<a name="line.276"></a>
-<span class="sourceLineNo">277</span>              explicitInstructions.hasMoreElements());<a name="line.277"></a>
-<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
-<span class="sourceLineNo">279</span><a name="line.279"></a>
-<span class="sourceLineNo">280</span>    @Override<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    public Instruction nextElement() {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      if (labelInstruction != null) {<a name="line.282"></a>
-<span class="sourceLineNo">283</span>        Instruction temp = labelInstruction;<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        labelInstruction = null;<a name="line.284"></a>
-<span class="sourceLineNo">285</span>        return temp;<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      } else if ((implicitInstructions != null) &amp;&amp; implicitInstructions.hasNext()) {<a name="line.286"></a>
-<span class="sourceLineNo">287</span>        return implicitInstructions.next();<a name="line.287"></a>
-<span class="sourceLineNo">288</span>      } else {<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        return explicitInstructions.nextElement();<a name="line.289"></a>
-<span class="sourceLineNo">290</span>      }<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
-<span class="sourceLineNo">292</span>  }<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>  /**<a name="line.294"></a>
-<span class="sourceLineNo">295</span>   * This class implements an {@link Enumeration} of {@link Operand}s. It used<a name="line.295"></a>
-<span class="sourceLineNo">296</span>   * for holding the definitions of a particular instruction and being<a name="line.296"></a>
-<span class="sourceLineNo">297</span>   * used as an enumeration for iterating over. It differs from other<a name="line.297"></a>
-<span class="sourceLineNo">298</span>   * enumerations of Operand as it iterates over both implicit<a name="line.298"></a>
-<span class="sourceLineNo">299</span>   * and explicit operands.<a name="line.299"></a>
-<span class="sourceLineNo">300</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.300"></a>
-<span class="sourceLineNo">301</span>   */<a name="line.301"></a>
-<span class="sourceLineNo">302</span>  public static final class AllDefsEnum implements Enumeration&lt;Operand&gt; {<a name="line.302"></a>
-<span class="sourceLineNo">303</span>    /**<a name="line.303"></a>
-<span class="sourceLineNo">304</span>     * Enumeration of non-heap operands defined by the instruction<a name="line.304"></a>
-<span class="sourceLineNo">305</span>     */<a name="line.305"></a>
-<span class="sourceLineNo">306</span>    private final Enumeration&lt;Operand&gt; instructionOperands;<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    /**<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * Array of heap operands defined by the instruction<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     */<a name="line.309"></a>
-<span class="sourceLineNo">310</span>    private final HeapOperand&lt;?&gt;[] heapOperands;<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    /**<a name="line.311"></a>
-<span class="sourceLineNo">312</span>     * Current heap operand we're upto for the enumeration<a name="line.312"></a>
-<span class="sourceLineNo">313</span>     */<a name="line.313"></a>
-<span class="sourceLineNo">314</span>    private int curHeapOperand;<a name="line.314"></a>
+<span class="sourceLineNo">130</span>      public boolean hasMoreElements() {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        return current != null;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>      @Override<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      public Instruction nextElement() {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        try {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>          Instruction res = current;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>          current = current.nextInstructionInCodeOrder();<a name="line.138"></a>
+<span class="sourceLineNo">139</span>          return res;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        } catch (NullPointerException e) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>          fail("forwardGlobalIR");<a name="line.141"></a>
+<span class="sourceLineNo">142</span>          return null;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>      }<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    };<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  }<a name="line.146"></a>
+<span class="sourceLineNo">147</span><a name="line.147"></a>
+<span class="sourceLineNo">148</span>  /**<a name="line.148"></a>
+<span class="sourceLineNo">149</span>   * A reverse enumeration of all the instructions in the IR.<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   *<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * @param ir the IR to walk over<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * @return a forward enumeration of the insturctions in ir<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  public static Enumeration&lt;Instruction&gt; reverseGlobalIE(final IR ir) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    return new Enumeration&lt;Instruction&gt;() {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      private Instruction current = ir.lastInstructionInCodeOrder();<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>      @Override<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      public boolean hasMoreElements() {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        return current != null;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>      @Override<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      public Instruction nextElement() {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        try {<a name="line.165"></a>
+<span class="sourceLineNo">166</span>          Instruction res = current;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>          current = current.prevInstructionInCodeOrder();<a name="line.167"></a>
+<span class="sourceLineNo">168</span>          return res;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        } catch (NullPointerException e) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>          fail("forwardGlobalIR");<a name="line.170"></a>
+<span class="sourceLineNo">171</span>          return null;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        }<a name="line.172"></a>
+<span class="sourceLineNo">173</span>      }<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    };<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>  /**<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   * A forward enumeration of all the basic blocks in the IR.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   *<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   * @param ir the IR to walk over<a name="line.180"></a>
+<span class="sourceLineNo">181</span>   * @return a forward enumeration of the basic blocks in ir<a name="line.181"></a>
+<span class="sourceLineNo">182</span>   */<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  public static Enumeration&lt;BasicBlock&gt; forwardBE(final IR ir) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    return new Enumeration&lt;BasicBlock&gt;() {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      private BasicBlock current = ir.firstBasicBlockInCodeOrder();<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>      @Override<a name="line.187"></a>
+<span class="sourceLineNo">188</span>      public boolean hasMoreElements() {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>        return current != null;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>      }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>      @Override<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      public BasicBlock nextElement() {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        try {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>          BasicBlock res = current;<a name="line.195"></a>
+<span class="sourceLineNo">196</span>          current = current.nextBasicBlockInCodeOrder();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>          return res;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        } catch (NullPointerException e) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>          fail("forwardBE");<a name="line.199"></a>
+<span class="sourceLineNo">200</span>          return null;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>      }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    };<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>  /**<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * A reverse enumeration of all the basic blocks in the IR.<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   *<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   * @param ir the IR to walk over<a name="line.209"></a>
+<span class="sourceLineNo">210</span>   * @return a reverse enumeration of the basic blocks in ir<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   */<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  public static Enumeration&lt;BasicBlock&gt; reverseBE(final IR ir) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    return new Enumeration&lt;BasicBlock&gt;() {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      private BasicBlock current = ir.lastBasicBlockInCodeOrder();<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>      @Override<a name="line.216"></a>
+<span class="sourceLineNo">217</span>      public boolean hasMoreElements() {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>        return current != null;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>      }<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>      @Override<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      public BasicBlock nextElement() {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        try {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>          BasicBlock res = current;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>          current = current.prevBasicBlockInCodeOrder();<a name="line.225"></a>
+<span class="sourceLineNo">226</span>          return res;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        } catch (NullPointerException e) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>          fail("forwardBE");<a name="line.228"></a>
+<span class="sourceLineNo">229</span>          return null;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        }<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    };<a name="line.232"></a>
+<span class="sourceLineNo">233</span>  }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>  /**<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * This class implements an enumeration of instructions over<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   * all instructions for a basic block. This enumeration includes<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * explicit instructions in the IR and implicit phi instructions for<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   * heap variables, which are stored only in this lookaside<a name="line.239"></a>
+<span class="sourceLineNo">240</span>   * structure.<a name="line.240"></a>
+<span class="sourceLineNo">241</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.241"></a>
+<span class="sourceLineNo">242</span>   */<a name="line.242"></a>
+<span class="sourceLineNo">243</span>  public static final class AllInstructionsEnum implements Enumeration&lt;Instruction&gt; {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    /**<a name="line.244"></a>
+<span class="sourceLineNo">245</span>     * An enumeration of the explicit instructions in the IR for a<a name="line.245"></a>
+<span class="sourceLineNo">246</span>     * basic block<a name="line.246"></a>
+<span class="sourceLineNo">247</span>     */<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    private final Enumeration&lt;Instruction&gt; explicitInstructions;<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>    /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>     * An enumeration of the implicit instructions in the IR for a<a name="line.251"></a>
+<span class="sourceLineNo">252</span>     * basic block.  These instructions appear only in the SSA<a name="line.252"></a>
+<span class="sourceLineNo">253</span>     * dictionary lookaside structure.<a name="line.253"></a>
+<span class="sourceLineNo">254</span>     */<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    private final Iterator&lt;Instruction&gt; implicitInstructions;<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>    /**<a name="line.257"></a>
+<span class="sourceLineNo">258</span>     * The label instruction for the basic block - the label is<a name="line.258"></a>
+<span class="sourceLineNo">259</span>     * special as we want it to appear in the enumeration before the<a name="line.259"></a>
+<span class="sourceLineNo">260</span>     * implicit SSA instructions<a name="line.260"></a>
+<span class="sourceLineNo">261</span>     */<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    private Instruction labelInstruction;<a name="line.262"></a>
+<span class="sourceLineNo">263</span><a name="line.263"></a>
+<span class="sourceLineNo">264</span>    /**<a name="line.264"></a>
+<span class="sourceLineNo">265</span>     * Construct an enumeration for all instructions, both implicit and<a name="line.265"></a>
+<span class="sourceLineNo">266</span>     * explicit in the IR, for a given basic block<a name="line.266"></a>
+<span class="sourceLineNo">267</span>     *<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     * @param ir the containing IR<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @param block the basic block whose instructions this enumerates<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    public AllInstructionsEnum(IR ir, BasicBlock block) {<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      explicitInstructions = block.forwardInstrEnumerator();<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      if (ir.inSSAForm()) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        implicitInstructions = ir.HIRInfo.dictionary.getHeapPhiInstructions(block);<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      } else {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        implicitInstructions = null;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>      }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      labelInstruction = explicitInstructions.nextElement();<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>    /**<a name="line.281"></a>
+<span class="sourceLineNo">282</span>     * Are there more elements in the enumeration?<a name="line.282"></a>
+<span class="sourceLineNo">283</span>     *<a name="line.283"></a>
+<span class="sourceLineNo">284</span>     * @return {@code true} or {@code false}<a name="line.284"></a>
+<span class="sourceLineNo">285</span>     */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    @Override<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    public boolean hasMoreElements() {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      return (((implicitInstructions != null) &amp;&amp; implicitInstructions.hasNext()) ||<a name="line.288"></a>
+<span class="sourceLineNo">289</span>              explicitInstructions.hasMoreElements());<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>    @Override<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    public Instruction nextElement() {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      if (labelInstruction != null) {<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        Instruction temp = labelInstruction;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        labelInstruction = null;<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        return temp;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      } else if ((implicitInstructions != null) &amp;&amp; implicitInstructions.hasNext()) {<a name="line.298"></a>
+<span class="sourceLineNo">299</span>        return implicitInstructions.next();<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      } else {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>        return explicitInstructions.nextElement();<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      }<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    }<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
+<span class="sourceLineNo">305</span><a name="line.305"></a>
+<span class="sourceLineNo">306</span>  /**<a name="line.306"></a>
+<span class="sourceLineNo">307</span>   * This class implements an {@link Enumeration} of {@link Operand}s. It used<a name="line.307"></a>
+<span class="sourceLineNo">308</span>   * for holding the definitions of a particular instruction and being<a name="line.308"></a>
+<span class="sourceLineNo">309</span>   * used as an enumeration for iterating over. It differs from other<a name="line.309"></a>
+<span class="sourceLineNo">310</span>   * enumerations of Operand as it iterates over both implicit<a name="line.310"></a>
+<span class="sourceLineNo">311</span>   * and explicit operands.<a name="line.311"></a>
+<span class="sourceLineNo">312</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.312"></a>
+<span class="sourceLineNo">313</span>   */<a name="line.313"></a>
+<span class="sourceLineNo">314</span>  public static final class AllDefsEnum implements Enumeration&lt;Operand&gt; {<a name="line.314"></a>
 <span class="sourceLineNo">315</span>    /**<a name="line.315"></a>
-<span class="sourceLineNo">316</span>     * Implicit definitions from the operator<a name="line.316"></a>
+<span class="sourceLineNo">316</span>     * Enumeration of non-heap operands defined by the instruction<a name="line.316"></a>
 <span class="sourceLineNo">317</span>     */<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    private final ArchitectureSpecificOpt.PhysicalDefUse.PDUEnumeration implicitDefs;<a name="line.318"></a>
+<span class="sourceLineNo">318</span>    private final Enumeration&lt;Operand&gt; instructionOperands;<a name="line.318"></a>
 <span class="sourceLineNo">319</span>    /**<a name="line.319"></a>
-<span class="sourceLineNo">320</span>     * Defining instruction<a name="line.320"></a>
+<span class="sourceLineNo">320</span>     * Array of heap operands defined by the instruction<a name="line.320"></a>
 <span class="sourceLineNo">321</span>     */<a name="line.321"></a>
-<span class="sourceLineNo">322</span>    private final Instruction instr;<a name="line.322"></a>
-<span class="sourceLineNo">323</span><a name="line.323"></a>
-<span class="sourceLineNo">324</span>    /**<a name="line.324"></a>
-<span class="sourceLineNo">325</span>     * Construct/initialize object<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     *<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     * @param ir    Containing IR<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     * @param instr Instruction to get definitions for<a name="line.328"></a>
+<span class="sourceLineNo">322</span>    private final HeapOperand&lt;?&gt;[] heapOperands;<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    /**<a name="line.323"></a>
+<span class="sourceLineNo">324</span>     * Current heap operand we're upto for the enumeration<a name="line.324"></a>
+<span class="sourceLineNo">325</span>     */<a name="line.325"></a>
+<span class="sourceLineNo">326</span>    private int curHeapOperand;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    /**<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * Implicit definitions from the operator<a name="line.328"></a>
 <span class="sourceLineNo">329</span>     */<a name="line.329"></a>
-<span class="sourceLineNo">330</span>    public AllDefsEnum(IR ir, Instruction instr) {<a name="line.330"></a>
-<span class="sourceLineNo">331</span>      this.instr = instr;<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      instructionOperands = instr.getDefs();<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      if (instr.operator().getNumberOfImplicitDefs() &gt; 0) {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        implicitDefs = ArchitectureSpecificOpt.PhysicalDefUse.enumerate(instr.operator().implicitDefs, ir);<a name="line.334"></a>
-<span class="sourceLineNo">335</span>      } else {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        implicitDefs = null;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>      }<a name="line.337"></a>
-<span class="sourceLineNo">338</span>      if (ir.inSSAForm() &amp;&amp; (instr.operator != PHI)) {<a name="line.338"></a>
-<span class="sourceLineNo">339</span>        // Phi instructions store the heap SSA in the actual<a name="line.339"></a>
-<span class="sourceLineNo">340</span>        // instruction<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        heapOperands = ir.HIRInfo.dictionary.getHeapDefs(instr);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>      } else {<a name="line.342"></a>
-<span class="sourceLineNo">343</span>        heapOperands = null;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      }<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
-<span class="sourceLineNo">346</span><a name="line.346"></a>
-<span class="sourceLineNo">347</span>    /**<a name="line.347"></a>
-<span class="sourceLineNo">348</span>     * Are there any more elements in the enumeration<a name="line.348"></a>
-<span class="sourceLineNo">349</span>     */<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    @Override<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    public boolean hasMoreElements() {<a name="line.351"></a>
-<span class="sourceLineNo">352</span>      return ((instructionOperands.hasMoreElements()) ||<a name="line.352"></a>
-<span class="sourceLineNo">353</span>              ((heapOperands != null) &amp;&amp; (curHeapOperand &lt; heapOperands.length)) ||<a name="line.353"></a>
-<span class="sourceLineNo">354</span>              ((implicitDefs != null) &amp;&amp; (implicitDefs.hasMoreElements())));<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    }<a name="line.355"></a>
-<span class="sourceLineNo">356</span><a name="line.356"></a>
-<span class="sourceLineNo">357</span>    @Override<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    public Operand nextElement() {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>      if (instructionOperands.hasMoreElements()) {<a name="line.359"></a>
-<span class="sourceLineNo">360</span>        return instructionOperands.nextElement();<a name="line.360"></a>
-<span class="sourceLineNo">361</span>      } else {<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        if ((implicitDefs != null) &amp;&amp; implicitDefs.hasMoreElements()) {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>          RegisterOperand rop = new RegisterOperand(implicitDefs.nextElement(), TypeReference.Int);<a name="line.363"></a>
-<span class="sourceLineNo">364</span>          rop.instruction = instr;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>          return rop;<a name="line.365"></a>
-<span class="sourceLineNo">366</span>        } else {<a name="line.366"></a>
-<span class="sourceLineNo">367</span>          if (curHeapOperand &gt;= heapOperands.length) {<a name="line.367"></a>
-<span class="sourceLineNo">368</span>            fail("Regular and heap operands exhausted");<a name="line.368"></a>
-<span class="sourceLineNo">369</span>          }<a name="line.369"></a>
-<span class="sourceLineNo">370</span>          HeapOperand&lt;?&gt; result = heapOperands[curHeapOperand];<a name="line.370"></a>
-<span class="sourceLineNo">371</span>          curHeapOperand++;<a name="line.371"></a>
-<span class="sourceLineNo">372</span>          return result;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        }<a name="line.373"></a>
-<span class="sourceLineNo">374</span>      }<a name="line.374"></a>
-<span class="sourceLineNo">375</span>    }<a name="line.375"></a>
-<span class="sourceLineNo">376</span>  }<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>  /**<a name="line.378"></a>
-<span class="sourceLineNo">379</span>   * This class implements an {@link Enumeration} of {@link Operand}. It used<a name="line.379"></a>
-<span class="sourceLineNo">380</span>   * for holding the uses of a particular instruction and being used<a name="line.380"></a>
-<span class="sourceLineNo">381</span>   * as an enumeration for iterating over. It differs from other<a name="line.381"></a>
-<span class="sourceLineNo">382</span>   * enumerations of Operand as it iterates over both implicit<a name="line.382"></a>
-<span class="sourceLineNo">383</span>   * and explicit operands.<a name="line.383"></a>
-<span class="sourceLineNo">384</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.384"></a>
-<span class="sourceLineNo">385</span>   */<a name="line.385"></a>
-<span class="sourceLineNo">386</span>  public static final class AllUsesEnum implements Enumeration&lt;Operand&gt; {<a name="line.386"></a>
-<span class="sourceLineNo">387</span>    /**<a name="line.387"></a>
-<span class="sourceLineNo">388</span>     * Enumeration of non-heap operands defined by the instruction<a name="line.388"></a>
-<span class="sourceLineNo">389</span>     */<a name="line.389"></a>
-<span class="sourceLineNo">390</span>    private final Enumeration&lt;Operand&gt; instructionOperands;<a name="line.390"></a>
-<span class="sourceLineNo">391</span>    /**<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     * Array of heap operands defined by the instruction<a name="line.392"></a>
-<span class="sourceLineNo">393</span>     */<a name="line.393"></a>
-<span class="sourceLineNo">394</span>    private final HeapOperand&lt;?&gt;[] heapOperands;<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    /**<a name="line.395"></a>
-<span class="sourceLineNo">396</span>     * Current heap operand we're upto for the enumeration<a name="line.396"></a>
-<span class="sourceLineNo">397</span>     */<a name="line.397"></a>
-<span class="sourceLineNo">398</span>    private int curHeapOperand;<a name="line.398"></a>
+<span class="sourceLineNo">330</span>    private final Enumeration&lt;Register&gt; implicitDefs;<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    /**<a name="line.331"></a>
+<span class="sourceLineNo">332</span>     * Defining instruction<a name="line.332"></a>
+<span class="sourceLineNo">333</span>     */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    private final Instruction instr;<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>    /**<a name="line.336"></a>
+<span class="sourceLineNo">337</span>     * Construct/initialize object<a name="line.337"></a>
+<span class="sourceLineNo">338</span>     *<a name="line.338"></a>
+<span class="sourceLineNo">339</span>     * @param ir    Containing IR<a name="line.339"></a>
+<span class="sourceLineNo">340</span>     * @param instr Instruction to get definitions for<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     */<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    public AllDefsEnum(IR ir, Instruction instr) {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      this.instr = instr;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      instructionOperands = instr.getDefs();<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      if (instr.operator().getNumberOfImplicitDefs() &gt; 0) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        implicitDefs = GenericPhysicalDefUse.enumerate(instr.operator().implicitDefs, ir);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      } else {<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        implicitDefs = null;<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      }<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      if (ir.inSSAForm() &amp;&amp; (instr.operator() != PHI)) {<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        // Phi instructions store the heap SSA in the actual<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        // instruction<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        heapOperands = ir.HIRInfo.dictionary.getHeapDefs(instr);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      } else {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        heapOperands = null;<a name="line.355"></a>
+<span class="sourceLineNo">356</span>      }<a name="line.356"></a>
+<span class="sourceLineNo">357</span>    }<a name="line.357"></a>
+<span class="sourceLineNo">358</span><a name="line.358"></a>
+<span class="sourceLineNo">359</span>    /**<a name="line.359"></a>
+<span class="sourceLineNo">360</span>     * Are there any more elements in the enumeration<a name="line.360"></a>
+<span class="sourceLineNo">361</span>     */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>    @Override<a name="line.362"></a>
+<span class="sourceLineNo">363</span>    public boolean hasMoreElements() {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      return ((instructionOperands.hasMoreElements()) ||<a name="line.364"></a>
+<span class="sourceLineNo">365</span>              ((heapOperands != null) &amp;&amp; (curHeapOperand &lt; heapOperands.length)) ||<a name="line.365"></a>
+<span class="sourceLineNo">366</span>              ((implicitDefs != null) &amp;&amp; (implicitDefs.hasMoreElements())));<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    @Override<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    public Operand nextElement() {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      if (instructionOperands.hasMoreElements()) {<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        return instructionOperands.nextElement();<a name="line.372"></a>
+<span class="sourceLineNo">373</span>      } else {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        if ((implicitDefs != null) &amp;&amp; implicitDefs.hasMoreElements()) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>          RegisterOperand rop = new RegisterOperand(implicitDefs.nextElement(), TypeReference.Int);<a name="line.375"></a>
+<span class="sourceLineNo">376</span>          rop.instruction = instr;<a name="line.376"></a>
+<span class="sourceLineNo">377</span>          return rop;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        } else {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>          if (curHeapOperand &gt;= heapOperands.length) {<a name="line.379"></a>
+<span class="sourceLineNo">380</span>            fail("Regular and heap operands exhausted");<a name="line.380"></a>
+<span class="sourceLineNo">381</span>          }<a name="line.381"></a>
+<span class="sourceLineNo">382</span>          HeapOperand&lt;?&gt; result = heapOperands[curHeapOperand];<a name="line.382"></a>
+<span class="sourceLineNo">383</span>          curHeapOperand++;<a name="line.383"></a>
+<span class="sourceLineNo">384</span>          return result;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
+<span class="sourceLineNo">386</span>      }<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    }<a name="line.387"></a>
+<span class="sourceLineNo">388</span>  }<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>  /**<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * This class implements an {@link Enumeration} of {@link Operand}. It used<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   * for holding the uses of a particular instruction and being used<a name="line.392"></a>
+<span class="sourceLineNo">393</span>   * as an enumeration for iterating over. It differs from other<a name="line.393"></a>
+<span class="sourceLineNo">394</span>   * enumerations of Operand as it iterates over both implicit<a name="line.394"></a>
+<span class="sourceLineNo">395</span>   * and explicit operands.<a name="line.395"></a>
+<span class="sourceLineNo">396</span>   * @see org.jikesrvm.compilers.opt.ssa.SSADictionary<a name="line.396"></a>
+<span class="sourceLineNo">397</span>   */<a name="line.397"></a>
+<span class="sourceLineNo">398</span>  public static final class AllUsesEnum implements Enumeration&lt;Operand&gt; {<a name="line.398"></a>
 <span class="sourceLineNo">399</span>    /**<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     * Implicit uses from the operator<a name="line.400"></a>
+<span class="sourceLineNo">400</span>     * Enumeration of non-heap operands defined by the instruction<a name="line.400"></a>
 <span class="sourceLineNo">401</span>     */<a name="line.401"></a>
-<span class="sourceLineNo">402</span>    private final PhysicalDefUse.PDUEnumeration implicitUses;<a name="line.402"></a>
+<span class="sourceLineNo">402</span>    private final Enumeration&lt;Operand&gt; instructionOperands;<a name="line.402"></a>
 <span class="sourceLineNo">403</span>    /**<a name="line.403"></a>
-<span class="sourceLineNo">404</span>     * Defining instruction<a name="line.404"></a>
+<span class="sourceLineNo">404</span>     * Array of heap operands defined by the instruction<a name="line.404"></a>
 <span class="sourceLineNo">405</span>     */<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    private final Instruction instr;<a name="line.406"></a>
-<span class="sourceLineNo">407</span><a name="line.407"></a>
-<span class="sourceLineNo">408</span>    /**<a name="line.408"></a>
-<span class="sourceLineNo">409</span>     * Construct/initialize object<a name="line.409"></a>
-<span class="sourceLineNo">410</span>     *<a name="line.410"></a>
-<span class="sourceLineNo">411</span>     * @param ir    Containing IR<a name="line.411"></a>
-<span class="sourceLineNo">412</span>     * @param instr Instruction to get uses for<a name="line.412"></a>
+<span class="sourceLineNo">406</span>    private final HeapOperand&lt;?&gt;[] heapOperands;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>    /**<a name="line.407"></a>
+<span class="sourceLineNo">408</span>     * Current heap operand we're upto for the enumeration<a name="line.408"></a>
+<span class="sourceLineNo">409</span>     */<a name="line.409"></a>
+<span class="sourceLineNo">410</span>    private int curHeapOperand;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>    /**<a name="line.411"></a>
+<span class="sourceLineNo">412</span>     * Implicit uses from the operator<a name="line.412"></a>
 <span class="sourceLineNo">413</span>     */<a name="line.413"></a>
-<span class="sourceLineNo">414</span>    public AllUsesEnum(IR ir, Instruction instr) {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>      this.instr = instr;<a name="line.415"></a>
-<span class="sourceLineNo">416</span>      instructionOperands = instr.getUses();<a name="line.416"></a>
-<span class="sourceLineNo">417</span>      if (instr.operator().getNumberOfImplicitUses() &gt; 0) {<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        implicitUses = PhysicalDefUse.enumerate(instr.operator().implicitUses, ir);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>      } else {<a name="line.419"></a>
-<span class="sourceLineNo">420</span>        implicitUses = null;<a name="line.420"></a>
-<span class="sourceLineNo">421</span>      }<a name="line.421"></a>
-<span class="sourceLineNo">422</span>      if (ir.inSSAForm() &amp;&amp; (instr.operator != PHI)) {<a name="line.422"></a>
-<span class="sourceLineNo">423</span>        // Phi instructions store the heap SSA in the actual<a name="line.423"></a>
-<span class="sourceLineNo">424</span>        // instruction<a name="line.424"></a>
-<span class="sourceLineNo">425</span>        heapOperands = ir.HIRInfo.dictionary.getHeapUses(instr);<a name="line.425"></a>
-<span class="sourceLineNo">426</span>      } else {<a name="line.426"></a>
-<span class="sourceLineNo">427</span>        heapOperands = null;<a name="line.427"></a>
-<span class="sourceLineNo">428</span>      }<a name="line.428"></a>
-<span class="sourceLineNo">429</span>    }<a name="line.429"></a>
-<span class="sourceLineNo">430</span><a name="line.430"></a>
-<span class="sourceLineNo">431</span>    /**<a name="line.431"></a>
-<span class="sourceLineNo">432</span>     * Are there any more elements in the enumeration<a name="line.432"></a>
-<span class="sourceLineNo">433</span>     */<a name="line.433"></a>
-<span class="sourceLineNo">434</span>    @Override<a name="line.434"></a>
-<span class="sourceLineNo">435</span>    public boolean hasMoreElements() {<a name="line.435"></a>
-<span class="sourceLineNo">436</span>      return ((instructionOperands.hasMoreElements()) ||<a name="line.436"></a>
-<span class="sourceLineNo">437</span>              ((heapOperands != null) &amp;&amp; (curHeapOperand &lt; heapOperands.length)) ||<a name="line.437"></a>
-<span class="sourceLineNo">438</span>              ((implicitUses != null) &amp;&amp; (implicitUses.hasMoreElements())));<a name="line.438"></a>
-<span class="sourceLineNo">439</span>    }<a name="line.439"></a>
-<span class="sourceLineNo">440</span><a name="line.440"></a>
-<span class="sourceLineNo">441</span>    @Override<a name="line.441"></a>
-<span class="sourceLineNo">442</span>    public Operand nextElement() {<a name="line.442"></a>
-<span class="sourceLineNo">443</span>      if (instructionOperands.hasMoreElements()) {<a name="line.443"></a>
-<span class="sourceLineNo">444</span>        return instructionOperands.nextElement();<a name="line.444"></a>
-<span class="sourceLineNo">445</span>      } else {<a name="line.445"></a>
-<span class="sourceLineNo">446</span>        if ((implicitUses != null) &amp;&amp; implicitUses.hasMoreElements()) {<a name="line.446"></a>
-<span class="sourceLineNo">447</span>          RegisterOperand rop = new RegisterOperand(implicitUses.nextElement(), TypeReference.Int);<a name="line.447"></a>
-<span class="sourceLineNo">448</span>          rop.instruction = instr;<a name="line.448"></a>
-<span class="sourceLineNo">449</span>          return rop;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>        } else {<a name="line.450"></a>
-<span class="sourceLineNo">451</span>          if (curHeapOperand &gt;= heapOperands.length) {<a name="line.451"></a>
-<span class="sourceLineNo">452</span>            fail("Regular and heap operands exhausted");<a name="line.452"></a>
-<span class="sourceLineNo">453</span>          }<a name="line.453"></a>
-<span class="sourceLineNo">454</span>          HeapOperand&lt;?&gt; result = heapOperands[curHeapOperand];<a name="line.454"></a>
-<span class="sourceLineNo">455</span>          curHeapOperand++;<a name="line.455"></a>
-<span class="sourceLineNo">456</span>          return result;<a name="line.456"></a>
-<span class="sourceLineNo">457</span>        }<a name="line.457"></a>
-<span class="sourceLineNo">458</span>      }<a name="line.458"></a>
-<span class="sourceLineNo">459</span>    }<a name="line.459"></a>
-<span class="sourceLineNo">460</span>  }<a name="line.460"></a>
-<span class="sourceLineNo">461</span><a name="line.461"></a>
-<span class="sourceLineNo">462</span>  @NoInline<a name="line.462"></a>
-<span class="sourceLineNo">463</span>  private static void fail(String msg) throws java.util.NoSuchElementException {<a name="line.463"></a>
-<span class="sourceLineNo">464</span>    throw new java.util.NoSuchElementException(msg);<a name="line.464"></a>
-<span class="sourceLineNo">465</span>  }<a name="line.465"></a>
-<span class="sourceLineNo">466</span>}<a name="line.466"></a>
+<span class="sourceLineNo">414</span>    private final Enumeration&lt;Register&gt; implicitUses;<a name="line.414"></a>
+<span class="sourceLineNo">415</span>    /**<a name="line.415"></a>
+<span class="sourceLineNo">416</span>     * Defining instruction<a name="line.416"></a>
+<span class="sourceLineNo">417</span>     */<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    private final Instruction instr;<a name="line.418"></a>
+<span class="sourceLineNo">419</span><a name="line.419"></a>
+<span class="sourceLineNo">420</span>    /**<a name="line.420"></a>
+<span class="sourceLineNo">421</span>     * Construct/initialize object<a name="line.421"></a>
+<span class="sourceLineNo">422</span>     *<a name="line.422"></a>
+<span class="sourceLineNo">423</span>     * @param ir    Containing IR<a name="line.423"></a>
+<span class="sourceLineNo">424</span>     * @param instr Instruction to get uses for<a name="line.424"></a>
+<span class="sourceLineNo">425</span>     */<a name="line.425"></a>
+<span class="sourceLineNo">426</span>    public AllUsesEnum(IR ir, Instruction instr) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>      this.instr = instr;<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      instructionOperands = instr.getUses();<a name="line.428"></a>
+<span class="sourceLineNo">429</span>      if (instr.operator().getNumberOfImplicitUses() &gt; 0) {<a name="line.429"></a>
+<span class="sourceLineNo">430</span>        implicitUses = GenericPhysicalDefUse.enumerate(instr.operator().implicitUses, ir);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>      } else {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>        implicitUses = null;<a name="line.432"></a>
+<span class="sourceLineNo">433</span>      }<a name="line.433"></a>
+<span class="sourceLineNo">434</span>      if (ir.inSSAForm() &amp;&amp; (instr.operator() != PHI)) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>        // Phi instructions store the heap SSA in the actual<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        // instruction<a name="line.436"></a>
+<span class="sourceLineNo">437</span>        heapOperands = ir.HIRInfo.dictionary.getHeapUses(instr);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      } else {<a name="line.438"></a>
+<span class="sourceLineNo">439</span>        heapOperands = null;<a name="line.439"></a>
+<span class="sourceLineNo">440</span>      }<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    }<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>    /**<a name="line.443"></a>
+<span class="sourceLineNo">444</span>     * Are there any more elements in the enumeration<a name="line.444"></a>
+<span class="sourceLineNo">445</span>     */<a name="line.445"></a>
+<span class="sourceLineNo">446</span>    @Override<a name="line.446"></a>
+<span class="sourceLineNo">447</span>    public boolean hasMoreElements() {<a name="line.447"></a>
+<span class="sourceLineNo">448</span>      return ((instructionOperands.hasMoreElements()) ||<a name="line.448"></a>
+<span class="sourceLineNo">449</span>              ((heapOperands != null) &amp;&amp; (curHeapOperand &lt; heapOperands.length)) ||<a name="line.449"></a>
+<span class="sourceLineNo">450</span>              ((implicitUses != null) &amp;&amp; (implicitUses.hasMoreElements())));<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    }<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>    @Override<a name="line.453"></a>
+<span class="sourceLineNo">454</span>    public Operand nextElement() {<a name="line.454"></a>
+<span class="sourceLineNo">455</span>      if (instructionOperands.hasMoreElements()) {<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        return instructionOperands.nextElement();<a name="line.456"></a>
+<span class="sourceLineNo">457</span>      } else {<a name="line.457"></a>
+<span class="sourceLineNo">458</span>        if ((implicitUses != null) &amp;&amp; implicitUses.hasMoreElements()) {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>          RegisterOperand rop = new RegisterOperand(implicitUses.nextElement(), TypeReference.Int);<a name="line.459"></a>
+<span class="sourceLineNo">460</span>          rop.instruction = instr;<a name="line.460"></a>
+<span class="sourceLineNo">461</span>          return rop;<a name="line.461"></a>
+<span class="sourceLineNo">462</span>        } else {<a name="line.462"></a>
+<span class="sourceLineNo">463</span>          if (curHeapOperand &gt;= heapOperands.length) {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>            fail("Regular and heap operands exhausted");<a name="line.464"></a>
+<span class="sourceLineNo">465</span>          }<a name="line.465"></a>
+<span class="sourceLineNo">466</span>          HeapOperand&lt;?&gt; result = heapOperands[curHeapOperand];<a name="line.466"></a>
+<span class="sourceLineNo">467</span>          curHeapOperand++;<a name="line.467"></a>
+<span class="sourceLineNo">468</span>          return result;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        }<a name="line.469"></a>
+<span class="sourceLineNo">470</span>      }<a name="line.470"></a>
+<span class="sourceLineNo">471</span>    }<a name="line.471"></a>
+<span class="sourceLineNo">472</span>  }<a name="line.472"></a>
+<span class="sourceLineNo">473</span><a name="line.473"></a>
+<span class="sourceLineNo">474</span>  @NoInline<a name="line.474"></a>
+<span class="sourceLineNo">475</span>  private static void fail(String msg) throws java.util.NoSuchElementException {<a name="line.475"></a>
+<span class="sourceLineNo">476</span>    throw new java.util.NoSuchElementException(msg);<a name="line.476"></a>
+<span class="sourceLineNo">477</span>  }<a name="line.477"></a>
+<span class="sourceLineNo">478</span>}<a name="line.478"></a>
 
 
 

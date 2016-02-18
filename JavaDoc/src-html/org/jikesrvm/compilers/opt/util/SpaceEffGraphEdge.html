@@ -43,7 +43,7 @@
 <span class="sourceLineNo">035</span>   * are reserved for SpaceEffGraph.  Classes that subclass this one<a name="line.35"></a>
 <span class="sourceLineNo">036</span>   * can use the remaining 28 bits<a name="line.36"></a>
 <span class="sourceLineNo">037</span>   */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  protected int scratch;<a name="line.38"></a>
+<span class="sourceLineNo">038</span>  protected int flags;<a name="line.38"></a>
 <span class="sourceLineNo">039</span><a name="line.39"></a>
 <span class="sourceLineNo">040</span>  static final int VISITED = 0x10000000; // general purpose<a name="line.40"></a>
 <span class="sourceLineNo">041</span><a name="line.41"></a>
@@ -52,149 +52,189 @@
 <span class="sourceLineNo">044</span><a name="line.44"></a>
 <span class="sourceLineNo">045</span>  static final int INFO_MASK = 0x0fffffff;<a name="line.45"></a>
 <span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>  public final boolean visited() { return (scratch &amp; VISITED) != 0; }<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>  public final boolean backEdge() { return (scratch &amp; BACK_EDGE) != 0; }<a name="line.49"></a>
+<span class="sourceLineNo">047</span>  public final boolean visited() {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    return (flags &amp; VISITED) != 0;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  }<a name="line.49"></a>
 <span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>  public final boolean dominatorEdge() { return (scratch &amp; DOMINATOR) != 0; }<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>  public final void setVisited() { scratch |= VISITED; }<a name="line.53"></a>
+<span class="sourceLineNo">051</span>  public final boolean backEdge() {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    return (flags &amp; BACK_EDGE) != 0;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  }<a name="line.53"></a>
 <span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>  public final void setBackEdge() { scratch |= BACK_EDGE; }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>  public final void setDominatorEdge() { scratch |= DOMINATOR; }<a name="line.57"></a>
+<span class="sourceLineNo">055</span>  public final boolean dominatorEdge() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    return (flags &amp; DOMINATOR) != 0;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  }<a name="line.57"></a>
 <span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>  public final void clearVisited() { scratch &amp;= ~VISITED; }<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>  public final void clearBackEdge() { scratch &amp;= ~BACK_EDGE; }<a name="line.61"></a>
+<span class="sourceLineNo">059</span>  public final void setVisited() {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    flags |= VISITED;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  }<a name="line.61"></a>
 <span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>  public final void clearDominatorEdge() { scratch &amp;= ~DOMINATOR; }<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>  public final int getInfo() {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    return scratch &amp; INFO_MASK;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>  public final void setInfo(int value) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    scratch = (scratch &amp; ~INFO_MASK) | (value &amp; INFO_MASK);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>  /**<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   * Get the end node for the edge.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   * @return end node for the edge<a name="line.75"></a>
-<span class="sourceLineNo">076</span>   */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>  public final SpaceEffGraphNode toNode() { return _toNode; }<a name="line.77"></a>
+<span class="sourceLineNo">063</span>  public final void setBackEdge() {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    flags |= BACK_EDGE;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  }<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public final void setDominatorEdge() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    flags |= DOMINATOR;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public final void clearVisited() {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    flags &amp;= ~VISITED;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>  public final void clearBackEdge() {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    flags &amp;= ~BACK_EDGE;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  }<a name="line.77"></a>
 <span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>   * Get the start node for the edge.<a name="line.80"></a>
-<span class="sourceLineNo">081</span>   * @return start node for the edge<a name="line.81"></a>
-<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  public final SpaceEffGraphNode fromNode() { return _fromNode; }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * Set end node.<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   * WARNING: use with caution<a name="line.87"></a>
-<span class="sourceLineNo">088</span>   * @param toNode new end node<a name="line.88"></a>
-<span class="sourceLineNo">089</span>   */<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  final void setToNode(SpaceEffGraphNode toNode) { _toNode = toNode; }<a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>  /**<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   * Set start node.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>   * WARNING: use with caution<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   * @param fromNode new start node<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   */<a name="line.96"></a>
-<span class="sourceLineNo">097</span>  final void setFromNode(SpaceEffGraphNode fromNode) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    _fromNode = fromNode;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>  /**<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   * Constructs an empty edge.<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  SpaceEffGraphEdge() { }<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   * Constructs an edge starting at a given node and ending at a given node.<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   * @param fromNode start node<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * @param toNode end node<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   */<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  protected SpaceEffGraphEdge(SpaceEffGraphNode fromNode, SpaceEffGraphNode toNode) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    _toNode = toNode;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    _fromNode = fromNode;<a name="line.113"></a>
+<span class="sourceLineNo">079</span>  public final void clearDominatorEdge() {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    flags &amp;= ~DOMINATOR;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  public final int getInfo() {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    return flags &amp; INFO_MASK;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  public final void setInfo(int value) {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    flags = (flags &amp; ~INFO_MASK) | (value &amp; INFO_MASK);<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   * Get the end node for the edge.<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * @return end node for the edge<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   */<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  public final SpaceEffGraphNode toNode() {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    return _toNode;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>  /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * Get the start node for the edge.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @return start node for the edge<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  public final SpaceEffGraphNode fromNode() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    return _fromNode;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * Set end node.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * WARNING: use with caution<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * @param toNode new end node<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  final void setToNode(SpaceEffGraphNode toNode) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    _toNode = toNode;<a name="line.113"></a>
 <span class="sourceLineNo">114</span>  }<a name="line.114"></a>
 <span class="sourceLineNo">115</span><a name="line.115"></a>
 <span class="sourceLineNo">116</span>  /**<a name="line.116"></a>
-<span class="sourceLineNo">117</span>   * Delete this edge from the graph.<a name="line.117"></a>
-<span class="sourceLineNo">118</span>   */<a name="line.118"></a>
-<span class="sourceLineNo">119</span>  final void delete() {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    _fromNode.removeOut(this);<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    _toNode.removeIn(this);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
-<span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>  /**<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * Returns the string representation of the edge type.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * @return string representation of the edge type<a name="line.126"></a>
+<span class="sourceLineNo">117</span>   * Set start node.<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * WARNING: use with caution<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * @param fromNode new start node<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   */<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  final void setFromNode(SpaceEffGraphNode fromNode) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    _fromNode = fromNode;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * Constructs an empty edge.<a name="line.126"></a>
 <span class="sourceLineNo">127</span>   */<a name="line.127"></a>
-<span class="sourceLineNo">128</span>  public String getTypeString() { return ""; }<a name="line.128"></a>
-<span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>  /**<a name="line.130"></a>
-<span class="sourceLineNo">131</span>   * Returns the string representation of the end node (used for printing).<a name="line.131"></a>
-<span class="sourceLineNo">132</span>   * @return string representation of the end node<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   */<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  public String toNodeString() {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>    return "---&gt; " + _toNode;<a name="line.135"></a>
-<span class="sourceLineNo">136</span>  }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>  /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   * Returns the string representation of the start node (used for printing).<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * @return string representation of the start node<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   */<a name="line.141"></a>
-<span class="sourceLineNo">142</span>  public String fromNodeString() {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    return "&lt;--- " + _fromNode;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>  }<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>  /**<a name="line.146"></a>
-<span class="sourceLineNo">147</span>   * Get the end node for the edge.<a name="line.147"></a>
-<span class="sourceLineNo">148</span>   * @return end node for the edge<a name="line.148"></a>
-<span class="sourceLineNo">149</span>   */<a name="line.149"></a>
-<span class="sourceLineNo">150</span>  @Override<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  public final GraphNode to() { return _toNode; }<a name="line.151"></a>
-<span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>  /**<a name="line.153"></a>
-<span class="sourceLineNo">154</span>   * Get the start node for the edge.<a name="line.154"></a>
-<span class="sourceLineNo">155</span>   * @return start node for the edge<a name="line.155"></a>
-<span class="sourceLineNo">156</span>   */<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  @Override<a name="line.157"></a>
-<span class="sourceLineNo">158</span>  public final GraphNode from() { return _fromNode; }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>  /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>   * Links inlined from LinkedListElement2.<a name="line.161"></a>
-<span class="sourceLineNo">162</span>   */<a name="line.162"></a>
-<span class="sourceLineNo">163</span>  protected SpaceEffGraphEdge nextIn, nextOut;<a name="line.163"></a>
-<span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>  /**<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   * Get the next in edge.<a name="line.166"></a>
-<span class="sourceLineNo">167</span>   * @return next in edge.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>   */<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  public final SpaceEffGraphEdge getNextIn() { return nextIn; }<a name="line.169"></a>
-<span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * Get the next out edge.<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * @return next out edge.<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   */<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  public final SpaceEffGraphEdge getNextOut() { return nextOut; }<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>  /**<a name="line.177"></a>
-<span class="sourceLineNo">178</span>   * Append a given edge after this edge as an in edge.<a name="line.178"></a>
-<span class="sourceLineNo">179</span>   * @param e the edge to append<a name="line.179"></a>
-<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
-<span class="sourceLineNo">181</span>  final void appendIn(SpaceEffGraphEdge e) { nextIn = e; }<a name="line.181"></a>
+<span class="sourceLineNo">128</span>  SpaceEffGraphEdge() {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    // explicitly defined to get package-private constructor<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>  /**<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * Constructs an edge starting at a given node and ending at a given node.<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * @param fromNode start node<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * @param toNode end node<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   */<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  protected SpaceEffGraphEdge(SpaceEffGraphNode fromNode, SpaceEffGraphNode toNode) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    _toNode = toNode;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    _fromNode = fromNode;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>  /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * Delete this edge from the graph.<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  final void delete() {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    _fromNode.removeOut(this);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    _toNode.removeIn(this);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * Returns the string representation of the edge type.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   * @return string representation of the edge type<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   */<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  public String getTypeString() {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    return "";<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  }<a name="line.156"></a>
+<span class="sourceLineNo">157</span><a name="line.157"></a>
+<span class="sourceLineNo">158</span>  /**<a name="line.158"></a>
+<span class="sourceLineNo">159</span>   * Returns the string representation of the end node (used for printing).<a name="line.159"></a>
+<span class="sourceLineNo">160</span>   * @return string representation of the end node<a name="line.160"></a>
+<span class="sourceLineNo">161</span>   */<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  public String toNodeString() {<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    return "---&gt; " + _toNode;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  }<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>  /**<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   * Returns the string representation of the start node (used for printing).<a name="line.167"></a>
+<span class="sourceLineNo">168</span>   * @return string representation of the start node<a name="line.168"></a>
+<span class="sourceLineNo">169</span>   */<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  public String fromNodeString() {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    return "&lt;--- " + _fromNode;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>  /**<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * Get the end node for the edge.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   * @return end node for the edge<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   */<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  @Override<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  public final GraphNode to() {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    return _toNode;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  }<a name="line.181"></a>
 <span class="sourceLineNo">182</span><a name="line.182"></a>
 <span class="sourceLineNo">183</span>  /**<a name="line.183"></a>
-<span class="sourceLineNo">184</span>   * Append a given edge after this edge as an out edge.<a name="line.184"></a>
-<span class="sourceLineNo">185</span>   * @param e the edge to append<a name="line.185"></a>
+<span class="sourceLineNo">184</span>   * Get the start node for the edge.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>   * @return start node for the edge<a name="line.185"></a>
 <span class="sourceLineNo">186</span>   */<a name="line.186"></a>
-<span class="sourceLineNo">187</span>  final void appendOut(SpaceEffGraphEdge e) { nextOut = e; }<a name="line.187"></a>
-<span class="sourceLineNo">188</span>}<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">187</span>  @Override<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  public final GraphNode from() {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    return _fromNode;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  }<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>  /**<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   * Links inlined from LinkedListElement2.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>  protected SpaceEffGraphEdge nextIn, nextOut;<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>  /**<a name="line.197"></a>
+<span class="sourceLineNo">198</span>   * Get the next in edge.<a name="line.198"></a>
+<span class="sourceLineNo">199</span>   * @return next in edge.<a name="line.199"></a>
+<span class="sourceLineNo">200</span>   */<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  public final SpaceEffGraphEdge getNextIn() {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    return nextIn;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>  /**<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * Get the next out edge.<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * @return next out edge.<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   */<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  public final SpaceEffGraphEdge getNextOut() {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    return nextOut;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>  }<a name="line.211"></a>
+<span class="sourceLineNo">212</span><a name="line.212"></a>
+<span class="sourceLineNo">213</span>  /**<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   * Append a given edge after this edge as an in edge.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * @param e the edge to append<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   */<a name="line.216"></a>
+<span class="sourceLineNo">217</span>  final void appendIn(SpaceEffGraphEdge e) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    nextIn = e;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>  }<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>  /**<a name="line.221"></a>
+<span class="sourceLineNo">222</span>   * Append a given edge after this edge as an out edge.<a name="line.222"></a>
+<span class="sourceLineNo">223</span>   * @param e the edge to append<a name="line.223"></a>
+<span class="sourceLineNo">224</span>   */<a name="line.224"></a>
+<span class="sourceLineNo">225</span>  final void appendOut(SpaceEffGraphEdge e) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    nextOut = e;<a name="line.226"></a>
+<span class="sourceLineNo">227</span>  }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>}<a name="line.228"></a>
+<span class="sourceLineNo">229</span><a name="line.229"></a>
 
 
 

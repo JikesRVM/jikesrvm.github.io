@@ -23,293 +23,294 @@
 <span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
 <span class="sourceLineNo">016</span>import org.jikesrvm.mm.mminterface.MemoryManager;<a name="line.16"></a>
 <span class="sourceLineNo">017</span>import org.jikesrvm.objectmodel.TIB;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.objectmodel.TIBLayoutConstants;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.runtime.Magic;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * Data structures and code for fast dynamic type checking.<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * &lt;p&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * As a convention, we convert all dynamic type checking<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * operations into the following question: LHS :?= RHS<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * (i.e. can an instance of the RHS class be stored in a<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * variable of the LHS class or interface.)  This question<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * arises for four bytecodes: instanceof, checkcast, aastore<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * and invokeinterface and entry into catch blocks.<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * This gives us a uniform terminology, but in some cases<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * (instanceof) can be somewhat counter-intuitive since despite<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * the fact that the Java source code is written as<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * &lt;code&gt;x instanceof C&lt;/code&gt;, for the purposes of dynamic type checking<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * &lt;code&gt;x&lt;/code&gt; is the RHS and &lt;code&gt;C&lt;/code&gt; is the LHS!<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * &lt;p&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * The idea of the optimizations presented below is to treat<a name="line.37"></a>
-<span class="sourceLineNo">038</span> * each context in which these queries arises as a special<a name="line.38"></a>
-<span class="sourceLineNo">039</span> * case to be optimised in isolation.  Consider the following<a name="line.39"></a>
-<span class="sourceLineNo">040</span> * taxonomy of dynamic type checking conexts:<a name="line.40"></a>
-<span class="sourceLineNo">041</span> * &lt;p&gt;<a name="line.41"></a>
-<span class="sourceLineNo">042</span> * (1) Is the LHS unknown at compile time?  True only for aastore?<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *    If so, the following test will be fast in most instances:<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *    is the runtime type of the LHS array the same as compile-time<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *    type of the variable that contains it?  If so, the Java-to-bytecode<a name="line.45"></a>
-<span class="sourceLineNo">046</span> *    compiler (and the verifier) guarantees that the test passes.<a name="line.46"></a>
-<span class="sourceLineNo">047</span> *    Unfortunately, this test can only be used in two of three cases:<a name="line.47"></a>
-<span class="sourceLineNo">048</span> *    when the LHS variable is a field or a parameter.  When the LHS is<a name="line.48"></a>
-<span class="sourceLineNo">049</span> *    in a local variable the Java-to-bytecode compiler has thrown away<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *    the necessary type information.<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * &lt;p&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span> * (2) Otherwise, is the LHS an array?<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *    If so, there are three sub-cases<a name="line.53"></a>
-<span class="sourceLineNo">054</span> *    &lt;ul&gt;<a name="line.54"></a>
-<span class="sourceLineNo">055</span> *    &lt;li&gt;(2a) LHS is [^k primitive:<a name="line.55"></a>
-<span class="sourceLineNo">056</span> *        If so, the dimensionality of the RHS must be k<a name="line.56"></a>
-<span class="sourceLineNo">057</span> *        and the baseclass of the RHS must be the same primitive<a name="line.57"></a>
-<span class="sourceLineNo">058</span> *    &lt;li&gt;(2b) LHS is [^k class:<a name="line.58"></a>
-<span class="sourceLineNo">059</span> *        If so, the dimensionality of the RHS must be k<a name="line.59"></a>
-<span class="sourceLineNo">060</span> *        and the baseclass of the RHS must be assignable with class (see #3)<a name="line.60"></a>
-<span class="sourceLineNo">061</span> *        _OR_ the dimensionality of the RHS must be &gt;k<a name="line.61"></a>
-<span class="sourceLineNo">062</span> *        and the baseclass of the LHS is java.lang.Cloneable or java.io.Serializable<a name="line.62"></a>
-<span class="sourceLineNo">063</span> *    &lt;li&gt;(2c) LHS is [^k Ljava.lang.Object:<a name="line.63"></a>
-<span class="sourceLineNo">064</span> *        If so, either the dimensionality of the RHS is greater than k<a name="line.64"></a>
-<span class="sourceLineNo">065</span> *        or, this dimensionality is k and the baseclass is NOT primitive<a name="line.65"></a>
-<span class="sourceLineNo">066</span> *    &lt;ul&gt;<a name="line.66"></a>
-<span class="sourceLineNo">067</span> * &lt;p&gt;<a name="line.67"></a>
-<span class="sourceLineNo">068</span> * (3) Otherwise, is the LHS unresolved?<a name="line.68"></a>
-<span class="sourceLineNo">069</span> *    If so, fall back to calling RuntimeEntrypoints.instanceOf at runtime which will<a name="line.69"></a>
-<span class="sourceLineNo">070</span> *    load/resolve the types and then call DynamicTypeCheck.instanceOf.<a name="line.70"></a>
-<span class="sourceLineNo">071</span> * &lt;p&gt;<a name="line.71"></a>
-<span class="sourceLineNo">072</span> * (4) Otherwise, is the LHS an interface?<a name="line.72"></a>
-<span class="sourceLineNo">073</span> *    If so, query the doesImplement array of the RHS's TIB at the entry<a name="line.73"></a>
-<span class="sourceLineNo">074</span> *    for the interface ID. If a class does not directly implement any<a name="line.74"></a>
-<span class="sourceLineNo">075</span> *    interfaces then it inherits the doesImplement array from its superclass.<a name="line.75"></a>
-<span class="sourceLineNo">076</span> * &lt;p&gt;<a name="line.76"></a>
-<span class="sourceLineNo">077</span> * (5) Otherwise, is the depth of the LHS greater than<a name="line.77"></a>
-<span class="sourceLineNo">078</span> * MIN_SUPERCLASS_IDS_SIZE? If so, if LHS depth is greater that<a name="line.78"></a>
-<span class="sourceLineNo">079</span> * RHS's superclassIds.length, the test fails.  Else, see #6.<a name="line.79"></a>
-<span class="sourceLineNo">080</span> * &lt;p&gt;<a name="line.80"></a>
-<span class="sourceLineNo">081</span> * (6) Otherwise.  If the LHS depth component of the RHS's superclassIds<a name="line.81"></a>
-<span class="sourceLineNo">082</span> *    array is the LHS class ID, the test succeeds.  Else, it fails.<a name="line.82"></a>
-<span class="sourceLineNo">083</span> *<a name="line.83"></a>
-<span class="sourceLineNo">084</span> * @see org.jikesrvm.compilers.opt.hir2lir.DynamicTypeCheckExpansion<a name="line.84"></a>
-<span class="sourceLineNo">085</span> * @see RVMType<a name="line.85"></a>
-<span class="sourceLineNo">086</span> * @see RVMClass<a name="line.86"></a>
-<span class="sourceLineNo">087</span> * @see RVMArray<a name="line.87"></a>
-<span class="sourceLineNo">088</span> */<a name="line.88"></a>
-<span class="sourceLineNo">089</span>public class DynamicTypeCheck implements TIBLayoutConstants {<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   * Minimum length of the superclassIds array in TIB.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   * Note: this array is padded to save a index out of<a name="line.93"></a>
-<span class="sourceLineNo">094</span>   * bounds test for classes with shallow class depth.<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   */<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  public static final int MIN_SUPERCLASS_IDS_SIZE = 6; // a short[], so multiple of 2.<a name="line.96"></a>
-<span class="sourceLineNo">097</span><a name="line.97"></a>
-<span class="sourceLineNo">098</span>  /**<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   * Minimum length of the doesImplements array in TIB.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   * Note: this array is padded to save a index out of<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   * bounds test for the first 32 * MIN_DOES_IMPLEMENT_SIZE interfaces loaded.<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>  public static final int MIN_DOES_IMPLEMENT_SIZE = 5; // an int[]<a name="line.103"></a>
-<span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>  /**<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   * Create the superclass Id vector for a RVMType.<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   *<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   * @param t a RVMType to create a superclass Id vector for<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * @return the superclass Id vector<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   */<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  static short[] buildSuperclassIds(RVMType t) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    int depth = t.getTypeDepth();<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    short[] tsi;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    if (t.isJavaLangObjectType()) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      if (VM.VerifyAssertions) VM._assert(depth == 0);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>      tsi = MemoryManager.newNonMovingShortArray(1);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    } else {<a name="line.117"></a>
-<span class="sourceLineNo">118</span>      int size = MIN_SUPERCLASS_IDS_SIZE &lt;= depth ? depth + 1 : MIN_SUPERCLASS_IDS_SIZE;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>      tsi = MemoryManager.newNonMovingShortArray(size);<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      RVMType p;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>      if (t.isArrayType() || t.asClass().isInterface()) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>        p = RVMType.JavaLangObjectType;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      } else {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        p = t.asClass().getSuperClass();<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      short[] psi = p.getSuperclassIds();<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      for (int i = 0; i &lt; depth; i++) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        tsi[i] = psi[i];<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      }<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    int id = t.getId();<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    if (VM.VerifyAssertions) VM._assert(id &lt;= 0xFFFF); // when this fails, make superclassIds int[]<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    tsi[depth] = (short) id;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    return tsi;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>  }<a name="line.135"></a>
-<span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>  private static int[] arrayDoesImplement;<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>  /**<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * Create the doesImplement vector for a RVMArray.<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   * All arrays implement exactly java.io.Serializable and java.lang.Cloneable.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>   *<a name="line.142"></a>
-<span class="sourceLineNo">143</span>   * @param t a RVMArray to create a doesImplement vector for<a name="line.143"></a>
-<span class="sourceLineNo">144</span>   * @return the doesImplement vector<a name="line.144"></a>
-<span class="sourceLineNo">145</span>   */<a name="line.145"></a>
-<span class="sourceLineNo">146</span>  static int[] buildDoesImplement(RVMArray t) {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    if (arrayDoesImplement == null) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>      int cloneIdx = RVMType.JavaLangCloneableType.getDoesImplementIndex();<a name="line.148"></a>
-<span class="sourceLineNo">149</span>      int serialIdx = RVMType.JavaIoSerializableType.getDoesImplementIndex();<a name="line.149"></a>
-<span class="sourceLineNo">150</span>      int size = Math.max(cloneIdx, serialIdx);<a name="line.150"></a>
-<span class="sourceLineNo">151</span>      size = Math.max(MIN_DOES_IMPLEMENT_SIZE, size + 1);<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      int[] tmp = MemoryManager.newNonMovingIntArray(size);<a name="line.152"></a>
-<span class="sourceLineNo">153</span>      tmp[cloneIdx] = RVMType.JavaLangCloneableType.getDoesImplementBitMask();<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      tmp[serialIdx] |= RVMType.JavaIoSerializableType.getDoesImplementBitMask();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>      arrayDoesImplement = tmp;<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    return arrayDoesImplement;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>  }<a name="line.158"></a>
-<span class="sourceLineNo">159</span><a name="line.159"></a>
-<span class="sourceLineNo">160</span>  /**<a name="line.160"></a>
-<span class="sourceLineNo">161</span>   * Create the doesImplement vector for a RVMClass.<a name="line.161"></a>
-<span class="sourceLineNo">162</span>   *<a name="line.162"></a>
-<span class="sourceLineNo">163</span>   * @param t a RVMClass to create a doesImplement vector for<a name="line.163"></a>
-<span class="sourceLineNo">164</span>   * @return the doesImplement vector<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  static int[] buildDoesImplement(RVMClass t) {<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    if (t.isJavaLangObjectType()) {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>      // object implements no interfaces.<a name="line.168"></a>
-<span class="sourceLineNo">169</span>      return MemoryManager.newNonMovingIntArray(MIN_DOES_IMPLEMENT_SIZE);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>    }<a name="line.170"></a>
-<span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>    RVMClass[] superInterfaces = t.getDeclaredInterfaces();<a name="line.172"></a>
-<span class="sourceLineNo">173</span><a name="line.173"></a>
-<span class="sourceLineNo">174</span>    if (!t.isInterface() &amp;&amp; superInterfaces.length == 0) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>      // I add nothing new; share with parent.<a name="line.175"></a>
-<span class="sourceLineNo">176</span>      return t.getSuperClass().getDoesImplement();<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    }<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    // I need one of my own; first figure out how big it needs to be.<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    int size;<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    if (t.isInterface()) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>      size = Math.max(MIN_DOES_IMPLEMENT_SIZE, t.getDoesImplementIndex() + 1);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    } else {<a name="line.183"></a>
-<span class="sourceLineNo">184</span>      size = t.getSuperClass().getDoesImplement().length;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    for (RVMClass superInterface : superInterfaces) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>      size = Math.max(size, superInterface.getDoesImplement().length);<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>    // then create and populate it<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    int[] mine = MemoryManager.newNonMovingIntArray(size);<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    if (t.isInterface()) {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>      mine[t.getDoesImplementIndex()] = t.getDoesImplementBitMask();<a name="line.193"></a>
-<span class="sourceLineNo">194</span>    } else {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>      int[] parent = t.getSuperClass().getDoesImplement();<a name="line.195"></a>
-<span class="sourceLineNo">196</span>      for (int j = 0; j &lt; parent.length; j++) {<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        mine[j] |= parent[j];<a name="line.197"></a>
-<span class="sourceLineNo">198</span>      }<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    }<a name="line.199"></a>
-<span class="sourceLineNo">200</span>    for (RVMClass superInterface : superInterfaces) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>      int[] parent = superInterface.getDoesImplement();<a name="line.201"></a>
-<span class="sourceLineNo">202</span>      for (int j = 0; j &lt; parent.length; j++) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        mine[j] |= parent[j];<a name="line.203"></a>
-<span class="sourceLineNo">204</span>      }<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>    return mine;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>  }<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>  /**<a name="line.210"></a>
-<span class="sourceLineNo">211</span>   * LHSclass is a fully loaded class or interface.<a name="line.211"></a>
-<span class="sourceLineNo">212</span>   *   Is rhsTIB the TIB of an instanceof LHSclass?<a name="line.212"></a>
-<span class="sourceLineNo">213</span>   *<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   * @param LHSclass a fully loaded class or interface class<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   */<a name="line.218"></a>
-<span class="sourceLineNo">219</span>  public static boolean instanceOfNonArray(RVMClass LHSclass, TIB rhsTIB) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    if (LHSclass.isInterface()) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>      return instanceOfInterface(LHSclass, rhsTIB);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    } else {<a name="line.222"></a>
-<span class="sourceLineNo">223</span>      return instanceOfClass(LHSclass, rhsTIB);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
-<span class="sourceLineNo">225</span>  }<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>  /**<a name="line.227"></a>
-<span class="sourceLineNo">228</span>   * LHSclass is a fully loaded class.<a name="line.228"></a>
-<span class="sourceLineNo">229</span>   *  Is rhsTIB the TIB of a subclass of LHSclass?<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   *<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   * @param LHSclass a (fully loaded) class<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   */<a name="line.235"></a>
-<span class="sourceLineNo">236</span>  @Uninterruptible<a name="line.236"></a>
-<span class="sourceLineNo">237</span>  public static boolean instanceOfClass(RVMClass LHSclass, TIB rhsTIB) {<a name="line.237"></a>
-<span class="sourceLineNo">238</span>    if (VM.VerifyAssertions) {<a name="line.238"></a>
-<span class="sourceLineNo">239</span>      VM._assert(rhsTIB != null);<a name="line.239"></a>
-<span class="sourceLineNo">240</span>      VM._assert(rhsTIB.getSuperclassIds() != null);<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    }<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    short[] superclassIds = Magic.objectAsShortArray(rhsTIB.getSuperclassIds());<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    int LHSDepth = LHSclass.getTypeDepth();<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    if (LHSDepth &gt;= superclassIds.length) return false;<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    int LHSId = LHSclass.getId();<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    return (superclassIds[LHSDepth] &amp; 0xFFFF) == LHSId;<a name="line.246"></a>
-<span class="sourceLineNo">247</span>  }<a name="line.247"></a>
-<span class="sourceLineNo">248</span><a name="line.248"></a>
-<span class="sourceLineNo">249</span>  /**<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   * LHSclass is a fully loaded interface.<a name="line.250"></a>
-<span class="sourceLineNo">251</span>   *   Is rhsTIB the TIB of a class that implements LHSclass?<a name="line.251"></a>
-<span class="sourceLineNo">252</span>   *<a name="line.252"></a>
-<span class="sourceLineNo">253</span>   * @param LHSclass a class (that is a fully loaded interface)<a name="line.253"></a>
-<span class="sourceLineNo">254</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.254"></a>
-<span class="sourceLineNo">255</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.256"></a>
-<span class="sourceLineNo">257</span>   */<a name="line.257"></a>
-<span class="sourceLineNo">258</span>  public static boolean instanceOfInterface(RVMClass LHSclass, TIB rhsTIB) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    int[] doesImplement = rhsTIB.getDoesImplement();<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    int idx = LHSclass.getDoesImplementIndex();<a name="line.260"></a>
-<span class="sourceLineNo">261</span>    int mask = LHSclass.getDoesImplementBitMask();<a name="line.261"></a>
-<span class="sourceLineNo">262</span>    return idx &lt; doesImplement.length &amp;&amp; ((doesImplement[idx] &amp; mask) != 0);<a name="line.262"></a>
-<span class="sourceLineNo">263</span>  }<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>  /**<a name="line.265"></a>
-<span class="sourceLineNo">266</span>   * Can we store an object of type RHSType in a variable of type LHSType?<a name="line.266"></a>
-<span class="sourceLineNo">267</span>   * Assumption. LHSType and RHSType are already resolved.<a name="line.267"></a>
-<span class="sourceLineNo">268</span>   *<a name="line.268"></a>
-<span class="sourceLineNo">269</span>   * @param LHSType the left-hand-side type<a name="line.269"></a>
-<span class="sourceLineNo">270</span>   * @param RHSType the right-hand-size type<a name="line.270"></a>
-<span class="sourceLineNo">271</span>   * @return &lt;code&gt;true&lt;/code&gt; if we can store an object of<a name="line.271"></a>
-<span class="sourceLineNo">272</span>   *         RHSType into a variable of type LSType<a name="line.272"></a>
-<span class="sourceLineNo">273</span>   *         or &lt;code&gt;false&lt;/code&gt; if we cannot.<a name="line.273"></a>
-<span class="sourceLineNo">274</span>   */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>  public static boolean instanceOfResolved(RVMType LHSType, RVMType RHSType) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>    int LHSDimension = LHSType.getDimensionality();<a name="line.276"></a>
-<span class="sourceLineNo">277</span>    int RHSDimension = RHSType.getDimensionality();<a name="line.277"></a>
-<span class="sourceLineNo">278</span>    if (LHSDimension &lt; 0 || RHSDimension &lt; 0) return false;<a name="line.278"></a>
-<span class="sourceLineNo">279</span>    if (LHSDimension == 0) {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>      return instanceOfNonArray(LHSType.asClass(), RHSType.getTypeInformationBlock());<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    }<a name="line.281"></a>
-<span class="sourceLineNo">282</span>    RVMType LHSInnermostElementType = LHSType.asArray().getInnermostElementType();<a name="line.282"></a>
-<span class="sourceLineNo">283</span>    if (LHSInnermostElementType == RVMType.JavaLangObjectType) {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>      if (RHSDimension &lt; LHSDimension) return false;<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      if (RHSDimension &gt; LHSDimension) return true;<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      return RHSType.asArray().getInnermostElementType().isClassType(); // !primitive<a name="line.286"></a>
-<span class="sourceLineNo">287</span>    } else if (!(LHSInnermostElementType.isPrimitiveType() || LHSInnermostElementType.isUnboxedType())) {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>      if (RHSDimension == LHSDimension) {<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        RVMType RHSInnermostElementType = RHSType.asArray().getInnermostElementType();<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        if ((RHSInnermostElementType.isPrimitiveType() || RHSInnermostElementType.isUnboxedType())) return false;<a name="line.290"></a>
-<span class="sourceLineNo">291</span>        return instanceOfNonArray(LHSInnermostElementType.asClass(), RHSInnermostElementType.getTypeInformationBlock());<a name="line.291"></a>
-<span class="sourceLineNo">292</span>      } else {<a name="line.292"></a>
-<span class="sourceLineNo">293</span>        // All array types implicitly implement java.lang.Cloneable and java.io.Serializable<a name="line.293"></a>
-<span class="sourceLineNo">294</span>        // so if LHS is if lesser dimensionality then this check must succeed if its innermost<a name="line.294"></a>
-<span class="sourceLineNo">295</span>        // element type is one of these special interfaces.<a name="line.295"></a>
-<span class="sourceLineNo">296</span>        return (LHSDimension &lt; RHSDimension &amp;&amp;<a name="line.296"></a>
-<span class="sourceLineNo">297</span>                (LHSInnermostElementType == RVMType.JavaLangCloneableType ||<a name="line.297"></a>
-<span class="sourceLineNo">298</span>                 LHSInnermostElementType == RVMType.JavaIoSerializableType));<a name="line.298"></a>
-<span class="sourceLineNo">299</span>      }<a name="line.299"></a>
-<span class="sourceLineNo">300</span>    } else {<a name="line.300"></a>
-<span class="sourceLineNo">301</span>      return false;<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    }<a name="line.302"></a>
-<span class="sourceLineNo">303</span>  }<a name="line.303"></a>
-<span class="sourceLineNo">304</span>}<a name="line.304"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.runtime.Magic;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * Data structures and code for fast dynamic type checking.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * &lt;p&gt;<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * As a convention, we convert all dynamic type checking<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * operations into the following question: LHS :?= RHS<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * (i.e. can an instance of the RHS class be stored in a<a name="line.26"></a>
+<span class="sourceLineNo">027</span> * variable of the LHS class or interface.)  This question<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * arises for four bytecodes: instanceof, checkcast, aastore<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * and invokeinterface and entry into catch blocks.<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * This gives us a uniform terminology, but in some cases<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * (instanceof) can be somewhat counter-intuitive since despite<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * the fact that the Java source code is written as<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;code&gt;x instanceof C&lt;/code&gt;, for the purposes of dynamic type checking<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;code&gt;x&lt;/code&gt; is the RHS and &lt;code&gt;C&lt;/code&gt; is the LHS!<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * &lt;p&gt;<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * The idea of the optimizations presented below is to treat<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * each context in which these queries arises as a special<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * case to be optimised in isolation.  Consider the following<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * taxonomy of dynamic type checking conexts:<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * &lt;p&gt;<a name="line.40"></a>
+<span class="sourceLineNo">041</span> * (1) Is the LHS unknown at compile time?  True only for aastore?<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *    If so, the following test will be fast in most instances:<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *    is the runtime type of the LHS array the same as compile-time<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *    type of the variable that contains it?  If so, the Java-to-bytecode<a name="line.44"></a>
+<span class="sourceLineNo">045</span> *    compiler (and the verifier) guarantees that the test passes.<a name="line.45"></a>
+<span class="sourceLineNo">046</span> *    Unfortunately, this test can only be used in two of three cases:<a name="line.46"></a>
+<span class="sourceLineNo">047</span> *    when the LHS variable is a field or a parameter.  When the LHS is<a name="line.47"></a>
+<span class="sourceLineNo">048</span> *    in a local variable the Java-to-bytecode compiler has thrown away<a name="line.48"></a>
+<span class="sourceLineNo">049</span> *    the necessary type information.<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * &lt;p&gt;<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * (2) Otherwise, is the LHS an array?<a name="line.51"></a>
+<span class="sourceLineNo">052</span> *    If so, there are three sub-cases<a name="line.52"></a>
+<span class="sourceLineNo">053</span> *    &lt;ul&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> *    &lt;li&gt;(2a) LHS is [^k primitive:<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *        If so, the dimensionality of the RHS must be k<a name="line.55"></a>
+<span class="sourceLineNo">056</span> *        and the baseclass of the RHS must be the same primitive<a name="line.56"></a>
+<span class="sourceLineNo">057</span> *    &lt;li&gt;(2b) LHS is [^k class:<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *        If so, the dimensionality of the RHS must be k<a name="line.58"></a>
+<span class="sourceLineNo">059</span> *        and the baseclass of the RHS must be assignable with class (see #3)<a name="line.59"></a>
+<span class="sourceLineNo">060</span> *        _OR_ the dimensionality of the RHS must be &amp;gt;k<a name="line.60"></a>
+<span class="sourceLineNo">061</span> *        and the baseclass of the LHS is java.lang.Cloneable or java.io.Serializable<a name="line.61"></a>
+<span class="sourceLineNo">062</span> *    &lt;li&gt;(2c) LHS is [^k Ljava.lang.Object:<a name="line.62"></a>
+<span class="sourceLineNo">063</span> *        If so, either the dimensionality of the RHS is greater than k<a name="line.63"></a>
+<span class="sourceLineNo">064</span> *        or, this dimensionality is k and the baseclass is NOT primitive<a name="line.64"></a>
+<span class="sourceLineNo">065</span> *    &lt;/ul&gt;<a name="line.65"></a>
+<span class="sourceLineNo">066</span> * &lt;p&gt;<a name="line.66"></a>
+<span class="sourceLineNo">067</span> * (3) Otherwise, is the LHS unresolved?<a name="line.67"></a>
+<span class="sourceLineNo">068</span> *    If so, fall back to calling RuntimeEntrypoints.instanceOf at runtime which will<a name="line.68"></a>
+<span class="sourceLineNo">069</span> *    load/resolve the types and then call DynamicTypeCheck.instanceOf.<a name="line.69"></a>
+<span class="sourceLineNo">070</span> * &lt;p&gt;<a name="line.70"></a>
+<span class="sourceLineNo">071</span> * (4) Otherwise, is the LHS an interface?<a name="line.71"></a>
+<span class="sourceLineNo">072</span> *    If so, query the doesImplement array of the RHS's TIB at the entry<a name="line.72"></a>
+<span class="sourceLineNo">073</span> *    for the interface ID. If a class does not directly implement any<a name="line.73"></a>
+<span class="sourceLineNo">074</span> *    interfaces then it inherits the doesImplement array from its superclass.<a name="line.74"></a>
+<span class="sourceLineNo">075</span> * &lt;p&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span> * (5) Otherwise, is the depth of the LHS greater than<a name="line.76"></a>
+<span class="sourceLineNo">077</span> * MIN_SUPERCLASS_IDS_SIZE? If so, if LHS depth is greater that<a name="line.77"></a>
+<span class="sourceLineNo">078</span> * RHS's superclassIds.length, the test fails.  Else, see #6.<a name="line.78"></a>
+<span class="sourceLineNo">079</span> * &lt;p&gt;<a name="line.79"></a>
+<span class="sourceLineNo">080</span> * (6) Otherwise.  If the LHS depth component of the RHS's superclassIds<a name="line.80"></a>
+<span class="sourceLineNo">081</span> *    array is the LHS class ID, the test succeeds.  Else, it fails.<a name="line.81"></a>
+<span class="sourceLineNo">082</span> * &lt;p&gt;<a name="line.82"></a>
+<span class="sourceLineNo">083</span> * For details about the expansion of type checks in the optimizing compiler, see<a name="line.83"></a>
+<span class="sourceLineNo">084</span> * the transformation from high level IR to low level IR.<a name="line.84"></a>
+<span class="sourceLineNo">085</span> *<a name="line.85"></a>
+<span class="sourceLineNo">086</span> * @see RVMType<a name="line.86"></a>
+<span class="sourceLineNo">087</span> * @see RVMClass<a name="line.87"></a>
+<span class="sourceLineNo">088</span> * @see RVMArray<a name="line.88"></a>
+<span class="sourceLineNo">089</span> */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>public class DynamicTypeCheck {<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   * Minimum length of the superclassIds array in TIB.<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * Note: this array is padded to save a index out of<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * bounds test for classes with shallow class depth.<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  public static final int MIN_SUPERCLASS_IDS_SIZE = 6; // a short[], so multiple of 2.<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>  /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * Minimum length of the doesImplements array in TIB.<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * Note: this array is padded to save a index out of<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * bounds test for the first 32 * MIN_DOES_IMPLEMENT_SIZE interfaces loaded.<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public static final int MIN_DOES_IMPLEMENT_SIZE = 5; // an int[]<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * Create the superclass Id vector for a RVMType.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   *<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * @param t a RVMType to create a superclass Id vector for<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * @return the superclass Id vector<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  static short[] buildSuperclassIds(RVMType t) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    int depth = t.getTypeDepth();<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    short[] tsi;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    if (t.isJavaLangObjectType()) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      if (VM.VerifyAssertions) VM._assert(depth == 0);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      tsi = MemoryManager.newNonMovingShortArray(1);<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    } else {<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      int size = MIN_SUPERCLASS_IDS_SIZE &lt;= depth ? depth + 1 : MIN_SUPERCLASS_IDS_SIZE;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      tsi = MemoryManager.newNonMovingShortArray(size);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      RVMType p;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      if (t.isArrayType() || t.asClass().isInterface()) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        p = RVMType.JavaLangObjectType;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      } else {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>        p = t.asClass().getSuperClass();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      }<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      short[] psi = p.getSuperclassIds();<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      for (int i = 0; i &lt; depth; i++) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>        tsi[i] = psi[i];<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    int id = t.getId();<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    if (VM.VerifyAssertions) VM._assert(id &lt;= 0xFFFF); // when this fails, make superclassIds int[]<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    tsi[depth] = (short) id;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    return tsi;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  }<a name="line.136"></a>
+<span class="sourceLineNo">137</span><a name="line.137"></a>
+<span class="sourceLineNo">138</span>  private static int[] arrayDoesImplement;<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  /**<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * Create the doesImplement vector for a RVMArray.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * All arrays implement exactly java.io.Serializable and java.lang.Cloneable.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * @param t a RVMArray to create a doesImplement vector for<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   * @return the doesImplement vector<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  static int[] buildDoesImplement(RVMArray t) {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    if (arrayDoesImplement == null) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>      int cloneIdx = RVMType.JavaLangCloneableType.getDoesImplementIndex();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>      int serialIdx = RVMType.JavaIoSerializableType.getDoesImplementIndex();<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      int size = Math.max(cloneIdx, serialIdx);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>      size = Math.max(MIN_DOES_IMPLEMENT_SIZE, size + 1);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>      int[] tmp = MemoryManager.newNonMovingIntArray(size);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>      tmp[cloneIdx] = RVMType.JavaLangCloneableType.getDoesImplementBitMask();<a name="line.154"></a>
+<span class="sourceLineNo">155</span>      tmp[serialIdx] |= RVMType.JavaIoSerializableType.getDoesImplementBitMask();<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      arrayDoesImplement = tmp;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    return arrayDoesImplement;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>  /**<a name="line.161"></a>
+<span class="sourceLineNo">162</span>   * Create the doesImplement vector for a RVMClass.<a name="line.162"></a>
+<span class="sourceLineNo">163</span>   *<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   * @param t a RVMClass to create a doesImplement vector for<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   * @return the doesImplement vector<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   */<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  static int[] buildDoesImplement(RVMClass t) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    if (t.isJavaLangObjectType()) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      // object implements no interfaces.<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      return MemoryManager.newNonMovingIntArray(MIN_DOES_IMPLEMENT_SIZE);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    RVMClass[] superInterfaces = t.getDeclaredInterfaces();<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    if (!t.isInterface() &amp;&amp; superInterfaces.length == 0) {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>      // I add nothing new; share with parent.<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      return t.getSuperClass().getDoesImplement();<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>    // I need one of my own; first figure out how big it needs to be.<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    int size;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    if (t.isInterface()) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      size = Math.max(MIN_DOES_IMPLEMENT_SIZE, t.getDoesImplementIndex() + 1);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    } else {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      size = t.getSuperClass().getDoesImplement().length;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    for (RVMClass superInterface : superInterfaces) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>      size = Math.max(size, superInterface.getDoesImplement().length);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    }<a name="line.189"></a>
+<span class="sourceLineNo">190</span><a name="line.190"></a>
+<span class="sourceLineNo">191</span>    // then create and populate it<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    int[] mine = MemoryManager.newNonMovingIntArray(size);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    if (t.isInterface()) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      mine[t.getDoesImplementIndex()] = t.getDoesImplementBitMask();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    } else {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      int[] parent = t.getSuperClass().getDoesImplement();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      for (int j = 0; j &lt; parent.length; j++) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        mine[j] |= parent[j];<a name="line.198"></a>
+<span class="sourceLineNo">199</span>      }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    for (RVMClass superInterface : superInterfaces) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>      int[] parent = superInterface.getDoesImplement();<a name="line.202"></a>
+<span class="sourceLineNo">203</span>      for (int j = 0; j &lt; parent.length; j++) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        mine[j] |= parent[j];<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      }<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    }<a name="line.206"></a>
+<span class="sourceLineNo">207</span><a name="line.207"></a>
+<span class="sourceLineNo">208</span>    return mine;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>  /**<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   * LHSclass is a fully loaded class or interface.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   *   Is rhsTIB the TIB of an instanceof LHSclass?<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   *<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * @param LHSclass a fully loaded class or interface class<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public static boolean instanceOfNonArray(RVMClass LHSclass, TIB rhsTIB) {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    if (LHSclass.isInterface()) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      return instanceOfInterface(LHSclass, rhsTIB);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    } else {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      return instanceOfClass(LHSclass, rhsTIB);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    }<a name="line.225"></a>
+<span class="sourceLineNo">226</span>  }<a name="line.226"></a>
+<span class="sourceLineNo">227</span><a name="line.227"></a>
+<span class="sourceLineNo">228</span>  /**<a name="line.228"></a>
+<span class="sourceLineNo">229</span>   * LHSclass is a fully loaded class.<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   *  Is rhsTIB the TIB of a subclass of LHSclass?<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   *<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * @param LHSclass a (fully loaded) class<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  @Uninterruptible<a name="line.237"></a>
+<span class="sourceLineNo">238</span>  public static boolean instanceOfClass(RVMClass LHSclass, TIB rhsTIB) {<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    if (VM.VerifyAssertions) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      VM._assert(rhsTIB != null);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      VM._assert(rhsTIB.getSuperclassIds() != null);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    short[] superclassIds = Magic.objectAsShortArray(rhsTIB.getSuperclassIds());<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    int LHSDepth = LHSclass.getTypeDepth();<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    if (LHSDepth &gt;= superclassIds.length) return false;<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    int LHSId = LHSclass.getId();<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    return (superclassIds[LHSDepth] &amp; 0xFFFF) == LHSId;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>  /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   * LHSclass is a fully loaded interface.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   *   Is rhsTIB the TIB of a class that implements LHSclass?<a name="line.252"></a>
+<span class="sourceLineNo">253</span>   *<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * @param LHSclass a class (that is a fully loaded interface)<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   * @param rhsTIB the TIB of an object that might be an instance of LHSclass<a name="line.255"></a>
+<span class="sourceLineNo">256</span>   * @return &lt;code&gt;true&lt;/code&gt; if the object is an instance of LHSClass<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   *         or &lt;code&gt;false&lt;/code&gt; if it is not<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   */<a name="line.258"></a>
+<span class="sourceLineNo">259</span>  public static boolean instanceOfInterface(RVMClass LHSclass, TIB rhsTIB) {<a name="line.259"></a>
+<span class="sourceLineNo">260</span>    int[] doesImplement = rhsTIB.getDoesImplement();<a name="line.260"></a>
+<span class="sourceLineNo">261</span>    int idx = LHSclass.getDoesImplementIndex();<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    int mask = LHSclass.getDoesImplementBitMask();<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    return idx &lt; doesImplement.length &amp;&amp; ((doesImplement[idx] &amp; mask) != 0);<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>  /**<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * Can we store an object of type RHSType in a variable of type LHSType?<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   * Assumption. LHSType and RHSType are already resolved.<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   *<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * @param LHSType the left-hand-side type<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   * @param RHSType the right-hand-size type<a name="line.271"></a>
+<span class="sourceLineNo">272</span>   * @return &lt;code&gt;true&lt;/code&gt; if we can store an object of<a name="line.272"></a>
+<span class="sourceLineNo">273</span>   *         RHSType into a variable of type LSType<a name="line.273"></a>
+<span class="sourceLineNo">274</span>   *         or &lt;code&gt;false&lt;/code&gt; if we cannot.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  public static boolean instanceOfResolved(RVMType LHSType, RVMType RHSType) {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    int LHSDimension = LHSType.getDimensionality();<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    int RHSDimension = RHSType.getDimensionality();<a name="line.278"></a>
+<span class="sourceLineNo">279</span>    if (LHSDimension &lt; 0 || RHSDimension &lt; 0) return false;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    if (LHSDimension == 0) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      return instanceOfNonArray(LHSType.asClass(), RHSType.getTypeInformationBlock());<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    }<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    RVMType LHSInnermostElementType = LHSType.asArray().getInnermostElementType();<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    if (LHSInnermostElementType == RVMType.JavaLangObjectType) {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      if (RHSDimension &lt; LHSDimension) return false;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      if (RHSDimension &gt; LHSDimension) return true;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>      return RHSType.asArray().getInnermostElementType().isClassType(); // !primitive<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    } else if (!(LHSInnermostElementType.isPrimitiveType() || LHSInnermostElementType.isUnboxedType())) {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>      if (RHSDimension == LHSDimension) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        RVMType RHSInnermostElementType = RHSType.asArray().getInnermostElementType();<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        if ((RHSInnermostElementType.isPrimitiveType() || RHSInnermostElementType.isUnboxedType())) return false;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        return instanceOfNonArray(LHSInnermostElementType.asClass(), RHSInnermostElementType.getTypeInformationBlock());<a name="line.292"></a>
+<span class="sourceLineNo">293</span>      } else {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        // All array types implicitly implement java.lang.Cloneable and java.io.Serializable<a name="line.294"></a>
+<span class="sourceLineNo">295</span>        // so if LHS is if lesser dimensionality then this check must succeed if its innermost<a name="line.295"></a>
+<span class="sourceLineNo">296</span>        // element type is one of these special interfaces.<a name="line.296"></a>
+<span class="sourceLineNo">297</span>        return (LHSDimension &lt; RHSDimension &amp;&amp;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>                (LHSInnermostElementType == RVMType.JavaLangCloneableType ||<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                 LHSInnermostElementType == RVMType.JavaIoSerializableType));<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      }<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    } else {<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      return false;<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    }<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  }<a name="line.304"></a>
+<span class="sourceLineNo">305</span>}<a name="line.305"></a>
 
 
 

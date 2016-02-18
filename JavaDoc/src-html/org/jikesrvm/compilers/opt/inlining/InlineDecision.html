@@ -66,156 +66,163 @@
 <span class="sourceLineNo">058</span><a name="line.58"></a>
 <span class="sourceLineNo">059</span>  /**<a name="line.59"></a>
 <span class="sourceLineNo">060</span>   * @param targets   The methods to inline<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   * @param code the decision code<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   * @param reason a string rationale<a name="line.62"></a>
-<span class="sourceLineNo">063</span>   */<a name="line.63"></a>
-<span class="sourceLineNo">064</span>  private InlineDecision(RVMMethod[] targets, byte[] guards, Code code, String reason) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    this.code = code;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    this.rationale = reason;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    this.targets = targets;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    this.guards = guards;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>  }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>  /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>   * Return a decision NOT to inline.<a name="line.72"></a>
-<span class="sourceLineNo">073</span>   *<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   * @param target the method that is not being inlined.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   * @param reason a rationale for not inlining<a name="line.75"></a>
-<span class="sourceLineNo">076</span>   * @return a decision NOT to inline<a name="line.76"></a>
-<span class="sourceLineNo">077</span>   */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>  public static InlineDecision NO(RVMMethod target, String reason) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    targets[0] = target;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    return new InlineDecision(targets, null, Code.DECIDE_NO, reason);<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * Return a decision NOT to inline.<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   *<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   * @param reason a rationale for not inlining<a name="line.87"></a>
-<span class="sourceLineNo">088</span>   * @return a decision NOT to inline<a name="line.88"></a>
-<span class="sourceLineNo">089</span>   */<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  public static InlineDecision NO(String reason) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    return new InlineDecision(null, null, Code.DECIDE_NO, reason);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>  }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>  /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   * Return a decision to inline without a guard.<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   * @param target the method to inline<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * @param reason a rationale for inlining<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * @return a decision YES to inline<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  public static InlineDecision YES(RVMMethod target, String reason) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    targets[0] = target;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    return new InlineDecision(targets, null, Code.DECIDE_YES, reason);<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  }<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   * Return a decision YES to do a guarded inline.<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * @param target the method to inline<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   * @param guard  the type of guard to use<a name="line.110"></a>
-<span class="sourceLineNo">111</span>   * @param reason a rationale for inlining<a name="line.111"></a>
-<span class="sourceLineNo">112</span>   * @return a decision YES to inline, but it is not always safe.<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   */<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  public static InlineDecision guardedYES(RVMMethod target, byte guard, String reason) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    byte[] guards = new byte[1];<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    targets[0] = target;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    guards[0] = guard;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    return new InlineDecision(targets, guards, Code.GUARDED_YES, reason);<a name="line.119"></a>
-<span class="sourceLineNo">120</span>  }<a name="line.120"></a>
-<span class="sourceLineNo">121</span><a name="line.121"></a>
-<span class="sourceLineNo">122</span>  /**<a name="line.122"></a>
-<span class="sourceLineNo">123</span>   * Return a decision YES to do a guarded inline.<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   *<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * @param targets   The methods to inline<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * @param guards  the types of guard to use<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   * @param reason   A rationale for inlining<a name="line.127"></a>
-<span class="sourceLineNo">128</span>   * @return a decision YES to inline, but it is not always safe.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>   */<a name="line.129"></a>
-<span class="sourceLineNo">130</span>  public static InlineDecision guardedYES(RVMMethod[] targets, byte[] guards, String reason) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    return new InlineDecision(targets, guards, Code.GUARDED_YES, reason);<a name="line.131"></a>
-<span class="sourceLineNo">132</span>  }<a name="line.132"></a>
-<span class="sourceLineNo">133</span><a name="line.133"></a>
-<span class="sourceLineNo">134</span>  /**<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   * Is this inline decision a YES?<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   */<a name="line.136"></a>
-<span class="sourceLineNo">137</span>  public boolean isYES() {<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    return !isNO();<a name="line.138"></a>
-<span class="sourceLineNo">139</span>  }<a name="line.139"></a>
-<span class="sourceLineNo">140</span><a name="line.140"></a>
-<span class="sourceLineNo">141</span>  /**<a name="line.141"></a>
-<span class="sourceLineNo">142</span>   * Is this inline decision a NO?<a name="line.142"></a>
-<span class="sourceLineNo">143</span>   */<a name="line.143"></a>
-<span class="sourceLineNo">144</span>  public boolean isNO() {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    return (code == Code.DECIDE_NO);<a name="line.145"></a>
-<span class="sourceLineNo">146</span>  }<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>  /**<a name="line.148"></a>
-<span class="sourceLineNo">149</span>   * Does this inline site need a guard?<a name="line.149"></a>
-<span class="sourceLineNo">150</span>   */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  public boolean needsGuard() {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    return (code == Code.GUARDED_YES);<a name="line.152"></a>
-<span class="sourceLineNo">153</span>  }<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>  /**<a name="line.155"></a>
-<span class="sourceLineNo">156</span>   * Return the methods to inline according to this decision.<a name="line.156"></a>
-<span class="sourceLineNo">157</span>   */<a name="line.157"></a>
-<span class="sourceLineNo">158</span>  public RVMMethod[] getTargets() {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    return targets;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>  /**<a name="line.162"></a>
-<span class="sourceLineNo">163</span>   * Return the guards to use according to this decision.<a name="line.163"></a>
-<span class="sourceLineNo">164</span>   */<a name="line.164"></a>
-<span class="sourceLineNo">165</span>  public byte[] getGuards() {<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    return guards;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>  }<a name="line.167"></a>
-<span class="sourceLineNo">168</span><a name="line.168"></a>
-<span class="sourceLineNo">169</span>  /**<a name="line.169"></a>
-<span class="sourceLineNo">170</span>   * Return the number methods to inline.<a name="line.170"></a>
-<span class="sourceLineNo">171</span>   */<a name="line.171"></a>
-<span class="sourceLineNo">172</span>  public int getNumberOfTargets() {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    if (targets == null) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>      return 0;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    return targets.length;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  }<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>  public void setOSRTestFailed() { testFailedOSR = true; }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>  public boolean OSRTestFailed() { return testFailedOSR; }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>  @Override<a name="line.183"></a>
-<span class="sourceLineNo">184</span>  public String toString() {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    String s = code.toString();<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    if (testFailedOSR) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>      s += "(OSR off-branch)";<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    s += ":" + rationale;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    if (targets != null) {<a name="line.190"></a>
-<span class="sourceLineNo">191</span>      for (int i = 0; i &lt; targets.length; i++) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        s += " " + targets[i];<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        if (guards != null) {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>          switch (guards[i]) {<a name="line.194"></a>
-<span class="sourceLineNo">195</span>            case OptOptions.INLINE_GUARD_METHOD_TEST:<a name="line.195"></a>
-<span class="sourceLineNo">196</span>              s += " (method test)";<a name="line.196"></a>
-<span class="sourceLineNo">197</span>              break;<a name="line.197"></a>
-<span class="sourceLineNo">198</span>            case OptOptions.INLINE_GUARD_CLASS_TEST:<a name="line.198"></a>
-<span class="sourceLineNo">199</span>              s += " (class test)";<a name="line.199"></a>
-<span class="sourceLineNo">200</span>              break;<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            case OptOptions.INLINE_GUARD_CODE_PATCH:<a name="line.201"></a>
-<span class="sourceLineNo">202</span>              s += " (code patch)";<a name="line.202"></a>
-<span class="sourceLineNo">203</span>              break;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>          }<a name="line.204"></a>
-<span class="sourceLineNo">205</span>        }<a name="line.205"></a>
-<span class="sourceLineNo">206</span>      }<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    return s;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  }<a name="line.209"></a>
-<span class="sourceLineNo">210</span>}<a name="line.210"></a>
+<span class="sourceLineNo">061</span>   * @param guards the chosen guards. will be {@code null} if no guards are necessary<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * @param code the decision code<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * @param reason a string rationale<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  private InlineDecision(RVMMethod[] targets, byte[] guards, Code code, String reason) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    this.code = code;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    this.rationale = reason;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    this.targets = targets;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    this.guards = guards;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * Return a decision NOT to inline.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   *<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * @param target the method that is not being inlined.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * @param reason a rationale for not inlining<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * @return a decision NOT to inline<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static InlineDecision NO(RVMMethod target, String reason) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    targets[0] = target;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    return new InlineDecision(targets, null, Code.DECIDE_NO, reason);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * Return a decision NOT to inline.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * @param reason a rationale for not inlining<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   * @return a decision NOT to inline<a name="line.89"></a>
+<span class="sourceLineNo">090</span>   */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  public static InlineDecision NO(String reason) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    return new InlineDecision(null, null, Code.DECIDE_NO, reason);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * Return a decision to inline without a guard.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * @param target the method to inline<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * @param reason a rationale for inlining<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * @return a decision YES to inline<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  public static InlineDecision YES(RVMMethod target, String reason) {<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    targets[0] = target;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    return new InlineDecision(targets, null, Code.DECIDE_YES, reason);<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * Return a decision YES to do a guarded inline.<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   *<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * @param target the method to inline<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   * @param guard  the type of guard to use<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * @param reason a rationale for inlining<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   * @return a decision YES to inline, but it is not always safe.<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   */<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  public static InlineDecision guardedYES(RVMMethod target, byte guard, String reason) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    RVMMethod[] targets = new RVMMethod[1];<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    byte[] guards = new byte[1];<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    targets[0] = target;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    guards[0] = guard;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    return new InlineDecision(targets, guards, Code.GUARDED_YES, reason);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  }<a name="line.121"></a>
+<span class="sourceLineNo">122</span><a name="line.122"></a>
+<span class="sourceLineNo">123</span>  /**<a name="line.123"></a>
+<span class="sourceLineNo">124</span>   * Return a decision YES to do a guarded inline.<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   *<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * @param targets   The methods to inline<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * @param guards  the types of guard to use<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * @param reason   A rationale for inlining<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * @return a decision YES to inline, but it is not always safe.<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   */<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  public static InlineDecision guardedYES(RVMMethod[] targets, byte[] guards, String reason) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    return new InlineDecision(targets, guards, Code.GUARDED_YES, reason);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  }<a name="line.133"></a>
+<span class="sourceLineNo">134</span><a name="line.134"></a>
+<span class="sourceLineNo">135</span>  /**<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   * @return whether this inline decision is a YES<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   */<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  public boolean isYES() {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    return !isNO();<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>  /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * @return whether this inline decision is a NO<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   */<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  public boolean isNO() {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    return (code == Code.DECIDE_NO);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>  /**<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   * @return whether this inline site needs a guard<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  public boolean needsGuard() {<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    return (code == Code.GUARDED_YES);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  }<a name="line.154"></a>
+<span class="sourceLineNo">155</span><a name="line.155"></a>
+<span class="sourceLineNo">156</span>  /**<a name="line.156"></a>
+<span class="sourceLineNo">157</span>   * @return the methods to inline according to this decision.<a name="line.157"></a>
+<span class="sourceLineNo">158</span>   */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  public RVMMethod[] getTargets() {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    return targets;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>  /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   * @return the guards to use according to this decision.<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   */<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public byte[] getGuards() {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    return guards;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  }<a name="line.168"></a>
+<span class="sourceLineNo">169</span><a name="line.169"></a>
+<span class="sourceLineNo">170</span>  /**<a name="line.170"></a>
+<span class="sourceLineNo">171</span>   * @return the number methods to inline<a name="line.171"></a>
+<span class="sourceLineNo">172</span>   */<a name="line.172"></a>
+<span class="sourceLineNo">173</span>  public int getNumberOfTargets() {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    if (targets == null) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>      return 0;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    return targets.length;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  }<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>  public void setOSRTestFailed() {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    testFailedOSR = true;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>  }<a name="line.182"></a>
+<span class="sourceLineNo">183</span><a name="line.183"></a>
+<span class="sourceLineNo">184</span>  public boolean OSRTestFailed() {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    return testFailedOSR;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>  @Override<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  public String toString() {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    StringBuilder s = new StringBuilder(code.toString());<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    if (testFailedOSR) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      s.append("(OSR off-branch)");<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    s.append(':');<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    s.append(rationale);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    if (targets != null) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      for (int i = 0; i &lt; targets.length; i++) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        s.append(' ');<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        s.append(targets[i]);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        if (guards != null) {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>          switch (guards[i]) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>            case OptOptions.INLINE_GUARD_METHOD_TEST:<a name="line.202"></a>
+<span class="sourceLineNo">203</span>              s.append(" (method test)");<a name="line.203"></a>
+<span class="sourceLineNo">204</span>              break;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>            case OptOptions.INLINE_GUARD_CLASS_TEST:<a name="line.205"></a>
+<span class="sourceLineNo">206</span>              s.append(" (class test)");<a name="line.206"></a>
+<span class="sourceLineNo">207</span>              break;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>            case OptOptions.INLINE_GUARD_CODE_PATCH:<a name="line.208"></a>
+<span class="sourceLineNo">209</span>              s.append(" (code patch)");<a name="line.209"></a>
+<span class="sourceLineNo">210</span>              break;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>          }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>        }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      }<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    }<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    return s.toString();<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  }<a name="line.216"></a>
+<span class="sourceLineNo">217</span>}<a name="line.217"></a>
 
 
 

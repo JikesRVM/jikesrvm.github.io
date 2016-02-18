@@ -20,102 +20,109 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.objectmodel;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.SizeConstants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.mm.mminterface.MemoryManagerConstants;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.vmmagic.unboxed.Offset;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.vmmagic.unboxed.Word;<a name="line.19"></a>
-<span class="sourceLineNo">020</span><a name="line.20"></a>
-<span class="sourceLineNo">021</span>/**<a name="line.21"></a>
-<span class="sourceLineNo">022</span> * Constants for the JavaHeader.<a name="line.22"></a>
-<span class="sourceLineNo">023</span> *<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * @see ObjectModel<a name="line.24"></a>
-<span class="sourceLineNo">025</span> */<a name="line.25"></a>
-<span class="sourceLineNo">026</span>public interface JavaHeaderConstants extends SizeConstants {<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>  /** Number of bytes in object's TIB pointer */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  int TIB_BYTES = BYTES_IN_ADDRESS;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  /** Number of bytes indicating an object's status */<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  int STATUS_BYTES = BYTES_IN_ADDRESS;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>  int ALIGNMENT_MASK = 0x00000001;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>  int ALIGNMENT_VALUE = 0xdeadbeef;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  int LOG_MIN_ALIGNMENT = LOG_BYTES_IN_INT;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>  /**<a name="line.37"></a>
-<span class="sourceLineNo">038</span>   * Number of bytes used to store the array length. We use 64 bits<a name="line.38"></a>
-<span class="sourceLineNo">039</span>   * for the length on a 64 bit architecture as this makes the other<a name="line.39"></a>
-<span class="sourceLineNo">040</span>   * words 8-byte aligned, and the header has to be 8-byte aligned.<a name="line.40"></a>
-<span class="sourceLineNo">041</span>   */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  int ARRAY_LENGTH_BYTES = VM.BuildFor64Addr ? BYTES_IN_ADDRESS : BYTES_IN_INT;<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>  /** Number of bytes used by the Java Header */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  int JAVA_HEADER_BYTES = TIB_BYTES + STATUS_BYTES;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  /** Number of bytes used by the GC Header */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>  int GC_HEADER_BYTES = MemoryManagerConstants.GC_HEADER_BYTES;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  /** Number of bytes used by the miscellaneous header */<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  int MISC_HEADER_BYTES = MiscHeaderConstants.NUM_BYTES_HEADER;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  /** Size of GC and miscellaneous headers */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  int OTHER_HEADER_BYTES = GC_HEADER_BYTES + MISC_HEADER_BYTES;<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>  /** Offset of array length from object reference */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>  Offset ARRAY_LENGTH_OFFSET = Offset.fromIntSignExtend(-ARRAY_LENGTH_BYTES);<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  /** Offset of the first field from object reference */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  Offset FIELD_ZERO_OFFSET = ARRAY_LENGTH_OFFSET;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /** Offset of the Java header from the object reference */<a name="line.57"></a>
-<span class="sourceLineNo">058</span>  Offset JAVA_HEADER_OFFSET = ARRAY_LENGTH_OFFSET.minus(JAVA_HEADER_BYTES);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  /** Offset of the miscellaneous header from the object reference */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  Offset MISC_HEADER_OFFSET = JAVA_HEADER_OFFSET.minus(MISC_HEADER_BYTES);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  /** Offset of the garbage collection header from the object reference */<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  Offset GC_HEADER_OFFSET = MISC_HEADER_OFFSET.minus(GC_HEADER_BYTES);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>  /** Offset of first element of an array */<a name="line.63"></a>
-<span class="sourceLineNo">064</span>  Offset ARRAY_BASE_OFFSET = Offset.zero();<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>  /**<a name="line.66"></a>
-<span class="sourceLineNo">067</span>   * This object model supports two schemes for hashcodes:<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   * (1) a 10 bit hash code in the object header<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   * (2) use the address of the object as its hashcode.<a name="line.69"></a>
-<span class="sourceLineNo">070</span>   *     In a copying collector, this forces us to add a word<a name="line.70"></a>
-<span class="sourceLineNo">071</span>   *     to copied objects that have had their hashcode taken.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>  boolean ADDRESS_BASED_HASHING = !MemoryManagerConstants.GENERATE_GC_TRACE;<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>  /** How many bits in the header are available for the GC and MISC headers? */<a name="line.75"></a>
-<span class="sourceLineNo">076</span>  int NUM_AVAILABLE_BITS = ADDRESS_BASED_HASHING ? 8 : 2;<a name="line.76"></a>
-<span class="sourceLineNo">077</span><a name="line.77"></a>
-<span class="sourceLineNo">078</span>  /**<a name="line.78"></a>
-<span class="sourceLineNo">079</span>   * Does this object model use the same header word to contain<a name="line.79"></a>
-<span class="sourceLineNo">080</span>   * the TIB and a forwarding pointer?<a name="line.80"></a>
-<span class="sourceLineNo">081</span>   */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  boolean FORWARDING_PTR_OVERLAYS_TIB = false;<a name="line.82"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.mm.mminterface.MemoryManagerConstants.GENERATE_GC_TRACE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.mm.mminterface.MemoryManagerConstants.NEEDS_LINEAR_SCAN;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.objectmodel.MiscHeaderConstants.NUM_BYTES_HEADER;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.runtime.JavaSizeConstants.BYTES_IN_INT;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.runtime.JavaSizeConstants.LOG_BYTES_IN_INT;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.runtime.UnboxedSizeConstants.BYTES_IN_ADDRESS;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.VM;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.mm.mminterface.MemoryManagerConstants;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.vmmagic.unboxed.Offset;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.vmmagic.unboxed.Word;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * Constants for the JavaHeader.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> *<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * @see ObjectModel<a name="line.30"></a>
+<span class="sourceLineNo">031</span> */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>public final class JavaHeaderConstants {<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>  /** Number of bytes in object's TIB pointer */<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static final int TIB_BYTES = BYTES_IN_ADDRESS;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  /** Number of bytes indicating an object's status */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static final int STATUS_BYTES = BYTES_IN_ADDRESS;<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public static final int ALIGNMENT_MASK = 0x00000001;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final int ALIGNMENT_VALUE = 0xdeadbeef;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static final int LOG_MIN_ALIGNMENT = LOG_BYTES_IN_INT;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * Number of bytes used to store the array length. We use 64 bits<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   * for the length on a 64 bit architecture as this makes the other<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * words 8-byte aligned, and the header has to be 8-byte aligned.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final int ARRAY_LENGTH_BYTES = VM.BuildFor64Addr ? BYTES_IN_ADDRESS : BYTES_IN_INT;<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>  /** Number of bytes used by the Java Header */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static final int JAVA_HEADER_BYTES = TIB_BYTES + STATUS_BYTES;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /** Number of bytes used by the GC Header */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final int GC_HEADER_BYTES = MemoryManagerConstants.GC_HEADER_BYTES;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  /** Number of bytes used by the miscellaneous header */<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  public static final int MISC_HEADER_BYTES = NUM_BYTES_HEADER;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  /** Size of GC and miscellaneous headers */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  public static final int OTHER_HEADER_BYTES = GC_HEADER_BYTES + MISC_HEADER_BYTES;<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>  /** Offset of array length from object reference */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  public static final Offset ARRAY_LENGTH_OFFSET = Offset.fromIntSignExtend(-ARRAY_LENGTH_BYTES);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /** Offset of the first field from object reference */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static final Offset FIELD_ZERO_OFFSET = ARRAY_LENGTH_OFFSET;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  /** Offset of the Java header from the object reference */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  public static final Offset JAVA_HEADER_OFFSET = ARRAY_LENGTH_OFFSET.minus(JAVA_HEADER_BYTES);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /** Offset of the miscellaneous header from the object reference */<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  public static final Offset MISC_HEADER_OFFSET = JAVA_HEADER_OFFSET.minus(MISC_HEADER_BYTES);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  /** Offset of the garbage collection header from the object reference */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  public static final Offset GC_HEADER_OFFSET = MISC_HEADER_OFFSET.minus(GC_HEADER_BYTES);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  /** Offset of first element of an array */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  public static final Offset ARRAY_BASE_OFFSET = Offset.zero();<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * This object model supports two schemes for hashcodes:<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   * (1) a 10 bit hash code in the object header<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * (2) use the address of the object as its hashcode.<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   *     In a copying collector, this forces us to add a word<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   *     to copied objects that have had their hashcode taken.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static final boolean ADDRESS_BASED_HASHING = !GENERATE_GC_TRACE;<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>  /** How many bits in the header are available for the GC and MISC headers? */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  public static final int NUM_AVAILABLE_BITS = ADDRESS_BASED_HASHING ? 8 : 2;<a name="line.82"></a>
 <span class="sourceLineNo">083</span><a name="line.83"></a>
 <span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * Does this object model place the hash for a hashed and moved object<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * after the data (at a dynamic offset)<a name="line.86"></a>
+<span class="sourceLineNo">085</span>   * Does this object model use the same header word to contain<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * the TIB and a forwarding pointer?<a name="line.86"></a>
 <span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  boolean DYNAMIC_HASH_OFFSET = ADDRESS_BASED_HASHING &amp;&amp; MemoryManagerConstants.NEEDS_LINEAR_SCAN;<a name="line.88"></a>
+<span class="sourceLineNo">088</span>  public static final boolean FORWARDING_PTR_OVERLAYS_TIB = false;<a name="line.88"></a>
 <span class="sourceLineNo">089</span><a name="line.89"></a>
 <span class="sourceLineNo">090</span>  /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>   * Can we perform a linear scan?<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   */<a name="line.92"></a>
-<span class="sourceLineNo">093</span>  boolean ALLOWS_LINEAR_SCAN = true;<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   * Do we need to segregate arrays and scalars to do a linear scan?<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>  boolean SEGREGATE_ARRAYS_FOR_LINEAR_SCAN = false;<a name="line.98"></a>
-<span class="sourceLineNo">099</span><a name="line.99"></a>
-<span class="sourceLineNo">100</span>  /*<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   * Stuff for address based hashing<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   */ Word HASH_STATE_UNHASHED = Word.zero();<a name="line.102"></a>
-<span class="sourceLineNo">103</span>  Word HASH_STATE_HASHED = Word.one().lsh(8); //0x00000100<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  Word HASH_STATE_HASHED_AND_MOVED = Word.fromIntZeroExtend(3).lsh(8); //0x0000300<a name="line.104"></a>
-<span class="sourceLineNo">105</span>  Word HASH_STATE_MASK = HASH_STATE_UNHASHED.or(HASH_STATE_HASHED).or(HASH_STATE_HASHED_AND_MOVED);<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>  int HASHCODE_BYTES = BYTES_IN_INT;<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  Offset HASHCODE_OFFSET = GC_HEADER_OFFSET.minus(HASHCODE_BYTES);<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>}<a name="line.110"></a>
+<span class="sourceLineNo">091</span>   * Does this object model place the hash for a hashed and moved object<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   * after the data (at a dynamic offset)<a name="line.92"></a>
+<span class="sourceLineNo">093</span>   */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  public static final boolean DYNAMIC_HASH_OFFSET = ADDRESS_BASED_HASHING &amp;&amp; NEEDS_LINEAR_SCAN;<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>  /**<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * Can we perform a linear scan?<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public static final boolean ALLOWS_LINEAR_SCAN = true;<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>  /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * Do we need to segregate arrays and scalars to do a linear scan?<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   */<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public static final boolean SEGREGATE_ARRAYS_FOR_LINEAR_SCAN = false;<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  /*<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * Stuff for address based hashing<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public static final Word HASH_STATE_UNHASHED = Word.zero();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  public static final Word HASH_STATE_HASHED = Word.one().lsh(8); //0x00000100<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  public static final Word HASH_STATE_HASHED_AND_MOVED = Word.fromIntZeroExtend(3).lsh(8); //0x0000300<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  public static final Word HASH_STATE_MASK = HASH_STATE_UNHASHED.or(HASH_STATE_HASHED).or(HASH_STATE_HASHED_AND_MOVED);<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>  public static final int HASHCODE_BYTES = BYTES_IN_INT;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  public static final Offset HASHCODE_OFFSET = GC_HEADER_OFFSET.minus(HASHCODE_BYTES);<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>}<a name="line.117"></a>
 
 
 

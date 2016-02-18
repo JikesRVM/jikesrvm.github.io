@@ -20,22 +20,22 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.baseline;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.PrintLN;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.ArchitectureSpecific.BaselineCompilerImpl;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.ArchitectureSpecific.BaselineConstants;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.ArchitectureSpecific.BaselineExceptionDeliverer;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.ExceptionHandlerMap;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.classloader.RVMArray;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.classloader.RVMType;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.classloader.TypeReference;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.common.ExceptionTable;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.DynamicLink;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.jikesrvm.runtime.ExceptionDeliverer;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.jikesrvm.runtime.StackBrowser;<a name="line.30"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.UnboxedSizeConstants.LOG_BYTES_IN_ADDRESS;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.architecture.ArchConstants;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.classloader.ExceptionHandlerMap;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.classloader.RVMArray;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.classloader.RVMType;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.classloader.TypeReference;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.common.CompiledMethod;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.common.ExceptionTable;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.runtime.DynamicLink;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.ExceptionDeliverer;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.jikesrvm.runtime.StackBrowser;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.jikesrvm.util.PrintLN;<a name="line.30"></a>
 <span class="sourceLineNo">031</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import org.vmmagic.pragma.Unpreemptible;<a name="line.32"></a>
 <span class="sourceLineNo">033</span>import org.vmmagic.unboxed.Offset;<a name="line.33"></a>
@@ -44,7 +44,7 @@
 <span class="sourceLineNo">036</span> * Compiler-specific information associated with a method's machine<a name="line.36"></a>
 <span class="sourceLineNo">037</span> * instructions.<a name="line.37"></a>
 <span class="sourceLineNo">038</span> */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public final class BaselineCompiledMethod extends CompiledMethod implements BaselineConstants {<a name="line.39"></a>
+<span class="sourceLineNo">039</span>public final class BaselineCompiledMethod extends CompiledMethod {<a name="line.39"></a>
 <span class="sourceLineNo">040</span><a name="line.40"></a>
 <span class="sourceLineNo">041</span>  /** Does the baseline compiled method have a counters array? */<a name="line.41"></a>
 <span class="sourceLineNo">042</span>  private boolean hasCounters;<a name="line.42"></a>
@@ -63,361 +63,384 @@
 <span class="sourceLineNo">055</span>  /**<a name="line.55"></a>
 <span class="sourceLineNo">056</span>   * Baseline exception deliverer object<a name="line.56"></a>
 <span class="sourceLineNo">057</span>   */<a name="line.57"></a>
-<span class="sourceLineNo">058</span>  private static final ExceptionDeliverer exceptionDeliverer = new BaselineExceptionDeliverer();<a name="line.58"></a>
+<span class="sourceLineNo">058</span>  private static final ExceptionDeliverer exceptionDeliverer;<a name="line.58"></a>
 <span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   * Stack-slot reference maps for the compiled method.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>  public ReferenceMaps referenceMaps;<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>   * Encoded representation of bytecode index to offset in code array<a name="line.66"></a>
-<span class="sourceLineNo">067</span>   * map.  Currently needed to support dynamic bridge magic; Consider<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   * integrating with GC maps<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>  private byte[] bytecodeMap;<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
-<span class="sourceLineNo">073</span>   * Exception table, null if not present.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   */<a name="line.74"></a>
-<span class="sourceLineNo">075</span>  private int[] eTable;<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>  /** Offset into stack frame when operand stack is empty */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>  private final short emptyStackOffset;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>  /** PPC only: last general purpose register holding part of the operand stack */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  private byte lastFixedStackRegister;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>  /** PPC only: last floating point register holding part of the operand stack */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  private byte lastFloatStackRegister;<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * PPC only: location of general purpose local variables, positive<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * values are register numbers, negative are stack offsets<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  private final short[] localFixedLocations;<a name="line.88"></a>
-<span class="sourceLineNo">089</span><a name="line.89"></a>
-<span class="sourceLineNo">090</span>  /**<a name="line.90"></a>
-<span class="sourceLineNo">091</span>   * PPC only: location of floating point local variables, positive<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   * values are register numbers, negative are stack offsets<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  private final short[] localFloatLocations;<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  /** @return offset into stack frame when operand stack is empty */<a name="line.96"></a>
-<span class="sourceLineNo">097</span>  public int getEmptyStackOffset() {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>    return emptyStackOffset;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  }<a name="line.99"></a>
-<span class="sourceLineNo">100</span><a name="line.100"></a>
-<span class="sourceLineNo">101</span>  /**<a name="line.101"></a>
-<span class="sourceLineNo">102</span>   * Location of local general purpose variable.  These Locations are<a name="line.102"></a>
-<span class="sourceLineNo">103</span>   * positioned at the top of the stackslot that contains the value<a name="line.103"></a>
-<span class="sourceLineNo">104</span>   * before accessing, substract size of value you want to access.&lt;p&gt;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   * e.g. to load int: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_INT&lt;br&gt;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   * e.g. to load long: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_LONG<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  @Uninterruptible<a name="line.108"></a>
-<span class="sourceLineNo">109</span>  public short getGeneralLocalLocation(int localIndex) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    return BaselineCompilerImpl.getGeneralLocalLocation(localIndex, localFixedLocations, (NormalMethod) method);<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  }<a name="line.111"></a>
-<span class="sourceLineNo">112</span><a name="line.112"></a>
-<span class="sourceLineNo">113</span>  /**<a name="line.113"></a>
-<span class="sourceLineNo">114</span>   * Location of local floating point variable.  These Locations are<a name="line.114"></a>
-<span class="sourceLineNo">115</span>   * positioned at the top of the stackslot that contains the value<a name="line.115"></a>
-<span class="sourceLineNo">116</span>   * before accessing, substract size of value you want to access.&lt;p&gt;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>   * e.g. to load float: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_FLOAT&lt;br&gt;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>   * e.g. to load double: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_DOUBLE<a name="line.118"></a>
+<span class="sourceLineNo">060</span>  static {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    if (VM.BuildForIA32) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      exceptionDeliverer = new org.jikesrvm.compilers.baseline.ia32.BaselineExceptionDeliverer();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    } else {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>      exceptionDeliverer = new org.jikesrvm.compilers.baseline.ppc.BaselineExceptionDeliverer();<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      if (VM.VerifyAssertions) VM._assert(VM.BuildForPowerPC);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  }<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>  /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   * Stack-slot reference maps for the compiled method.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  public ReferenceMaps referenceMaps;<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>  /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * Encoded representation of bytecode index to offset in code array<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * map.  Currently needed to support dynamic bridge magic; Consider<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * integrating with GC maps<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  private byte[] bytecodeMap;<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>  /**<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * Exception table, null if not present.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  private int[] eTable;<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>  /** Offset into stack frame when operand stack is empty */<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  private final short emptyStackOffset;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  /** PPC only: last general purpose register holding part of the operand stack */<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  private byte lastFixedStackRegister;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  /** PPC only: last floating point register holding part of the operand stack */<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  private byte lastFloatStackRegister;<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>  /**<a name="line.93"></a>
+<span class="sourceLineNo">094</span>   * PPC only: location of general purpose local variables, positive<a name="line.94"></a>
+<span class="sourceLineNo">095</span>   * values are register numbers, negative are stack offsets<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   */<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  private final short[] localFixedLocations;<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>  /**<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * PPC only: location of floating point local variables, positive<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * values are register numbers, negative are stack offsets<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  private final short[] localFloatLocations;<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>  /** @return offset into stack frame when operand stack is empty */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  public int getEmptyStackOffset() {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    return emptyStackOffset;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  }<a name="line.108"></a>
+<span class="sourceLineNo">109</span><a name="line.109"></a>
+<span class="sourceLineNo">110</span>  /**<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   * Location of local general purpose variable.  These Locations are<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * positioned at the top of the stackslot that contains the value<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   * before accessing, substract size of value you want to access.&lt;p&gt;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * e.g. to load int: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_INT&lt;br&gt;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   * e.g. to load long: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_LONG<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * @param localIndex the index for the local general purpose variable<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * @return location of the general purpose variable with the given index<a name="line.118"></a>
 <span class="sourceLineNo">119</span>   */<a name="line.119"></a>
 <span class="sourceLineNo">120</span>  @Uninterruptible<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  public short getFloatLocalLocation(int localIndex) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    return BaselineCompilerImpl.getFloatLocalLocation(localIndex, localFloatLocations, (NormalMethod) method);<a name="line.122"></a>
+<span class="sourceLineNo">121</span>  public short getGeneralLocalLocation(int localIndex) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    return BaselineCompiler.getGeneralLocalLocation(localIndex, localFixedLocations, (NormalMethod) method);<a name="line.122"></a>
 <span class="sourceLineNo">123</span>  }<a name="line.123"></a>
 <span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>  /** Offset onto stack of a particular general purpose operand stack location */<a name="line.125"></a>
-<span class="sourceLineNo">126</span>  @Uninterruptible<a name="line.126"></a>
-<span class="sourceLineNo">127</span>  public short getGeneralStackLocation(int stackIndex) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    return BaselineCompilerImpl.offsetToLocation(emptyStackOffset - (stackIndex &lt;&lt; LOG_BYTES_IN_ADDRESS));<a name="line.128"></a>
-<span class="sourceLineNo">129</span>  }<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>  /** Offset onto stack of a particular operand stack location for a floating point value */<a name="line.131"></a>
-<span class="sourceLineNo">132</span>  @Uninterruptible<a name="line.132"></a>
-<span class="sourceLineNo">133</span>  public short getFloatStackLocation(int stackIndex) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    // for now same implementation as getGeneralStackLocation<a name="line.134"></a>
-<span class="sourceLineNo">135</span>    return getGeneralStackLocation(stackIndex);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>  }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>  /** Last general purpose register holding part of the operand stack */<a name="line.138"></a>
-<span class="sourceLineNo">139</span>  @Uninterruptible<a name="line.139"></a>
-<span class="sourceLineNo">140</span>  public int getLastFixedStackRegister() {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    return lastFixedStackRegister;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>  }<a name="line.142"></a>
-<span class="sourceLineNo">143</span><a name="line.143"></a>
-<span class="sourceLineNo">144</span>  /** Last floating point register holding part of the operand stack */<a name="line.144"></a>
+<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * Location of local floating point variable.  These Locations are<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * positioned at the top of the stackslot that contains the value<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   * before accessing, substract size of value you want to access.&lt;p&gt;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * e.g. to load float: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_FLOAT&lt;br&gt;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * e.g. to load double: load at BaselineCompilerImpl.locationToOffset(location) - BYTES_IN_DOUBLE<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   *<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * @param localIndex the index for the local general purpose variable<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * @return location of the floating point variable with the given index<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  @Uninterruptible<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  public short getFloatLocalLocation(int localIndex) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    return BaselineCompiler.getFloatLocalLocation(localIndex, localFloatLocations, (NormalMethod) method);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  @Uninterruptible<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public short getGeneralStackLocation(int stackIndex) {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    return BaselineCompiler.offsetToLocation(emptyStackOffset - (stackIndex &lt;&lt; LOG_BYTES_IN_ADDRESS));<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  }<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
 <span class="sourceLineNo">145</span>  @Uninterruptible<a name="line.145"></a>
-<span class="sourceLineNo">146</span>  public int getLastFloatStackRegister() {<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    return lastFloatStackRegister;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>  /** Constructor */<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  public BaselineCompiledMethod(int id, RVMMethod m) {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>    super(id, m);<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    NormalMethod nm = (NormalMethod) m;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    //this.startLocalOffset = BaselineCompilerImpl.getStartLocalOffset(nm);<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    this.emptyStackOffset = (short)BaselineCompilerImpl.getEmptyStackOffset(nm);<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    this.localFixedLocations = VM.BuildForIA32 ? null : new short[nm.getLocalWords()];<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    this.localFloatLocations = VM.BuildForIA32 ? null : new short[nm.getLocalWords()];<a name="line.157"></a>
-<span class="sourceLineNo">158</span>    this.lastFixedStackRegister = -1;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    this.lastFloatStackRegister = -1;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>  }<a name="line.160"></a>
-<span class="sourceLineNo">161</span><a name="line.161"></a>
-<span class="sourceLineNo">162</span>  /** Compile method */<a name="line.162"></a>
-<span class="sourceLineNo">163</span>  public void compile() {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    BaselineCompilerImpl comp = new BaselineCompilerImpl(this, localFixedLocations, localFloatLocations);<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    comp.compile();<a name="line.165"></a>
-<span class="sourceLineNo">166</span>    this.lastFixedStackRegister = comp.getLastFixedStackRegister();<a name="line.166"></a>
-<span class="sourceLineNo">167</span>    this.lastFloatStackRegister = comp.getLastFloatStackRegister();<a name="line.167"></a>
-<span class="sourceLineNo">168</span>  }<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>  /** @return BASELINE */<a name="line.170"></a>
-<span class="sourceLineNo">171</span>  @Override<a name="line.171"></a>
-<span class="sourceLineNo">172</span>  @Uninterruptible<a name="line.172"></a>
-<span class="sourceLineNo">173</span>  public int getCompilerType() {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    return BASELINE;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  }<a name="line.175"></a>
-<span class="sourceLineNo">176</span><a name="line.176"></a>
-<span class="sourceLineNo">177</span>  /** @return "baseline compiler" */<a name="line.177"></a>
-<span class="sourceLineNo">178</span>  @Override<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  public String getCompilerName() {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    return "baseline compiler";<a name="line.180"></a>
-<span class="sourceLineNo">181</span>  }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>  /**<a name="line.183"></a>
-<span class="sourceLineNo">184</span>   * Get the exception deliverer for this kind of compiled method<a name="line.184"></a>
-<span class="sourceLineNo">185</span>   */<a name="line.185"></a>
-<span class="sourceLineNo">186</span>  @Override<a name="line.186"></a>
-<span class="sourceLineNo">187</span>  @Uninterruptible<a name="line.187"></a>
-<span class="sourceLineNo">188</span>  public ExceptionDeliverer getExceptionDeliverer() {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    return exceptionDeliverer;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>  }<a name="line.190"></a>
-<span class="sourceLineNo">191</span><a name="line.191"></a>
-<span class="sourceLineNo">192</span>  /**<a name="line.192"></a>
-<span class="sourceLineNo">193</span>   * Find a catch block within the compiled method<a name="line.193"></a>
-<span class="sourceLineNo">194</span>   * @param instructionOffset offset of faulting instruction in compiled code<a name="line.194"></a>
-<span class="sourceLineNo">195</span>   * @param exceptionType the type of the thrown exception<a name="line.195"></a>
-<span class="sourceLineNo">196</span>   * @return the machine code offset of the catch block.<a name="line.196"></a>
-<span class="sourceLineNo">197</span>   */<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  @Override<a name="line.198"></a>
-<span class="sourceLineNo">199</span>  @Unpreemptible<a name="line.199"></a>
-<span class="sourceLineNo">200</span>  public int findCatchBlockForInstruction(Offset instructionOffset, RVMType exceptionType) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    if (eTable == null) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>      return -1;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    } else {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>      return ExceptionTable.findCatchBlockForInstruction(eTable, instructionOffset, exceptionType);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
-<span class="sourceLineNo">206</span>  }<a name="line.206"></a>
-<span class="sourceLineNo">207</span><a name="line.207"></a>
-<span class="sourceLineNo">208</span>  @Override<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  @Uninterruptible<a name="line.209"></a>
-<span class="sourceLineNo">210</span>  public void getDynamicLink(DynamicLink dynamicLink, Offset instructionOffset) {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>    int bytecodeIndex = findBytecodeIndexForInstruction(instructionOffset);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>    ((NormalMethod) method).getDynamicLink(dynamicLink, bytecodeIndex);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>  /**<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * @return The line number, a positive integer.  Zero means unable to find.<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   */<a name="line.217"></a>
-<span class="sourceLineNo">218</span>  @Override<a name="line.218"></a>
-<span class="sourceLineNo">219</span>  @Uninterruptible<a name="line.219"></a>
-<span class="sourceLineNo">220</span>  public int findLineNumberForInstruction(Offset instructionOffset) {<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    int bci = findBytecodeIndexForInstruction(instructionOffset);<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    if (bci == -1) return 0;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    return ((NormalMethod) method).getLineNumberForBCIndex(bci);<a name="line.223"></a>
+<span class="sourceLineNo">146</span>  public short getFloatStackLocation(int stackIndex) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    // for now same implementation as getGeneralStackLocation<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    return getGeneralStackLocation(stackIndex);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  }<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>  /** @return last general purpose register holding part of the operand stack */<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  @Uninterruptible<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  public int getLastFixedStackRegister() {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    return lastFixedStackRegister;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  }<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>  /** @return last floating point register holding part of the operand stack */<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  @Uninterruptible<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  public int getLastFloatStackRegister() {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    return lastFloatStackRegister;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>  public BaselineCompiledMethod(int id, RVMMethod m) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    super(id, m);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    NormalMethod nm = (NormalMethod) m;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    //this.startLocalOffset = BaselineCompilerImpl.getStartLocalOffset(nm);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    this.emptyStackOffset = BaselineCompiler.getEmptyStackOffset(nm);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    this.localFixedLocations = VM.BuildForIA32 ? null : new short[nm.getLocalWords()];<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    this.localFloatLocations = VM.BuildForIA32 ? null : new short[nm.getLocalWords()];<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    this.lastFixedStackRegister = -1;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    this.lastFloatStackRegister = -1;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  }<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>  /** Compile method */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  public void compile() {<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    BaselineCompiler comp;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    if (VM.BuildForIA32) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      comp = new org.jikesrvm.compilers.baseline.ia32.BaselineCompilerImpl(this, localFixedLocations, localFloatLocations);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    } else {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      if (VM.VerifyAssertions) VM._assert(VM.BuildForPowerPC);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      comp = new org.jikesrvm.compilers.baseline.ppc.BaselineCompilerImpl(this, localFixedLocations, localFloatLocations);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    }<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    comp.compile();<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    this.lastFixedStackRegister = comp.getLastFixedStackRegister();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    this.lastFloatStackRegister = comp.getLastFloatStackRegister();<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  }<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>  /** @return BASELINE */<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  @Override<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  @Uninterruptible<a name="line.190"></a>
+<span class="sourceLineNo">191</span>  public int getCompilerType() {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    return BASELINE;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>  }<a name="line.193"></a>
+<span class="sourceLineNo">194</span><a name="line.194"></a>
+<span class="sourceLineNo">195</span>  /** @return "baseline compiler" */<a name="line.195"></a>
+<span class="sourceLineNo">196</span>  @Override<a name="line.196"></a>
+<span class="sourceLineNo">197</span>  public String getCompilerName() {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    return "baseline compiler";<a name="line.198"></a>
+<span class="sourceLineNo">199</span>  }<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>  /**<a name="line.201"></a>
+<span class="sourceLineNo">202</span>   * @return the exception deliverer for this kind of compiled method<a name="line.202"></a>
+<span class="sourceLineNo">203</span>   */<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  @Override<a name="line.204"></a>
+<span class="sourceLineNo">205</span>  @Uninterruptible<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  public ExceptionDeliverer getExceptionDeliverer() {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    return exceptionDeliverer;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>  }<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>  /**<a name="line.210"></a>
+<span class="sourceLineNo">211</span>   * Find a catch block within the compiled method<a name="line.211"></a>
+<span class="sourceLineNo">212</span>   * @param instructionOffset offset of faulting instruction in compiled code<a name="line.212"></a>
+<span class="sourceLineNo">213</span>   * @param exceptionType the type of the thrown exception<a name="line.213"></a>
+<span class="sourceLineNo">214</span>   * @return the machine code offset of the catch block.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   */<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  @Override<a name="line.216"></a>
+<span class="sourceLineNo">217</span>  @Unpreemptible<a name="line.217"></a>
+<span class="sourceLineNo">218</span>  public int findCatchBlockForInstruction(Offset instructionOffset, RVMType exceptionType) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    if (eTable == null) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>      return -1;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    } else {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      return ExceptionTable.findCatchBlockForInstruction(eTable, instructionOffset, exceptionType);<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
 <span class="sourceLineNo">224</span>  }<a name="line.224"></a>
 <span class="sourceLineNo">225</span><a name="line.225"></a>
 <span class="sourceLineNo">226</span>  @Override<a name="line.226"></a>
-<span class="sourceLineNo">227</span>  public boolean isWithinUninterruptibleCode(Offset instructionOffset) {<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    return method.isUninterruptible();<a name="line.228"></a>
-<span class="sourceLineNo">229</span>  }<a name="line.229"></a>
-<span class="sourceLineNo">230</span><a name="line.230"></a>
-<span class="sourceLineNo">231</span>  /**<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   * Find bytecode index corresponding to one of this method's<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * machine instructions.<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   *<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   * @param instructionOffset instruction offset to map to a bytecode index.&lt;br&gt;<a name="line.235"></a>
-<span class="sourceLineNo">236</span>   * Note: This method expects the offset to refer to the machine<a name="line.236"></a>
-<span class="sourceLineNo">237</span>   * instruction immediately FOLLOWING the bytecode in question.  just<a name="line.237"></a>
-<span class="sourceLineNo">238</span>   * like findLineNumberForInstruction. See CompiledMethod for<a name="line.238"></a>
-<span class="sourceLineNo">239</span>   * rationale.&lt;br&gt;<a name="line.239"></a>
-<span class="sourceLineNo">240</span>   * NOTE: instructionIndex is in units of instructions, not bytes<a name="line.240"></a>
-<span class="sourceLineNo">241</span>   * (different from all the other methods in this interface!!)<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   * @return the bytecode index for the machine instruction, -1 if not<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   *         available or not found.<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   */<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  @Uninterruptible<a name="line.245"></a>
-<span class="sourceLineNo">246</span>  public int findBytecodeIndexForInstruction(Offset instructionOffset) {<a name="line.246"></a>
-<span class="sourceLineNo">247</span>    Offset instructionIndex = instructionOffset.toWord().rsha(LG_INSTRUCTION_WIDTH).toOffset();<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    int candidateIndex = -1;<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    int bcIndex = 0;<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    Offset instrIndex = Offset.zero();<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    for (int i = 0; i &lt; bytecodeMap.length;) {<a name="line.251"></a>
-<span class="sourceLineNo">252</span>      int b0 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.252"></a>
-<span class="sourceLineNo">253</span>      int deltaBC, deltaIns;<a name="line.253"></a>
-<span class="sourceLineNo">254</span>      if (b0 != 255) {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>        deltaBC = b0 &gt;&gt; 5;<a name="line.255"></a>
-<span class="sourceLineNo">256</span>        deltaIns = b0 &amp; 31;<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      } else {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>        int b1 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        int b2 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        int b3 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        int b4 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        deltaBC = (b1 &lt;&lt; 8) | b2;<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        deltaIns = (b3 &lt;&lt; 8) | b4;<a name="line.263"></a>
-<span class="sourceLineNo">264</span>      }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>      bcIndex += deltaBC;<a name="line.265"></a>
-<span class="sourceLineNo">266</span>      instrIndex = instrIndex.plus(deltaIns);<a name="line.266"></a>
-<span class="sourceLineNo">267</span>      if (instrIndex.sGE(instructionIndex)) {<a name="line.267"></a>
-<span class="sourceLineNo">268</span>        break;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>      }<a name="line.269"></a>
-<span class="sourceLineNo">270</span>      candidateIndex = bcIndex;<a name="line.270"></a>
-<span class="sourceLineNo">271</span>    }<a name="line.271"></a>
-<span class="sourceLineNo">272</span>    return candidateIndex;<a name="line.272"></a>
-<span class="sourceLineNo">273</span>  }<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>  @Override<a name="line.275"></a>
-<span class="sourceLineNo">276</span>  public void set(StackBrowser browser, Offset instr) {<a name="line.276"></a>
-<span class="sourceLineNo">277</span>    browser.setMethod(method);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>    browser.setCompiledMethod(this);<a name="line.278"></a>
-<span class="sourceLineNo">279</span>    browser.setBytecodeIndex(findBytecodeIndexForInstruction(instr));<a name="line.279"></a>
-<span class="sourceLineNo">280</span><a name="line.280"></a>
-<span class="sourceLineNo">281</span>    if (VM.TraceStackTrace) {<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      VM.sysWrite("setting stack to frame (base): ");<a name="line.282"></a>
-<span class="sourceLineNo">283</span>      VM.sysWrite(browser.getMethod());<a name="line.283"></a>
-<span class="sourceLineNo">284</span>      VM.sysWrite(browser.getBytecodeIndex());<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      VM.sysWrite("\n");<a name="line.285"></a>
-<span class="sourceLineNo">286</span>    }<a name="line.286"></a>
-<span class="sourceLineNo">287</span>  }<a name="line.287"></a>
-<span class="sourceLineNo">288</span><a name="line.288"></a>
-<span class="sourceLineNo">289</span>  @Override<a name="line.289"></a>
-<span class="sourceLineNo">290</span>  public boolean up(StackBrowser browser) {<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    return false;<a name="line.291"></a>
+<span class="sourceLineNo">227</span>  @Uninterruptible<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  public void getDynamicLink(DynamicLink dynamicLink, Offset instructionOffset) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    int bytecodeIndex = findBytecodeIndexForInstruction(instructionOffset);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    ((NormalMethod) method).getDynamicLink(dynamicLink, bytecodeIndex);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>  }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>  /**<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * @param instructionOffset the instruction's offset in the code for the method<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @return The line number, a positive integer.  Zero means unable to find.<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  @Override<a name="line.237"></a>
+<span class="sourceLineNo">238</span>  @Uninterruptible<a name="line.238"></a>
+<span class="sourceLineNo">239</span>  public int findLineNumberForInstruction(Offset instructionOffset) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    int bci = findBytecodeIndexForInstruction(instructionOffset);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    if (bci == -1) return 0;<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    return ((NormalMethod) method).getLineNumberForBCIndex(bci);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>  }<a name="line.243"></a>
+<span class="sourceLineNo">244</span><a name="line.244"></a>
+<span class="sourceLineNo">245</span>  @Override<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  public boolean isWithinUninterruptibleCode(Offset instructionOffset) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    return method.isUninterruptible();<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>  /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   * Find bytecode index corresponding to one of this method's<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   * machine instructions.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>   *<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * @param instructionOffset instruction offset to map to a bytecode index.&lt;br&gt;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   * Note: This method expects the offset to refer to the machine<a name="line.255"></a>
+<span class="sourceLineNo">256</span>   * instruction immediately FOLLOWING the bytecode in question.  just<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   * like findLineNumberForInstruction. See CompiledMethod for<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * rationale.&lt;br&gt;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * NOTE: instructionIndex is in units of instructions, not bytes<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * (different from all the other methods in this interface!!)<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * @return the bytecode index for the machine instruction, -1 if not<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   *         available or not found.<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   */<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  @Uninterruptible<a name="line.264"></a>
+<span class="sourceLineNo">265</span>  public int findBytecodeIndexForInstruction(Offset instructionOffset) {<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    Offset instructionIndex = instructionOffset.toWord().rsha(ArchConstants.getLogInstructionWidth()).toOffset();<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    int candidateIndex = -1;<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    int bcIndex = 0;<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    Offset instrIndex = Offset.zero();<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    for (int i = 0; i &lt; bytecodeMap.length;) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      int b0 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      int deltaBC, deltaIns;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      if (b0 != 255) {<a name="line.273"></a>
+<span class="sourceLineNo">274</span>        deltaBC = b0 &gt;&gt; 5;<a name="line.274"></a>
+<span class="sourceLineNo">275</span>        deltaIns = b0 &amp; 31;<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      } else {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>        int b1 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.277"></a>
+<span class="sourceLineNo">278</span>        int b2 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.278"></a>
+<span class="sourceLineNo">279</span>        int b3 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.279"></a>
+<span class="sourceLineNo">280</span>        int b4 = (bytecodeMap[i++]) &amp; 255;  // unsign-extend<a name="line.280"></a>
+<span class="sourceLineNo">281</span>        deltaBC = (b1 &lt;&lt; 8) | b2;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>        deltaIns = (b3 &lt;&lt; 8) | b4;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      }<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      bcIndex += deltaBC;<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      instrIndex = instrIndex.plus(deltaIns);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      if (instrIndex.sGE(instructionIndex)) {<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        break;<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      }<a name="line.288"></a>
+<span class="sourceLineNo">289</span>      candidateIndex = bcIndex;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    return candidateIndex;<a name="line.291"></a>
 <span class="sourceLineNo">292</span>  }<a name="line.292"></a>
 <span class="sourceLineNo">293</span><a name="line.293"></a>
 <span class="sourceLineNo">294</span>  @Override<a name="line.294"></a>
-<span class="sourceLineNo">295</span>  public void printStackTrace(Offset instructionOffset, PrintLN out) {<a name="line.295"></a>
-<span class="sourceLineNo">296</span>    out.print("\tat ");<a name="line.296"></a>
-<span class="sourceLineNo">297</span>    out.print(method.getDeclaringClass()); // RVMClass<a name="line.297"></a>
-<span class="sourceLineNo">298</span>    out.print('.');<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    out.print(method.getName()); // a Atom, returned via MemberReference.getName().<a name="line.299"></a>
-<span class="sourceLineNo">300</span>    out.print("(");<a name="line.300"></a>
-<span class="sourceLineNo">301</span>    out.print(method.getDeclaringClass().getSourceName()); // a Atom<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    int lineNumber = findLineNumberForInstruction(instructionOffset);<a name="line.302"></a>
-<span class="sourceLineNo">303</span>    if (lineNumber &lt;= 0) {      // unknown line<a name="line.303"></a>
-<span class="sourceLineNo">304</span>      out.print("; machine code offset: ");<a name="line.304"></a>
-<span class="sourceLineNo">305</span>      out.printHex(instructionOffset.toInt());<a name="line.305"></a>
-<span class="sourceLineNo">306</span>    } else {<a name="line.306"></a>
-<span class="sourceLineNo">307</span>      out.print(':');<a name="line.307"></a>
-<span class="sourceLineNo">308</span>      out.print(lineNumber);<a name="line.308"></a>
-<span class="sourceLineNo">309</span>    }<a name="line.309"></a>
-<span class="sourceLineNo">310</span>    out.print(')');<a name="line.310"></a>
-<span class="sourceLineNo">311</span>    out.println();<a name="line.311"></a>
-<span class="sourceLineNo">312</span>  }<a name="line.312"></a>
-<span class="sourceLineNo">313</span><a name="line.313"></a>
-<span class="sourceLineNo">314</span>  /**<a name="line.314"></a>
-<span class="sourceLineNo">315</span>   * Print the eTable<a name="line.315"></a>
-<span class="sourceLineNo">316</span>   */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>  public void printExceptionTable() {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>    if (eTable != null) ExceptionTable.printExceptionTable(eTable);<a name="line.318"></a>
-<span class="sourceLineNo">319</span>  }<a name="line.319"></a>
-<span class="sourceLineNo">320</span><a name="line.320"></a>
-<span class="sourceLineNo">321</span>  /** Set the lock acquisition offset for synchronized methods */<a name="line.321"></a>
-<span class="sourceLineNo">322</span>  public void setLockAcquisitionOffset(int off) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    if (VM.VerifyAssertions) VM._assert((off &amp; 0xFFFF) == off);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>    lockOffset = (char) off;<a name="line.324"></a>
-<span class="sourceLineNo">325</span>  }<a name="line.325"></a>
-<span class="sourceLineNo">326</span><a name="line.326"></a>
-<span class="sourceLineNo">327</span>  /** Get the lock acquisition offset */<a name="line.327"></a>
-<span class="sourceLineNo">328</span>  @Uninterruptible<a name="line.328"></a>
-<span class="sourceLineNo">329</span>  public Offset getLockAcquisitionOffset() {<a name="line.329"></a>
-<span class="sourceLineNo">330</span>    return Offset.fromIntZeroExtend(lockOffset);<a name="line.330"></a>
+<span class="sourceLineNo">295</span>  public void set(StackBrowser browser, Offset instr) {<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    browser.setMethod(method);<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    browser.setCompiledMethod(this);<a name="line.297"></a>
+<span class="sourceLineNo">298</span>    browser.setBytecodeIndex(findBytecodeIndexForInstruction(instr));<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>    if (VM.TraceStackTrace) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>      VM.sysWrite("setting stack to frame (base): ");<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      VM.sysWrite(browser.getMethod());<a name="line.302"></a>
+<span class="sourceLineNo">303</span>      VM.sysWrite(browser.getBytecodeIndex());<a name="line.303"></a>
+<span class="sourceLineNo">304</span>      VM.sysWrite("\n");<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    }<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>  @Override<a name="line.308"></a>
+<span class="sourceLineNo">309</span>  public boolean up(StackBrowser browser) {<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    return false;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>  }<a name="line.311"></a>
+<span class="sourceLineNo">312</span><a name="line.312"></a>
+<span class="sourceLineNo">313</span>  @Override<a name="line.313"></a>
+<span class="sourceLineNo">314</span>  public void printStackTrace(Offset instructionOffset, PrintLN out) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    out.print("\tat ");<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    out.print(method.getDeclaringClass()); // RVMClass<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    out.print('.');<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    out.print(method.getName()); // a Atom, returned via MemberReference.getName().<a name="line.318"></a>
+<span class="sourceLineNo">319</span>    out.print("(");<a name="line.319"></a>
+<span class="sourceLineNo">320</span>    out.print(method.getDeclaringClass().getSourceName()); // a Atom<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    int lineNumber = findLineNumberForInstruction(instructionOffset);<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    if (lineNumber &lt;= 0) {      // unknown line<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      out.print("; machine code offset: ");<a name="line.323"></a>
+<span class="sourceLineNo">324</span>      out.printHex(instructionOffset.toInt());<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    } else {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      out.print(':');<a name="line.326"></a>
+<span class="sourceLineNo">327</span>      out.print(lineNumber);<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    }<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    out.print(')');<a name="line.329"></a>
+<span class="sourceLineNo">330</span>    out.println();<a name="line.330"></a>
 <span class="sourceLineNo">331</span>  }<a name="line.331"></a>
 <span class="sourceLineNo">332</span><a name="line.332"></a>
-<span class="sourceLineNo">333</span>  /** Set the method has a counters array */<a name="line.333"></a>
-<span class="sourceLineNo">334</span>  void setHasCounterArray() {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>    hasCounters = true;<a name="line.335"></a>
-<span class="sourceLineNo">336</span>  }<a name="line.336"></a>
-<span class="sourceLineNo">337</span><a name="line.337"></a>
-<span class="sourceLineNo">338</span>  /** Does the method have a counters array? */<a name="line.338"></a>
-<span class="sourceLineNo">339</span>  @Uninterruptible<a name="line.339"></a>
-<span class="sourceLineNo">340</span>  public boolean hasCounterArray() {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>    return hasCounters;<a name="line.341"></a>
-<span class="sourceLineNo">342</span>  }<a name="line.342"></a>
-<span class="sourceLineNo">343</span><a name="line.343"></a>
-<span class="sourceLineNo">344</span>  /**<a name="line.344"></a>
-<span class="sourceLineNo">345</span>   * Encode/compress the bytecode map, reference (GC) map and exception table<a name="line.345"></a>
-<span class="sourceLineNo">346</span>   *<a name="line.346"></a>
-<span class="sourceLineNo">347</span>   * @param referenceMaps to encode<a name="line.347"></a>
-<span class="sourceLineNo">348</span>   * @param bcMap unencoded bytecode to code array offset map<a name="line.348"></a>
-<span class="sourceLineNo">349</span>   */<a name="line.349"></a>
-<span class="sourceLineNo">350</span>  public void encodeMappingInfo(ReferenceMaps referenceMaps, int[] bcMap) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>    int count = 0;<a name="line.351"></a>
-<span class="sourceLineNo">352</span>    int lastBC = 0, lastIns = 0;<a name="line.352"></a>
-<span class="sourceLineNo">353</span>    for (int i = 0; i &lt; bcMap.length; i++) {<a name="line.353"></a>
-<span class="sourceLineNo">354</span>      if (bcMap[i] != 0) {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>        int deltaBC = i - lastBC;<a name="line.355"></a>
-<span class="sourceLineNo">356</span>        int deltaIns = bcMap[i] - lastIns;<a name="line.356"></a>
-<span class="sourceLineNo">357</span>        if (VM.VerifyAssertions) {<a name="line.357"></a>
-<span class="sourceLineNo">358</span>          VM._assert(deltaBC &gt;= 0 &amp;&amp; deltaIns &gt;= 0);<a name="line.358"></a>
-<span class="sourceLineNo">359</span>        }<a name="line.359"></a>
-<span class="sourceLineNo">360</span>        if (deltaBC &lt;= 6 &amp;&amp; deltaIns &lt;= 31) {<a name="line.360"></a>
-<span class="sourceLineNo">361</span>          count++;<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        } else {<a name="line.362"></a>
-<span class="sourceLineNo">363</span>          if (deltaBC &gt; 65535 || deltaIns &gt; 65535) {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>            VM.sysFail("BaselineCompiledMethod: a fancier encoding is needed");<a name="line.364"></a>
-<span class="sourceLineNo">365</span>          }<a name="line.365"></a>
-<span class="sourceLineNo">366</span>          count += 5;<a name="line.366"></a>
-<span class="sourceLineNo">367</span>        }<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        lastBC = i;<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        lastIns = bcMap[i];<a name="line.369"></a>
-<span class="sourceLineNo">370</span>      }<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>    bytecodeMap = new byte[count];<a name="line.372"></a>
-<span class="sourceLineNo">373</span>    count = lastBC = lastIns = 0;<a name="line.373"></a>
-<span class="sourceLineNo">374</span>    for (int i = 0; i &lt; bcMap.length; i++) {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>      if (bcMap[i] != 0) {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        int deltaBC = i - lastBC;<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        int deltaIns = bcMap[i] - lastIns;<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        if (VM.VerifyAssertions) {<a name="line.378"></a>
-<span class="sourceLineNo">379</span>          VM._assert(deltaBC &gt;= 0 &amp;&amp; deltaIns &gt;= 0);<a name="line.379"></a>
-<span class="sourceLineNo">380</span>        }<a name="line.380"></a>
-<span class="sourceLineNo">381</span>        if (deltaBC &lt;= 6 &amp;&amp; deltaIns &lt;= 31) {<a name="line.381"></a>
-<span class="sourceLineNo">382</span>          bytecodeMap[count++] = (byte) ((deltaBC &lt;&lt; 5) | deltaIns);<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        } else { // From before, we know that deltaBC &lt;= 65535 and deltaIns &lt;= 65535<a name="line.383"></a>
-<span class="sourceLineNo">384</span>          bytecodeMap[count++] = (byte) 255;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>          bytecodeMap[count++] = (byte) (deltaBC &gt;&gt; 8);<a name="line.385"></a>
-<span class="sourceLineNo">386</span>          bytecodeMap[count++] = (byte) (deltaBC &amp; 255);<a name="line.386"></a>
-<span class="sourceLineNo">387</span>          bytecodeMap[count++] = (byte) (deltaIns &gt;&gt; 8);<a name="line.387"></a>
-<span class="sourceLineNo">388</span>          bytecodeMap[count++] = (byte) (deltaIns &amp; 255);<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        }<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        lastBC = i;<a name="line.390"></a>
-<span class="sourceLineNo">391</span>        lastIns = bcMap[i];<a name="line.391"></a>
-<span class="sourceLineNo">392</span>      }<a name="line.392"></a>
-<span class="sourceLineNo">393</span>    }<a name="line.393"></a>
-<span class="sourceLineNo">394</span>    // TODO: it's likely for short methods we can share the bytecodeMap<a name="line.394"></a>
-<span class="sourceLineNo">395</span>    referenceMaps.translateByte2Machine(bcMap);<a name="line.395"></a>
-<span class="sourceLineNo">396</span>    this.referenceMaps = referenceMaps;<a name="line.396"></a>
-<span class="sourceLineNo">397</span>    ExceptionHandlerMap emap = ((NormalMethod) method).getExceptionHandlerMap();<a name="line.397"></a>
-<span class="sourceLineNo">398</span>    if (emap != null) {<a name="line.398"></a>
-<span class="sourceLineNo">399</span>      eTable = BaselineExceptionTable.encode(emap, bcMap);<a name="line.399"></a>
-<span class="sourceLineNo">400</span>    }<a name="line.400"></a>
-<span class="sourceLineNo">401</span>  }<a name="line.401"></a>
-<span class="sourceLineNo">402</span><a name="line.402"></a>
-<span class="sourceLineNo">403</span>  @Override<a name="line.403"></a>
-<span class="sourceLineNo">404</span>  public int size() {<a name="line.404"></a>
-<span class="sourceLineNo">405</span>    TypeReference TYPE = TypeReference.findOrCreate(BaselineCompiledMethod.class);<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    int size = TYPE.peekType().asClass().getInstanceSize();<a name="line.406"></a>
-<span class="sourceLineNo">407</span>    if (bytecodeMap != null) size += RVMArray.ByteArray.getInstanceSize(bytecodeMap.length);<a name="line.407"></a>
-<span class="sourceLineNo">408</span>    if (eTable != null) size += RVMArray.IntArray.getInstanceSize(eTable.length);<a name="line.408"></a>
-<span class="sourceLineNo">409</span>    if (referenceMaps != null) size += referenceMaps.size();<a name="line.409"></a>
-<span class="sourceLineNo">410</span>    return size;<a name="line.410"></a>
-<span class="sourceLineNo">411</span>  }<a name="line.411"></a>
-<span class="sourceLineNo">412</span>}<a name="line.412"></a>
+<span class="sourceLineNo">333</span>  /**<a name="line.333"></a>
+<span class="sourceLineNo">334</span>   * Print the eTable<a name="line.334"></a>
+<span class="sourceLineNo">335</span>   */<a name="line.335"></a>
+<span class="sourceLineNo">336</span>  public void printExceptionTable() {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    if (eTable != null) ExceptionTable.printExceptionTable(eTable);<a name="line.337"></a>
+<span class="sourceLineNo">338</span>  }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>  /**<a name="line.340"></a>
+<span class="sourceLineNo">341</span>   * Sets the lock acquisition offset for synchronized methods.<a name="line.341"></a>
+<span class="sourceLineNo">342</span>   *<a name="line.342"></a>
+<span class="sourceLineNo">343</span>   * @param off new offset<a name="line.343"></a>
+<span class="sourceLineNo">344</span>   */<a name="line.344"></a>
+<span class="sourceLineNo">345</span>  public void setLockAcquisitionOffset(int off) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>    if (VM.VerifyAssertions) VM._assert((off &amp; 0xFFFF) == off);<a name="line.346"></a>
+<span class="sourceLineNo">347</span>    lockOffset = (char) off;<a name="line.347"></a>
+<span class="sourceLineNo">348</span>  }<a name="line.348"></a>
+<span class="sourceLineNo">349</span><a name="line.349"></a>
+<span class="sourceLineNo">350</span>  /** @return the lock acquisition offset */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>  @Uninterruptible<a name="line.351"></a>
+<span class="sourceLineNo">352</span>  public Offset getLockAcquisitionOffset() {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    return Offset.fromIntZeroExtend(lockOffset);<a name="line.353"></a>
+<span class="sourceLineNo">354</span>  }<a name="line.354"></a>
+<span class="sourceLineNo">355</span><a name="line.355"></a>
+<span class="sourceLineNo">356</span>  /** Set the method has a counters array */<a name="line.356"></a>
+<span class="sourceLineNo">357</span>  void setHasCounterArray() {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    hasCounters = true;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>  }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>  /** @return whether the method has a counters array */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>  @Uninterruptible<a name="line.362"></a>
+<span class="sourceLineNo">363</span>  public boolean hasCounterArray() {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    return hasCounters;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>  }<a name="line.365"></a>
+<span class="sourceLineNo">366</span><a name="line.366"></a>
+<span class="sourceLineNo">367</span>  /**<a name="line.367"></a>
+<span class="sourceLineNo">368</span>   * Encode/compress the bytecode map, reference (GC) map and exception table<a name="line.368"></a>
+<span class="sourceLineNo">369</span>   *<a name="line.369"></a>
+<span class="sourceLineNo">370</span>   * @param referenceMaps to encode<a name="line.370"></a>
+<span class="sourceLineNo">371</span>   * @param bcMap unencoded bytecode to code array offset map<a name="line.371"></a>
+<span class="sourceLineNo">372</span>   */<a name="line.372"></a>
+<span class="sourceLineNo">373</span>  public void encodeMappingInfo(ReferenceMaps referenceMaps, int[] bcMap) {<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    int count = 0;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    int lastBC = 0, lastIns = 0;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    for (int i = 0; i &lt; bcMap.length; i++) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>      if (bcMap[i] != 0) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        int deltaBC = i - lastBC;<a name="line.378"></a>
+<span class="sourceLineNo">379</span>        int deltaIns = bcMap[i] - lastIns;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        if (VM.VerifyAssertions) {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>          VM._assert(deltaBC &gt;= 0 &amp;&amp; deltaIns &gt;= 0);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        }<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        if (deltaBC &lt;= 6 &amp;&amp; deltaIns &lt;= 31) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>          count++;<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        } else {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>          if (deltaBC &gt; 65535 || deltaIns &gt; 65535) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>            VM.sysFail("BaselineCompiledMethod: a fancier encoding is needed");<a name="line.387"></a>
+<span class="sourceLineNo">388</span>          }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>          count += 5;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>        }<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        lastBC = i;<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        lastIns = bcMap[i];<a name="line.392"></a>
+<span class="sourceLineNo">393</span>      }<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    }<a name="line.394"></a>
+<span class="sourceLineNo">395</span>    bytecodeMap = new byte[count];<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    count = lastBC = lastIns = 0;<a name="line.396"></a>
+<span class="sourceLineNo">397</span>    for (int i = 0; i &lt; bcMap.length; i++) {<a name="line.397"></a>
+<span class="sourceLineNo">398</span>      if (bcMap[i] != 0) {<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        int deltaBC = i - lastBC;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>        int deltaIns = bcMap[i] - lastIns;<a name="line.400"></a>
+<span class="sourceLineNo">401</span>        if (VM.VerifyAssertions) {<a name="line.401"></a>
+<span class="sourceLineNo">402</span>          VM._assert(deltaBC &gt;= 0 &amp;&amp; deltaIns &gt;= 0);<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        }<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        if (deltaBC &lt;= 6 &amp;&amp; deltaIns &lt;= 31) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>          bytecodeMap[count++] = (byte) ((deltaBC &lt;&lt; 5) | deltaIns);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>        } else { // From before, we know that deltaBC &lt;= 65535 and deltaIns &lt;= 65535<a name="line.406"></a>
+<span class="sourceLineNo">407</span>          bytecodeMap[count++] = (byte) 255;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>          bytecodeMap[count++] = (byte) (deltaBC &gt;&gt; 8);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>          bytecodeMap[count++] = (byte) (deltaBC &amp; 255);<a name="line.409"></a>
+<span class="sourceLineNo">410</span>          bytecodeMap[count++] = (byte) (deltaIns &gt;&gt; 8);<a name="line.410"></a>
+<span class="sourceLineNo">411</span>          bytecodeMap[count++] = (byte) (deltaIns &amp; 255);<a name="line.411"></a>
+<span class="sourceLineNo">412</span>        }<a name="line.412"></a>
+<span class="sourceLineNo">413</span>        lastBC = i;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>        lastIns = bcMap[i];<a name="line.414"></a>
+<span class="sourceLineNo">415</span>      }<a name="line.415"></a>
+<span class="sourceLineNo">416</span>    }<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    // TODO: it's likely for short methods we can share the bytecodeMap<a name="line.417"></a>
+<span class="sourceLineNo">418</span>    referenceMaps.translateByte2Machine(bcMap);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    this.referenceMaps = referenceMaps;<a name="line.419"></a>
+<span class="sourceLineNo">420</span>    ExceptionHandlerMap emap = ((NormalMethod) method).getExceptionHandlerMap();<a name="line.420"></a>
+<span class="sourceLineNo">421</span>    if (emap != null) {<a name="line.421"></a>
+<span class="sourceLineNo">422</span>      eTable = BaselineExceptionTable.encode(emap, bcMap);<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
+<span class="sourceLineNo">424</span>  }<a name="line.424"></a>
+<span class="sourceLineNo">425</span><a name="line.425"></a>
+<span class="sourceLineNo">426</span>  @Override<a name="line.426"></a>
+<span class="sourceLineNo">427</span>  public int size() {<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    TypeReference TYPE = TypeReference.findOrCreate(BaselineCompiledMethod.class);<a name="line.428"></a>
+<span class="sourceLineNo">429</span>    int size = TYPE.peekType().asClass().getInstanceSize();<a name="line.429"></a>
+<span class="sourceLineNo">430</span>    if (bytecodeMap != null) size += RVMArray.ByteArray.getInstanceSize(bytecodeMap.length);<a name="line.430"></a>
+<span class="sourceLineNo">431</span>    if (eTable != null) size += RVMArray.IntArray.getInstanceSize(eTable.length);<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    if (referenceMaps != null) size += referenceMaps.size();<a name="line.432"></a>
+<span class="sourceLineNo">433</span>    return size;<a name="line.433"></a>
+<span class="sourceLineNo">434</span>  }<a name="line.434"></a>
+<span class="sourceLineNo">435</span>}<a name="line.435"></a>
 
 
 

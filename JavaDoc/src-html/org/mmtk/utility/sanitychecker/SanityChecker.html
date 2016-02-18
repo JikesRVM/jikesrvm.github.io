@@ -25,206 +25,206 @@
 <span class="sourceLineNo">017</span>import org.mmtk.plan.Simple;<a name="line.17"></a>
 <span class="sourceLineNo">018</span>import org.mmtk.plan.TraceLocal;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import org.mmtk.policy.Space;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.mmtk.utility.Constants;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.mmtk.utility.Log;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.mmtk.vm.VM;<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.vmmagic.pragma.*;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.vmmagic.unboxed.*;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * This class performs sanity checks for Simple collectors.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> */<a name="line.30"></a>
-<span class="sourceLineNo">031</span>@Uninterruptible<a name="line.31"></a>
-<span class="sourceLineNo">032</span>public final class SanityChecker implements Constants {<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>  /* Counters */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  public static long referenceCount;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  public static long rootReferenceCount;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  public static long danglingReferenceCount;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  public static long nullReferenceCount;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  public static long liveObjectCount;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>  public static final int DEAD = -2;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  public static final int ALIVE = -1;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>  public static final int UNSURE = 0;<a name="line.43"></a>
-<span class="sourceLineNo">044</span><a name="line.44"></a>
-<span class="sourceLineNo">045</span>  public static final int LOG_SANITY_DATA_SIZE = 24;<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>  /* Tracing */<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  public Trace rootTrace;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  public Trace checkTrace;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  private final SanityDataTable sanityTable;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  private boolean preGCSanity;<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>  /* Local, but we only run the check trace single-threaded. */<a name="line.53"></a>
-<span class="sourceLineNo">054</span>  final SanityTraceLocal checkTraceLocal;<a name="line.54"></a>
-<span class="sourceLineNo">055</span><a name="line.55"></a>
-<span class="sourceLineNo">056</span>  /* Linear scanning */<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  private final SanityLinearScan scanner = new SanityLinearScan(this);<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>  /****************************************************************************<a name="line.59"></a>
-<span class="sourceLineNo">060</span>   * Constants<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   */<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>  /**<a name="line.63"></a>
-<span class="sourceLineNo">064</span>   *<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   */<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  public SanityChecker() {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    sanityTable = new SanityDataTable(Plan.sanitySpace, LOG_SANITY_DATA_SIZE);<a name="line.67"></a>
-<span class="sourceLineNo">068</span>    checkTrace = new Trace(Plan.sanitySpace);<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    rootTrace = new Trace(Plan.sanitySpace);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    checkTraceLocal = new SanityTraceLocal(checkTrace, this);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>  /**<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   * Perform any sanity checking collection phases.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   *<a name="line.75"></a>
-<span class="sourceLineNo">076</span>   * @param phaseId The id to proces<a name="line.76"></a>
-<span class="sourceLineNo">077</span>   * @return {@code true} if the phase was handled.<a name="line.77"></a>
-<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
-<span class="sourceLineNo">079</span>  @NoInline<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  public boolean collectionPhase(int phaseId) {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    if (phaseId == Simple.SANITY_SET_PREGC) {<a name="line.81"></a>
-<span class="sourceLineNo">082</span>      preGCSanity = true;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>      return true;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
-<span class="sourceLineNo">085</span><a name="line.85"></a>
-<span class="sourceLineNo">086</span>    if (phaseId == Simple.SANITY_SET_POSTGC) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>      preGCSanity = false;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>      return true;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    if (phaseId == Simple.SANITY_PREPARE) {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>      Log.writeln("");<a name="line.92"></a>
-<span class="sourceLineNo">093</span>      Log.write("============================== GC Sanity Checking ");<a name="line.93"></a>
-<span class="sourceLineNo">094</span>      Log.writeln("==============================");<a name="line.94"></a>
-<span class="sourceLineNo">095</span>      Log.writeln(preGCSanity ? "Performing Pre-GC Sanity Checks..." : "Performing Post-GC Sanity Checks...");<a name="line.95"></a>
-<span class="sourceLineNo">096</span><a name="line.96"></a>
-<span class="sourceLineNo">097</span>      // Reset counters<a name="line.97"></a>
-<span class="sourceLineNo">098</span>      referenceCount = 0;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>      nullReferenceCount = 0;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>      liveObjectCount = 0;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>      danglingReferenceCount = 0;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>      rootReferenceCount = 0;<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>      // Clear data space<a name="line.104"></a>
-<span class="sourceLineNo">105</span>      sanityTable.acquireTable();<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>      // Root trace<a name="line.107"></a>
-<span class="sourceLineNo">108</span>      rootTrace.prepareNonBlocking();<a name="line.108"></a>
-<span class="sourceLineNo">109</span><a name="line.109"></a>
-<span class="sourceLineNo">110</span>      // Checking trace<a name="line.110"></a>
-<span class="sourceLineNo">111</span>      checkTrace.prepareNonBlocking();<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      checkTraceLocal.prepare();<a name="line.112"></a>
-<span class="sourceLineNo">113</span>      return true;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>    if (phaseId == Simple.SANITY_ROOTS) {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>      VM.scanning.resetThreadCounter();<a name="line.117"></a>
-<span class="sourceLineNo">118</span>      return true;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    }<a name="line.119"></a>
-<span class="sourceLineNo">120</span><a name="line.120"></a>
-<span class="sourceLineNo">121</span>    if (phaseId == Simple.SANITY_BUILD_TABLE) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>      // Trace, checking for dangling pointers<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      checkTraceLocal.completeTrace();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>      return true;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    if (phaseId == Simple.SANITY_CHECK_TABLE) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>      // Iterate over the reachable objects.<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      Address curr = sanityTable.getFirst();<a name="line.129"></a>
-<span class="sourceLineNo">130</span>      while (!curr.isZero()) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>        ObjectReference ref = SanityDataTable.getObjectReference(curr);<a name="line.131"></a>
-<span class="sourceLineNo">132</span>        int normalRC = SanityDataTable.getNormalRC(curr);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>        int rootRC = SanityDataTable.getRootRC(curr);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>        if (!preGCSanity) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>          int expectedRC = VM.activePlan.global().sanityExpectedRC(ref, rootRC);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>          switch (expectedRC) {<a name="line.136"></a>
-<span class="sourceLineNo">137</span>          case SanityChecker.ALIVE:<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          case SanityChecker.UNSURE:<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            // Always ok.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>            break;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>          case SanityChecker.DEAD:<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            // Never ok.<a name="line.142"></a>
-<span class="sourceLineNo">143</span>            Log.write("ERROR: SanityRC = ");<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            Log.write(normalRC);<a name="line.144"></a>
-<span class="sourceLineNo">145</span>            Log.write(", SpaceRC = 0 ");<a name="line.145"></a>
-<span class="sourceLineNo">146</span>            SanityChecker.dumpObjectInformation(ref);<a name="line.146"></a>
-<span class="sourceLineNo">147</span>            break;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>          default:<a name="line.148"></a>
-<span class="sourceLineNo">149</span>            // A mismatch in an RC space<a name="line.149"></a>
-<span class="sourceLineNo">150</span>            if (normalRC != expectedRC &amp;&amp; VM.activePlan.global().lastCollectionFullHeap()) {<a name="line.150"></a>
-<span class="sourceLineNo">151</span>              Log.write("WARNING: SanityRC = ");<a name="line.151"></a>
-<span class="sourceLineNo">152</span>              Log.write(normalRC);<a name="line.152"></a>
-<span class="sourceLineNo">153</span>              Log.write(", SpaceRC = ");<a name="line.153"></a>
-<span class="sourceLineNo">154</span>              Log.write(expectedRC);<a name="line.154"></a>
-<span class="sourceLineNo">155</span>              Log.write(" ");<a name="line.155"></a>
-<span class="sourceLineNo">156</span>              SanityChecker.dumpObjectInformation(ref);<a name="line.156"></a>
-<span class="sourceLineNo">157</span>              break;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>            }<a name="line.158"></a>
-<span class="sourceLineNo">159</span>          }<a name="line.159"></a>
-<span class="sourceLineNo">160</span>        }<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        curr = sanityTable.getNext(curr);<a name="line.161"></a>
-<span class="sourceLineNo">162</span>      }<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>      if (!preGCSanity &amp;&amp; VM.activePlan.global().lastCollectionFullHeap()) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>        VM.activePlan.global().sanityLinearScan(scanner);<a name="line.165"></a>
-<span class="sourceLineNo">166</span>      }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>      return true;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
-<span class="sourceLineNo">169</span><a name="line.169"></a>
-<span class="sourceLineNo">170</span>    if (phaseId == Simple.SANITY_RELEASE) {<a name="line.170"></a>
-<span class="sourceLineNo">171</span>      checkTrace.release();<a name="line.171"></a>
-<span class="sourceLineNo">172</span>      sanityTable.releaseTable();<a name="line.172"></a>
-<span class="sourceLineNo">173</span>      checkTraceLocal.release();<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>      Log.writeln("roots\tobjects\trefs\tnull");<a name="line.175"></a>
-<span class="sourceLineNo">176</span>      Log.write(rootReferenceCount);Log.write("\t");<a name="line.176"></a>
-<span class="sourceLineNo">177</span>      Log.write(liveObjectCount);Log.write("\t");<a name="line.177"></a>
-<span class="sourceLineNo">178</span>      Log.write(referenceCount);Log.write("\t");<a name="line.178"></a>
-<span class="sourceLineNo">179</span>      Log.writeln(nullReferenceCount);<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>      Log.write("========================================");<a name="line.181"></a>
-<span class="sourceLineNo">182</span>      Log.writeln("========================================");<a name="line.182"></a>
-<span class="sourceLineNo">183</span><a name="line.183"></a>
-<span class="sourceLineNo">184</span>      return true;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
-<span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>    return false;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>  }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>  /**<a name="line.190"></a>
-<span class="sourceLineNo">191</span>   * Process an object during a linear scan of the heap. We have already checked<a name="line.191"></a>
-<span class="sourceLineNo">192</span>   * all objects in the table. So we are only interested in objects that are not in<a name="line.192"></a>
-<span class="sourceLineNo">193</span>   * the sanity table here. We are therefore only looking for leaks here.<a name="line.193"></a>
-<span class="sourceLineNo">194</span>   *<a name="line.194"></a>
-<span class="sourceLineNo">195</span>   * @param object The object being scanned.<a name="line.195"></a>
-<span class="sourceLineNo">196</span>   */<a name="line.196"></a>
-<span class="sourceLineNo">197</span>  public void scanProcessObject(ObjectReference object) {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    if (sanityTable.getEntry(object, false).isZero()) {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>      // Is this a leak?<a name="line.199"></a>
-<span class="sourceLineNo">200</span>      int expectedRC = VM.activePlan.global().sanityExpectedRC(object, 0);<a name="line.200"></a>
-<span class="sourceLineNo">201</span><a name="line.201"></a>
-<span class="sourceLineNo">202</span>      if (expectedRC == SanityChecker.UNSURE) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        // Probably not.<a name="line.203"></a>
-<span class="sourceLineNo">204</span>        return;<a name="line.204"></a>
-<span class="sourceLineNo">205</span>      }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>      // Possibly<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      Log.write("WARNING: Possible leak, SpaceRC = ");<a name="line.208"></a>
-<span class="sourceLineNo">209</span>      Log.write(expectedRC);<a name="line.209"></a>
-<span class="sourceLineNo">210</span>      Log.write(" ");<a name="line.210"></a>
-<span class="sourceLineNo">211</span>      SanityChecker.dumpObjectInformation(object);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
-<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>  /**<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   * Process an object during sanity checking, validating data,<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   * incrementing counters and enqueuing if this is the first<a name="line.217"></a>
-<span class="sourceLineNo">218</span>   * visit to the object.<a name="line.218"></a>
-<span class="sourceLineNo">219</span>   *<a name="line.219"></a>
+<span class="sourceLineNo">020</span>import org.mmtk.utility.Log;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.mmtk.vm.VM;<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.vmmagic.pragma.*;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.vmmagic.unboxed.*;<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>/**<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * This class performs sanity checks for Simple collectors.<a name="line.28"></a>
+<span class="sourceLineNo">029</span> */<a name="line.29"></a>
+<span class="sourceLineNo">030</span>@Uninterruptible<a name="line.30"></a>
+<span class="sourceLineNo">031</span>public final class SanityChecker {<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>  /* Counters */<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static long referenceCount;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static long rootReferenceCount;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static long danglingReferenceCount;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static long nullReferenceCount;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static long liveObjectCount;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final int DEAD = -2;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static final int ALIVE = -1;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  public static final int UNSURE = 0;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>  public static final int LOG_SANITY_DATA_SIZE = 24;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  /* Tracing */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public Trace rootTrace;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public Trace checkTrace;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  private final SanityDataTable sanityTable;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  private boolean preGCSanity;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /* Local, but we only run the check trace single-threaded. */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  final SanityTraceLocal checkTraceLocal;<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>  /* Linear scanning */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  private final SanityLinearScan scanner = new SanityLinearScan(this);<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /****************************************************************************<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   * Constants<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   */<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>  /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public SanityChecker() {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    sanityTable = new SanityDataTable(Plan.sanitySpace, LOG_SANITY_DATA_SIZE);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    checkTrace = new Trace(Plan.sanitySpace);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    rootTrace = new Trace(Plan.sanitySpace);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    checkTraceLocal = new SanityTraceLocal(checkTrace, this);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  }<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * Perform any sanity checking collection phases.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   *<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * @param phaseId The id to proces<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * @return {@code true} if the phase was handled.<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>  @NoInline<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public boolean collectionPhase(int phaseId) {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    if (phaseId == Simple.SANITY_SET_PREGC) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      preGCSanity = true;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      return true;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">084</span><a name="line.84"></a>
+<span class="sourceLineNo">085</span>    if (phaseId == Simple.SANITY_SET_POSTGC) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      preGCSanity = false;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      return true;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>    if (phaseId == Simple.SANITY_PREPARE) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      Log.writeln("");<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      Log.write("============================== GC Sanity Checking ");<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      Log.writeln("==============================");<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      Log.writeln(preGCSanity ? "Performing Pre-GC Sanity Checks..." : "Performing Post-GC Sanity Checks...");<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>      // Reset counters<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      referenceCount = 0;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>      nullReferenceCount = 0;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      liveObjectCount = 0;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      danglingReferenceCount = 0;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>      rootReferenceCount = 0;<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>      // Clear data space<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      sanityTable.acquireTable();<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>      // Root trace<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      rootTrace.prepareNonBlocking();<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>      // Checking trace<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      checkTrace.prepareNonBlocking();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      checkTraceLocal.prepare();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      return true;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    if (phaseId == Simple.SANITY_ROOTS) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      VM.scanning.resetThreadCounter();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      return true;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>    if (phaseId == Simple.SANITY_BUILD_TABLE) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      // Trace, checking for dangling pointers<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      checkTraceLocal.completeTrace();<a name="line.122"></a>
+<span class="sourceLineNo">123</span>      return true;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    if (phaseId == Simple.SANITY_CHECK_TABLE) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>      // Iterate over the reachable objects.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      Address curr = sanityTable.getFirst();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      while (!curr.isZero()) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>        ObjectReference ref = SanityDataTable.getObjectReference(curr);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        int normalRC = SanityDataTable.getNormalRC(curr);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        int rootRC = SanityDataTable.getRootRC(curr);<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        if (!preGCSanity) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>          int expectedRC = VM.activePlan.global().sanityExpectedRC(ref, rootRC);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>          switch (expectedRC) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>          case SanityChecker.ALIVE:<a name="line.136"></a>
+<span class="sourceLineNo">137</span>          case SanityChecker.UNSURE:<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            // Always ok.<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            break;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>          case SanityChecker.DEAD:<a name="line.140"></a>
+<span class="sourceLineNo">141</span>            // Never ok.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            Log.write("ERROR: SanityRC = ");<a name="line.142"></a>
+<span class="sourceLineNo">143</span>            Log.write(normalRC);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            Log.write(", SpaceRC = 0 ");<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            SanityChecker.dumpObjectInformation(ref);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>            break;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>          default:<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            // A mismatch in an RC space<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            if (normalRC != expectedRC &amp;&amp; VM.activePlan.global().lastCollectionFullHeap()) {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>              Log.write("WARNING: SanityRC = ");<a name="line.150"></a>
+<span class="sourceLineNo">151</span>              Log.write(normalRC);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>              Log.write(", SpaceRC = ");<a name="line.152"></a>
+<span class="sourceLineNo">153</span>              Log.write(expectedRC);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>              Log.write(" ");<a name="line.154"></a>
+<span class="sourceLineNo">155</span>              SanityChecker.dumpObjectInformation(ref);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>              break;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>            }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>          }<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        }<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        curr = sanityTable.getNext(curr);<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>      if (!preGCSanity &amp;&amp; VM.activePlan.global().lastCollectionFullHeap()) {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>        VM.activePlan.global().sanityLinearScan(scanner);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      }<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      return true;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    if (phaseId == Simple.SANITY_RELEASE) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      checkTrace.release();<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      sanityTable.releaseTable();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      checkTraceLocal.release();<a name="line.172"></a>
+<span class="sourceLineNo">173</span><a name="line.173"></a>
+<span class="sourceLineNo">174</span>      Log.writeln("roots\tobjects\trefs\tnull");<a name="line.174"></a>
+<span class="sourceLineNo">175</span>      Log.write(rootReferenceCount);Log.write("\t");<a name="line.175"></a>
+<span class="sourceLineNo">176</span>      Log.write(liveObjectCount);Log.write("\t");<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      Log.write(referenceCount);Log.write("\t");<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      Log.writeln(nullReferenceCount);<a name="line.178"></a>
+<span class="sourceLineNo">179</span><a name="line.179"></a>
+<span class="sourceLineNo">180</span>      Log.write("========================================");<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      Log.writeln("========================================");<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>      return true;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>    return false;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>  }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>  /**<a name="line.189"></a>
+<span class="sourceLineNo">190</span>   * Process an object during a linear scan of the heap. We have already checked<a name="line.190"></a>
+<span class="sourceLineNo">191</span>   * all objects in the table. So we are only interested in objects that are not in<a name="line.191"></a>
+<span class="sourceLineNo">192</span>   * the sanity table here. We are therefore only looking for leaks here.<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   *<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   * @param object The object being scanned.<a name="line.194"></a>
+<span class="sourceLineNo">195</span>   */<a name="line.195"></a>
+<span class="sourceLineNo">196</span>  public void scanProcessObject(ObjectReference object) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    if (sanityTable.getEntry(object, false).isZero()) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>      // Is this a leak?<a name="line.198"></a>
+<span class="sourceLineNo">199</span>      int expectedRC = VM.activePlan.global().sanityExpectedRC(object, 0);<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>      if (expectedRC == SanityChecker.UNSURE) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        // Probably not.<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        return;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>      }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>      // Possibly<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      Log.write("WARNING: Possible leak, SpaceRC = ");<a name="line.207"></a>
+<span class="sourceLineNo">208</span>      Log.write(expectedRC);<a name="line.208"></a>
+<span class="sourceLineNo">209</span>      Log.write(" ");<a name="line.209"></a>
+<span class="sourceLineNo">210</span>      SanityChecker.dumpObjectInformation(object);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    }<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  }<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>  /**<a name="line.214"></a>
+<span class="sourceLineNo">215</span>   * Process an object during sanity checking, validating data,<a name="line.215"></a>
+<span class="sourceLineNo">216</span>   * incrementing counters and enqueuing if this is the first<a name="line.216"></a>
+<span class="sourceLineNo">217</span>   * visit to the object.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   *<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   * @param trace the trace to use for processing<a name="line.219"></a>
 <span class="sourceLineNo">220</span>   * @param object The object to mark.<a name="line.220"></a>
 <span class="sourceLineNo">221</span>   * @param root {@code true} If the object is a root.<a name="line.221"></a>
 <span class="sourceLineNo">222</span>   */<a name="line.222"></a>

@@ -20,85 +20,81 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.mm.mmtk;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.mmtk.utility.Constants;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.mmtk.utility.statistics.PerfEvent;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.runtime.Time;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import static org.jikesrvm.runtime.SysCall.sysCall;<a name="line.18"></a>
-<span class="sourceLineNo">019</span><a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.vmmagic.pragma.*;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>@Uninterruptible<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public final class Statistics extends org.mmtk.vm.Statistics implements Constants {<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>  /**<a name="line.25"></a>
-<span class="sourceLineNo">026</span>   * Read nanoTime (high resolution, monotonically increasing clock).<a name="line.26"></a>
-<span class="sourceLineNo">027</span>   * Has same semantics as java.lang.System.nanoTime().<a name="line.27"></a>
-<span class="sourceLineNo">028</span>   */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  @Override<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  public long nanoTime() {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    return Time.nanoTime();<a name="line.31"></a>
-<span class="sourceLineNo">032</span>  }<a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span>  /**<a name="line.34"></a>
-<span class="sourceLineNo">035</span>   * Read a cycle counter (high resolution, non-monotonic clock).<a name="line.35"></a>
-<span class="sourceLineNo">036</span>   * This method should be used with care as the cycle counters (especially on IA32 SMP machines)<a name="line.36"></a>
-<span class="sourceLineNo">037</span>   * are not a reliably time source.<a name="line.37"></a>
-<span class="sourceLineNo">038</span>   */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  @Override<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  public long cycles() {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    return Time.cycles();<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  }<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>  @Override<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  public double nanosToMillis(long c) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    return (c)/1e6;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>  }<a name="line.47"></a>
-<span class="sourceLineNo">048</span><a name="line.48"></a>
-<span class="sourceLineNo">049</span>  @Override<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  public double nanosToSecs(long c) {<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    return (c)/1e9;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  }<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>  @Override<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  public long millisToNanos(double t) {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    return (long)(t * 1e6);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  }<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>  @Override<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  public long secsToNanos(double t) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    return (long)(t * 1e9);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>  private PerfEvent[] perfEvents;<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>  @Override<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  @Interruptible<a name="line.67"></a>
-<span class="sourceLineNo">068</span>  public void perfEventInit(String events) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    if (events.length() == 0) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>      // no initialization needed<a name="line.70"></a>
-<span class="sourceLineNo">071</span>      return;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    }<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    // initialize perf event<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    String[] perfEventNames = events.split(",");<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    int n = perfEventNames.length;<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    sysCall.sysPerfEventInit(n);<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    perfEvents = new PerfEvent[n];<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    for (int i = 0; i &lt; n; i++) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>      sysCall.sysPerfEventCreate(i, perfEventNames[i].concat("\0").getBytes());<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      perfEvents[i] = new PerfEvent(i, perfEventNames[i]);<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    sysCall.sysPerfEventEnable();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * Read a performance event<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  @Override<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  public void perfEventRead(int id, long[] values) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    sysCall.sysPerfEventRead(id, values);<a name="line.90"></a>
-<span class="sourceLineNo">091</span>  }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>}<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">015</span>import org.mmtk.utility.statistics.PerfEvent;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.runtime.Time;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.runtime.SysCall.sysCall;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.vmmagic.pragma.*;<a name="line.19"></a>
+<span class="sourceLineNo">020</span><a name="line.20"></a>
+<span class="sourceLineNo">021</span>@Uninterruptible<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public final class Statistics extends org.mmtk.vm.Statistics {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>  /**<a name="line.24"></a>
+<span class="sourceLineNo">025</span>   * Read nanoTime (high resolution, monotonically increasing clock).<a name="line.25"></a>
+<span class="sourceLineNo">026</span>   * Has same semantics as java.lang.System.nanoTime().<a name="line.26"></a>
+<span class="sourceLineNo">027</span>   */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  @Override<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  public long nanoTime() {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    return Time.nanoTime();<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  }<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>  /**<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   * Read a cycle counter (high resolution, non-monotonic clock).<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   * This method should be used with care as the cycle counters (especially on IA32 SMP machines)<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   * are not a reliably time source.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>   */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  @Override<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public long cycles() {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    return Time.cycles();<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  @Override<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  public double nanosToMillis(long c) {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    return (c) / 1e6;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  }<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  @Override<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public double nanosToSecs(long c) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    return (c) / 1e9;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  @Override<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public long millisToNanos(double t) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    return (long)(t * 1e6);<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  @Override<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  public long secsToNanos(double t) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    return (long)(t * 1e9);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  }<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>  private PerfEvent[] perfEvents;<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  @Interruptible<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public void perfEventInit(String events) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    if (events.length() == 0) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      // no initialization needed<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      return;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    // initialize perf event<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    String[] perfEventNames = events.split(",");<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    int n = perfEventNames.length;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    sysCall.sysPerfEventInit(n);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    perfEvents = new PerfEvent[n];<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    for (int i = 0; i &lt; n; i++) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      sysCall.sysPerfEventCreate(i, perfEventNames[i].concat("\0").getBytes());<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      perfEvents[i] = new PerfEvent(i, perfEventNames[i]);<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    sysCall.sysPerfEventEnable();<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  @Override<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  public void perfEventRead(int id, long[] values) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    sysCall.sysPerfEventRead(id, values);<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>}<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
 
 
 

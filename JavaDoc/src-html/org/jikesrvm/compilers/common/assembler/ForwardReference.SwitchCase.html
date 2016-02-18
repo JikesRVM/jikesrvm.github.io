@@ -65,127 +65,133 @@
 <span class="sourceLineNo">057</span>    targetBytecodeIndex = btarget;<a name="line.57"></a>
 <span class="sourceLineNo">058</span>  }<a name="line.58"></a>
 <span class="sourceLineNo">059</span><a name="line.59"></a>
-<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   * No target; for use within cases of the main compiler loop<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>  protected ForwardReference(int source) {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    sourceMachinecodeIndex = source;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    targetBytecodeIndex = 0;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>  /**<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   * Rewrite source to reference current machine code (in asm's machineCodes)<a name="line.69"></a>
-<span class="sourceLineNo">070</span>   */<a name="line.70"></a>
-<span class="sourceLineNo">071</span>  public abstract void resolve(AbstractAssembler asm);<a name="line.71"></a>
-<span class="sourceLineNo">072</span><a name="line.72"></a>
-<span class="sourceLineNo">073</span>  /**<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   * Add a new reference r to a priority queue q<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   * @return the updated queue<a name="line.75"></a>
-<span class="sourceLineNo">076</span>   */<a name="line.76"></a>
-<span class="sourceLineNo">077</span>  public static ForwardReference enqueue(ForwardReference q, ForwardReference r) {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    if (q == null) return r;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    if (r.targetBytecodeIndex &lt; q.targetBytecodeIndex) {<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      r.next = q;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>      return r;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    } else if (r.targetBytecodeIndex == q.targetBytecodeIndex) {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>      r.other = q.other;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>      q.other = r;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>      return q;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    ForwardReference s = q;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    while (s.next != null &amp;&amp; r.targetBytecodeIndex &gt; s.next.targetBytecodeIndex) {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>      s = s.next;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    }<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    s.next = enqueue(s.next, r);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    return q;<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>  }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  /**<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * Resolve any forward references on priority queue q to bytecode index bi<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * @return queue of unresolved references<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  public static ForwardReference resolveMatching(AbstractAssembler asm, ForwardReference q, int bi) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    if (q == null) return null;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    if (VM.VerifyAssertions) VM._assert(bi &lt;= q.targetBytecodeIndex);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    if (bi != q.targetBytecodeIndex) return q;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    ForwardReference r = q.next;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    while (q != null) {<a name="line.105"></a>
-<span class="sourceLineNo">106</span>      q.resolve(asm);<a name="line.106"></a>
-<span class="sourceLineNo">107</span>      q = q.other;<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    }<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    return r;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  }<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>  public static final class UnconditionalBranch extends ForwardReference {<a name="line.112"></a>
-<span class="sourceLineNo">113</span><a name="line.113"></a>
-<span class="sourceLineNo">114</span>    public UnconditionalBranch(int source, int btarget) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      super(source, btarget);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
+<span class="sourceLineNo">060</span>  protected ForwardReference(int source) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    sourceMachinecodeIndex = source;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    targetBytecodeIndex = 0;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * Rewrite source to reference current machine code (in asm's machineCodes)<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   *<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * @param asm the assembler to use to resolve the reference<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  public abstract void resolve(AbstractAssembler asm);<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>  /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>   * Adds a new reference to a priority queue.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   * @param q a forward reference acting as a priority queue<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * @param r a new reference to enqueue<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * @return the updated queue<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>  public static ForwardReference enqueue(ForwardReference q, ForwardReference r) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    if (q == null) return r;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    if (r.targetBytecodeIndex &lt; q.targetBytecodeIndex) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      r.next = q;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      return r;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    } else if (r.targetBytecodeIndex == q.targetBytecodeIndex) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      r.other = q.other;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      q.other = r;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      return q;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    ForwardReference s = q;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    while (s.next != null &amp;&amp; r.targetBytecodeIndex &gt; s.next.targetBytecodeIndex) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>      s = s.next;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    s.next = enqueue(s.next, r);<a name="line.92"></a>
+<span class="sourceLineNo">093</span>    return q;<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>  }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>  /**<a name="line.97"></a>
+<span class="sourceLineNo">098</span>   * Resolve any forward references on the priority queue for the given<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * bytecode index.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   *<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @param asm assembler to use for resolution<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * @param q priority queue<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * @param bi bytecode index<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * @return queue of unresolved references<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   */<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  public static ForwardReference resolveMatching(AbstractAssembler asm, ForwardReference q, int bi) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    if (q == null) return null;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    if (VM.VerifyAssertions) VM._assert(bi &lt;= q.targetBytecodeIndex);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    if (bi != q.targetBytecodeIndex) return q;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    ForwardReference r = q.next;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    while (q != null) {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      q.resolve(asm);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      q = q.other;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    }<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    return r;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  }<a name="line.116"></a>
 <span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    @Override<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    public void resolve(AbstractAssembler asm) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      asm.patchUnconditionalBranch(sourceMachinecodeIndex);<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
+<span class="sourceLineNo">118</span>  public static final class UnconditionalBranch extends ForwardReference {<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>    public UnconditionalBranch(int source, int btarget) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      super(source, btarget);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    }<a name="line.122"></a>
 <span class="sourceLineNo">123</span><a name="line.123"></a>
-<span class="sourceLineNo">124</span>  public static final class ConditionalBranch extends ForwardReference {<a name="line.124"></a>
-<span class="sourceLineNo">125</span><a name="line.125"></a>
-<span class="sourceLineNo">126</span>    public ConditionalBranch(int source, int btarget) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>      super(source, btarget);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    }<a name="line.128"></a>
+<span class="sourceLineNo">124</span>    @Override<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    public void resolve(AbstractAssembler asm) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span>      asm.patchUnconditionalBranch(sourceMachinecodeIndex);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  }<a name="line.128"></a>
 <span class="sourceLineNo">129</span><a name="line.129"></a>
-<span class="sourceLineNo">130</span>    @Override<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    public void resolve(AbstractAssembler asm) {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>      asm.patchConditionalBranch(sourceMachinecodeIndex);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    }<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  }<a name="line.134"></a>
+<span class="sourceLineNo">130</span>  public static final class ConditionalBranch extends ForwardReference {<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>    public ConditionalBranch(int source, int btarget) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      super(source, btarget);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
 <span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>  // Cannot be made final; subclassed for PPC<a name="line.136"></a>
-<span class="sourceLineNo">137</span>  public static class ShortBranch extends ForwardReference {<a name="line.137"></a>
-<span class="sourceLineNo">138</span><a name="line.138"></a>
-<span class="sourceLineNo">139</span>    public ShortBranch(int source) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>      super(source);<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    }<a name="line.141"></a>
-<span class="sourceLineNo">142</span><a name="line.142"></a>
-<span class="sourceLineNo">143</span>    public ShortBranch(int source, int btarget) {<a name="line.143"></a>
-<span class="sourceLineNo">144</span>      super(source, btarget);<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    }<a name="line.145"></a>
-<span class="sourceLineNo">146</span><a name="line.146"></a>
-<span class="sourceLineNo">147</span>    @Override<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    public void resolve(AbstractAssembler asm) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>      asm.patchShortBranch(sourceMachinecodeIndex);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    }<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  }<a name="line.151"></a>
+<span class="sourceLineNo">136</span>    @Override<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    public void resolve(AbstractAssembler asm) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      asm.patchConditionalBranch(sourceMachinecodeIndex);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>  // Cannot be made final; subclassed for PPC<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  public static class ShortBranch extends ForwardReference {<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public ShortBranch(int source) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>      super(source);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    public ShortBranch(int source, int btarget) {<a name="line.149"></a>
+<span class="sourceLineNo">150</span>      super(source, btarget);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    }<a name="line.151"></a>
 <span class="sourceLineNo">152</span><a name="line.152"></a>
-<span class="sourceLineNo">153</span>  public static final class SwitchCase extends ForwardReference {<a name="line.153"></a>
-<span class="sourceLineNo">154</span><a name="line.154"></a>
-<span class="sourceLineNo">155</span>    public SwitchCase(int source, int btarget) {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>      super(source, btarget);<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
+<span class="sourceLineNo">153</span>    @Override<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    public void resolve(AbstractAssembler asm) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>      asm.patchShortBranch(sourceMachinecodeIndex);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
 <span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>    @Override<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    public void resolve(AbstractAssembler asm) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>      asm.patchSwitchCase(sourceMachinecodeIndex);<a name="line.161"></a>
-<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
-<span class="sourceLineNo">163</span>  }<a name="line.163"></a>
+<span class="sourceLineNo">159</span>  public static final class SwitchCase extends ForwardReference {<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    public SwitchCase(int source, int btarget) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>      super(source, btarget);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    }<a name="line.163"></a>
 <span class="sourceLineNo">164</span><a name="line.164"></a>
-<span class="sourceLineNo">165</span>  public static final class LoadReturnAddress extends ForwardReference {<a name="line.165"></a>
-<span class="sourceLineNo">166</span><a name="line.166"></a>
-<span class="sourceLineNo">167</span>    public LoadReturnAddress(int source) {<a name="line.167"></a>
-<span class="sourceLineNo">168</span>      super(source);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">165</span>    @Override<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    public void resolve(AbstractAssembler asm) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      asm.patchSwitchCase(sourceMachinecodeIndex);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    }<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  }<a name="line.169"></a>
 <span class="sourceLineNo">170</span><a name="line.170"></a>
-<span class="sourceLineNo">171</span>    public LoadReturnAddress(int source, int btarget) {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>      super(source, btarget);<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    }<a name="line.173"></a>
-<span class="sourceLineNo">174</span><a name="line.174"></a>
-<span class="sourceLineNo">175</span>    @Override<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    public void resolve(AbstractAssembler asm) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>      asm.patchLoadReturnAddress(sourceMachinecodeIndex);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>}<a name="line.180"></a>
+<span class="sourceLineNo">171</span>  public static final class LoadReturnAddress extends ForwardReference {<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    public LoadReturnAddress(int source) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>      super(source);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>    public LoadReturnAddress(int source, int btarget) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      super(source, btarget);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>    @Override<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    public void resolve(AbstractAssembler asm) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      asm.patchLoadReturnAddress(sourceMachinecodeIndex);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>}<a name="line.186"></a>
 
 
 

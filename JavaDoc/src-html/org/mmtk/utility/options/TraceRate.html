@@ -20,41 +20,42 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.mmtk.utility.options;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.vmmagic.pragma.*;<a name="line.15"></a>
+<span class="sourceLineNo">015</span>import static org.mmtk.utility.Constants.*;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * The granularity of the trace being produced.<a name="line.18"></a>
-<span class="sourceLineNo">019</span> */<a name="line.19"></a>
-<span class="sourceLineNo">020</span>public final class TraceRate extends org.vmutil.options.IntOption<a name="line.20"></a>
-<span class="sourceLineNo">021</span>  implements org.mmtk.utility.Constants {<a name="line.21"></a>
-<span class="sourceLineNo">022</span>  /**<a name="line.22"></a>
-<span class="sourceLineNo">023</span>   * Create the option.<a name="line.23"></a>
-<span class="sourceLineNo">024</span>   */<a name="line.24"></a>
-<span class="sourceLineNo">025</span>  public TraceRate() {<a name="line.25"></a>
-<span class="sourceLineNo">026</span>    super(Options.set, "Trace Rate",<a name="line.26"></a>
-<span class="sourceLineNo">027</span>        "The granularity of the trace being produced.  By default, the trace has the maximum possible granularity.",<a name="line.27"></a>
-<span class="sourceLineNo">028</span>        Integer.MAX_VALUE);<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>  /**<a name="line.31"></a>
-<span class="sourceLineNo">032</span>   * Return the appropriate value.<a name="line.32"></a>
-<span class="sourceLineNo">033</span>   *<a name="line.33"></a>
-<span class="sourceLineNo">034</span>   * @return the trace rate.<a name="line.34"></a>
-<span class="sourceLineNo">035</span>   */<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  @Override<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  @Uninterruptible<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  public int getValue() {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    return (this.value &lt; BYTES_IN_ADDRESS) ? 1 : (this.value &gt;&gt; LOG_BYTES_IN_ADDRESS);<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>  /**<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   * Trace rate must be positive.<a name="line.43"></a>
-<span class="sourceLineNo">044</span>   */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  @Override<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  protected void validate() {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    failIf(value &lt;= 0, "Can not have a negative trace rate");<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  }<a name="line.48"></a>
-<span class="sourceLineNo">049</span>}<a name="line.49"></a>
+<span class="sourceLineNo">017</span>import org.vmmagic.pragma.*;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * The granularity of the trace being produced.<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public final class TraceRate extends org.vmutil.options.IntOption {<a name="line.22"></a>
+<span class="sourceLineNo">023</span>  /**<a name="line.23"></a>
+<span class="sourceLineNo">024</span>   * Create the option.<a name="line.24"></a>
+<span class="sourceLineNo">025</span>   */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  public TraceRate() {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    super(Options.set, "Trace Rate",<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        "The granularity of the trace being produced.  By default, the trace has the maximum possible granularity.",<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        Integer.MAX_VALUE);<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  }<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>  /**<a name="line.32"></a>
+<span class="sourceLineNo">033</span>   * Return the appropriate value.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   *<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   * @return the trace rate.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  @Override<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  @Uninterruptible<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public int getValue() {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    return (this.value &lt; BYTES_IN_ADDRESS) ? 1 : (this.value &gt;&gt; LOG_BYTES_IN_ADDRESS);<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * Trace rate must be positive.<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  @Override<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  protected void validate() {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    failIf(value &lt;= 0, "Can not have a negative trace rate");<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>}<a name="line.50"></a>
 
 
 

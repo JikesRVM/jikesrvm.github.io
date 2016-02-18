@@ -34,38 +34,50 @@
 <span class="sourceLineNo">026</span>  /** All the specialized methods */<a name="line.26"></a>
 <span class="sourceLineNo">027</span>  private static final SpecializedMethod[] methods = new SpecializedMethod[numSpecializedMethods];<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>  /** The number of specialized methods */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  public static int numSpecializedMethods() { return numSpecializedMethods; }<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>  /** Set up the specialized methods for the given type */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>  public static void notifyTypeInstantiated(RVMType type) {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    for(int i=0; i &lt; numSpecializedMethods; i++) {<a name="line.34"></a>
-<span class="sourceLineNo">035</span>      if (methods[i] == null) {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        initializeSpecializedMethod(i);<a name="line.36"></a>
-<span class="sourceLineNo">037</span>      }<a name="line.37"></a>
-<span class="sourceLineNo">038</span>      type.setSpecializedMethod(i, methods[i].specializeMethod(type));<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  }<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>  /** Set up the specialized methods for the given type */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>  public static void refreshSpecializedMethods(RVMType type) {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    for(int i=0; i &lt; numSpecializedMethods; i++) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>      if (VM.VerifyAssertions) VM._assert(methods[i] != null, "Specialized method missing!");<a name="line.45"></a>
-<span class="sourceLineNo">046</span>      type.setSpecializedMethod(i, methods[i].specializeMethod(type));<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    }<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>  /** Ensure that a specific specialized method now exists. */<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  private static void initializeSpecializedMethod(int id) {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    if (VM.VerifyAssertions) VM._assert(id &gt;= 0);<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    if (VM.VerifyAssertions) VM._assert(id &lt; numSpecializedMethods);<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    if (VM.VerifyAssertions) VM._assert(methods[id] == null);<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    methods[id] = MemoryManager.createSpecializedMethod(id);<a name="line.55"></a>
+<span class="sourceLineNo">029</span>  /** @return the number of specialized methods */<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public static int numSpecializedMethods() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    return numSpecializedMethods;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  }<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>  /**<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   * Sets up the specialized methods for the given type.<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   * @param type the type that was instantiated<a name="line.36"></a>
+<span class="sourceLineNo">037</span>   */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static void notifyTypeInstantiated(RVMType type) {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    for (int i = 0; i &lt; numSpecializedMethods; i++) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>      if (methods[i] == null) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        initializeSpecializedMethod(i);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      }<a name="line.42"></a>
+<span class="sourceLineNo">043</span>      type.setSpecializedMethod(i, methods[i].specializeMethod(type));<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  }<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * Refreshes the specialized methods for the given type.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   * @param type the type whose methods need to be refreshed<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static void refreshSpecializedMethods(RVMType type) {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    for (int i = 0; i &lt; numSpecializedMethods; i++) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>      if (VM.VerifyAssertions) VM._assert(methods[i] != null, "Specialized method missing!");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      type.setSpecializedMethod(i, methods[i].specializeMethod(type));<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
 <span class="sourceLineNo">056</span>  }<a name="line.56"></a>
 <span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>  /** Can not create an instance of the manager */<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  private SpecializedMethodManager() {}<a name="line.59"></a>
-<span class="sourceLineNo">060</span>}<a name="line.60"></a>
+<span class="sourceLineNo">058</span>  /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   * Initializes a specialized method with a given id. No specialized<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   * method with this id may exist at this point.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * @param id id of the specialized<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  private static void initializeSpecializedMethod(int id) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    if (VM.VerifyAssertions) VM._assert(id &gt;= 0);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    if (VM.VerifyAssertions) VM._assert(id &lt; numSpecializedMethods);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    if (VM.VerifyAssertions) VM._assert(methods[id] == null);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    methods[id] = MemoryManager.createSpecializedMethod(id);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /** Can not create an instance of the manager */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  private SpecializedMethodManager() {}<a name="line.71"></a>
+<span class="sourceLineNo">072</span>}<a name="line.72"></a>
 
 
 

@@ -200,25 +200,25 @@
 <span class="sourceLineNo">192</span>    for (Enumeration&lt;Instruction&gt; e = ir.forwardInstrEnumerator(); e.hasMoreElements();) {<a name="line.192"></a>
 <span class="sourceLineNo">193</span>      Instruction s = e.nextElement();<a name="line.193"></a>
 <span class="sourceLineNo">194</span>      // Sort most frequently defined operands onto lhs<a name="line.194"></a>
-<span class="sourceLineNo">195</span>      if (Binary.conforms(s) &amp;&amp; s.operator.isCommutative() &amp;&amp;<a name="line.195"></a>
+<span class="sourceLineNo">195</span>      if (Binary.conforms(s) &amp;&amp; s.operator().isCommutative() &amp;&amp;<a name="line.195"></a>
 <span class="sourceLineNo">196</span>          Binary.getVal1(s).isRegister() &amp;&amp; Binary.getVal2(s).isRegister()) {<a name="line.196"></a>
 <span class="sourceLineNo">197</span>        RegisterOperand rop1 = Binary.getVal1(s).asRegister();<a name="line.197"></a>
 <span class="sourceLineNo">198</span>        RegisterOperand rop2 = Binary.getVal2(s).asRegister();<a name="line.198"></a>
 <span class="sourceLineNo">199</span>        // Simple SSA based test<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        if (rop1.register.isSSA()) {<a name="line.200"></a>
-<span class="sourceLineNo">201</span>          if(rop2.register.isSSA()) {<a name="line.201"></a>
+<span class="sourceLineNo">200</span>        if (rop1.getRegister().isSSA()) {<a name="line.200"></a>
+<span class="sourceLineNo">201</span>          if (rop2.getRegister().isSSA()) {<a name="line.201"></a>
 <span class="sourceLineNo">202</span>            // ordering is arbitrary, ignore<a name="line.202"></a>
 <span class="sourceLineNo">203</span>          } else {<a name="line.203"></a>
 <span class="sourceLineNo">204</span>            // swap<a name="line.204"></a>
 <span class="sourceLineNo">205</span>            Binary.setVal1(s, rop2);<a name="line.205"></a>
 <span class="sourceLineNo">206</span>            Binary.setVal2(s, rop1);<a name="line.206"></a>
 <span class="sourceLineNo">207</span>          }<a name="line.207"></a>
-<span class="sourceLineNo">208</span>        } else if (rop2.register.isSSA()) {<a name="line.208"></a>
+<span class="sourceLineNo">208</span>        } else if (rop2.getRegister().isSSA()) {<a name="line.208"></a>
 <span class="sourceLineNo">209</span>          // already have prefered ordering<a name="line.209"></a>
 <span class="sourceLineNo">210</span>        } else {<a name="line.210"></a>
 <span class="sourceLineNo">211</span>          // neither registers are SSA so place registers used more on the RHS<a name="line.211"></a>
 <span class="sourceLineNo">212</span>          // (we don't have easy access to a count of the number of definitions)<a name="line.212"></a>
-<span class="sourceLineNo">213</span>          if (rop1.register.useCount &gt; rop2.register.useCount) {<a name="line.213"></a>
+<span class="sourceLineNo">213</span>          if (rop1.getRegister().useCount &gt; rop2.getRegister().useCount) {<a name="line.213"></a>
 <span class="sourceLineNo">214</span>            // swap<a name="line.214"></a>
 <span class="sourceLineNo">215</span>            Binary.setVal1(s, rop2);<a name="line.215"></a>
 <span class="sourceLineNo">216</span>            Binary.setVal2(s, rop1);<a name="line.216"></a>
@@ -381,7 +381,7 @@
 <span class="sourceLineNo">373</span>      }<a name="line.373"></a>
 <span class="sourceLineNo">374</span>      RegisterOperand rhs = (RegisterOperand) rhsOp;<a name="line.374"></a>
 <span class="sourceLineNo">375</span>      // Propagate the type in the def<a name="line.375"></a>
-<span class="sourceLineNo">376</span>      lhs.copyType(rhs);<a name="line.376"></a>
+<span class="sourceLineNo">376</span>      lhs.copyTypeFrom(rhs);<a name="line.376"></a>
 <span class="sourceLineNo">377</span><a name="line.377"></a>
 <span class="sourceLineNo">378</span>      // Now propagate lhs into all uses; substitute rhs.type for lhs.type<a name="line.378"></a>
 <span class="sourceLineNo">379</span>      for (RegisterOperand use = reg.useList; use != null; use = use.getNext()) {<a name="line.379"></a>
@@ -395,7 +395,7 @@
 <span class="sourceLineNo">387</span>        if (rhs.getType().isPrimitiveType() &amp;&amp; !use.getType().isPrimitiveType()) {<a name="line.387"></a>
 <span class="sourceLineNo">388</span>          continue;<a name="line.388"></a>
 <span class="sourceLineNo">389</span>        }<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        use.copyType(rhs);<a name="line.390"></a>
+<span class="sourceLineNo">390</span>        use.copyTypeFrom(rhs);<a name="line.390"></a>
 <span class="sourceLineNo">391</span>      }<a name="line.391"></a>
 <span class="sourceLineNo">392</span>    }<a name="line.392"></a>
 <span class="sourceLineNo">393</span>  }<a name="line.393"></a>

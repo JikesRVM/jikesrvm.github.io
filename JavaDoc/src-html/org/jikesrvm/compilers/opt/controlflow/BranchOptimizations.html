@@ -195,7 +195,7 @@
 <span class="sourceLineNo">187</span>   *    5)   GOTO BBn where BBn has exactly one in edge<a name="line.187"></a>
 <span class="sourceLineNo">188</span>   *         - move BBn immediately after the GOTO in the code order,<a name="line.188"></a>
 <span class="sourceLineNo">189</span>   *           so that pattern 3) will create a fallthrough<a name="line.189"></a>
-<span class="sourceLineNo">190</span>   * &lt;pre&gt;<a name="line.190"></a>
+<span class="sourceLineNo">190</span>   * &lt;/pre&gt;<a name="line.190"></a>
 <span class="sourceLineNo">191</span>   *<a name="line.191"></a>
 <span class="sourceLineNo">192</span>   * &lt;p&gt; Precondition: Goto.conforms(g)<a name="line.192"></a>
 <span class="sourceLineNo">193</span>   *<a name="line.193"></a>
@@ -258,8 +258,8 @@
 <span class="sourceLineNo">250</span>      // We impose these additional restrictions to avoid getting<a name="line.250"></a>
 <span class="sourceLineNo">251</span>      // multiple conditional branches in a single basic block.<a name="line.251"></a>
 <span class="sourceLineNo">252</span>      if (!g.prevInstructionInCodeOrder().isBranch() &amp;&amp;<a name="line.252"></a>
-<span class="sourceLineNo">253</span>          (targetInst.nextInstructionInCodeOrder().operator == BBEND ||<a name="line.253"></a>
-<span class="sourceLineNo">254</span>           targetInst.nextInstructionInCodeOrder().operator == GOTO)) {<a name="line.254"></a>
+<span class="sourceLineNo">253</span>          (targetInst.nextInstructionInCodeOrder().operator() == BBEND ||<a name="line.253"></a>
+<span class="sourceLineNo">254</span>           targetInst.nextInstructionInCodeOrder().operator() == GOTO)) {<a name="line.254"></a>
 <span class="sourceLineNo">255</span>        Instruction copy = targetInst.copyWithoutLinks();<a name="line.255"></a>
 <span class="sourceLineNo">256</span>        g.replace(copy);<a name="line.256"></a>
 <span class="sourceLineNo">257</span>        Instruction newGoto = targetInst.getBasicBlock().getNotTakenNextBlock().makeGOTO();<a name="line.257"></a>
@@ -687,7 +687,7 @@
 <span class="sourceLineNo">679</span>   * The parameter k is specified by OPT\_Options.COND_MOVE_CUTOFF.<a name="line.679"></a>
 <span class="sourceLineNo">680</span>   *<a name="line.680"></a>
 <span class="sourceLineNo">681</span>   * &lt;p&gt; In the example above, since we've increased the shortest path by<a name="line.681"></a>
-<span class="sourceLineNo">682</span>   * 6 instructions, we will only perform the transformation if k &gt;= 7.<a name="line.682"></a>
+<span class="sourceLineNo">682</span>   * 6 instructions, we will only perform the transformation if {@code k &gt;= 7}.<a name="line.682"></a>
 <span class="sourceLineNo">683</span>   *<a name="line.683"></a>
 <span class="sourceLineNo">684</span>   * &lt;p&gt; TODO items<a name="line.684"></a>
 <span class="sourceLineNo">685</span>   * &lt;ul&gt;<a name="line.685"></a>
@@ -702,11 +702,11 @@
 <span class="sourceLineNo">694</span>   * @return true if the transformation succeeds, false otherwise<a name="line.694"></a>
 <span class="sourceLineNo">695</span>   */<a name="line.695"></a>
 <span class="sourceLineNo">696</span>  private boolean generateCondMove(IR ir, BasicBlock bb, Instruction cb) {<a name="line.696"></a>
-<span class="sourceLineNo">697</span>    final boolean VERBOSE=false;<a name="line.697"></a>
+<span class="sourceLineNo">697</span>    final boolean VERBOSE = false;<a name="line.697"></a>
 <span class="sourceLineNo">698</span>    if (!VM.BuildForIA32) return false;<a name="line.698"></a>
 <span class="sourceLineNo">699</span>    if (!IfCmp.conforms(cb)) return false;<a name="line.699"></a>
 <span class="sourceLineNo">700</span><a name="line.700"></a>
-<span class="sourceLineNo">701</span>    if (VERBOSE) System.out.println("CondMove: Looking to optimize "+cb);<a name="line.701"></a>
+<span class="sourceLineNo">701</span>    if (VERBOSE) System.out.println("CondMove: Looking to optimize " + cb);<a name="line.701"></a>
 <span class="sourceLineNo">702</span>    // Don't generate CMOVs for branches that can be folded.<a name="line.702"></a>
 <span class="sourceLineNo">703</span>    if (IfCmp.getVal1(cb).isConstant() &amp;&amp; IfCmp.getVal2(cb).isConstant()) {<a name="line.703"></a>
 <span class="sourceLineNo">704</span>      if (VERBOSE) System.out.println("CondMove: fail - could be folded");<a name="line.704"></a>
@@ -745,7 +745,7 @@
 <span class="sourceLineNo">737</span>    if ((Math.abs(profile.takenProbability - 0.5) &gt;= ir.options.CONTROL_WELL_PREDICTED_CUTOFF) &amp;&amp;<a name="line.737"></a>
 <span class="sourceLineNo">738</span>        !(cb.position != null &amp;&amp; cb.position.method.getName() == ABS &amp;&amp; cond.isFLOATINGPOINT())) {<a name="line.738"></a>
 <span class="sourceLineNo">739</span>      if (VERBOSE)<a name="line.739"></a>
-<span class="sourceLineNo">740</span>        System.out.println("CondMove: fail - branch could be well predicted by branch predictor: "+<a name="line.740"></a>
+<span class="sourceLineNo">740</span>        System.out.println("CondMove: fail - branch could be well predicted by branch predictor: " +<a name="line.740"></a>
 <span class="sourceLineNo">741</span>            profile.takenProbability);<a name="line.741"></a>
 <span class="sourceLineNo">742</span>      return false;<a name="line.742"></a>
 <span class="sourceLineNo">743</span>    }<a name="line.743"></a>
@@ -760,7 +760,7 @@
 <span class="sourceLineNo">752</span>          // give up or for SSE2 check if this is a floating point compare<a name="line.752"></a>
 <span class="sourceLineNo">753</span>          // controlling just floating point moves<a name="line.753"></a>
 <span class="sourceLineNo">754</span>          if (!VM.BuildForSSE2Full || hasFloatingPointDef(taken, true) || hasFloatingPointDef(notTaken, true)) {<a name="line.754"></a>
-<span class="sourceLineNo">755</span>            if (VERBOSE) System.out.println("CondMove: fail - fp condition not OK: "+cond);<a name="line.755"></a>
+<span class="sourceLineNo">755</span>            if (VERBOSE) System.out.println("CondMove: fail - fp condition not OK: " + cond);<a name="line.755"></a>
 <span class="sourceLineNo">756</span>            return false;<a name="line.756"></a>
 <span class="sourceLineNo">757</span>          }<a name="line.757"></a>
 <span class="sourceLineNo">758</span>        } else {<a name="line.758"></a>
@@ -814,496 +814,525 @@
 <span class="sourceLineNo">806</span>  /**<a name="line.806"></a>
 <span class="sourceLineNo">807</span>   * Is a specified condition operand 'safe' to transfer into an FCMP<a name="line.807"></a>
 <span class="sourceLineNo">808</span>   * instruction?<a name="line.808"></a>
-<span class="sourceLineNo">809</span>   */<a name="line.809"></a>
-<span class="sourceLineNo">810</span>  private boolean fpConditionOK(ConditionOperand c) {<a name="line.810"></a>
-<span class="sourceLineNo">811</span>    // FCOMI sets ZF, PF, and CF as follows:<a name="line.811"></a>
-<span class="sourceLineNo">812</span>    // Compare Results      ZF     PF      CF<a name="line.812"></a>
-<span class="sourceLineNo">813</span>    // left &gt; right          0      0       0<a name="line.813"></a>
-<span class="sourceLineNo">814</span>    // left &lt; right          0      0       1<a name="line.814"></a>
-<span class="sourceLineNo">815</span>    // left == right         1      0       0<a name="line.815"></a>
-<span class="sourceLineNo">816</span>    // UNORDERED             1      1       1<a name="line.816"></a>
-<span class="sourceLineNo">817</span>    switch (c.value) {<a name="line.817"></a>
-<span class="sourceLineNo">818</span>    case ConditionOperand.CMPL_EQUAL:<a name="line.818"></a>
-<span class="sourceLineNo">819</span>      return false; // (ZF == 1) but ordered<a name="line.819"></a>
-<span class="sourceLineNo">820</span>    case ConditionOperand.CMPL_NOT_EQUAL:<a name="line.820"></a>
-<span class="sourceLineNo">821</span>      return false; // (ZF == 0) but unordered<a name="line.821"></a>
-<span class="sourceLineNo">822</span>    case ConditionOperand.CMPG_LESS:<a name="line.822"></a>
-<span class="sourceLineNo">823</span>      return false; // (CF == 1) but ordered<a name="line.823"></a>
-<span class="sourceLineNo">824</span>    case ConditionOperand.CMPG_GREATER_EQUAL:<a name="line.824"></a>
-<span class="sourceLineNo">825</span>      return false; // (CF == 0) but unordered<a name="line.825"></a>
-<span class="sourceLineNo">826</span>    case ConditionOperand.CMPG_LESS_EQUAL:<a name="line.826"></a>
-<span class="sourceLineNo">827</span>      return false; // (CF == 1 || ZF == 1) but ordered<a name="line.827"></a>
-<span class="sourceLineNo">828</span>    case ConditionOperand.CMPG_GREATER:<a name="line.828"></a>
-<span class="sourceLineNo">829</span>      return false; // (CF == 0 &amp;&amp; ZF == 0) but unordered<a name="line.829"></a>
-<span class="sourceLineNo">830</span><a name="line.830"></a>
-<span class="sourceLineNo">831</span>    case ConditionOperand.CMPL_GREATER:<a name="line.831"></a>
-<span class="sourceLineNo">832</span>      return true; // (CF == 0 &amp;&amp; ZF == 0) and ordered<a name="line.832"></a>
-<span class="sourceLineNo">833</span>    case ConditionOperand.CMPL_LESS_EQUAL:<a name="line.833"></a>
-<span class="sourceLineNo">834</span>      return true; // (CF == 1 || ZF == 1) and unordered<a name="line.834"></a>
-<span class="sourceLineNo">835</span>    case ConditionOperand.CMPL_GREATER_EQUAL:<a name="line.835"></a>
-<span class="sourceLineNo">836</span>      return true; // (CF == 0) and ordered<a name="line.836"></a>
-<span class="sourceLineNo">837</span>    case ConditionOperand.CMPL_LESS:<a name="line.837"></a>
-<span class="sourceLineNo">838</span>      return true; // (CF == 1) and unordered<a name="line.838"></a>
-<span class="sourceLineNo">839</span>    default:<a name="line.839"></a>
-<span class="sourceLineNo">840</span>      OptimizingCompilerException.UNREACHABLE();<a name="line.840"></a>
-<span class="sourceLineNo">841</span>    return false; // keep jikes happy<a name="line.841"></a>
-<span class="sourceLineNo">842</span>    }<a name="line.842"></a>
-<span class="sourceLineNo">843</span>  }<a name="line.843"></a>
-<span class="sourceLineNo">844</span><a name="line.844"></a>
-<span class="sourceLineNo">845</span>  /**<a name="line.845"></a>
-<span class="sourceLineNo">846</span>   * Do any of the instructions in a basic block define a floating-point<a name="line.846"></a>
-<span class="sourceLineNo">847</span>   * register?<a name="line.847"></a>
-<span class="sourceLineNo">848</span>   *<a name="line.848"></a>
-<span class="sourceLineNo">849</span>   * @param bb basic block to search<a name="line.849"></a>
-<span class="sourceLineNo">850</span>   * @param invert invert the sense of the search<a name="line.850"></a>
-<span class="sourceLineNo">851</span>   */<a name="line.851"></a>
-<span class="sourceLineNo">852</span>  private static boolean hasFloatingPointDef(BasicBlock bb, boolean invert) {<a name="line.852"></a>
-<span class="sourceLineNo">853</span>    if (bb == null) return false;<a name="line.853"></a>
-<span class="sourceLineNo">854</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.854"></a>
-<span class="sourceLineNo">855</span>      Instruction s = e.nextElement();<a name="line.855"></a>
-<span class="sourceLineNo">856</span>      for (Enumeration&lt;Operand&gt; d = s.getDefs(); d.hasMoreElements();) {<a name="line.856"></a>
-<span class="sourceLineNo">857</span>        Operand def = d.nextElement();<a name="line.857"></a>
-<span class="sourceLineNo">858</span>        if (def.isRegister()) {<a name="line.858"></a>
-<span class="sourceLineNo">859</span>          if (def.asRegister().getRegister().isFloatingPoint() != invert) return true;<a name="line.859"></a>
-<span class="sourceLineNo">860</span>        }<a name="line.860"></a>
-<span class="sourceLineNo">861</span>      }<a name="line.861"></a>
-<span class="sourceLineNo">862</span>    }<a name="line.862"></a>
-<span class="sourceLineNo">863</span>    return false;<a name="line.863"></a>
-<span class="sourceLineNo">864</span>  }<a name="line.864"></a>
-<span class="sourceLineNo">865</span><a name="line.865"></a>
-<span class="sourceLineNo">866</span>  /**<a name="line.866"></a>
-<span class="sourceLineNo">867</span>   * Do any of the instructions in a basic block define a long<a name="line.867"></a>
-<span class="sourceLineNo">868</span>   * register?<a name="line.868"></a>
-<span class="sourceLineNo">869</span>   */<a name="line.869"></a>
-<span class="sourceLineNo">870</span>  private boolean hasLongDef(BasicBlock bb) {<a name="line.870"></a>
-<span class="sourceLineNo">871</span>    if (bb == null) return false;<a name="line.871"></a>
-<span class="sourceLineNo">872</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.872"></a>
-<span class="sourceLineNo">873</span>      Instruction s = e.nextElement();<a name="line.873"></a>
-<span class="sourceLineNo">874</span>      for (Enumeration&lt;Operand&gt; d = s.getDefs(); d.hasMoreElements();) {<a name="line.874"></a>
-<span class="sourceLineNo">875</span>        Operand def = d.nextElement();<a name="line.875"></a>
-<span class="sourceLineNo">876</span>        if (def.isRegister()) {<a name="line.876"></a>
-<span class="sourceLineNo">877</span>          if (def.asRegister().getRegister().isLong()) return true;<a name="line.877"></a>
-<span class="sourceLineNo">878</span>        }<a name="line.878"></a>
-<span class="sourceLineNo">879</span>      }<a name="line.879"></a>
-<span class="sourceLineNo">880</span>    }<a name="line.880"></a>
-<span class="sourceLineNo">881</span>    return false;<a name="line.881"></a>
-<span class="sourceLineNo">882</span>  }<a name="line.882"></a>
-<span class="sourceLineNo">883</span><a name="line.883"></a>
-<span class="sourceLineNo">884</span>  /**<a name="line.884"></a>
-<span class="sourceLineNo">885</span>   * Do any of the instructions in a basic block preclude eliminating the<a name="line.885"></a>
-<span class="sourceLineNo">886</span>   * basic block with conditional moves?<a name="line.886"></a>
-<span class="sourceLineNo">887</span>   */<a name="line.887"></a>
-<span class="sourceLineNo">888</span>  private boolean hasCMTaboo(BasicBlock bb) {<a name="line.888"></a>
-<span class="sourceLineNo">889</span><a name="line.889"></a>
-<span class="sourceLineNo">890</span>    if (bb == null) return false;<a name="line.890"></a>
-<span class="sourceLineNo">891</span><a name="line.891"></a>
-<span class="sourceLineNo">892</span>    // Note: it is taboo to assign more than once to any register in the<a name="line.892"></a>
-<span class="sourceLineNo">893</span>    // block.<a name="line.893"></a>
-<span class="sourceLineNo">894</span>    HashSet&lt;Register&gt; defined = new HashSet&lt;Register&gt;();<a name="line.894"></a>
-<span class="sourceLineNo">895</span><a name="line.895"></a>
-<span class="sourceLineNo">896</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.896"></a>
-<span class="sourceLineNo">897</span>      Instruction s = e.nextElement();<a name="line.897"></a>
-<span class="sourceLineNo">898</span>      if (s.isBranch()) continue;<a name="line.898"></a>
-<span class="sourceLineNo">899</span>      // for now, only the following opcodes are legal.<a name="line.899"></a>
-<span class="sourceLineNo">900</span>      switch (s.operator.opcode) {<a name="line.900"></a>
-<span class="sourceLineNo">901</span>        case INT_MOVE_opcode:<a name="line.901"></a>
-<span class="sourceLineNo">902</span>        case REF_MOVE_opcode:<a name="line.902"></a>
-<span class="sourceLineNo">903</span>        case DOUBLE_MOVE_opcode:<a name="line.903"></a>
-<span class="sourceLineNo">904</span>        case FLOAT_MOVE_opcode:<a name="line.904"></a>
-<span class="sourceLineNo">905</span>        case INT_ADD_opcode:<a name="line.905"></a>
-<span class="sourceLineNo">906</span>        case REF_ADD_opcode:<a name="line.906"></a>
-<span class="sourceLineNo">907</span>        case FLOAT_ADD_opcode:<a name="line.907"></a>
-<span class="sourceLineNo">908</span>        case DOUBLE_ADD_opcode:<a name="line.908"></a>
-<span class="sourceLineNo">909</span>        case INT_SUB_opcode:<a name="line.909"></a>
-<span class="sourceLineNo">910</span>        case REF_SUB_opcode:<a name="line.910"></a>
-<span class="sourceLineNo">911</span>        case FLOAT_SUB_opcode:<a name="line.911"></a>
-<span class="sourceLineNo">912</span>        case DOUBLE_SUB_opcode:<a name="line.912"></a>
-<span class="sourceLineNo">913</span>        case INT_MUL_opcode:<a name="line.913"></a>
-<span class="sourceLineNo">914</span>        case FLOAT_MUL_opcode:<a name="line.914"></a>
-<span class="sourceLineNo">915</span>        case DOUBLE_MUL_opcode:<a name="line.915"></a>
-<span class="sourceLineNo">916</span>        case INT_NEG_opcode:<a name="line.916"></a>
-<span class="sourceLineNo">917</span>        case FLOAT_NEG_opcode:<a name="line.917"></a>
-<span class="sourceLineNo">918</span>        case DOUBLE_NEG_opcode:<a name="line.918"></a>
-<span class="sourceLineNo">919</span>        case REF_SHL_opcode:<a name="line.919"></a>
-<span class="sourceLineNo">920</span>        case INT_SHL_opcode:<a name="line.920"></a>
-<span class="sourceLineNo">921</span>        case REF_SHR_opcode:<a name="line.921"></a>
-<span class="sourceLineNo">922</span>        case INT_SHR_opcode:<a name="line.922"></a>
-<span class="sourceLineNo">923</span>        case REF_USHR_opcode:<a name="line.923"></a>
-<span class="sourceLineNo">924</span>        case INT_USHR_opcode:<a name="line.924"></a>
-<span class="sourceLineNo">925</span>        case REF_AND_opcode:<a name="line.925"></a>
-<span class="sourceLineNo">926</span>        case INT_AND_opcode:<a name="line.926"></a>
-<span class="sourceLineNo">927</span>        case REF_OR_opcode:<a name="line.927"></a>
-<span class="sourceLineNo">928</span>        case INT_OR_opcode:<a name="line.928"></a>
-<span class="sourceLineNo">929</span>        case REF_XOR_opcode:<a name="line.929"></a>
-<span class="sourceLineNo">930</span>        case INT_XOR_opcode:<a name="line.930"></a>
-<span class="sourceLineNo">931</span>        case REF_NOT_opcode:<a name="line.931"></a>
-<span class="sourceLineNo">932</span>        case INT_NOT_opcode:<a name="line.932"></a>
-<span class="sourceLineNo">933</span>        case INT_2BYTE_opcode:<a name="line.933"></a>
-<span class="sourceLineNo">934</span>        case INT_2USHORT_opcode:<a name="line.934"></a>
-<span class="sourceLineNo">935</span>        case INT_2SHORT_opcode:<a name="line.935"></a>
-<span class="sourceLineNo">936</span>        case FLOAT_2DOUBLE_opcode:<a name="line.936"></a>
-<span class="sourceLineNo">937</span>        case DOUBLE_2FLOAT_opcode:<a name="line.937"></a>
-<span class="sourceLineNo">938</span>          // these are OK.<a name="line.938"></a>
-<span class="sourceLineNo">939</span>          break;<a name="line.939"></a>
-<span class="sourceLineNo">940</span>        default:<a name="line.940"></a>
-<span class="sourceLineNo">941</span>          return true;<a name="line.941"></a>
-<span class="sourceLineNo">942</span>      }<a name="line.942"></a>
-<span class="sourceLineNo">943</span><a name="line.943"></a>
-<span class="sourceLineNo">944</span>      // make sure no register is defined more than once in this block.<a name="line.944"></a>
-<span class="sourceLineNo">945</span>      for (Enumeration&lt;Operand&gt; defs = s.getDefs(); defs.hasMoreElements();) {<a name="line.945"></a>
-<span class="sourceLineNo">946</span>        Operand def = defs.nextElement();<a name="line.946"></a>
-<span class="sourceLineNo">947</span>        if (VM.VerifyAssertions) VM._assert(def.isRegister());<a name="line.947"></a>
-<span class="sourceLineNo">948</span>        Register r = def.asRegister().getRegister();<a name="line.948"></a>
-<span class="sourceLineNo">949</span>        if (defined.contains(r)) return true;<a name="line.949"></a>
-<span class="sourceLineNo">950</span>        defined.add(r);<a name="line.950"></a>
-<span class="sourceLineNo">951</span>      }<a name="line.951"></a>
-<span class="sourceLineNo">952</span>    }<a name="line.952"></a>
-<span class="sourceLineNo">953</span><a name="line.953"></a>
-<span class="sourceLineNo">954</span>    return false;<a name="line.954"></a>
-<span class="sourceLineNo">955</span>  }<a name="line.955"></a>
+<span class="sourceLineNo">809</span>   *<a name="line.809"></a>
+<span class="sourceLineNo">810</span>   * @param c operand to check<a name="line.810"></a>
+<span class="sourceLineNo">811</span>   * @return whether the operand is 'safe'<a name="line.811"></a>
+<span class="sourceLineNo">812</span>   */<a name="line.812"></a>
+<span class="sourceLineNo">813</span>  private boolean fpConditionOK(ConditionOperand c) {<a name="line.813"></a>
+<span class="sourceLineNo">814</span>    // FCOMI sets ZF, PF, and CF as follows:<a name="line.814"></a>
+<span class="sourceLineNo">815</span>    // Compare Results      ZF     PF      CF<a name="line.815"></a>
+<span class="sourceLineNo">816</span>    // left &gt; right          0      0       0<a name="line.816"></a>
+<span class="sourceLineNo">817</span>    // left &lt; right          0      0       1<a name="line.817"></a>
+<span class="sourceLineNo">818</span>    // left == right         1      0       0<a name="line.818"></a>
+<span class="sourceLineNo">819</span>    // UNORDERED             1      1       1<a name="line.819"></a>
+<span class="sourceLineNo">820</span>    switch (c.value) {<a name="line.820"></a>
+<span class="sourceLineNo">821</span>    case ConditionOperand.CMPL_EQUAL:<a name="line.821"></a>
+<span class="sourceLineNo">822</span>      return false; // (ZF == 1) but ordered<a name="line.822"></a>
+<span class="sourceLineNo">823</span>    case ConditionOperand.CMPL_NOT_EQUAL:<a name="line.823"></a>
+<span class="sourceLineNo">824</span>      return false; // (ZF == 0) but unordered<a name="line.824"></a>
+<span class="sourceLineNo">825</span>    case ConditionOperand.CMPG_LESS:<a name="line.825"></a>
+<span class="sourceLineNo">826</span>      return false; // (CF == 1) but ordered<a name="line.826"></a>
+<span class="sourceLineNo">827</span>    case ConditionOperand.CMPG_GREATER_EQUAL:<a name="line.827"></a>
+<span class="sourceLineNo">828</span>      return false; // (CF == 0) but unordered<a name="line.828"></a>
+<span class="sourceLineNo">829</span>    case ConditionOperand.CMPG_LESS_EQUAL:<a name="line.829"></a>
+<span class="sourceLineNo">830</span>      return false; // (CF == 1 || ZF == 1) but ordered<a name="line.830"></a>
+<span class="sourceLineNo">831</span>    case ConditionOperand.CMPG_GREATER:<a name="line.831"></a>
+<span class="sourceLineNo">832</span>      return false; // (CF == 0 &amp;&amp; ZF == 0) but unordered<a name="line.832"></a>
+<span class="sourceLineNo">833</span><a name="line.833"></a>
+<span class="sourceLineNo">834</span>    case ConditionOperand.CMPL_GREATER:<a name="line.834"></a>
+<span class="sourceLineNo">835</span>      return true; // (CF == 0 &amp;&amp; ZF == 0) and ordered<a name="line.835"></a>
+<span class="sourceLineNo">836</span>    case ConditionOperand.CMPL_LESS_EQUAL:<a name="line.836"></a>
+<span class="sourceLineNo">837</span>      return true; // (CF == 1 || ZF == 1) and unordered<a name="line.837"></a>
+<span class="sourceLineNo">838</span>    case ConditionOperand.CMPL_GREATER_EQUAL:<a name="line.838"></a>
+<span class="sourceLineNo">839</span>      return true; // (CF == 0) and ordered<a name="line.839"></a>
+<span class="sourceLineNo">840</span>    case ConditionOperand.CMPL_LESS:<a name="line.840"></a>
+<span class="sourceLineNo">841</span>      return true; // (CF == 1) and unordered<a name="line.841"></a>
+<span class="sourceLineNo">842</span>    default:<a name="line.842"></a>
+<span class="sourceLineNo">843</span>      OptimizingCompilerException.UNREACHABLE();<a name="line.843"></a>
+<span class="sourceLineNo">844</span>    return false;<a name="line.844"></a>
+<span class="sourceLineNo">845</span>    }<a name="line.845"></a>
+<span class="sourceLineNo">846</span>  }<a name="line.846"></a>
+<span class="sourceLineNo">847</span><a name="line.847"></a>
+<span class="sourceLineNo">848</span>  /**<a name="line.848"></a>
+<span class="sourceLineNo">849</span>   * Do any of the instructions in a basic block define a floating-point<a name="line.849"></a>
+<span class="sourceLineNo">850</span>   * register?<a name="line.850"></a>
+<span class="sourceLineNo">851</span>   *<a name="line.851"></a>
+<span class="sourceLineNo">852</span>   * @param bb basic block to search<a name="line.852"></a>
+<span class="sourceLineNo">853</span>   * @param invert {@code true} if and only if the sense of the search<a name="line.853"></a>
+<span class="sourceLineNo">854</span>   *  should be inverted<a name="line.854"></a>
+<span class="sourceLineNo">855</span>   * @return whether a floating point register (or a non-floating point register)<a name="line.855"></a>
+<span class="sourceLineNo">856</span>   *  is defined in the block<a name="line.856"></a>
+<span class="sourceLineNo">857</span>   */<a name="line.857"></a>
+<span class="sourceLineNo">858</span>  private static boolean hasFloatingPointDef(BasicBlock bb, boolean invert) {<a name="line.858"></a>
+<span class="sourceLineNo">859</span>    if (bb == null) return false;<a name="line.859"></a>
+<span class="sourceLineNo">860</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.860"></a>
+<span class="sourceLineNo">861</span>      Instruction s = e.nextElement();<a name="line.861"></a>
+<span class="sourceLineNo">862</span>      for (Enumeration&lt;Operand&gt; d = s.getDefs(); d.hasMoreElements();) {<a name="line.862"></a>
+<span class="sourceLineNo">863</span>        Operand def = d.nextElement();<a name="line.863"></a>
+<span class="sourceLineNo">864</span>        if (def.isRegister()) {<a name="line.864"></a>
+<span class="sourceLineNo">865</span>          if (def.asRegister().getRegister().isFloatingPoint() != invert) return true;<a name="line.865"></a>
+<span class="sourceLineNo">866</span>        }<a name="line.866"></a>
+<span class="sourceLineNo">867</span>      }<a name="line.867"></a>
+<span class="sourceLineNo">868</span>    }<a name="line.868"></a>
+<span class="sourceLineNo">869</span>    return false;<a name="line.869"></a>
+<span class="sourceLineNo">870</span>  }<a name="line.870"></a>
+<span class="sourceLineNo">871</span><a name="line.871"></a>
+<span class="sourceLineNo">872</span>  /**<a name="line.872"></a>
+<span class="sourceLineNo">873</span>   * Do any of the instructions in a basic block define a long<a name="line.873"></a>
+<span class="sourceLineNo">874</span>   * register?<a name="line.874"></a>
+<span class="sourceLineNo">875</span>   *<a name="line.875"></a>
+<span class="sourceLineNo">876</span>   * @param bb basic block to search<a name="line.876"></a>
+<span class="sourceLineNo">877</span>   * @return whether an instruction in the block defines a long<a name="line.877"></a>
+<span class="sourceLineNo">878</span>   *  register<a name="line.878"></a>
+<span class="sourceLineNo">879</span>   */<a name="line.879"></a>
+<span class="sourceLineNo">880</span>  private boolean hasLongDef(BasicBlock bb) {<a name="line.880"></a>
+<span class="sourceLineNo">881</span>    if (bb == null) return false;<a name="line.881"></a>
+<span class="sourceLineNo">882</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.882"></a>
+<span class="sourceLineNo">883</span>      Instruction s = e.nextElement();<a name="line.883"></a>
+<span class="sourceLineNo">884</span>      for (Enumeration&lt;Operand&gt; d = s.getDefs(); d.hasMoreElements();) {<a name="line.884"></a>
+<span class="sourceLineNo">885</span>        Operand def = d.nextElement();<a name="line.885"></a>
+<span class="sourceLineNo">886</span>        if (def.isRegister()) {<a name="line.886"></a>
+<span class="sourceLineNo">887</span>          if (def.asRegister().getRegister().isLong()) return true;<a name="line.887"></a>
+<span class="sourceLineNo">888</span>        }<a name="line.888"></a>
+<span class="sourceLineNo">889</span>      }<a name="line.889"></a>
+<span class="sourceLineNo">890</span>    }<a name="line.890"></a>
+<span class="sourceLineNo">891</span>    return false;<a name="line.891"></a>
+<span class="sourceLineNo">892</span>  }<a name="line.892"></a>
+<span class="sourceLineNo">893</span><a name="line.893"></a>
+<span class="sourceLineNo">894</span>  /**<a name="line.894"></a>
+<span class="sourceLineNo">895</span>   * Do any of the instructions in a basic block preclude eliminating the<a name="line.895"></a>
+<span class="sourceLineNo">896</span>   * basic block with conditional moves?<a name="line.896"></a>
+<span class="sourceLineNo">897</span>   *<a name="line.897"></a>
+<span class="sourceLineNo">898</span>   * @param bb the block to check<a name="line.898"></a>
+<span class="sourceLineNo">899</span>   * @return whether the block must be retained<a name="line.899"></a>
+<span class="sourceLineNo">900</span>   */<a name="line.900"></a>
+<span class="sourceLineNo">901</span>  private boolean hasCMTaboo(BasicBlock bb) {<a name="line.901"></a>
+<span class="sourceLineNo">902</span><a name="line.902"></a>
+<span class="sourceLineNo">903</span>    if (bb == null) return false;<a name="line.903"></a>
+<span class="sourceLineNo">904</span><a name="line.904"></a>
+<span class="sourceLineNo">905</span>    // Note: it is taboo to assign more than once to any register in the<a name="line.905"></a>
+<span class="sourceLineNo">906</span>    // block.<a name="line.906"></a>
+<span class="sourceLineNo">907</span>    HashSet&lt;Register&gt; defined = new HashSet&lt;Register&gt;();<a name="line.907"></a>
+<span class="sourceLineNo">908</span><a name="line.908"></a>
+<span class="sourceLineNo">909</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.909"></a>
+<span class="sourceLineNo">910</span>      Instruction s = e.nextElement();<a name="line.910"></a>
+<span class="sourceLineNo">911</span>      if (s.isBranch()) continue;<a name="line.911"></a>
+<span class="sourceLineNo">912</span>      // for now, only the following opcodes are legal.<a name="line.912"></a>
+<span class="sourceLineNo">913</span>      switch (s.getOpcode()) {<a name="line.913"></a>
+<span class="sourceLineNo">914</span>        case INT_MOVE_opcode:<a name="line.914"></a>
+<span class="sourceLineNo">915</span>        case REF_MOVE_opcode:<a name="line.915"></a>
+<span class="sourceLineNo">916</span>        case DOUBLE_MOVE_opcode:<a name="line.916"></a>
+<span class="sourceLineNo">917</span>        case FLOAT_MOVE_opcode:<a name="line.917"></a>
+<span class="sourceLineNo">918</span>        case INT_ADD_opcode:<a name="line.918"></a>
+<span class="sourceLineNo">919</span>        case REF_ADD_opcode:<a name="line.919"></a>
+<span class="sourceLineNo">920</span>        case FLOAT_ADD_opcode:<a name="line.920"></a>
+<span class="sourceLineNo">921</span>        case DOUBLE_ADD_opcode:<a name="line.921"></a>
+<span class="sourceLineNo">922</span>        case INT_SUB_opcode:<a name="line.922"></a>
+<span class="sourceLineNo">923</span>        case REF_SUB_opcode:<a name="line.923"></a>
+<span class="sourceLineNo">924</span>        case FLOAT_SUB_opcode:<a name="line.924"></a>
+<span class="sourceLineNo">925</span>        case DOUBLE_SUB_opcode:<a name="line.925"></a>
+<span class="sourceLineNo">926</span>        case INT_MUL_opcode:<a name="line.926"></a>
+<span class="sourceLineNo">927</span>        case FLOAT_MUL_opcode:<a name="line.927"></a>
+<span class="sourceLineNo">928</span>        case DOUBLE_MUL_opcode:<a name="line.928"></a>
+<span class="sourceLineNo">929</span>        case INT_NEG_opcode:<a name="line.929"></a>
+<span class="sourceLineNo">930</span>        case FLOAT_NEG_opcode:<a name="line.930"></a>
+<span class="sourceLineNo">931</span>        case DOUBLE_NEG_opcode:<a name="line.931"></a>
+<span class="sourceLineNo">932</span>        case REF_SHL_opcode:<a name="line.932"></a>
+<span class="sourceLineNo">933</span>        case INT_SHL_opcode:<a name="line.933"></a>
+<span class="sourceLineNo">934</span>        case REF_SHR_opcode:<a name="line.934"></a>
+<span class="sourceLineNo">935</span>        case INT_SHR_opcode:<a name="line.935"></a>
+<span class="sourceLineNo">936</span>        case REF_USHR_opcode:<a name="line.936"></a>
+<span class="sourceLineNo">937</span>        case INT_USHR_opcode:<a name="line.937"></a>
+<span class="sourceLineNo">938</span>        case REF_AND_opcode:<a name="line.938"></a>
+<span class="sourceLineNo">939</span>        case INT_AND_opcode:<a name="line.939"></a>
+<span class="sourceLineNo">940</span>        case REF_OR_opcode:<a name="line.940"></a>
+<span class="sourceLineNo">941</span>        case INT_OR_opcode:<a name="line.941"></a>
+<span class="sourceLineNo">942</span>        case REF_XOR_opcode:<a name="line.942"></a>
+<span class="sourceLineNo">943</span>        case INT_XOR_opcode:<a name="line.943"></a>
+<span class="sourceLineNo">944</span>        case REF_NOT_opcode:<a name="line.944"></a>
+<span class="sourceLineNo">945</span>        case INT_NOT_opcode:<a name="line.945"></a>
+<span class="sourceLineNo">946</span>        case INT_2BYTE_opcode:<a name="line.946"></a>
+<span class="sourceLineNo">947</span>        case INT_2USHORT_opcode:<a name="line.947"></a>
+<span class="sourceLineNo">948</span>        case INT_2SHORT_opcode:<a name="line.948"></a>
+<span class="sourceLineNo">949</span>        case FLOAT_2DOUBLE_opcode:<a name="line.949"></a>
+<span class="sourceLineNo">950</span>        case DOUBLE_2FLOAT_opcode:<a name="line.950"></a>
+<span class="sourceLineNo">951</span>          // these are OK.<a name="line.951"></a>
+<span class="sourceLineNo">952</span>          break;<a name="line.952"></a>
+<span class="sourceLineNo">953</span>        default:<a name="line.953"></a>
+<span class="sourceLineNo">954</span>          return true;<a name="line.954"></a>
+<span class="sourceLineNo">955</span>      }<a name="line.955"></a>
 <span class="sourceLineNo">956</span><a name="line.956"></a>
-<span class="sourceLineNo">957</span>  /**<a name="line.957"></a>
-<span class="sourceLineNo">958</span>   * Evaluate the cost of a basic block, in number of real instructions.<a name="line.958"></a>
-<span class="sourceLineNo">959</span>   */<a name="line.959"></a>
-<span class="sourceLineNo">960</span>  private int evaluateCost(BasicBlock bb) {<a name="line.960"></a>
-<span class="sourceLineNo">961</span>    int result = 0;<a name="line.961"></a>
-<span class="sourceLineNo">962</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.962"></a>
-<span class="sourceLineNo">963</span>      Instruction s = e.nextElement();<a name="line.963"></a>
-<span class="sourceLineNo">964</span>      if (!s.isBranch()) result++;<a name="line.964"></a>
+<span class="sourceLineNo">957</span>      // make sure no register is defined more than once in this block.<a name="line.957"></a>
+<span class="sourceLineNo">958</span>      for (Enumeration&lt;Operand&gt; defs = s.getDefs(); defs.hasMoreElements();) {<a name="line.958"></a>
+<span class="sourceLineNo">959</span>        Operand def = defs.nextElement();<a name="line.959"></a>
+<span class="sourceLineNo">960</span>        if (VM.VerifyAssertions) VM._assert(def.isRegister());<a name="line.960"></a>
+<span class="sourceLineNo">961</span>        Register r = def.asRegister().getRegister();<a name="line.961"></a>
+<span class="sourceLineNo">962</span>        if (defined.contains(r)) return true;<a name="line.962"></a>
+<span class="sourceLineNo">963</span>        defined.add(r);<a name="line.963"></a>
+<span class="sourceLineNo">964</span>      }<a name="line.964"></a>
 <span class="sourceLineNo">965</span>    }<a name="line.965"></a>
-<span class="sourceLineNo">966</span>    return result;<a name="line.966"></a>
-<span class="sourceLineNo">967</span>  }<a name="line.967"></a>
-<span class="sourceLineNo">968</span><a name="line.968"></a>
-<span class="sourceLineNo">969</span>  /**<a name="line.969"></a>
-<span class="sourceLineNo">970</span>   * For each real non-branch instruction s in bb,<a name="line.970"></a>
-<span class="sourceLineNo">971</span>   * &lt;ul&gt;<a name="line.971"></a>
-<span class="sourceLineNo">972</span>   * &lt;li&gt; Copy s to s', and store s' in the returned array<a name="line.972"></a>
-<span class="sourceLineNo">973</span>   * &lt;li&gt; Insert the function s-&gt;s' in the map<a name="line.973"></a>
-<span class="sourceLineNo">974</span>   * &lt;/ul&gt;<a name="line.974"></a>
-<span class="sourceLineNo">975</span>   */<a name="line.975"></a>
-<span class="sourceLineNo">976</span>  private Instruction[] copyAndMapInstructions(BasicBlock bb, HashMap&lt;Instruction, Instruction&gt; map) {<a name="line.976"></a>
-<span class="sourceLineNo">977</span>    if (bb == null) return new Instruction[0];<a name="line.977"></a>
-<span class="sourceLineNo">978</span><a name="line.978"></a>
-<span class="sourceLineNo">979</span>    int count = 0;<a name="line.979"></a>
-<span class="sourceLineNo">980</span>    // first count the number of instructions<a name="line.980"></a>
-<span class="sourceLineNo">981</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.981"></a>
-<span class="sourceLineNo">982</span>      Instruction s = e.nextElement();<a name="line.982"></a>
-<span class="sourceLineNo">983</span>      if (s.isBranch()) continue;<a name="line.983"></a>
-<span class="sourceLineNo">984</span>      count++;<a name="line.984"></a>
-<span class="sourceLineNo">985</span>    }<a name="line.985"></a>
-<span class="sourceLineNo">986</span>    // now copy.<a name="line.986"></a>
-<span class="sourceLineNo">987</span>    Instruction[] result = new Instruction[count];<a name="line.987"></a>
-<span class="sourceLineNo">988</span>    int i = 0;<a name="line.988"></a>
-<span class="sourceLineNo">989</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.989"></a>
-<span class="sourceLineNo">990</span>      Instruction s = e.nextElement();<a name="line.990"></a>
-<span class="sourceLineNo">991</span>      if (s.isBranch()) continue;<a name="line.991"></a>
-<span class="sourceLineNo">992</span>      Instruction sprime = s.copyWithoutLinks();<a name="line.992"></a>
-<span class="sourceLineNo">993</span>      result[i++] = sprime;<a name="line.993"></a>
-<span class="sourceLineNo">994</span>      map.put(s, sprime);<a name="line.994"></a>
-<span class="sourceLineNo">995</span>    }<a name="line.995"></a>
-<span class="sourceLineNo">996</span>    return result;<a name="line.996"></a>
-<span class="sourceLineNo">997</span>  }<a name="line.997"></a>
-<span class="sourceLineNo">998</span><a name="line.998"></a>
-<span class="sourceLineNo">999</span>  /**<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>   * For each in a set of instructions, rewrite every def to use a new<a name="line.1000"></a>
-<span class="sourceLineNo">1001</span>   * temporary register.  If a rewritten def is subsequently used, then<a name="line.1001"></a>
-<span class="sourceLineNo">1002</span>   * use the new temporary register instead.<a name="line.1002"></a>
-<span class="sourceLineNo">1003</span>   */<a name="line.1003"></a>
-<span class="sourceLineNo">1004</span>  private void rewriteWithTemporaries(Instruction[] set, IR ir) {<a name="line.1004"></a>
-<span class="sourceLineNo">1005</span><a name="line.1005"></a>
-<span class="sourceLineNo">1006</span>    // Maintain a mapping holding the new name for each register<a name="line.1006"></a>
-<span class="sourceLineNo">1007</span>    HashMap&lt;Register, Register&gt; map = new HashMap&lt;Register, Register&gt;();<a name="line.1007"></a>
-<span class="sourceLineNo">1008</span>    for (Instruction s : set) {<a name="line.1008"></a>
-<span class="sourceLineNo">1009</span>      // rewrite the uses to use the new names<a name="line.1009"></a>
-<span class="sourceLineNo">1010</span>      for (Enumeration&lt;Operand&gt; e = s.getUses(); e.hasMoreElements();) {<a name="line.1010"></a>
-<span class="sourceLineNo">1011</span>        Operand use = e.nextElement();<a name="line.1011"></a>
-<span class="sourceLineNo">1012</span>        if (use != null &amp;&amp; use.isRegister()) {<a name="line.1012"></a>
-<span class="sourceLineNo">1013</span>          Register r = use.asRegister().getRegister();<a name="line.1013"></a>
-<span class="sourceLineNo">1014</span>          Register temp = map.get(r);<a name="line.1014"></a>
-<span class="sourceLineNo">1015</span>          if (temp != null) {<a name="line.1015"></a>
-<span class="sourceLineNo">1016</span>            use.asRegister().setRegister(temp);<a name="line.1016"></a>
-<span class="sourceLineNo">1017</span>          }<a name="line.1017"></a>
-<span class="sourceLineNo">1018</span>        }<a name="line.1018"></a>
-<span class="sourceLineNo">1019</span>      }<a name="line.1019"></a>
+<span class="sourceLineNo">966</span><a name="line.966"></a>
+<span class="sourceLineNo">967</span>    return false;<a name="line.967"></a>
+<span class="sourceLineNo">968</span>  }<a name="line.968"></a>
+<span class="sourceLineNo">969</span><a name="line.969"></a>
+<span class="sourceLineNo">970</span>  /**<a name="line.970"></a>
+<span class="sourceLineNo">971</span>   * Evaluates the cost of a basic block, in number of real instructions<a name="line.971"></a>
+<span class="sourceLineNo">972</span>   * excluding branches.<a name="line.972"></a>
+<span class="sourceLineNo">973</span>   *<a name="line.973"></a>
+<span class="sourceLineNo">974</span>   * @param bb the block to evaluate<a name="line.974"></a>
+<span class="sourceLineNo">975</span>   * @return the number of real instruction, excluding branches.<a name="line.975"></a>
+<span class="sourceLineNo">976</span>   */<a name="line.976"></a>
+<span class="sourceLineNo">977</span>  private int evaluateCost(BasicBlock bb) {<a name="line.977"></a>
+<span class="sourceLineNo">978</span>    int result = 0;<a name="line.978"></a>
+<span class="sourceLineNo">979</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.979"></a>
+<span class="sourceLineNo">980</span>      Instruction s = e.nextElement();<a name="line.980"></a>
+<span class="sourceLineNo">981</span>      if (!s.isBranch()) result++;<a name="line.981"></a>
+<span class="sourceLineNo">982</span>    }<a name="line.982"></a>
+<span class="sourceLineNo">983</span>    return result;<a name="line.983"></a>
+<span class="sourceLineNo">984</span>  }<a name="line.984"></a>
+<span class="sourceLineNo">985</span><a name="line.985"></a>
+<span class="sourceLineNo">986</span>  /**<a name="line.986"></a>
+<span class="sourceLineNo">987</span>   * For each real non-branch instruction s in bb,<a name="line.987"></a>
+<span class="sourceLineNo">988</span>   * &lt;ul&gt;<a name="line.988"></a>
+<span class="sourceLineNo">989</span>   * &lt;li&gt; Copy s to s', and store s' in the returned array<a name="line.989"></a>
+<span class="sourceLineNo">990</span>   * &lt;li&gt; Insert the function s-&amp;gt;s' in the map<a name="line.990"></a>
+<span class="sourceLineNo">991</span>   * &lt;/ul&gt;<a name="line.991"></a>
+<span class="sourceLineNo">992</span>   *<a name="line.992"></a>
+<span class="sourceLineNo">993</span>   * @param bb the basic block to process<a name="line.993"></a>
+<span class="sourceLineNo">994</span>   * @param map map for instructions (must be empty at the start)<a name="line.994"></a>
+<span class="sourceLineNo">995</span>   * @return the copied instructions (which are not linked into an<a name="line.995"></a>
+<span class="sourceLineNo">996</span>   *  instruction list)<a name="line.996"></a>
+<span class="sourceLineNo">997</span>   */<a name="line.997"></a>
+<span class="sourceLineNo">998</span>  private Instruction[] copyAndMapInstructions(BasicBlock bb, HashMap&lt;Instruction, Instruction&gt; map) {<a name="line.998"></a>
+<span class="sourceLineNo">999</span>    if (bb == null) return new Instruction[0];<a name="line.999"></a>
+<span class="sourceLineNo">1000</span><a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>    int count = 0;<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>    // first count the number of instructions<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>      Instruction s = e.nextElement();<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>      if (s.isBranch()) continue;<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>      count++;<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>    }<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>    // now copy.<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>    Instruction[] result = new Instruction[count];<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>    int i = 0;<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>    for (Enumeration&lt;Instruction&gt; e = bb.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>      Instruction s = e.nextElement();<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>      if (s.isBranch()) continue;<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>      Instruction sprime = s.copyWithoutLinks();<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>      result[i++] = sprime;<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>      map.put(s, sprime);<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>    }<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>    return result;<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>  }<a name="line.1019"></a>
 <span class="sourceLineNo">1020</span><a name="line.1020"></a>
-<span class="sourceLineNo">1021</span>      if (VM.VerifyAssertions) VM._assert(s.getNumberOfDefs() == 1);<a name="line.1021"></a>
-<span class="sourceLineNo">1022</span><a name="line.1022"></a>
-<span class="sourceLineNo">1023</span>      Operand def = s.getDefs().nextElement();<a name="line.1023"></a>
-<span class="sourceLineNo">1024</span>      RegisterOperand rDef = def.asRegister();<a name="line.1024"></a>
-<span class="sourceLineNo">1025</span>      RegisterOperand temp = ir.regpool.makeTemp(rDef);<a name="line.1025"></a>
-<span class="sourceLineNo">1026</span>      map.put(rDef.getRegister(), temp.getRegister());<a name="line.1026"></a>
-<span class="sourceLineNo">1027</span>      s.replaceOperand(def, temp);<a name="line.1027"></a>
-<span class="sourceLineNo">1028</span>    }<a name="line.1028"></a>
-<span class="sourceLineNo">1029</span>  }<a name="line.1029"></a>
+<span class="sourceLineNo">1021</span>  /**<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>   * For each in a set of instructions, rewrite every def to use a new<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>   * temporary register.  If a rewritten def is subsequently used, then<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>   * use the new temporary register instead.<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>   *<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>   * @param set the instructions to rewrite<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>   * @param ir the IR that will provide the temporary registers<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>   */<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>  private void rewriteWithTemporaries(Instruction[] set, IR ir) {<a name="line.1029"></a>
 <span class="sourceLineNo">1030</span><a name="line.1030"></a>
-<span class="sourceLineNo">1031</span>  /**<a name="line.1031"></a>
-<span class="sourceLineNo">1032</span>   * Insert each instruction in a list before instruction s<a name="line.1032"></a>
-<span class="sourceLineNo">1033</span>   */<a name="line.1033"></a>
-<span class="sourceLineNo">1034</span>  private void insertBefore(Instruction[] list, Instruction s) {<a name="line.1034"></a>
-<span class="sourceLineNo">1035</span>    for (Instruction x : list) {<a name="line.1035"></a>
-<span class="sourceLineNo">1036</span>      s.insertBefore(x);<a name="line.1036"></a>
-<span class="sourceLineNo">1037</span>    }<a name="line.1037"></a>
-<span class="sourceLineNo">1038</span>  }<a name="line.1038"></a>
-<span class="sourceLineNo">1039</span><a name="line.1039"></a>
-<span class="sourceLineNo">1040</span>  /**<a name="line.1040"></a>
-<span class="sourceLineNo">1041</span>   * Perform the transformation to replace conditional branch with a<a name="line.1041"></a>
-<span class="sourceLineNo">1042</span>   * sequence using conditional moves.<a name="line.1042"></a>
-<span class="sourceLineNo">1043</span>   *<a name="line.1043"></a>
-<span class="sourceLineNo">1044</span>   * @param ir governing IR<a name="line.1044"></a>
-<span class="sourceLineNo">1045</span>   * @param diamond the IR diamond structure to replace<a name="line.1045"></a>
-<span class="sourceLineNo">1046</span>   * @param cb conditional branch instruction at the head of the diamond<a name="line.1046"></a>
-<span class="sourceLineNo">1047</span>   */<a name="line.1047"></a>
-<span class="sourceLineNo">1048</span>  private void doCondMove(IR ir, Diamond diamond, Instruction cb) {<a name="line.1048"></a>
-<span class="sourceLineNo">1049</span>    BasicBlock taken = diamond.getTaken();<a name="line.1049"></a>
-<span class="sourceLineNo">1050</span>    BasicBlock notTaken = diamond.getNotTaken();<a name="line.1050"></a>
-<span class="sourceLineNo">1051</span><a name="line.1051"></a>
-<span class="sourceLineNo">1052</span>    // for each non-branch instruction s in the diamond,<a name="line.1052"></a>
-<span class="sourceLineNo">1053</span>    // copy s to a new instruction s'<a name="line.1053"></a>
-<span class="sourceLineNo">1054</span>    // and store a mapping from s to s'<a name="line.1054"></a>
-<span class="sourceLineNo">1055</span>    HashMap&lt;Instruction, Instruction&gt; takenInstructions = new HashMap&lt;Instruction, Instruction&gt;();<a name="line.1055"></a>
-<span class="sourceLineNo">1056</span>    Instruction[] takenInstructionList = copyAndMapInstructions(taken, takenInstructions);<a name="line.1056"></a>
-<span class="sourceLineNo">1057</span><a name="line.1057"></a>
-<span class="sourceLineNo">1058</span>    HashMap&lt;Instruction, Instruction&gt; notTakenInstructions = new HashMap&lt;Instruction, Instruction&gt;();<a name="line.1058"></a>
-<span class="sourceLineNo">1059</span>    Instruction[] notTakenInstructionList = copyAndMapInstructions(notTaken, notTakenInstructions);<a name="line.1059"></a>
-<span class="sourceLineNo">1060</span><a name="line.1060"></a>
-<span class="sourceLineNo">1061</span>    // Extract the values and condition from the conditional branch.<a name="line.1061"></a>
-<span class="sourceLineNo">1062</span>    Operand val1 = IfCmp.getVal1(cb);<a name="line.1062"></a>
-<span class="sourceLineNo">1063</span>    Operand val2 = IfCmp.getVal2(cb);<a name="line.1063"></a>
-<span class="sourceLineNo">1064</span>    ConditionOperand cond = IfCmp.getCond(cb);<a name="line.1064"></a>
-<span class="sourceLineNo">1065</span><a name="line.1065"></a>
-<span class="sourceLineNo">1066</span>    // Copy val1 and val2 to temporaries, just in case they're defined in<a name="line.1066"></a>
-<span class="sourceLineNo">1067</span>    // the diamond.  If they're not defined in the diamond, copy prop<a name="line.1067"></a>
-<span class="sourceLineNo">1068</span>    // should clean these moves up.<a name="line.1068"></a>
-<span class="sourceLineNo">1069</span>    RegisterOperand tempVal1 = ir.regpool.makeTemp(val1);<a name="line.1069"></a>
-<span class="sourceLineNo">1070</span>    Operator op = IRTools.getMoveOp(tempVal1.getType());<a name="line.1070"></a>
-<span class="sourceLineNo">1071</span>    cb.insertBefore(Move.create(op, tempVal1.copyRO(), val1.copy()));<a name="line.1071"></a>
-<span class="sourceLineNo">1072</span>    RegisterOperand tempVal2 = ir.regpool.makeTemp(val2);<a name="line.1072"></a>
-<span class="sourceLineNo">1073</span>    op = IRTools.getMoveOp(tempVal2.getType());<a name="line.1073"></a>
-<span class="sourceLineNo">1074</span>    cb.insertBefore(Move.create(op, tempVal2.copyRO(), val2.copy()));<a name="line.1074"></a>
-<span class="sourceLineNo">1075</span><a name="line.1075"></a>
-<span class="sourceLineNo">1076</span>    // For each instruction in each temporary set, rewrite it to def a new<a name="line.1076"></a>
-<span class="sourceLineNo">1077</span>    // temporary, and insert it before the branch.<a name="line.1077"></a>
-<span class="sourceLineNo">1078</span>    rewriteWithTemporaries(takenInstructionList, ir);<a name="line.1078"></a>
-<span class="sourceLineNo">1079</span>    rewriteWithTemporaries(notTakenInstructionList, ir);<a name="line.1079"></a>
-<span class="sourceLineNo">1080</span>    insertBefore(takenInstructionList, cb);<a name="line.1080"></a>
-<span class="sourceLineNo">1081</span>    insertBefore(notTakenInstructionList, cb);<a name="line.1081"></a>
-<span class="sourceLineNo">1082</span><a name="line.1082"></a>
-<span class="sourceLineNo">1083</span>    // For each register defined in the TAKEN branch, save a mapping to<a name="line.1083"></a>
-<span class="sourceLineNo">1084</span>    // the corresponding conditional move.<a name="line.1084"></a>
-<span class="sourceLineNo">1085</span>    HashMap&lt;Register, Instruction&gt; takenMap = new HashMap&lt;Register, Instruction&gt;();<a name="line.1085"></a>
-<span class="sourceLineNo">1086</span><a name="line.1086"></a>
-<span class="sourceLineNo">1087</span>    // Now insert conditional moves to replace each instruction in the diamond.<a name="line.1087"></a>
-<span class="sourceLineNo">1088</span>    // First handle the taken branch.<a name="line.1088"></a>
-<span class="sourceLineNo">1089</span>    if (taken != null) {<a name="line.1089"></a>
-<span class="sourceLineNo">1090</span>      for (Enumeration&lt;Instruction&gt; e = taken.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1090"></a>
-<span class="sourceLineNo">1091</span>        Instruction s = e.nextElement();<a name="line.1091"></a>
-<span class="sourceLineNo">1092</span>        if (s.isBranch()) continue;<a name="line.1092"></a>
-<span class="sourceLineNo">1093</span>        Operand def = s.getDefs().nextElement();<a name="line.1093"></a>
-<span class="sourceLineNo">1094</span>        // if the register does not span a basic block, it is a temporary<a name="line.1094"></a>
-<span class="sourceLineNo">1095</span>        // that will now be dead<a name="line.1095"></a>
-<span class="sourceLineNo">1096</span>        if (def.asRegister().getRegister().spansBasicBlock()) {<a name="line.1096"></a>
-<span class="sourceLineNo">1097</span>          Instruction tempS = takenInstructions.get(s);<a name="line.1097"></a>
-<span class="sourceLineNo">1098</span>          RegisterOperand temp = (RegisterOperand) tempS.getDefs().nextElement();<a name="line.1098"></a>
-<span class="sourceLineNo">1099</span>          op = IRTools.getCondMoveOp(def.asRegister().getType());<a name="line.1099"></a>
-<span class="sourceLineNo">1100</span>          Instruction cmov =<a name="line.1100"></a>
-<span class="sourceLineNo">1101</span>              CondMove.create(op,<a name="line.1101"></a>
-<span class="sourceLineNo">1102</span>                              def.asRegister(),<a name="line.1102"></a>
-<span class="sourceLineNo">1103</span>                              tempVal1.copy(),<a name="line.1103"></a>
-<span class="sourceLineNo">1104</span>                              tempVal2.copy(),<a name="line.1104"></a>
-<span class="sourceLineNo">1105</span>                              cond.copy().asCondition(),<a name="line.1105"></a>
-<span class="sourceLineNo">1106</span>                              temp.copy(),<a name="line.1106"></a>
-<span class="sourceLineNo">1107</span>                              def.copy());<a name="line.1107"></a>
-<span class="sourceLineNo">1108</span>          takenMap.put(def.asRegister().getRegister(), cmov);<a name="line.1108"></a>
-<span class="sourceLineNo">1109</span>          cb.insertBefore(cmov);<a name="line.1109"></a>
-<span class="sourceLineNo">1110</span>        }<a name="line.1110"></a>
-<span class="sourceLineNo">1111</span>        s.remove();<a name="line.1111"></a>
-<span class="sourceLineNo">1112</span>      }<a name="line.1112"></a>
-<span class="sourceLineNo">1113</span>    }<a name="line.1113"></a>
-<span class="sourceLineNo">1114</span>    // For each register defined in the NOT-TAKEN branch, save a mapping to<a name="line.1114"></a>
-<span class="sourceLineNo">1115</span>    // the corresponding conditional move.<a name="line.1115"></a>
-<span class="sourceLineNo">1116</span>    HashMap&lt;Register, Instruction&gt; notTakenMap = new HashMap&lt;Register, Instruction&gt;();<a name="line.1116"></a>
-<span class="sourceLineNo">1117</span>    // Next handle the not taken branch.<a name="line.1117"></a>
-<span class="sourceLineNo">1118</span>    if (notTaken != null) {<a name="line.1118"></a>
-<span class="sourceLineNo">1119</span>      for (Enumeration&lt;Instruction&gt; e = notTaken.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1119"></a>
-<span class="sourceLineNo">1120</span>        Instruction s = e.nextElement();<a name="line.1120"></a>
-<span class="sourceLineNo">1121</span>        if (s.isBranch()) continue;<a name="line.1121"></a>
-<span class="sourceLineNo">1122</span>        Operand def = s.getDefs().nextElement();<a name="line.1122"></a>
-<span class="sourceLineNo">1123</span>        // if the register does not span a basic block, it is a temporary<a name="line.1123"></a>
-<span class="sourceLineNo">1124</span>        // that will now be dead<a name="line.1124"></a>
-<span class="sourceLineNo">1125</span>        if (def.asRegister().getRegister().spansBasicBlock()) {<a name="line.1125"></a>
-<span class="sourceLineNo">1126</span>          Instruction tempS = notTakenInstructions.get(s);<a name="line.1126"></a>
-<span class="sourceLineNo">1127</span>          RegisterOperand temp = (RegisterOperand) tempS.getDefs().nextElement();<a name="line.1127"></a>
-<span class="sourceLineNo">1128</span><a name="line.1128"></a>
-<span class="sourceLineNo">1129</span>          Instruction prevCmov = takenMap.get(def.asRegister().getRegister());<a name="line.1129"></a>
-<span class="sourceLineNo">1130</span>          if (prevCmov != null) {<a name="line.1130"></a>
-<span class="sourceLineNo">1131</span>            // if this register was also defined in the taken branch, change<a name="line.1131"></a>
-<span class="sourceLineNo">1132</span>            // the previous cmov with a different 'False' Value<a name="line.1132"></a>
-<span class="sourceLineNo">1133</span>            CondMove.setFalseValue(prevCmov, temp.copy());<a name="line.1133"></a>
-<span class="sourceLineNo">1134</span>            notTakenMap.put(def.asRegister().getRegister(), prevCmov);<a name="line.1134"></a>
-<span class="sourceLineNo">1135</span>          } else {<a name="line.1135"></a>
-<span class="sourceLineNo">1136</span>            // create a new cmov instruction<a name="line.1136"></a>
-<span class="sourceLineNo">1137</span>            op = IRTools.getCondMoveOp(def.asRegister().getType());<a name="line.1137"></a>
-<span class="sourceLineNo">1138</span>            Instruction cmov =<a name="line.1138"></a>
-<span class="sourceLineNo">1139</span>                CondMove.create(op,<a name="line.1139"></a>
-<span class="sourceLineNo">1140</span>                                def.asRegister(),<a name="line.1140"></a>
-<span class="sourceLineNo">1141</span>                                tempVal1.copy(),<a name="line.1141"></a>
-<span class="sourceLineNo">1142</span>                                tempVal2.copy(),<a name="line.1142"></a>
-<span class="sourceLineNo">1143</span>                                cond.copy().asCondition(),<a name="line.1143"></a>
-<span class="sourceLineNo">1144</span>                                def.copy(),<a name="line.1144"></a>
-<span class="sourceLineNo">1145</span>                                temp.copy());<a name="line.1145"></a>
-<span class="sourceLineNo">1146</span>            cb.insertBefore(cmov);<a name="line.1146"></a>
-<span class="sourceLineNo">1147</span>            notTakenMap.put(def.asRegister().getRegister(), cmov);<a name="line.1147"></a>
-<span class="sourceLineNo">1148</span>          }<a name="line.1148"></a>
-<span class="sourceLineNo">1149</span>        }<a name="line.1149"></a>
-<span class="sourceLineNo">1150</span>        s.remove();<a name="line.1150"></a>
-<span class="sourceLineNo">1151</span>      }<a name="line.1151"></a>
-<span class="sourceLineNo">1152</span>    }<a name="line.1152"></a>
-<span class="sourceLineNo">1153</span><a name="line.1153"></a>
-<span class="sourceLineNo">1154</span>    // Mutate the conditional branch into a GOTO.<a name="line.1154"></a>
-<span class="sourceLineNo">1155</span>    BranchOperand target = diamond.getBottom().makeJumpTarget();<a name="line.1155"></a>
-<span class="sourceLineNo">1156</span>    Goto.mutate(cb, GOTO, target);<a name="line.1156"></a>
-<span class="sourceLineNo">1157</span><a name="line.1157"></a>
-<span class="sourceLineNo">1158</span>    // Delete a potential GOTO after cb.<a name="line.1158"></a>
-<span class="sourceLineNo">1159</span>    Instruction next = cb.nextInstructionInCodeOrder();<a name="line.1159"></a>
-<span class="sourceLineNo">1160</span>    if (next.operator != BBEND) {<a name="line.1160"></a>
-<span class="sourceLineNo">1161</span>      next.remove();<a name="line.1161"></a>
-<span class="sourceLineNo">1162</span>    }<a name="line.1162"></a>
-<span class="sourceLineNo">1163</span><a name="line.1163"></a>
-<span class="sourceLineNo">1164</span>    // Recompute the CFG.<a name="line.1164"></a>
-<span class="sourceLineNo">1165</span>    diamond.getTop().recomputeNormalOut(ir); // fix the CFG<a name="line.1165"></a>
-<span class="sourceLineNo">1166</span>  }<a name="line.1166"></a>
-<span class="sourceLineNo">1167</span><a name="line.1167"></a>
-<span class="sourceLineNo">1168</span>  /**<a name="line.1168"></a>
-<span class="sourceLineNo">1169</span>   * Attempt to generate a boolean compare opcode from a conditional branch.<a name="line.1169"></a>
-<span class="sourceLineNo">1170</span>   *<a name="line.1170"></a>
-<span class="sourceLineNo">1171</span>   * &lt;pre&gt;<a name="line.1171"></a>
-<span class="sourceLineNo">1172</span>   * 1)   IF .. GOTO A          replaced by  BOOLEAN_CMP x=..<a name="line.1172"></a>
-<span class="sourceLineNo">1173</span>   *      x = 0<a name="line.1173"></a>
-<span class="sourceLineNo">1174</span>   *      GOTO B<a name="line.1174"></a>
-<span class="sourceLineNo">1175</span>   *   A: x = 1<a name="line.1175"></a>
-<span class="sourceLineNo">1176</span>   *   B: ...<a name="line.1176"></a>
-<span class="sourceLineNo">1177</span>   * &lt;/pre&gt;<a name="line.1177"></a>
-<span class="sourceLineNo">1178</span>   *<a name="line.1178"></a>
-<span class="sourceLineNo">1179</span>   * &lt;p&gt; Precondition: &lt;code&gt;IfCmp.conforms(&lt;i&gt;cb&lt;/i&gt;)&lt;/code&gt;<a name="line.1179"></a>
-<span class="sourceLineNo">1180</span>   *<a name="line.1180"></a>
-<span class="sourceLineNo">1181</span>   *<a name="line.1181"></a>
-<span class="sourceLineNo">1182</span>   * @param ir governing IR<a name="line.1182"></a>
-<span class="sourceLineNo">1183</span>   * @param bb basic block of cb<a name="line.1183"></a>
-<span class="sourceLineNo">1184</span>   * @param cb conditional branch instruction<a name="line.1184"></a>
-<span class="sourceLineNo">1185</span>   * @return true if the transformation succeeds, false otherwise<a name="line.1185"></a>
-<span class="sourceLineNo">1186</span>   */<a name="line.1186"></a>
-<span class="sourceLineNo">1187</span>  private boolean generateBooleanCompare(IR ir, BasicBlock bb, Instruction cb, BasicBlock tb) {<a name="line.1187"></a>
-<span class="sourceLineNo">1188</span><a name="line.1188"></a>
-<span class="sourceLineNo">1189</span>    if ((cb.operator() != INT_IFCMP) &amp;&amp; (cb.operator() != REF_IFCMP)) {<a name="line.1189"></a>
-<span class="sourceLineNo">1190</span>      return false;<a name="line.1190"></a>
-<span class="sourceLineNo">1191</span>    }<a name="line.1191"></a>
-<span class="sourceLineNo">1192</span>    // make sure this is the last branch in the block<a name="line.1192"></a>
-<span class="sourceLineNo">1193</span>    if (cb.nextInstructionInCodeOrder().operator() != BBEND) {<a name="line.1193"></a>
-<span class="sourceLineNo">1194</span>      return false;<a name="line.1194"></a>
-<span class="sourceLineNo">1195</span>    }<a name="line.1195"></a>
-<span class="sourceLineNo">1196</span>    Operand val1 = IfCmp.getVal1(cb);<a name="line.1196"></a>
-<span class="sourceLineNo">1197</span>    Operand val2 = IfCmp.getVal2(cb);<a name="line.1197"></a>
-<span class="sourceLineNo">1198</span>    ConditionOperand condition = IfCmp.getCond(cb);<a name="line.1198"></a>
-<span class="sourceLineNo">1199</span>    // "not taken" path<a name="line.1199"></a>
-<span class="sourceLineNo">1200</span>    BasicBlock fb = cb.getBasicBlock().getNotTakenNextBlock();<a name="line.1200"></a>
-<span class="sourceLineNo">1201</span>    // make sure it's a diamond<a name="line.1201"></a>
-<span class="sourceLineNo">1202</span>    if (tb.getNumberOfNormalOut() != 1) {<a name="line.1202"></a>
-<span class="sourceLineNo">1203</span>      return false;<a name="line.1203"></a>
-<span class="sourceLineNo">1204</span>    }<a name="line.1204"></a>
-<span class="sourceLineNo">1205</span>    if (fb.getNumberOfNormalOut() != 1) {<a name="line.1205"></a>
-<span class="sourceLineNo">1206</span>      return false;<a name="line.1206"></a>
-<span class="sourceLineNo">1207</span>    }<a name="line.1207"></a>
-<span class="sourceLineNo">1208</span>    BasicBlock jb = fb.getNormalOut().nextElement();               // join block<a name="line.1208"></a>
-<span class="sourceLineNo">1209</span>    // make sure it's a diamond<a name="line.1209"></a>
-<span class="sourceLineNo">1210</span>    if (!tb.pointsOut(jb)) {<a name="line.1210"></a>
-<span class="sourceLineNo">1211</span>      return false;<a name="line.1211"></a>
-<span class="sourceLineNo">1212</span>    }<a name="line.1212"></a>
-<span class="sourceLineNo">1213</span>    Instruction ti = tb.firstRealInstruction();<a name="line.1213"></a>
-<span class="sourceLineNo">1214</span>    Instruction fi = fb.firstRealInstruction();<a name="line.1214"></a>
-<span class="sourceLineNo">1215</span>    // make sure the instructions in target blocks are either both moves<a name="line.1215"></a>
-<span class="sourceLineNo">1216</span>    // or both returns<a name="line.1216"></a>
-<span class="sourceLineNo">1217</span>    if (ti == null || fi == null) {<a name="line.1217"></a>
-<span class="sourceLineNo">1218</span>      return false;<a name="line.1218"></a>
-<span class="sourceLineNo">1219</span>    }<a name="line.1219"></a>
-<span class="sourceLineNo">1220</span>    if (ti.operator() != fi.operator()) {<a name="line.1220"></a>
-<span class="sourceLineNo">1221</span>      return false;<a name="line.1221"></a>
-<span class="sourceLineNo">1222</span>    }<a name="line.1222"></a>
-<span class="sourceLineNo">1223</span>    if (ti.operator != RETURN &amp;&amp; ti.operator() != INT_MOVE) {<a name="line.1223"></a>
-<span class="sourceLineNo">1224</span>      return false;<a name="line.1224"></a>
-<span class="sourceLineNo">1225</span>    }<a name="line.1225"></a>
-<span class="sourceLineNo">1226</span>    //<a name="line.1226"></a>
-<span class="sourceLineNo">1227</span>    // WARNING: This code is currently NOT exercised!<a name="line.1227"></a>
-<span class="sourceLineNo">1228</span>    //<a name="line.1228"></a>
-<span class="sourceLineNo">1229</span>    if (ti.operator() == RETURN) {<a name="line.1229"></a>
-<span class="sourceLineNo">1230</span>      // make sure each of the target blocks contains only one instruction<a name="line.1230"></a>
-<span class="sourceLineNo">1231</span>      if (ti != tb.lastRealInstruction()) {<a name="line.1231"></a>
-<span class="sourceLineNo">1232</span>        return false;<a name="line.1232"></a>
-<span class="sourceLineNo">1233</span>      }<a name="line.1233"></a>
-<span class="sourceLineNo">1234</span>      if (fi != fb.lastRealInstruction()) {<a name="line.1234"></a>
-<span class="sourceLineNo">1235</span>        return false;<a name="line.1235"></a>
-<span class="sourceLineNo">1236</span>      }<a name="line.1236"></a>
-<span class="sourceLineNo">1237</span>      Operand tr = Return.getVal(ti);<a name="line.1237"></a>
-<span class="sourceLineNo">1238</span>      Operand fr = Return.getVal(fi);<a name="line.1238"></a>
-<span class="sourceLineNo">1239</span>      // make sure we're returning constants<a name="line.1239"></a>
-<span class="sourceLineNo">1240</span>      if (!(tr instanceof IntConstantOperand) || !(fr instanceof IntConstantOperand)) {<a name="line.1240"></a>
-<span class="sourceLineNo">1241</span>        return false;<a name="line.1241"></a>
-<span class="sourceLineNo">1242</span>      }<a name="line.1242"></a>
-<span class="sourceLineNo">1243</span>      int tv = ((IntConstantOperand) tr).value;<a name="line.1243"></a>
-<span class="sourceLineNo">1244</span>      int fv = ((IntConstantOperand) fr).value;<a name="line.1244"></a>
-<span class="sourceLineNo">1245</span>      if (!((tv == 1 &amp;&amp; fv == 0) || (tv == 1 &amp;&amp; fv == 0))) {<a name="line.1245"></a>
-<span class="sourceLineNo">1246</span>        return false;<a name="line.1246"></a>
-<span class="sourceLineNo">1247</span>      }<a name="line.1247"></a>
-<span class="sourceLineNo">1248</span>      RegisterOperand t = ir.regpool.makeTemp(TypeReference.Boolean);<a name="line.1248"></a>
-<span class="sourceLineNo">1249</span>      // Cases 1) and 2)<a name="line.1249"></a>
-<span class="sourceLineNo">1250</span>      if (tv == 0) {<a name="line.1250"></a>
-<span class="sourceLineNo">1251</span>        condition = condition.flipCode();<a name="line.1251"></a>
-<span class="sourceLineNo">1252</span>      }<a name="line.1252"></a>
-<span class="sourceLineNo">1253</span>      booleanCompareHelper(cb, t, val1.copy(), val2.copy(), condition);<a name="line.1253"></a>
-<span class="sourceLineNo">1254</span>      cb.insertAfter(Return.create(RETURN, t.copyD2U()));<a name="line.1254"></a>
-<span class="sourceLineNo">1255</span>    } else {      // (ti.operator() == INT_MOVE)<a name="line.1255"></a>
-<span class="sourceLineNo">1256</span>      // make sure each of the target blocks only does the move<a name="line.1256"></a>
-<span class="sourceLineNo">1257</span>      if (ti != tb.lastRealInstruction() &amp;&amp; ti.nextInstructionInCodeOrder().operator() != GOTO) {<a name="line.1257"></a>
-<span class="sourceLineNo">1258</span>        return false;<a name="line.1258"></a>
-<span class="sourceLineNo">1259</span>      }<a name="line.1259"></a>
-<span class="sourceLineNo">1260</span>      if (fi != fb.lastRealInstruction() &amp;&amp; fi.nextInstructionInCodeOrder().operator() != GOTO) {<a name="line.1260"></a>
+<span class="sourceLineNo">1031</span>    // Maintain a mapping holding the new name for each register<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>    HashMap&lt;Register, Register&gt; map = new HashMap&lt;Register, Register&gt;();<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>    for (Instruction s : set) {<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>      // rewrite the uses to use the new names<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>      for (Enumeration&lt;Operand&gt; e = s.getUses(); e.hasMoreElements();) {<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>        Operand use = e.nextElement();<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>        if (use != null &amp;&amp; use.isRegister()) {<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>          Register r = use.asRegister().getRegister();<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>          Register temp = map.get(r);<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>          if (temp != null) {<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>            use.asRegister().setRegister(temp);<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>          }<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>        }<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>      }<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span><a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>      if (VM.VerifyAssertions) VM._assert(s.getNumberOfDefs() == 1);<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span><a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>      Operand def = s.getDefs().nextElement();<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>      RegisterOperand rDef = def.asRegister();<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span>      RegisterOperand temp = ir.regpool.makeTemp(rDef);<a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>      map.put(rDef.getRegister(), temp.getRegister());<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>      s.replaceOperand(def, temp);<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>    }<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>  }<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span><a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>  /**<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>   * Inserts each instruction in a list before another instruction.<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>   *<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>   * @param list the instructions to insert before the other instruction<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>   * @param s the instruction before which the insertion should be done<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>   */<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>  private void insertBefore(Instruction[] list, Instruction s) {<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>    for (Instruction x : list) {<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>      s.insertBefore(x);<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>    }<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>  }<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span><a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>  /**<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>   * Perform the transformation to replace conditional branch with a<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>   * sequence using conditional moves.<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>   *<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>   * @param ir governing IR<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>   * @param diamond the IR diamond structure to replace<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>   * @param cb conditional branch instruction at the head of the diamond<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>   */<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span>  private void doCondMove(IR ir, Diamond diamond, Instruction cb) {<a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>    BasicBlock taken = diamond.getTaken();<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>    BasicBlock notTaken = diamond.getNotTaken();<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span><a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>    // for each non-branch instruction s in the diamond,<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>    // copy s to a new instruction s'<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>    // and store a mapping from s to s'<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>    HashMap&lt;Instruction, Instruction&gt; takenInstructions = new HashMap&lt;Instruction, Instruction&gt;();<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>    Instruction[] takenInstructionList = copyAndMapInstructions(taken, takenInstructions);<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span><a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>    HashMap&lt;Instruction, Instruction&gt; notTakenInstructions = new HashMap&lt;Instruction, Instruction&gt;();<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>    Instruction[] notTakenInstructionList = copyAndMapInstructions(notTaken, notTakenInstructions);<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span><a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>    // Extract the values and condition from the conditional branch.<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>    Operand val1 = IfCmp.getVal1(cb);<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>    Operand val2 = IfCmp.getVal2(cb);<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>    ConditionOperand cond = IfCmp.getCond(cb);<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span><a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>    // Copy val1 and val2 to temporaries, just in case they're defined in<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>    // the diamond.  If they're not defined in the diamond, copy prop<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span>    // should clean these moves up.<a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>    RegisterOperand tempVal1 = ir.regpool.makeTemp(val1);<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>    Operator op = IRTools.getMoveOp(tempVal1.getType());<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>    cb.insertBefore(Move.create(op, tempVal1.copyRO(), val1.copy()));<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>    RegisterOperand tempVal2 = ir.regpool.makeTemp(val2);<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>    op = IRTools.getMoveOp(tempVal2.getType());<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>    cb.insertBefore(Move.create(op, tempVal2.copyRO(), val2.copy()));<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span><a name="line.1103"></a>
+<span class="sourceLineNo">1104</span>    // For each instruction in each temporary set, rewrite it to def a new<a name="line.1104"></a>
+<span class="sourceLineNo">1105</span>    // temporary, and insert it before the branch.<a name="line.1105"></a>
+<span class="sourceLineNo">1106</span>    rewriteWithTemporaries(takenInstructionList, ir);<a name="line.1106"></a>
+<span class="sourceLineNo">1107</span>    rewriteWithTemporaries(notTakenInstructionList, ir);<a name="line.1107"></a>
+<span class="sourceLineNo">1108</span>    insertBefore(takenInstructionList, cb);<a name="line.1108"></a>
+<span class="sourceLineNo">1109</span>    insertBefore(notTakenInstructionList, cb);<a name="line.1109"></a>
+<span class="sourceLineNo">1110</span><a name="line.1110"></a>
+<span class="sourceLineNo">1111</span>    // For each register defined in the TAKEN branch, save a mapping to<a name="line.1111"></a>
+<span class="sourceLineNo">1112</span>    // the corresponding conditional move.<a name="line.1112"></a>
+<span class="sourceLineNo">1113</span>    HashMap&lt;Register, Instruction&gt; takenMap = new HashMap&lt;Register, Instruction&gt;();<a name="line.1113"></a>
+<span class="sourceLineNo">1114</span><a name="line.1114"></a>
+<span class="sourceLineNo">1115</span>    // Now insert conditional moves to replace each instruction in the diamond.<a name="line.1115"></a>
+<span class="sourceLineNo">1116</span>    // First handle the taken branch.<a name="line.1116"></a>
+<span class="sourceLineNo">1117</span>    if (taken != null) {<a name="line.1117"></a>
+<span class="sourceLineNo">1118</span>      for (Enumeration&lt;Instruction&gt; e = taken.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1118"></a>
+<span class="sourceLineNo">1119</span>        Instruction s = e.nextElement();<a name="line.1119"></a>
+<span class="sourceLineNo">1120</span>        if (s.isBranch()) continue;<a name="line.1120"></a>
+<span class="sourceLineNo">1121</span>        Operand def = s.getDefs().nextElement();<a name="line.1121"></a>
+<span class="sourceLineNo">1122</span>        // if the register does not span a basic block, it is a temporary<a name="line.1122"></a>
+<span class="sourceLineNo">1123</span>        // that will now be dead<a name="line.1123"></a>
+<span class="sourceLineNo">1124</span>        if (def.asRegister().getRegister().spansBasicBlock()) {<a name="line.1124"></a>
+<span class="sourceLineNo">1125</span>          Instruction tempS = takenInstructions.get(s);<a name="line.1125"></a>
+<span class="sourceLineNo">1126</span>          RegisterOperand temp = (RegisterOperand) tempS.getDefs().nextElement();<a name="line.1126"></a>
+<span class="sourceLineNo">1127</span>          op = IRTools.getCondMoveOp(def.asRegister().getType());<a name="line.1127"></a>
+<span class="sourceLineNo">1128</span>          Instruction cmov =<a name="line.1128"></a>
+<span class="sourceLineNo">1129</span>              CondMove.create(op,<a name="line.1129"></a>
+<span class="sourceLineNo">1130</span>                              def.asRegister(),<a name="line.1130"></a>
+<span class="sourceLineNo">1131</span>                              tempVal1.copy(),<a name="line.1131"></a>
+<span class="sourceLineNo">1132</span>                              tempVal2.copy(),<a name="line.1132"></a>
+<span class="sourceLineNo">1133</span>                              cond.copy().asCondition(),<a name="line.1133"></a>
+<span class="sourceLineNo">1134</span>                              temp.copy(),<a name="line.1134"></a>
+<span class="sourceLineNo">1135</span>                              def.copy());<a name="line.1135"></a>
+<span class="sourceLineNo">1136</span>          takenMap.put(def.asRegister().getRegister(), cmov);<a name="line.1136"></a>
+<span class="sourceLineNo">1137</span>          cb.insertBefore(cmov);<a name="line.1137"></a>
+<span class="sourceLineNo">1138</span>        }<a name="line.1138"></a>
+<span class="sourceLineNo">1139</span>        s.remove();<a name="line.1139"></a>
+<span class="sourceLineNo">1140</span>      }<a name="line.1140"></a>
+<span class="sourceLineNo">1141</span>    }<a name="line.1141"></a>
+<span class="sourceLineNo">1142</span>    // For each register defined in the NOT-TAKEN branch, save a mapping to<a name="line.1142"></a>
+<span class="sourceLineNo">1143</span>    // the corresponding conditional move.<a name="line.1143"></a>
+<span class="sourceLineNo">1144</span>    HashMap&lt;Register, Instruction&gt; notTakenMap = new HashMap&lt;Register, Instruction&gt;();<a name="line.1144"></a>
+<span class="sourceLineNo">1145</span>    // Next handle the not taken branch.<a name="line.1145"></a>
+<span class="sourceLineNo">1146</span>    if (notTaken != null) {<a name="line.1146"></a>
+<span class="sourceLineNo">1147</span>      for (Enumeration&lt;Instruction&gt; e = notTaken.forwardRealInstrEnumerator(); e.hasMoreElements();) {<a name="line.1147"></a>
+<span class="sourceLineNo">1148</span>        Instruction s = e.nextElement();<a name="line.1148"></a>
+<span class="sourceLineNo">1149</span>        if (s.isBranch()) continue;<a name="line.1149"></a>
+<span class="sourceLineNo">1150</span>        Operand def = s.getDefs().nextElement();<a name="line.1150"></a>
+<span class="sourceLineNo">1151</span>        // if the register does not span a basic block, it is a temporary<a name="line.1151"></a>
+<span class="sourceLineNo">1152</span>        // that will now be dead<a name="line.1152"></a>
+<span class="sourceLineNo">1153</span>        if (def.asRegister().getRegister().spansBasicBlock()) {<a name="line.1153"></a>
+<span class="sourceLineNo">1154</span>          Instruction tempS = notTakenInstructions.get(s);<a name="line.1154"></a>
+<span class="sourceLineNo">1155</span>          RegisterOperand temp = (RegisterOperand) tempS.getDefs().nextElement();<a name="line.1155"></a>
+<span class="sourceLineNo">1156</span><a name="line.1156"></a>
+<span class="sourceLineNo">1157</span>          Instruction prevCmov = takenMap.get(def.asRegister().getRegister());<a name="line.1157"></a>
+<span class="sourceLineNo">1158</span>          if (prevCmov != null) {<a name="line.1158"></a>
+<span class="sourceLineNo">1159</span>            // if this register was also defined in the taken branch, change<a name="line.1159"></a>
+<span class="sourceLineNo">1160</span>            // the previous cmov with a different 'False' Value<a name="line.1160"></a>
+<span class="sourceLineNo">1161</span>            CondMove.setFalseValue(prevCmov, temp.copy());<a name="line.1161"></a>
+<span class="sourceLineNo">1162</span>            notTakenMap.put(def.asRegister().getRegister(), prevCmov);<a name="line.1162"></a>
+<span class="sourceLineNo">1163</span>          } else {<a name="line.1163"></a>
+<span class="sourceLineNo">1164</span>            // create a new cmov instruction<a name="line.1164"></a>
+<span class="sourceLineNo">1165</span>            op = IRTools.getCondMoveOp(def.asRegister().getType());<a name="line.1165"></a>
+<span class="sourceLineNo">1166</span>            Instruction cmov =<a name="line.1166"></a>
+<span class="sourceLineNo">1167</span>                CondMove.create(op,<a name="line.1167"></a>
+<span class="sourceLineNo">1168</span>                                def.asRegister(),<a name="line.1168"></a>
+<span class="sourceLineNo">1169</span>                                tempVal1.copy(),<a name="line.1169"></a>
+<span class="sourceLineNo">1170</span>                                tempVal2.copy(),<a name="line.1170"></a>
+<span class="sourceLineNo">1171</span>                                cond.copy().asCondition(),<a name="line.1171"></a>
+<span class="sourceLineNo">1172</span>                                def.copy(),<a name="line.1172"></a>
+<span class="sourceLineNo">1173</span>                                temp.copy());<a name="line.1173"></a>
+<span class="sourceLineNo">1174</span>            cb.insertBefore(cmov);<a name="line.1174"></a>
+<span class="sourceLineNo">1175</span>            notTakenMap.put(def.asRegister().getRegister(), cmov);<a name="line.1175"></a>
+<span class="sourceLineNo">1176</span>          }<a name="line.1176"></a>
+<span class="sourceLineNo">1177</span>        }<a name="line.1177"></a>
+<span class="sourceLineNo">1178</span>        s.remove();<a name="line.1178"></a>
+<span class="sourceLineNo">1179</span>      }<a name="line.1179"></a>
+<span class="sourceLineNo">1180</span>    }<a name="line.1180"></a>
+<span class="sourceLineNo">1181</span><a name="line.1181"></a>
+<span class="sourceLineNo">1182</span>    // Mutate the conditional branch into a GOTO.<a name="line.1182"></a>
+<span class="sourceLineNo">1183</span>    BranchOperand target = diamond.getBottom().makeJumpTarget();<a name="line.1183"></a>
+<span class="sourceLineNo">1184</span>    Goto.mutate(cb, GOTO, target);<a name="line.1184"></a>
+<span class="sourceLineNo">1185</span><a name="line.1185"></a>
+<span class="sourceLineNo">1186</span>    // Delete a potential GOTO after cb.<a name="line.1186"></a>
+<span class="sourceLineNo">1187</span>    Instruction next = cb.nextInstructionInCodeOrder();<a name="line.1187"></a>
+<span class="sourceLineNo">1188</span>    if (next.operator() != BBEND) {<a name="line.1188"></a>
+<span class="sourceLineNo">1189</span>      next.remove();<a name="line.1189"></a>
+<span class="sourceLineNo">1190</span>    }<a name="line.1190"></a>
+<span class="sourceLineNo">1191</span><a name="line.1191"></a>
+<span class="sourceLineNo">1192</span>    // Recompute the CFG.<a name="line.1192"></a>
+<span class="sourceLineNo">1193</span>    diamond.getTop().recomputeNormalOut(ir); // fix the CFG<a name="line.1193"></a>
+<span class="sourceLineNo">1194</span>  }<a name="line.1194"></a>
+<span class="sourceLineNo">1195</span><a name="line.1195"></a>
+<span class="sourceLineNo">1196</span>  /**<a name="line.1196"></a>
+<span class="sourceLineNo">1197</span>   * Attempt to generate a boolean compare opcode from a conditional branch.<a name="line.1197"></a>
+<span class="sourceLineNo">1198</span>   *<a name="line.1198"></a>
+<span class="sourceLineNo">1199</span>   * &lt;pre&gt;<a name="line.1199"></a>
+<span class="sourceLineNo">1200</span>   * 1)   IF .. GOTO A          replaced by  BOOLEAN_CMP x=..<a name="line.1200"></a>
+<span class="sourceLineNo">1201</span>   *      x = 0<a name="line.1201"></a>
+<span class="sourceLineNo">1202</span>   *      GOTO B<a name="line.1202"></a>
+<span class="sourceLineNo">1203</span>   *   A: x = 1<a name="line.1203"></a>
+<span class="sourceLineNo">1204</span>   *   B: ...<a name="line.1204"></a>
+<span class="sourceLineNo">1205</span>   * &lt;/pre&gt;<a name="line.1205"></a>
+<span class="sourceLineNo">1206</span>   *<a name="line.1206"></a>
+<span class="sourceLineNo">1207</span>   * &lt;p&gt; Precondition: &lt;code&gt;IfCmp.conforms(&lt;i&gt;cb&lt;/i&gt;)&lt;/code&gt;<a name="line.1207"></a>
+<span class="sourceLineNo">1208</span>   *<a name="line.1208"></a>
+<span class="sourceLineNo">1209</span>   *<a name="line.1209"></a>
+<span class="sourceLineNo">1210</span>   * @param ir governing IR<a name="line.1210"></a>
+<span class="sourceLineNo">1211</span>   * @param bb basic block of cb<a name="line.1211"></a>
+<span class="sourceLineNo">1212</span>   * @param cb conditional branch instruction<a name="line.1212"></a>
+<span class="sourceLineNo">1213</span>   * @param tb target block the branch instruction<a name="line.1213"></a>
+<span class="sourceLineNo">1214</span>   * @return {@code true} if and only if the transformation succeeds<a name="line.1214"></a>
+<span class="sourceLineNo">1215</span>   */<a name="line.1215"></a>
+<span class="sourceLineNo">1216</span>  private boolean generateBooleanCompare(IR ir, BasicBlock bb, Instruction cb, BasicBlock tb) {<a name="line.1216"></a>
+<span class="sourceLineNo">1217</span><a name="line.1217"></a>
+<span class="sourceLineNo">1218</span>    if ((cb.operator() != INT_IFCMP) &amp;&amp; (cb.operator() != REF_IFCMP)) {<a name="line.1218"></a>
+<span class="sourceLineNo">1219</span>      return false;<a name="line.1219"></a>
+<span class="sourceLineNo">1220</span>    }<a name="line.1220"></a>
+<span class="sourceLineNo">1221</span>    // make sure this is the last branch in the block<a name="line.1221"></a>
+<span class="sourceLineNo">1222</span>    if (cb.nextInstructionInCodeOrder().operator() != BBEND) {<a name="line.1222"></a>
+<span class="sourceLineNo">1223</span>      return false;<a name="line.1223"></a>
+<span class="sourceLineNo">1224</span>    }<a name="line.1224"></a>
+<span class="sourceLineNo">1225</span>    Operand val1 = IfCmp.getVal1(cb);<a name="line.1225"></a>
+<span class="sourceLineNo">1226</span>    Operand val2 = IfCmp.getVal2(cb);<a name="line.1226"></a>
+<span class="sourceLineNo">1227</span>    ConditionOperand condition = IfCmp.getCond(cb);<a name="line.1227"></a>
+<span class="sourceLineNo">1228</span>    // "not taken" path<a name="line.1228"></a>
+<span class="sourceLineNo">1229</span>    BasicBlock fb = cb.getBasicBlock().getNotTakenNextBlock();<a name="line.1229"></a>
+<span class="sourceLineNo">1230</span>    // make sure it's a diamond<a name="line.1230"></a>
+<span class="sourceLineNo">1231</span>    if (tb.getNumberOfNormalOut() != 1) {<a name="line.1231"></a>
+<span class="sourceLineNo">1232</span>      return false;<a name="line.1232"></a>
+<span class="sourceLineNo">1233</span>    }<a name="line.1233"></a>
+<span class="sourceLineNo">1234</span>    if (fb.getNumberOfNormalOut() != 1) {<a name="line.1234"></a>
+<span class="sourceLineNo">1235</span>      return false;<a name="line.1235"></a>
+<span class="sourceLineNo">1236</span>    }<a name="line.1236"></a>
+<span class="sourceLineNo">1237</span>    BasicBlock jb = fb.getNormalOut().nextElement();               // join block<a name="line.1237"></a>
+<span class="sourceLineNo">1238</span>    // make sure it's a diamond<a name="line.1238"></a>
+<span class="sourceLineNo">1239</span>    if (!tb.pointsOut(jb)) {<a name="line.1239"></a>
+<span class="sourceLineNo">1240</span>      return false;<a name="line.1240"></a>
+<span class="sourceLineNo">1241</span>    }<a name="line.1241"></a>
+<span class="sourceLineNo">1242</span>    Instruction ti = tb.firstRealInstruction();<a name="line.1242"></a>
+<span class="sourceLineNo">1243</span>    Instruction fi = fb.firstRealInstruction();<a name="line.1243"></a>
+<span class="sourceLineNo">1244</span>    // make sure the instructions in target blocks are either both moves<a name="line.1244"></a>
+<span class="sourceLineNo">1245</span>    // or both returns<a name="line.1245"></a>
+<span class="sourceLineNo">1246</span>    if (ti == null || fi == null) {<a name="line.1246"></a>
+<span class="sourceLineNo">1247</span>      return false;<a name="line.1247"></a>
+<span class="sourceLineNo">1248</span>    }<a name="line.1248"></a>
+<span class="sourceLineNo">1249</span>    if (ti.operator() != fi.operator()) {<a name="line.1249"></a>
+<span class="sourceLineNo">1250</span>      return false;<a name="line.1250"></a>
+<span class="sourceLineNo">1251</span>    }<a name="line.1251"></a>
+<span class="sourceLineNo">1252</span>    if (ti.operator() != RETURN &amp;&amp; ti.operator() != INT_MOVE) {<a name="line.1252"></a>
+<span class="sourceLineNo">1253</span>      return false;<a name="line.1253"></a>
+<span class="sourceLineNo">1254</span>    }<a name="line.1254"></a>
+<span class="sourceLineNo">1255</span>    //<a name="line.1255"></a>
+<span class="sourceLineNo">1256</span>    // WARNING: This code is currently NOT exercised!<a name="line.1256"></a>
+<span class="sourceLineNo">1257</span>    //<a name="line.1257"></a>
+<span class="sourceLineNo">1258</span>    if (ti.operator() == RETURN) {<a name="line.1258"></a>
+<span class="sourceLineNo">1259</span>      // make sure each of the target blocks contains only one instruction<a name="line.1259"></a>
+<span class="sourceLineNo">1260</span>      if (ti != tb.lastRealInstruction()) {<a name="line.1260"></a>
 <span class="sourceLineNo">1261</span>        return false;<a name="line.1261"></a>
 <span class="sourceLineNo">1262</span>      }<a name="line.1262"></a>
-<span class="sourceLineNo">1263</span>      RegisterOperand t = Move.getResult(ti);<a name="line.1263"></a>
-<span class="sourceLineNo">1264</span>      // make sure both moves are to the same register<a name="line.1264"></a>
-<span class="sourceLineNo">1265</span>      if (t.getRegister() != Move.getResult(fi).getRegister()) {<a name="line.1265"></a>
-<span class="sourceLineNo">1266</span>        return false;<a name="line.1266"></a>
-<span class="sourceLineNo">1267</span>      }<a name="line.1267"></a>
-<span class="sourceLineNo">1268</span>      Operand tr = Move.getVal(ti);<a name="line.1268"></a>
-<span class="sourceLineNo">1269</span>      Operand fr = Move.getVal(fi);<a name="line.1269"></a>
-<span class="sourceLineNo">1270</span>      // make sure we're assigning constants<a name="line.1270"></a>
-<span class="sourceLineNo">1271</span>      if (!(tr instanceof IntConstantOperand) || !(fr instanceof IntConstantOperand)) {<a name="line.1271"></a>
-<span class="sourceLineNo">1272</span>        return false;<a name="line.1272"></a>
-<span class="sourceLineNo">1273</span>      }<a name="line.1273"></a>
-<span class="sourceLineNo">1274</span>      int tv = ((IntConstantOperand) tr).value;<a name="line.1274"></a>
-<span class="sourceLineNo">1275</span>      int fv = ((IntConstantOperand) fr).value;<a name="line.1275"></a>
-<span class="sourceLineNo">1276</span>      if (!((tv == 1 &amp;&amp; fv == 0) || (tv == 0 &amp;&amp; fv == 1))) {<a name="line.1276"></a>
-<span class="sourceLineNo">1277</span>        return false;<a name="line.1277"></a>
-<span class="sourceLineNo">1278</span>      }<a name="line.1278"></a>
-<span class="sourceLineNo">1279</span>      // Cases 3) and 4)<a name="line.1279"></a>
-<span class="sourceLineNo">1280</span>      if (tv == 0) {<a name="line.1280"></a>
-<span class="sourceLineNo">1281</span>        condition = condition.flipCode();<a name="line.1281"></a>
-<span class="sourceLineNo">1282</span>      }<a name="line.1282"></a>
-<span class="sourceLineNo">1283</span>      booleanCompareHelper(cb, t.copyRO(), val1.copy(), val2.copy(), condition);<a name="line.1283"></a>
-<span class="sourceLineNo">1284</span>      Instruction next = cb.nextInstructionInCodeOrder();<a name="line.1284"></a>
-<span class="sourceLineNo">1285</span>      if (next.operator() == GOTO) {<a name="line.1285"></a>
-<span class="sourceLineNo">1286</span>        Goto.setTarget(next, jb.makeJumpTarget());<a name="line.1286"></a>
-<span class="sourceLineNo">1287</span>      } else {<a name="line.1287"></a>
-<span class="sourceLineNo">1288</span>        cb.insertAfter(jb.makeGOTO());<a name="line.1288"></a>
-<span class="sourceLineNo">1289</span>      }<a name="line.1289"></a>
-<span class="sourceLineNo">1290</span>    }<a name="line.1290"></a>
-<span class="sourceLineNo">1291</span>    // fixup CFG<a name="line.1291"></a>
-<span class="sourceLineNo">1292</span>    bb.deleteOut(tb);<a name="line.1292"></a>
-<span class="sourceLineNo">1293</span>    bb.deleteOut(fb);<a name="line.1293"></a>
-<span class="sourceLineNo">1294</span>    bb.insertOut(jb);           // Note: if we processed returns,<a name="line.1294"></a>
-<span class="sourceLineNo">1295</span>    // jb is the exit node.<a name="line.1295"></a>
-<span class="sourceLineNo">1296</span>    return true;<a name="line.1296"></a>
-<span class="sourceLineNo">1297</span>  }<a name="line.1297"></a>
-<span class="sourceLineNo">1298</span>}<a name="line.1298"></a>
+<span class="sourceLineNo">1263</span>      if (fi != fb.lastRealInstruction()) {<a name="line.1263"></a>
+<span class="sourceLineNo">1264</span>        return false;<a name="line.1264"></a>
+<span class="sourceLineNo">1265</span>      }<a name="line.1265"></a>
+<span class="sourceLineNo">1266</span>      Operand tr = Return.getVal(ti);<a name="line.1266"></a>
+<span class="sourceLineNo">1267</span>      Operand fr = Return.getVal(fi);<a name="line.1267"></a>
+<span class="sourceLineNo">1268</span>      // make sure we're returning constants<a name="line.1268"></a>
+<span class="sourceLineNo">1269</span>      if (!(tr instanceof IntConstantOperand) || !(fr instanceof IntConstantOperand)) {<a name="line.1269"></a>
+<span class="sourceLineNo">1270</span>        return false;<a name="line.1270"></a>
+<span class="sourceLineNo">1271</span>      }<a name="line.1271"></a>
+<span class="sourceLineNo">1272</span>      int tv = ((IntConstantOperand) tr).value;<a name="line.1272"></a>
+<span class="sourceLineNo">1273</span>      int fv = ((IntConstantOperand) fr).value;<a name="line.1273"></a>
+<span class="sourceLineNo">1274</span>      if (!((tv == 1 &amp;&amp; fv == 0) || (tv == 1 &amp;&amp; fv == 0))) {<a name="line.1274"></a>
+<span class="sourceLineNo">1275</span>        return false;<a name="line.1275"></a>
+<span class="sourceLineNo">1276</span>      }<a name="line.1276"></a>
+<span class="sourceLineNo">1277</span>      RegisterOperand t = ir.regpool.makeTemp(TypeReference.Boolean);<a name="line.1277"></a>
+<span class="sourceLineNo">1278</span>      // Cases 1) and 2)<a name="line.1278"></a>
+<span class="sourceLineNo">1279</span>      if (tv == 0) {<a name="line.1279"></a>
+<span class="sourceLineNo">1280</span>        condition = condition.flipCode();<a name="line.1280"></a>
+<span class="sourceLineNo">1281</span>      }<a name="line.1281"></a>
+<span class="sourceLineNo">1282</span>      booleanCompareHelper(cb, t, val1.copy(), val2.copy(), condition);<a name="line.1282"></a>
+<span class="sourceLineNo">1283</span>      cb.insertAfter(Return.create(RETURN, t.copyD2U()));<a name="line.1283"></a>
+<span class="sourceLineNo">1284</span>    } else {      // (ti.operator() == INT_MOVE)<a name="line.1284"></a>
+<span class="sourceLineNo">1285</span>      // make sure each of the target blocks only does the move<a name="line.1285"></a>
+<span class="sourceLineNo">1286</span>      if (ti != tb.lastRealInstruction() &amp;&amp; ti.nextInstructionInCodeOrder().operator() != GOTO) {<a name="line.1286"></a>
+<span class="sourceLineNo">1287</span>        return false;<a name="line.1287"></a>
+<span class="sourceLineNo">1288</span>      }<a name="line.1288"></a>
+<span class="sourceLineNo">1289</span>      if (fi != fb.lastRealInstruction() &amp;&amp; fi.nextInstructionInCodeOrder().operator() != GOTO) {<a name="line.1289"></a>
+<span class="sourceLineNo">1290</span>        return false;<a name="line.1290"></a>
+<span class="sourceLineNo">1291</span>      }<a name="line.1291"></a>
+<span class="sourceLineNo">1292</span>      RegisterOperand t = Move.getResult(ti);<a name="line.1292"></a>
+<span class="sourceLineNo">1293</span>      // make sure both moves are to the same register<a name="line.1293"></a>
+<span class="sourceLineNo">1294</span>      if (t.getRegister() != Move.getResult(fi).getRegister()) {<a name="line.1294"></a>
+<span class="sourceLineNo">1295</span>        return false;<a name="line.1295"></a>
+<span class="sourceLineNo">1296</span>      }<a name="line.1296"></a>
+<span class="sourceLineNo">1297</span>      Operand tr = Move.getVal(ti);<a name="line.1297"></a>
+<span class="sourceLineNo">1298</span>      Operand fr = Move.getVal(fi);<a name="line.1298"></a>
+<span class="sourceLineNo">1299</span>      // make sure we're assigning constants<a name="line.1299"></a>
+<span class="sourceLineNo">1300</span>      if (!(tr instanceof IntConstantOperand) || !(fr instanceof IntConstantOperand)) {<a name="line.1300"></a>
+<span class="sourceLineNo">1301</span>        return false;<a name="line.1301"></a>
+<span class="sourceLineNo">1302</span>      }<a name="line.1302"></a>
+<span class="sourceLineNo">1303</span>      int tv = ((IntConstantOperand) tr).value;<a name="line.1303"></a>
+<span class="sourceLineNo">1304</span>      int fv = ((IntConstantOperand) fr).value;<a name="line.1304"></a>
+<span class="sourceLineNo">1305</span>      if (!((tv == 1 &amp;&amp; fv == 0) || (tv == 0 &amp;&amp; fv == 1))) {<a name="line.1305"></a>
+<span class="sourceLineNo">1306</span>        return false;<a name="line.1306"></a>
+<span class="sourceLineNo">1307</span>      }<a name="line.1307"></a>
+<span class="sourceLineNo">1308</span>      // Cases 3) and 4)<a name="line.1308"></a>
+<span class="sourceLineNo">1309</span>      if (tv == 0) {<a name="line.1309"></a>
+<span class="sourceLineNo">1310</span>        condition = condition.flipCode();<a name="line.1310"></a>
+<span class="sourceLineNo">1311</span>      }<a name="line.1311"></a>
+<span class="sourceLineNo">1312</span>      booleanCompareHelper(cb, t.copyRO(), val1.copy(), val2.copy(), condition);<a name="line.1312"></a>
+<span class="sourceLineNo">1313</span>      Instruction next = cb.nextInstructionInCodeOrder();<a name="line.1313"></a>
+<span class="sourceLineNo">1314</span>      if (next.operator() == GOTO) {<a name="line.1314"></a>
+<span class="sourceLineNo">1315</span>        Goto.setTarget(next, jb.makeJumpTarget());<a name="line.1315"></a>
+<span class="sourceLineNo">1316</span>      } else {<a name="line.1316"></a>
+<span class="sourceLineNo">1317</span>        cb.insertAfter(jb.makeGOTO());<a name="line.1317"></a>
+<span class="sourceLineNo">1318</span>      }<a name="line.1318"></a>
+<span class="sourceLineNo">1319</span>    }<a name="line.1319"></a>
+<span class="sourceLineNo">1320</span>    // fixup CFG<a name="line.1320"></a>
+<span class="sourceLineNo">1321</span>    bb.deleteOut(tb);<a name="line.1321"></a>
+<span class="sourceLineNo">1322</span>    bb.deleteOut(fb);<a name="line.1322"></a>
+<span class="sourceLineNo">1323</span>    bb.insertOut(jb);           // Note: if we processed returns,<a name="line.1323"></a>
+<span class="sourceLineNo">1324</span>    // jb is the exit node.<a name="line.1324"></a>
+<span class="sourceLineNo">1325</span>    return true;<a name="line.1325"></a>
+<span class="sourceLineNo">1326</span>  }<a name="line.1326"></a>
+<span class="sourceLineNo">1327</span>}<a name="line.1327"></a>
 
 
 

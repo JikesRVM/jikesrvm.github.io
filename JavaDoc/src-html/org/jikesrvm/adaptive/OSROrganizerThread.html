@@ -50,7 +50,7 @@
 <span class="sourceLineNo">042</span>      if (!this.osr_flag) {<a name="line.42"></a>
 <span class="sourceLineNo">043</span>        rvmThread.monitor().waitWithHandshake();<a name="line.43"></a>
 <span class="sourceLineNo">044</span>      }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>      this.osr_flag=false; /* if we get another activation after here<a name="line.45"></a>
+<span class="sourceLineNo">045</span>      this.osr_flag = false; /* if we get another activation after here<a name="line.45"></a>
 <span class="sourceLineNo">046</span>                              then we should rescan the threads array */<a name="line.46"></a>
 <span class="sourceLineNo">047</span>      rvmThread.monitor().unlock();<a name="line.47"></a>
 <span class="sourceLineNo">048</span><a name="line.48"></a>
@@ -64,23 +64,23 @@
 <span class="sourceLineNo">056</span>  @Uninterruptible<a name="line.56"></a>
 <span class="sourceLineNo">057</span>  public void activate() {<a name="line.57"></a>
 <span class="sourceLineNo">058</span>    rvmThread.monitor().lockNoHandshake();<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    osr_flag=true;<a name="line.59"></a>
+<span class="sourceLineNo">059</span>    osr_flag = true;<a name="line.59"></a>
 <span class="sourceLineNo">060</span>    rvmThread.monitor().broadcast();<a name="line.60"></a>
 <span class="sourceLineNo">061</span>    rvmThread.monitor().unlock();<a name="line.61"></a>
 <span class="sourceLineNo">062</span>  }<a name="line.62"></a>
 <span class="sourceLineNo">063</span><a name="line.63"></a>
 <span class="sourceLineNo">064</span>  private void processOsrRequest() {<a name="line.64"></a>
 <span class="sourceLineNo">065</span>    // scan RVMThread.threads (scan down so we don't miss anything)<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    for (int i=RVMThread.numThreads-1;i&gt;=0;i--) {<a name="line.66"></a>
+<span class="sourceLineNo">066</span>    for (int i = RVMThread.numThreads - 1; i &gt;= 0; i--) {<a name="line.66"></a>
 <span class="sourceLineNo">067</span>      Magic.sync();<a name="line.67"></a>
-<span class="sourceLineNo">068</span>      RVMThread t=RVMThread.threads[i];<a name="line.68"></a>
-<span class="sourceLineNo">069</span>      if (t!=null) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        boolean go=false;<a name="line.70"></a>
+<span class="sourceLineNo">068</span>      RVMThread t = RVMThread.threads[i];<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      if (t != null) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        boolean go = false;<a name="line.70"></a>
 <span class="sourceLineNo">071</span>        t.monitor().lockNoHandshake();<a name="line.71"></a>
 <span class="sourceLineNo">072</span>        // NOTE: if threads are being removed, we may see a thread twice<a name="line.72"></a>
 <span class="sourceLineNo">073</span>        if (t.requesting_osr) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>          t.requesting_osr=false;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>          go=true;<a name="line.75"></a>
+<span class="sourceLineNo">074</span>          t.requesting_osr = false;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>          go = true;<a name="line.75"></a>
 <span class="sourceLineNo">076</span>        }<a name="line.76"></a>
 <span class="sourceLineNo">077</span>        t.monitor().unlock();<a name="line.77"></a>
 <span class="sourceLineNo">078</span>        if (go) {<a name="line.78"></a>

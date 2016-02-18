@@ -20,456 +20,471 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.classloader;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import java.io.ByteArrayInputStream;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import java.io.DataInputStream;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import java.io.IOException;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import java.io.InputStream;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.VM;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.Constants;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.jikesrvm.Properties;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * Manufacture type descriptions as needed by the running virtual machine. &lt;p&gt;<a name="line.24"></a>
-<span class="sourceLineNo">025</span> */<a name="line.25"></a>
-<span class="sourceLineNo">026</span>public class RVMClassLoader implements Constants, ClassLoaderConstants {<a name="line.26"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_DOUBLE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_FIELDREF;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_FLOAT;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_INT;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_INTERFACE_METHODREF;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_LONG;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_MEMBERNAME_AND_DESCRIPTOR;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_METHODREF;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_STRING;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_TYPEREF;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_UNUSED;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import static org.jikesrvm.classloader.ClassLoaderConstants.TAG_UTF;<a name="line.26"></a>
 <span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>  private static final boolean DBG_APP_CL = false;<a name="line.28"></a>
-<span class="sourceLineNo">029</span><a name="line.29"></a>
-<span class="sourceLineNo">030</span>  private static ClassLoader appCL;<a name="line.30"></a>
-<span class="sourceLineNo">031</span><a name="line.31"></a>
-<span class="sourceLineNo">032</span>  /**<a name="line.32"></a>
-<span class="sourceLineNo">033</span>   * Set list of places to be searched for application classes and resources.<a name="line.33"></a>
-<span class="sourceLineNo">034</span>   * Do NOT set the java.class.path property; it is probably too early in<a name="line.34"></a>
-<span class="sourceLineNo">035</span>   * the VM's booting cycle to set properties.<a name="line.35"></a>
-<span class="sourceLineNo">036</span>   *<a name="line.36"></a>
-<span class="sourceLineNo">037</span>   * @param classpath path specification in standard "classpath" format<a name="line.37"></a>
-<span class="sourceLineNo">038</span>   */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  public static void stashApplicationRepositories(String classpath) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    if (DBG_APP_CL) {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>      VM.sysWriteln("RVMClassLoader.stashApplicationRepositories: " + "applicationRepositories = ", classpath);<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    }<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    /* If mis-initialized, trash it. */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    if (appCL != null &amp;&amp; !classpath.equals(applicationRepositories)) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>      appCL = null;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>      if (DBG_APP_CL) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        VM.sysWriteln("RVMClassLoader.stashApplicationRepositories: Wiping out my remembered appCL.");<a name="line.47"></a>
-<span class="sourceLineNo">048</span>      }<a name="line.48"></a>
-<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
-<span class="sourceLineNo">050</span>    applicationRepositories = classpath;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
-<span class="sourceLineNo">052</span><a name="line.52"></a>
-<span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   * Are Java 1.4 style assertions enabled?<a name="line.54"></a>
-<span class="sourceLineNo">055</span>   */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  private static boolean assertionsEnabled = false;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   * String describing packages and classes to enable assertions on (of the form ":&lt;packagename&gt;...|:&lt;classname&gt;")<a name="line.58"></a>
-<span class="sourceLineNo">059</span>   */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  private static String[] enabledAssertionStrings;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   * String describing packages and classes to disable assertions on (of the form ":&lt;packagename&gt;...|:&lt;classname&gt;")<a name="line.62"></a>
-<span class="sourceLineNo">063</span>   */<a name="line.63"></a>
-<span class="sourceLineNo">064</span>  private static String[] disabledAssertionStrings;<a name="line.64"></a>
+<span class="sourceLineNo">028</span>import java.io.ByteArrayInputStream;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import java.io.DataInputStream;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import java.io.IOException;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import java.io.InputStream;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.jikesrvm.Properties;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.jikesrvm.VM;<a name="line.34"></a>
+<span class="sourceLineNo">035</span><a name="line.35"></a>
+<span class="sourceLineNo">036</span>/**<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * Manufacture type descriptions as needed by the running virtual machine.<a name="line.37"></a>
+<span class="sourceLineNo">038</span> */<a name="line.38"></a>
+<span class="sourceLineNo">039</span>public class RVMClassLoader {<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>  private static final boolean DBG_APP_CL = false;<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  private static ClassLoader appCL;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  /**<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * Set list of places to be searched for application classes and resources.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   * Do NOT set the java.class.path property; it is probably too early in<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * the VM's booting cycle to set properties.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * @param classpath path specification in standard "classpath" format<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static void stashApplicationRepositories(String classpath) {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    if (DBG_APP_CL) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>      VM.sysWriteln("RVMClassLoader.stashApplicationRepositories: " + "applicationRepositories = ", classpath);<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    }<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /* If mis-initialized, trash it. */<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    if (appCL != null &amp;&amp; !classpath.equals(applicationRepositories)) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>      appCL = null;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>      if (DBG_APP_CL) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>        VM.sysWriteln("RVMClassLoader.stashApplicationRepositories: Wiping out my remembered appCL.");<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    applicationRepositories = classpath;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  }<a name="line.64"></a>
 <span class="sourceLineNo">065</span><a name="line.65"></a>
 <span class="sourceLineNo">066</span>  /**<a name="line.66"></a>
-<span class="sourceLineNo">067</span>   * Remember the given enable assertions string<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   * @param arg String of the form ":&lt;packagename&gt;...|:&lt;classname&gt;"<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
-<span class="sourceLineNo">070</span>  public static void stashEnableAssertionArg(String arg) {<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    assertionsEnabled = true;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    enabledAssertionStrings = arg.split(":");<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    if (enabledAssertionStrings != null) {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>      if ((enabledAssertionStrings.length == 0) ||<a name="line.74"></a>
-<span class="sourceLineNo">075</span>          (enabledAssertionStrings.length == 1 &amp;&amp; enabledAssertionStrings[0].equals(""))) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>        // force enabled assertion strings to null when no arguments are passed with -ea<a name="line.76"></a>
-<span class="sourceLineNo">077</span>        enabledAssertionStrings = null;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>      }<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  }<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>  /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   * Remember the given disable assertions string<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   * @param arg String of the form ":&lt;packagename&gt;...|:&lt;classname&gt;"<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   */<a name="line.85"></a>
-<span class="sourceLineNo">086</span>  public static void stashDisableAssertionArg(String arg) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    if (arg == null || arg.equals("")) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>      assertionsEnabled = false;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    } else {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>      disabledAssertionStrings = arg.split(":");<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>  }<a name="line.92"></a>
-<span class="sourceLineNo">093</span><a name="line.93"></a>
-<span class="sourceLineNo">094</span>  /**<a name="line.94"></a>
-<span class="sourceLineNo">095</span>   * Calculate the desired assertion status for a freshly loaded class<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   * @param klass to check against command line argument<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * @return whether assertions should be enabled on class<a name="line.97"></a>
+<span class="sourceLineNo">067</span>   * Are Java 1.4 style assertions enabled?<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  private static boolean assertionsEnabled = false;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * String describing packages and classes to enable assertions on (of the form ":&amp;lt;packagename&amp;gt;...|:&amp;lt;classname&amp;gt;")<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  private static String[] enabledAssertionStrings;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  /**<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * String describing packages and classes to disable assertions on (of the form ":&amp;lt;packagename&amp;gt;...|:&amp;lt;classname&amp;gt;")<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   */<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  private static String[] disabledAssertionStrings;<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * Remember the given enable assertions string<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * @param arg String of the form ":&amp;lt;packagename&amp;gt;...|:&amp;lt;classname&amp;gt;"<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  public static void stashEnableAssertionArg(String arg) {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    assertionsEnabled = true;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    enabledAssertionStrings = arg.split(":");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    if (enabledAssertionStrings != null) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      if ((enabledAssertionStrings.length == 0) ||<a name="line.87"></a>
+<span class="sourceLineNo">088</span>          (enabledAssertionStrings.length == 1 &amp;&amp; enabledAssertionStrings[0].equals(""))) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        // force enabled assertion strings to null when no arguments are passed with -ea<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        enabledAssertionStrings = null;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * Remember the given disable assertions string<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   * @param arg String of the form ":&amp;lt;packagename&amp;gt;...|:&amp;lt;classname&amp;gt;"<a name="line.97"></a>
 <span class="sourceLineNo">098</span>   */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  static boolean getDesiredAssertionStatus(RVMClass klass) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    if (!assertionsEnabled) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>      // trivial - no assertions are enabled<a name="line.101"></a>
-<span class="sourceLineNo">102</span>      return false;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    } else {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>      if (enabledAssertionStrings == null &amp;&amp; disabledAssertionStrings == null) {<a name="line.104"></a>
-<span class="sourceLineNo">105</span>        // assertions enabled unconditionally<a name="line.105"></a>
-<span class="sourceLineNo">106</span>        return true;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>      } else {<a name="line.107"></a>
-<span class="sourceLineNo">108</span>        // search command line arguments to see if assertions are enabled<a name="line.108"></a>
-<span class="sourceLineNo">109</span>        boolean result = false;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>        if(enabledAssertionStrings != null) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span>          for (String s : enabledAssertionStrings) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>            if (s.equals(klass.getTypeRef().getName().classNameFromDescriptor()) ||<a name="line.112"></a>
-<span class="sourceLineNo">113</span>                klass.getPackageName().startsWith(s)) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>              result = true;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>              break;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>            }<a name="line.116"></a>
-<span class="sourceLineNo">117</span>          }<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
-<span class="sourceLineNo">119</span>        if (disabledAssertionStrings != null) {<a name="line.119"></a>
-<span class="sourceLineNo">120</span>          for (String s : disabledAssertionStrings) {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>            if (s.equals(klass.getTypeRef().getName().classNameFromDescriptor()) ||<a name="line.121"></a>
-<span class="sourceLineNo">122</span>                klass.getPackageName().startsWith(s)) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>              result = false;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>              break;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            }<a name="line.125"></a>
-<span class="sourceLineNo">126</span>          }<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        }<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        return result;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      }<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    }<a name="line.130"></a>
-<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
-<span class="sourceLineNo">132</span><a name="line.132"></a>
-<span class="sourceLineNo">133</span>  /**<a name="line.133"></a>
-<span class="sourceLineNo">134</span>   * Set list of places to be searched for application classes and resources.&lt;p&gt;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   *<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * Our Jikes RVM classloader can not handle having the class path reset<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * after it's been set up.   Unfortunately, it is stashed by classes in<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * GNU Classpath.<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   *<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * @param classpath path specification in standard "classpath" format<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   */<a name="line.141"></a>
-<span class="sourceLineNo">142</span>  public static void setApplicationRepositories(String classpath) {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    System.setProperty("java.class.path", classpath);<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    stashApplicationRepositories(classpath);<a name="line.144"></a>
-<span class="sourceLineNo">145</span>    if (DBG_APP_CL) {<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      VM.sysWriteln("RVMClassLoader.setApplicationRepositories: applicationRepositories = ", applicationRepositories);<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
-<span class="sourceLineNo">148</span>  }<a name="line.148"></a>
-<span class="sourceLineNo">149</span><a name="line.149"></a>
-<span class="sourceLineNo">150</span>  /**<a name="line.150"></a>
-<span class="sourceLineNo">151</span>   * Get list of places currently being searched for application<a name="line.151"></a>
-<span class="sourceLineNo">152</span>   * classes and resources.<a name="line.152"></a>
-<span class="sourceLineNo">153</span>   * @return names of directories, .zip files, and .jar files<a name="line.153"></a>
+<span class="sourceLineNo">099</span>  public static void stashDisableAssertionArg(String arg) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    if (arg == null || arg.equals("")) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>      assertionsEnabled = false;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    } else {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      disabledAssertionStrings = arg.split(":");<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  }<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>  /**<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   * Calculate the desired assertion status for a freshly loaded class<a name="line.108"></a>
+<span class="sourceLineNo">109</span>   * @param klass to check against command line argument<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * @return whether assertions should be enabled on class<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   */<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  static boolean getDesiredAssertionStatus(RVMClass klass) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    if (!assertionsEnabled) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>      // trivial - no assertions are enabled<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      return false;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    } else {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      if (enabledAssertionStrings == null &amp;&amp; disabledAssertionStrings == null) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        // assertions enabled unconditionally<a name="line.118"></a>
+<span class="sourceLineNo">119</span>        return true;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      } else {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        // search command line arguments to see if assertions are enabled<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        boolean result = false;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        if (enabledAssertionStrings != null) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>          for (String s : enabledAssertionStrings) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>            if (s.equals(klass.getTypeRef().getName().classNameFromDescriptor()) ||<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                klass.getPackageName().startsWith(s)) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>              result = true;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>              break;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>            }<a name="line.129"></a>
+<span class="sourceLineNo">130</span>          }<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>        if (disabledAssertionStrings != null) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>          for (String s : disabledAssertionStrings) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            if (s.equals(klass.getTypeRef().getName().classNameFromDescriptor()) ||<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                klass.getPackageName().startsWith(s)) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>              result = false;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>              break;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>            }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>          }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        return result;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>      }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  }<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>  /**<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   * Set list of places to be searched for application classes and resources.&lt;p&gt;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>   *<a name="line.148"></a>
+<span class="sourceLineNo">149</span>   * Our Jikes RVM classloader can not handle having the class path reset<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   * after it's been set up.   Unfortunately, it is stashed by classes in<a name="line.150"></a>
+<span class="sourceLineNo">151</span>   * GNU Classpath.<a name="line.151"></a>
+<span class="sourceLineNo">152</span>   *<a name="line.152"></a>
+<span class="sourceLineNo">153</span>   * @param classpath path specification in standard "classpath" format<a name="line.153"></a>
 <span class="sourceLineNo">154</span>   */<a name="line.154"></a>
-<span class="sourceLineNo">155</span>  public static String getApplicationRepositories() {<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    return applicationRepositories;<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
-<span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>  /** Are we getting the application CL?  Access is synchronized via the<a name="line.159"></a>
-<span class="sourceLineNo">160</span>   *  Class object.  Probably not necessary, but doesn't hurt, or shouldn't.<a name="line.160"></a>
-<span class="sourceLineNo">161</span>   *  Used for sanity checks. */<a name="line.161"></a>
-<span class="sourceLineNo">162</span>  private static int gettingAppCL = 0;<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>  /** Is the application class loader ready for use?  Don't leak it out until<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   * it is! */<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  private static boolean appCLReady;<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>  public static void declareApplicationClassLoaderIsReady() {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    appCLReady = true;<a name="line.169"></a>
+<span class="sourceLineNo">155</span>  public static void setApplicationRepositories(String classpath) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    System.setProperty("java.class.path", classpath);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    stashApplicationRepositories(classpath);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    if (DBG_APP_CL) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      VM.sysWriteln("RVMClassLoader.setApplicationRepositories: applicationRepositories = ", applicationRepositories);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  }<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>  /**<a name="line.163"></a>
+<span class="sourceLineNo">164</span>   * Get list of places currently being searched for application<a name="line.164"></a>
+<span class="sourceLineNo">165</span>   * classes and resources.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>   * @return names of directories, .zip files, and .jar files<a name="line.166"></a>
+<span class="sourceLineNo">167</span>   */<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  public static String getApplicationRepositories() {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    return applicationRepositories;<a name="line.169"></a>
 <span class="sourceLineNo">170</span>  }<a name="line.170"></a>
 <span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>  public static ClassLoader getApplicationClassLoader() {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    if (!VM.runningVM) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>      return null;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    }              /* trick the boot image writer with null,<a name="line.175"></a>
-<span class="sourceLineNo">176</span>                                   which it will use when initializing<a name="line.176"></a>
-<span class="sourceLineNo">177</span>                                   java.lang.ClassLoader$StaticData */<a name="line.177"></a>
-<span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    /* Lie, until we are really ready for someone to actually try<a name="line.179"></a>
-<span class="sourceLineNo">180</span>     * to use this class loader to load classes and resources.<a name="line.180"></a>
-<span class="sourceLineNo">181</span>     */<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    if (!appCLReady) {<a name="line.182"></a>
-<span class="sourceLineNo">183</span>      return BootstrapClassLoader.getBootstrapClassLoader();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>    if (appCL != null) {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>      return appCL;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    }<a name="line.188"></a>
-<span class="sourceLineNo">189</span><a name="line.189"></a>
-<span class="sourceLineNo">190</span>    // Sanity Checks:<a name="line.190"></a>
-<span class="sourceLineNo">191</span>    //    synchronized (this) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    if (gettingAppCL &gt; 0 || DBG_APP_CL) {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>      VM.sysWriteln("JikesRVM: RVMClassLoader.getApplicationClassLoader(): ",<a name="line.193"></a>
-<span class="sourceLineNo">194</span>                    gettingAppCL &gt; 0 ? "Recursively " : "",<a name="line.194"></a>
-<span class="sourceLineNo">195</span>                    "invoked with ",<a name="line.195"></a>
-<span class="sourceLineNo">196</span>                    gettingAppCL,<a name="line.196"></a>
-<span class="sourceLineNo">197</span>                    " previous instances pending");<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
-<span class="sourceLineNo">199</span>    if (gettingAppCL &gt; 0) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>      VM.sysFail(<a name="line.200"></a>
-<span class="sourceLineNo">201</span>          "JikesRVM: While we are setting up the application class loader, some class required that selfsame application class loader.  This is a chicken-and-egg problem; see a Jikes RVM Guru.");<a name="line.201"></a>
-<span class="sourceLineNo">202</span>    }<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    ++gettingAppCL;<a name="line.203"></a>
-<span class="sourceLineNo">204</span><a name="line.204"></a>
-<span class="sourceLineNo">205</span>    String r = getApplicationRepositories();<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>    if (Properties.verboseBoot &gt;= 1 || DBG_APP_CL) {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      VM.sysWriteln("RVMClassLoader.getApplicationClassLoader(): " +<a name="line.208"></a>
-<span class="sourceLineNo">209</span>                    "Initializing Application ClassLoader, with" +<a name="line.209"></a>
-<span class="sourceLineNo">210</span>                    " repositories: `", r, "'...");<a name="line.210"></a>
+<span class="sourceLineNo">172</span>  /** Are we getting the application CL?  Access is synchronized via the<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   *  Class object.  Probably not necessary, but doesn't hurt, or shouldn't.<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   *  Used for sanity checks. */<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  private static int gettingAppCL = 0;<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>  /** Is the application class loader ready for use?  Don't leak it out until<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   * it is! */<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  private static boolean appCLReady;<a name="line.179"></a>
+<span class="sourceLineNo">180</span><a name="line.180"></a>
+<span class="sourceLineNo">181</span>  public static void declareApplicationClassLoaderIsReady() {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    appCLReady = true;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  }<a name="line.183"></a>
+<span class="sourceLineNo">184</span><a name="line.184"></a>
+<span class="sourceLineNo">185</span>  public static ClassLoader getApplicationClassLoader() {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    if (!VM.runningVM) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>      return null;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    }              /* trick the boot image writer with null,<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                                   which it will use when initializing<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                                   java.lang.ClassLoader$StaticData */<a name="line.190"></a>
+<span class="sourceLineNo">191</span><a name="line.191"></a>
+<span class="sourceLineNo">192</span>    /* Lie, until we are really ready for someone to actually try<a name="line.192"></a>
+<span class="sourceLineNo">193</span>     * to use this class loader to load classes and resources.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>     */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    if (!appCLReady) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      return BootstrapClassLoader.getBootstrapClassLoader();<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    }<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    if (appCL != null) {<a name="line.199"></a>
+<span class="sourceLineNo">200</span>      return appCL;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>    // Sanity Checks:<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    //    synchronized (this) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>    if (gettingAppCL &gt; 0 || DBG_APP_CL) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>      VM.sysWriteln("JikesRVM: RVMClassLoader.getApplicationClassLoader(): ",<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                    gettingAppCL &gt; 0 ? "Recursively " : "",<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                    "invoked with ",<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                    gettingAppCL,<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                    " previous instances pending");<a name="line.210"></a>
 <span class="sourceLineNo">211</span>    }<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>    appCL = new ApplicationClassLoader(r);<a name="line.213"></a>
-<span class="sourceLineNo">214</span><a name="line.214"></a>
-<span class="sourceLineNo">215</span>    if (Properties.verboseBoot &gt;= 1 || DBG_APP_CL) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>      VM.sysWriteln("RVMClassLoader.getApplicationClassLoader(): ...initialized Application classloader, to ",<a name="line.216"></a>
-<span class="sourceLineNo">217</span>                    appCL.toString());<a name="line.217"></a>
-<span class="sourceLineNo">218</span>    }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    --gettingAppCL;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    //    }<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    return appCL;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>  }<a name="line.222"></a>
-<span class="sourceLineNo">223</span><a name="line.223"></a>
-<span class="sourceLineNo">224</span>  //----------------//<a name="line.224"></a>
-<span class="sourceLineNo">225</span>  // implementation //<a name="line.225"></a>
-<span class="sourceLineNo">226</span>  //----------------//<a name="line.226"></a>
+<span class="sourceLineNo">212</span>    if (gettingAppCL &gt; 0) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      VM.sysFail(<a name="line.213"></a>
+<span class="sourceLineNo">214</span>          "JikesRVM: While we are setting up the application class loader, some class required that selfsame application class loader.  This is a chicken-and-egg problem; see a Jikes RVM Guru.");<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    ++gettingAppCL;<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>    String r = getApplicationRepositories();<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>    if (Properties.verboseBoot &gt;= 1 || DBG_APP_CL) {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>      VM.sysWriteln("RVMClassLoader.getApplicationClassLoader(): " +<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                    "Initializing Application ClassLoader, with" +<a name="line.222"></a>
+<span class="sourceLineNo">223</span>                    " repositories: `", r, "'...");<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    }<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>    appCL = new ApplicationClassLoader(r);<a name="line.226"></a>
 <span class="sourceLineNo">227</span><a name="line.227"></a>
-<span class="sourceLineNo">228</span>  //<a name="line.228"></a>
-<span class="sourceLineNo">229</span>  private static String applicationRepositories;<a name="line.229"></a>
-<span class="sourceLineNo">230</span><a name="line.230"></a>
-<span class="sourceLineNo">231</span>  // Names of special methods.<a name="line.231"></a>
-<span class="sourceLineNo">232</span>  //<a name="line.232"></a>
-<span class="sourceLineNo">233</span>  /** {@code &lt;clinit&gt;} */<a name="line.233"></a>
-<span class="sourceLineNo">234</span>  public static final Atom StandardClassInitializerMethodName = Atom.findOrCreateAsciiAtom("&lt;clinit&gt;");<a name="line.234"></a>
-<span class="sourceLineNo">235</span>  /** "()V" */<a name="line.235"></a>
-<span class="sourceLineNo">236</span>  public static final Atom StandardClassInitializerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.236"></a>
-<span class="sourceLineNo">237</span><a name="line.237"></a>
-<span class="sourceLineNo">238</span>  /** {@code &lt;init&gt;} */<a name="line.238"></a>
-<span class="sourceLineNo">239</span>  public static final Atom StandardObjectInitializerMethodName = Atom.findOrCreateAsciiAtom("&lt;init&gt;");<a name="line.239"></a>
-<span class="sourceLineNo">240</span>  /** {@code ()V} */<a name="line.240"></a>
-<span class="sourceLineNo">241</span>  public static final Atom StandardObjectInitializerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.241"></a>
-<span class="sourceLineNo">242</span>  /** {@code this} */<a name="line.242"></a>
-<span class="sourceLineNo">243</span>  public static final Atom StandardObjectInitializerHelperMethodName = Atom.findOrCreateAsciiAtom("this");<a name="line.243"></a>
-<span class="sourceLineNo">244</span><a name="line.244"></a>
-<span class="sourceLineNo">245</span>  /** {@code finalize} */<a name="line.245"></a>
-<span class="sourceLineNo">246</span>  public static final Atom StandardObjectFinalizerMethodName = Atom.findOrCreateAsciiAtom("finalize");<a name="line.246"></a>
-<span class="sourceLineNo">247</span>  /** {@code ()V} */<a name="line.247"></a>
-<span class="sourceLineNo">248</span>  public static final Atom StandardObjectFinalizerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.248"></a>
-<span class="sourceLineNo">249</span><a name="line.249"></a>
-<span class="sourceLineNo">250</span>  // Names of .class file attributes.<a name="line.250"></a>
-<span class="sourceLineNo">251</span>  //<a name="line.251"></a>
-<span class="sourceLineNo">252</span>  /** {@code Code} */<a name="line.252"></a>
-<span class="sourceLineNo">253</span>  static final Atom codeAttributeName = Atom.findOrCreateAsciiAtom("Code");<a name="line.253"></a>
-<span class="sourceLineNo">254</span>  /** {@code ConstantValue} */<a name="line.254"></a>
-<span class="sourceLineNo">255</span>  static final Atom constantValueAttributeName = Atom.findOrCreateAsciiAtom("ConstantValue");<a name="line.255"></a>
-<span class="sourceLineNo">256</span>  /** {@code LineNumberTable} */<a name="line.256"></a>
-<span class="sourceLineNo">257</span>  static final Atom lineNumberTableAttributeName = Atom.findOrCreateAsciiAtom("LineNumberTable");<a name="line.257"></a>
-<span class="sourceLineNo">258</span>  /** {@code Exceptions} */<a name="line.258"></a>
-<span class="sourceLineNo">259</span>  static final Atom exceptionsAttributeName = Atom.findOrCreateAsciiAtom("Exceptions");<a name="line.259"></a>
-<span class="sourceLineNo">260</span>  /** {@code SourceFile} */<a name="line.260"></a>
-<span class="sourceLineNo">261</span>  static final Atom sourceFileAttributeName = Atom.findOrCreateAsciiAtom("SourceFile");<a name="line.261"></a>
-<span class="sourceLineNo">262</span>  /** {@code LocalVariableTable} */<a name="line.262"></a>
-<span class="sourceLineNo">263</span>  static final Atom localVariableTableAttributeName = Atom.findOrCreateAsciiAtom("LocalVariableTable");<a name="line.263"></a>
-<span class="sourceLineNo">264</span>  /** {@code Deprecated}  */<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  static final Atom deprecatedAttributeName = Atom.findOrCreateAsciiAtom("Deprecated");<a name="line.265"></a>
-<span class="sourceLineNo">266</span>  /** {@code InnerClasses} */<a name="line.266"></a>
-<span class="sourceLineNo">267</span>  static final Atom innerClassesAttributeName = Atom.findOrCreateAsciiAtom("InnerClasses");<a name="line.267"></a>
-<span class="sourceLineNo">268</span>  /** {@code Synthetic} */<a name="line.268"></a>
-<span class="sourceLineNo">269</span>  static final Atom syntheticAttributeName = Atom.findOrCreateAsciiAtom("Synthetic");<a name="line.269"></a>
-<span class="sourceLineNo">270</span>  /** {@code EnclosingMethod} */<a name="line.270"></a>
-<span class="sourceLineNo">271</span>  static final Atom enclosingMethodAttributeName = Atom.findOrCreateAsciiAtom("EnclosingMethod");<a name="line.271"></a>
-<span class="sourceLineNo">272</span>  /** {@code Signature} */<a name="line.272"></a>
-<span class="sourceLineNo">273</span>  static final Atom signatureAttributeName = Atom.findOrCreateAsciiAtom("Signature");<a name="line.273"></a>
-<span class="sourceLineNo">274</span>  /** {@code RuntimeVisibleAnnotations} */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>  static final Atom runtimeVisibleAnnotationsAttributeName =<a name="line.275"></a>
-<span class="sourceLineNo">276</span>      Atom.findOrCreateAsciiAtom("RuntimeVisibleAnnotations");<a name="line.276"></a>
-<span class="sourceLineNo">277</span>  /** {@code RuntimeInvisibleAnnotations} */<a name="line.277"></a>
-<span class="sourceLineNo">278</span>  static final Atom runtimeInvisibleAnnotationsAttributeName =<a name="line.278"></a>
-<span class="sourceLineNo">279</span>      Atom.findOrCreateAsciiAtom("RuntimeInvisibleAnnotations");<a name="line.279"></a>
-<span class="sourceLineNo">280</span>  /** {@code RuntimeVisibleParameterAnnotations} */<a name="line.280"></a>
-<span class="sourceLineNo">281</span>  static final Atom runtimeVisibleParameterAnnotationsAttributeName =<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      Atom.findOrCreateAsciiAtom("RuntimeVisibleParameterAnnotations");<a name="line.282"></a>
-<span class="sourceLineNo">283</span>  /** {@code RuntimeInvisibleParameterAnnotations} */<a name="line.283"></a>
-<span class="sourceLineNo">284</span>  static final Atom runtimeInvisibleParameterAnnotationsAttributeName =<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      Atom.findOrCreateAsciiAtom("RuntimeInvisibleParameterAnnotations");<a name="line.285"></a>
-<span class="sourceLineNo">286</span>  /** {@code AnnotationDefault} */<a name="line.286"></a>
-<span class="sourceLineNo">287</span>  static final Atom annotationDefaultAttributeName = Atom.findOrCreateAsciiAtom("AnnotationDefault");<a name="line.287"></a>
-<span class="sourceLineNo">288</span><a name="line.288"></a>
-<span class="sourceLineNo">289</span>  /** Initialize at boot time.<a name="line.289"></a>
-<span class="sourceLineNo">290</span>   */<a name="line.290"></a>
-<span class="sourceLineNo">291</span>  public static void boot() {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>    appCL = null;<a name="line.292"></a>
-<span class="sourceLineNo">293</span>  }<a name="line.293"></a>
-<span class="sourceLineNo">294</span><a name="line.294"></a>
-<span class="sourceLineNo">295</span>  /**<a name="line.295"></a>
-<span class="sourceLineNo">296</span>   * Initialize for boot image writing<a name="line.296"></a>
-<span class="sourceLineNo">297</span>   */<a name="line.297"></a>
-<span class="sourceLineNo">298</span>  public static void init(String bootstrapClasspath) {<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    // specify where the VM's core classes and resources live<a name="line.299"></a>
-<span class="sourceLineNo">300</span>    //<a name="line.300"></a>
-<span class="sourceLineNo">301</span>    applicationRepositories = "."; // Carried over.<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    BootstrapClassLoader.boot(bootstrapClasspath);<a name="line.302"></a>
-<span class="sourceLineNo">303</span>  }<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>  public static RVMType defineClassInternal(String className, byte[] classRep, int offset, int length,<a name="line.305"></a>
-<span class="sourceLineNo">306</span>                                            ClassLoader classloader) throws ClassFormatError {<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    return defineClassInternal(className, new ByteArrayInputStream(classRep, offset, length), classloader);<a name="line.307"></a>
-<span class="sourceLineNo">308</span>  }<a name="line.308"></a>
-<span class="sourceLineNo">309</span><a name="line.309"></a>
-<span class="sourceLineNo">310</span>  public static RVMType defineClassInternal(String className, InputStream is, ClassLoader classloader)<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      throws ClassFormatError {<a name="line.311"></a>
-<span class="sourceLineNo">312</span>    TypeReference tRef;<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    if (className == null) {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>      // NUTS: Our caller hasn't bothered to tell us what this class is supposed<a name="line.314"></a>
-<span class="sourceLineNo">315</span>      //       to be called, so we must read the input stream and discover it ourselves<a name="line.315"></a>
-<span class="sourceLineNo">316</span>      //       before we actually can create the RVMClass instance.<a name="line.316"></a>
-<span class="sourceLineNo">317</span>      try {<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        is.mark(is.available());<a name="line.318"></a>
-<span class="sourceLineNo">319</span>        tRef = getClassTypeRef(new DataInputStream(is), classloader);<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        is.reset();<a name="line.320"></a>
-<span class="sourceLineNo">321</span>      } catch (IOException e) {<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        ClassFormatError cfe = new ClassFormatError(e.getMessage());<a name="line.322"></a>
-<span class="sourceLineNo">323</span>        cfe.initCause(e);<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        throw cfe;<a name="line.324"></a>
-<span class="sourceLineNo">325</span>      }<a name="line.325"></a>
-<span class="sourceLineNo">326</span>    } else {<a name="line.326"></a>
-<span class="sourceLineNo">327</span>      Atom classDescriptor = Atom.findOrCreateAsciiAtom(className.replace('.', '/')).descriptorFromClassName();<a name="line.327"></a>
-<span class="sourceLineNo">328</span>      tRef = TypeReference.findOrCreate(classloader, classDescriptor);<a name="line.328"></a>
-<span class="sourceLineNo">329</span>    }<a name="line.329"></a>
-<span class="sourceLineNo">330</span><a name="line.330"></a>
-<span class="sourceLineNo">331</span>    try {<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      if (VM.VerifyAssertions) VM._assert(tRef.isClassType());<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      if (VM.TraceClassLoading &amp;&amp; VM.runningVM) {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        VM.sysWriteln("loading \"" + tRef.getName() + "\" with " + classloader);<a name="line.334"></a>
-<span class="sourceLineNo">335</span>      }<a name="line.335"></a>
-<span class="sourceLineNo">336</span>      RVMClass ans = ClassFileReader.readClass(tRef, new DataInputStream(is));<a name="line.336"></a>
-<span class="sourceLineNo">337</span>      tRef.setType(ans);<a name="line.337"></a>
-<span class="sourceLineNo">338</span>      return ans;<a name="line.338"></a>
-<span class="sourceLineNo">339</span>    } catch (IOException e) {<a name="line.339"></a>
-<span class="sourceLineNo">340</span>      ClassFormatError cfe = new ClassFormatError(e.getMessage());<a name="line.340"></a>
-<span class="sourceLineNo">341</span>      cfe.initCause(e);<a name="line.341"></a>
-<span class="sourceLineNo">342</span>      throw cfe;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>    }<a name="line.343"></a>
-<span class="sourceLineNo">344</span>  }<a name="line.344"></a>
+<span class="sourceLineNo">228</span>    if (Properties.verboseBoot &gt;= 1 || DBG_APP_CL) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>      VM.sysWriteln("RVMClassLoader.getApplicationClassLoader(): ...initialized Application classloader, to ",<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                    appCL.toString());<a name="line.230"></a>
+<span class="sourceLineNo">231</span>    }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    --gettingAppCL;<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    //    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    return appCL;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>  }<a name="line.235"></a>
+<span class="sourceLineNo">236</span><a name="line.236"></a>
+<span class="sourceLineNo">237</span>  //----------------//<a name="line.237"></a>
+<span class="sourceLineNo">238</span>  // implementation //<a name="line.238"></a>
+<span class="sourceLineNo">239</span>  //----------------//<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>  //<a name="line.241"></a>
+<span class="sourceLineNo">242</span>  private static String applicationRepositories;<a name="line.242"></a>
+<span class="sourceLineNo">243</span><a name="line.243"></a>
+<span class="sourceLineNo">244</span>  // Names of special methods.<a name="line.244"></a>
+<span class="sourceLineNo">245</span>  //<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  /** {@code &lt;clinit&gt;} */<a name="line.246"></a>
+<span class="sourceLineNo">247</span>  public static final Atom StandardClassInitializerMethodName = Atom.findOrCreateAsciiAtom("&lt;clinit&gt;");<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  /** "()V" */<a name="line.248"></a>
+<span class="sourceLineNo">249</span>  public static final Atom StandardClassInitializerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>  /** {@code &lt;init&gt;} */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  public static final Atom StandardObjectInitializerMethodName = Atom.findOrCreateAsciiAtom("&lt;init&gt;");<a name="line.252"></a>
+<span class="sourceLineNo">253</span>  /** {@code ()V} */<a name="line.253"></a>
+<span class="sourceLineNo">254</span>  public static final Atom StandardObjectInitializerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  /** {@code this} */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>  public static final Atom StandardObjectInitializerHelperMethodName = Atom.findOrCreateAsciiAtom("this");<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>  /** {@code finalize} */<a name="line.258"></a>
+<span class="sourceLineNo">259</span>  public static final Atom StandardObjectFinalizerMethodName = Atom.findOrCreateAsciiAtom("finalize");<a name="line.259"></a>
+<span class="sourceLineNo">260</span>  /** {@code ()V} */<a name="line.260"></a>
+<span class="sourceLineNo">261</span>  public static final Atom StandardObjectFinalizerMethodDescriptor = Atom.findOrCreateAsciiAtom("()V");<a name="line.261"></a>
+<span class="sourceLineNo">262</span><a name="line.262"></a>
+<span class="sourceLineNo">263</span>  // Names of .class file attributes.<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  //<a name="line.264"></a>
+<span class="sourceLineNo">265</span>  /** {@code Code} */<a name="line.265"></a>
+<span class="sourceLineNo">266</span>  static final Atom codeAttributeName = Atom.findOrCreateAsciiAtom("Code");<a name="line.266"></a>
+<span class="sourceLineNo">267</span>  /** {@code ConstantValue} */<a name="line.267"></a>
+<span class="sourceLineNo">268</span>  static final Atom constantValueAttributeName = Atom.findOrCreateAsciiAtom("ConstantValue");<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  /** {@code LineNumberTable} */<a name="line.269"></a>
+<span class="sourceLineNo">270</span>  static final Atom lineNumberTableAttributeName = Atom.findOrCreateAsciiAtom("LineNumberTable");<a name="line.270"></a>
+<span class="sourceLineNo">271</span>  /** {@code Exceptions} */<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  static final Atom exceptionsAttributeName = Atom.findOrCreateAsciiAtom("Exceptions");<a name="line.272"></a>
+<span class="sourceLineNo">273</span>  /** {@code SourceFile} */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  static final Atom sourceFileAttributeName = Atom.findOrCreateAsciiAtom("SourceFile");<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  /** {@code LocalVariableTable} */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  static final Atom localVariableTableAttributeName = Atom.findOrCreateAsciiAtom("LocalVariableTable");<a name="line.276"></a>
+<span class="sourceLineNo">277</span>  /** {@code Deprecated}  */<a name="line.277"></a>
+<span class="sourceLineNo">278</span>  static final Atom deprecatedAttributeName = Atom.findOrCreateAsciiAtom("Deprecated");<a name="line.278"></a>
+<span class="sourceLineNo">279</span>  /** {@code InnerClasses} */<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  static final Atom innerClassesAttributeName = Atom.findOrCreateAsciiAtom("InnerClasses");<a name="line.280"></a>
+<span class="sourceLineNo">281</span>  /** {@code Synthetic} */<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  static final Atom syntheticAttributeName = Atom.findOrCreateAsciiAtom("Synthetic");<a name="line.282"></a>
+<span class="sourceLineNo">283</span>  /** {@code EnclosingMethod} */<a name="line.283"></a>
+<span class="sourceLineNo">284</span>  static final Atom enclosingMethodAttributeName = Atom.findOrCreateAsciiAtom("EnclosingMethod");<a name="line.284"></a>
+<span class="sourceLineNo">285</span>  /** {@code Signature} */<a name="line.285"></a>
+<span class="sourceLineNo">286</span>  static final Atom signatureAttributeName = Atom.findOrCreateAsciiAtom("Signature");<a name="line.286"></a>
+<span class="sourceLineNo">287</span>  /** {@code RuntimeVisibleAnnotations} */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>  static final Atom runtimeVisibleAnnotationsAttributeName =<a name="line.288"></a>
+<span class="sourceLineNo">289</span>      Atom.findOrCreateAsciiAtom("RuntimeVisibleAnnotations");<a name="line.289"></a>
+<span class="sourceLineNo">290</span>  /** {@code RuntimeInvisibleAnnotations} */<a name="line.290"></a>
+<span class="sourceLineNo">291</span>  static final Atom runtimeInvisibleAnnotationsAttributeName =<a name="line.291"></a>
+<span class="sourceLineNo">292</span>      Atom.findOrCreateAsciiAtom("RuntimeInvisibleAnnotations");<a name="line.292"></a>
+<span class="sourceLineNo">293</span>  /** {@code RuntimeVisibleParameterAnnotations} */<a name="line.293"></a>
+<span class="sourceLineNo">294</span>  static final Atom runtimeVisibleParameterAnnotationsAttributeName =<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      Atom.findOrCreateAsciiAtom("RuntimeVisibleParameterAnnotations");<a name="line.295"></a>
+<span class="sourceLineNo">296</span>  /** {@code RuntimeInvisibleParameterAnnotations} */<a name="line.296"></a>
+<span class="sourceLineNo">297</span>  static final Atom runtimeInvisibleParameterAnnotationsAttributeName =<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      Atom.findOrCreateAsciiAtom("RuntimeInvisibleParameterAnnotations");<a name="line.298"></a>
+<span class="sourceLineNo">299</span>  /** {@code AnnotationDefault} */<a name="line.299"></a>
+<span class="sourceLineNo">300</span>  static final Atom annotationDefaultAttributeName = Atom.findOrCreateAsciiAtom("AnnotationDefault");<a name="line.300"></a>
+<span class="sourceLineNo">301</span><a name="line.301"></a>
+<span class="sourceLineNo">302</span>  /** Initialize at boot time.<a name="line.302"></a>
+<span class="sourceLineNo">303</span>   */<a name="line.303"></a>
+<span class="sourceLineNo">304</span>  public static void boot() {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>    appCL = null;<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  }<a name="line.306"></a>
+<span class="sourceLineNo">307</span><a name="line.307"></a>
+<span class="sourceLineNo">308</span>  /**<a name="line.308"></a>
+<span class="sourceLineNo">309</span>   * Initialize for boot image writing.<a name="line.309"></a>
+<span class="sourceLineNo">310</span>   *<a name="line.310"></a>
+<span class="sourceLineNo">311</span>   * @param bootstrapClasspath the bootstrap classpath to load the classes from<a name="line.311"></a>
+<span class="sourceLineNo">312</span>   */<a name="line.312"></a>
+<span class="sourceLineNo">313</span>  public static void init(String bootstrapClasspath) {<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    // specify where the VM's core classes and resources live<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    //<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    applicationRepositories = "."; // Carried over.<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    BootstrapClassLoader.boot(bootstrapClasspath);<a name="line.317"></a>
+<span class="sourceLineNo">318</span>  }<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>  public static RVMType defineClassInternal(String className, byte[] classRep, int offset, int length,<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                                            ClassLoader classloader) throws ClassFormatError {<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    return defineClassInternal(className, new ByteArrayInputStream(classRep, offset, length), classloader);<a name="line.322"></a>
+<span class="sourceLineNo">323</span>  }<a name="line.323"></a>
+<span class="sourceLineNo">324</span><a name="line.324"></a>
+<span class="sourceLineNo">325</span>  public static RVMType defineClassInternal(String className, InputStream is, ClassLoader classloader)<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      throws ClassFormatError {<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    TypeReference tRef;<a name="line.327"></a>
+<span class="sourceLineNo">328</span>    if (className == null) {<a name="line.328"></a>
+<span class="sourceLineNo">329</span>      // NUTS: Our caller hasn't bothered to tell us what this class is supposed<a name="line.329"></a>
+<span class="sourceLineNo">330</span>      //       to be called, so we must read the input stream and discover it ourselves<a name="line.330"></a>
+<span class="sourceLineNo">331</span>      //       before we actually can create the RVMClass instance.<a name="line.331"></a>
+<span class="sourceLineNo">332</span>      try {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>        is.mark(is.available());<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        tRef = getClassTypeRef(new DataInputStream(is), classloader);<a name="line.334"></a>
+<span class="sourceLineNo">335</span>        is.reset();<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      } catch (IOException e) {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>        ClassFormatError cfe = new ClassFormatError(e.getMessage());<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        cfe.initCause(e);<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        throw cfe;<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      }<a name="line.340"></a>
+<span class="sourceLineNo">341</span>    } else {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      Atom classDescriptor = Atom.findOrCreateAsciiAtom(className).descriptorFromClassName();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      tRef = TypeReference.findOrCreate(classloader, classDescriptor);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    }<a name="line.344"></a>
 <span class="sourceLineNo">345</span><a name="line.345"></a>
-<span class="sourceLineNo">346</span>  // Shamelessly cloned &amp; owned from ClassFileReader.readClass constructor....<a name="line.346"></a>
-<span class="sourceLineNo">347</span>  private static TypeReference getClassTypeRef(DataInputStream input, ClassLoader cl)<a name="line.347"></a>
-<span class="sourceLineNo">348</span>      throws IOException, ClassFormatError {<a name="line.348"></a>
-<span class="sourceLineNo">349</span>    int magic = input.readInt();<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    if (magic != 0xCAFEBABE) {<a name="line.350"></a>
-<span class="sourceLineNo">351</span>      throw new ClassFormatError("bad magic number " + Integer.toHexString(magic));<a name="line.351"></a>
-<span class="sourceLineNo">352</span>    }<a name="line.352"></a>
-<span class="sourceLineNo">353</span><a name="line.353"></a>
-<span class="sourceLineNo">354</span>    // Drop class file version number on floor. readClass will do the check later.<a name="line.354"></a>
-<span class="sourceLineNo">355</span>    input.readUnsignedShort(); // minor ID<a name="line.355"></a>
-<span class="sourceLineNo">356</span>    input.readUnsignedShort(); // major ID<a name="line.356"></a>
-<span class="sourceLineNo">357</span><a name="line.357"></a>
-<span class="sourceLineNo">358</span>    //<a name="line.358"></a>
-<span class="sourceLineNo">359</span>    // pass 1: read constant pool<a name="line.359"></a>
-<span class="sourceLineNo">360</span>    //<a name="line.360"></a>
-<span class="sourceLineNo">361</span>    int[] constantPool = new int[input.readUnsignedShort()];<a name="line.361"></a>
-<span class="sourceLineNo">362</span>    byte[] tmpTags = new byte[constantPool.length];<a name="line.362"></a>
-<span class="sourceLineNo">363</span><a name="line.363"></a>
-<span class="sourceLineNo">364</span>    // note: slot 0 is unused<a name="line.364"></a>
-<span class="sourceLineNo">365</span>    for (int i = 1; i &lt; constantPool.length; i++) {<a name="line.365"></a>
-<span class="sourceLineNo">366</span>      tmpTags[i] = input.readByte();<a name="line.366"></a>
-<span class="sourceLineNo">367</span>      switch (tmpTags[i]) {<a name="line.367"></a>
-<span class="sourceLineNo">368</span>        case TAG_UTF: {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>          byte[] utf = new byte[input.readUnsignedShort()];<a name="line.369"></a>
-<span class="sourceLineNo">370</span>          input.readFully(utf);<a name="line.370"></a>
-<span class="sourceLineNo">371</span>          constantPool[i] = Atom.findOrCreateUtf8Atom(utf).getId();<a name="line.371"></a>
-<span class="sourceLineNo">372</span>          break;<a name="line.372"></a>
-<span class="sourceLineNo">373</span>        }<a name="line.373"></a>
-<span class="sourceLineNo">374</span><a name="line.374"></a>
-<span class="sourceLineNo">375</span>        case TAG_UNUSED:<a name="line.375"></a>
-<span class="sourceLineNo">376</span>          break;<a name="line.376"></a>
-<span class="sourceLineNo">377</span><a name="line.377"></a>
-<span class="sourceLineNo">378</span>        case TAG_INT:<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        case TAG_FLOAT:<a name="line.379"></a>
-<span class="sourceLineNo">380</span>        case TAG_FIELDREF:<a name="line.380"></a>
-<span class="sourceLineNo">381</span>        case TAG_METHODREF:<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        case TAG_INTERFACE_METHODREF:<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        case TAG_MEMBERNAME_AND_DESCRIPTOR:<a name="line.383"></a>
-<span class="sourceLineNo">384</span>          input.readInt(); // drop on floor<a name="line.384"></a>
-<span class="sourceLineNo">385</span>          break;<a name="line.385"></a>
-<span class="sourceLineNo">386</span><a name="line.386"></a>
-<span class="sourceLineNo">387</span>        case TAG_LONG:<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        case TAG_DOUBLE:<a name="line.388"></a>
-<span class="sourceLineNo">389</span>          i++;<a name="line.389"></a>
-<span class="sourceLineNo">390</span>          input.readLong(); // drop on floor<a name="line.390"></a>
+<span class="sourceLineNo">346</span>    try {<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      if (VM.VerifyAssertions) VM._assert(tRef.isClassType());<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      if (VM.TraceClassLoading &amp;&amp; VM.runningVM) {<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        VM.sysWriteln("loading \"" + tRef.getName() + "\" with " + classloader);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      }<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      RVMClass ans = ClassFileReader.readClass(tRef, new DataInputStream(is));<a name="line.351"></a>
+<span class="sourceLineNo">352</span>      tRef.setType(ans);<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      return ans;<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    } catch (IOException e) {<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      ClassFormatError cfe = new ClassFormatError(e.getMessage());<a name="line.355"></a>
+<span class="sourceLineNo">356</span>      cfe.initCause(e);<a name="line.356"></a>
+<span class="sourceLineNo">357</span>      throw cfe;<a name="line.357"></a>
+<span class="sourceLineNo">358</span>    }<a name="line.358"></a>
+<span class="sourceLineNo">359</span>  }<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>  // Shamelessly cloned &amp; owned from ClassFileReader.readClass constructor....<a name="line.361"></a>
+<span class="sourceLineNo">362</span>  private static TypeReference getClassTypeRef(DataInputStream input, ClassLoader cl)<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      throws IOException, ClassFormatError {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>    int magic = input.readInt();<a name="line.364"></a>
+<span class="sourceLineNo">365</span>    if (magic != 0xCAFEBABE) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>      throw new ClassFormatError("bad magic number " + Integer.toHexString(magic));<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    // Drop class file version number on floor. readClass will do the check later.<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    input.readUnsignedShort(); // minor ID<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    input.readUnsignedShort(); // major ID<a name="line.371"></a>
+<span class="sourceLineNo">372</span><a name="line.372"></a>
+<span class="sourceLineNo">373</span>    //<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    // pass 1: read constant pool<a name="line.374"></a>
+<span class="sourceLineNo">375</span>    //<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    int[] constantPool = new int[input.readUnsignedShort()];<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    byte[] tmpTags = new byte[constantPool.length];<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>    // note: slot 0 is unused<a name="line.379"></a>
+<span class="sourceLineNo">380</span>    for (int i = 1; i &lt; constantPool.length; i++) {<a name="line.380"></a>
+<span class="sourceLineNo">381</span>      tmpTags[i] = input.readByte();<a name="line.381"></a>
+<span class="sourceLineNo">382</span>      switch (tmpTags[i]) {<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        case TAG_UTF: {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>          byte[] utf = new byte[input.readUnsignedShort()];<a name="line.384"></a>
+<span class="sourceLineNo">385</span>          input.readFully(utf);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>          constantPool[i] = Atom.findOrCreateUtf8Atom(utf).getId();<a name="line.386"></a>
+<span class="sourceLineNo">387</span>          break;<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        }<a name="line.388"></a>
+<span class="sourceLineNo">389</span><a name="line.389"></a>
+<span class="sourceLineNo">390</span>        case TAG_UNUSED:<a name="line.390"></a>
 <span class="sourceLineNo">391</span>          break;<a name="line.391"></a>
 <span class="sourceLineNo">392</span><a name="line.392"></a>
-<span class="sourceLineNo">393</span>        case TAG_TYPEREF:<a name="line.393"></a>
-<span class="sourceLineNo">394</span>          constantPool[i] = input.readUnsignedShort();<a name="line.394"></a>
-<span class="sourceLineNo">395</span>          break;<a name="line.395"></a>
-<span class="sourceLineNo">396</span><a name="line.396"></a>
-<span class="sourceLineNo">397</span>        case TAG_STRING:<a name="line.397"></a>
-<span class="sourceLineNo">398</span>          input.readUnsignedShort(); // drop on floor<a name="line.398"></a>
-<span class="sourceLineNo">399</span>          break;<a name="line.399"></a>
-<span class="sourceLineNo">400</span><a name="line.400"></a>
-<span class="sourceLineNo">401</span>        default:<a name="line.401"></a>
-<span class="sourceLineNo">402</span>          throw new ClassFormatError("bad constant pool entry: " + tmpTags[i]);<a name="line.402"></a>
-<span class="sourceLineNo">403</span>      }<a name="line.403"></a>
-<span class="sourceLineNo">404</span>    }<a name="line.404"></a>
-<span class="sourceLineNo">405</span><a name="line.405"></a>
-<span class="sourceLineNo">406</span>    //<a name="line.406"></a>
-<span class="sourceLineNo">407</span>    // pass 2: post-process type constant pool entries<a name="line.407"></a>
-<span class="sourceLineNo">408</span>    // (we must do this in a second pass because of forward references)<a name="line.408"></a>
-<span class="sourceLineNo">409</span>    //<a name="line.409"></a>
-<span class="sourceLineNo">410</span>    for (int i = 1; i &lt; constantPool.length; i++) {<a name="line.410"></a>
-<span class="sourceLineNo">411</span>      switch (tmpTags[i]) {<a name="line.411"></a>
-<span class="sourceLineNo">412</span>        case TAG_LONG:<a name="line.412"></a>
-<span class="sourceLineNo">413</span>        case TAG_DOUBLE:<a name="line.413"></a>
-<span class="sourceLineNo">414</span>          ++i;<a name="line.414"></a>
-<span class="sourceLineNo">415</span>          break;<a name="line.415"></a>
-<span class="sourceLineNo">416</span><a name="line.416"></a>
-<span class="sourceLineNo">417</span>        case TAG_TYPEREF: { // in: utf index<a name="line.417"></a>
-<span class="sourceLineNo">418</span>          Atom typeName = Atom.getAtom(constantPool[constantPool[i]]);<a name="line.418"></a>
-<span class="sourceLineNo">419</span>          constantPool[i] = TypeReference.findOrCreate(cl, typeName.descriptorFromClassName()).getId();<a name="line.419"></a>
-<span class="sourceLineNo">420</span>          break;<a name="line.420"></a>
-<span class="sourceLineNo">421</span>        } // out: type reference id<a name="line.421"></a>
-<span class="sourceLineNo">422</span>      }<a name="line.422"></a>
-<span class="sourceLineNo">423</span>    }<a name="line.423"></a>
-<span class="sourceLineNo">424</span><a name="line.424"></a>
-<span class="sourceLineNo">425</span>    // drop modifiers on floor.<a name="line.425"></a>
-<span class="sourceLineNo">426</span>    input.readUnsignedShort();<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
-<span class="sourceLineNo">428</span>    int myTypeIndex = input.readUnsignedShort();<a name="line.428"></a>
-<span class="sourceLineNo">429</span>    return TypeReference.getTypeRef(constantPool[myTypeIndex]);<a name="line.429"></a>
-<span class="sourceLineNo">430</span>  }<a name="line.430"></a>
+<span class="sourceLineNo">393</span>        case TAG_INT:<a name="line.393"></a>
+<span class="sourceLineNo">394</span>        case TAG_FLOAT:<a name="line.394"></a>
+<span class="sourceLineNo">395</span>        case TAG_FIELDREF:<a name="line.395"></a>
+<span class="sourceLineNo">396</span>        case TAG_METHODREF:<a name="line.396"></a>
+<span class="sourceLineNo">397</span>        case TAG_INTERFACE_METHODREF:<a name="line.397"></a>
+<span class="sourceLineNo">398</span>        case TAG_MEMBERNAME_AND_DESCRIPTOR:<a name="line.398"></a>
+<span class="sourceLineNo">399</span>          input.readInt(); // drop on floor<a name="line.399"></a>
+<span class="sourceLineNo">400</span>          break;<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>        case TAG_LONG:<a name="line.402"></a>
+<span class="sourceLineNo">403</span>        case TAG_DOUBLE:<a name="line.403"></a>
+<span class="sourceLineNo">404</span>          i++;<a name="line.404"></a>
+<span class="sourceLineNo">405</span>          input.readLong(); // drop on floor<a name="line.405"></a>
+<span class="sourceLineNo">406</span>          break;<a name="line.406"></a>
+<span class="sourceLineNo">407</span><a name="line.407"></a>
+<span class="sourceLineNo">408</span>        case TAG_TYPEREF:<a name="line.408"></a>
+<span class="sourceLineNo">409</span>          constantPool[i] = input.readUnsignedShort();<a name="line.409"></a>
+<span class="sourceLineNo">410</span>          break;<a name="line.410"></a>
+<span class="sourceLineNo">411</span><a name="line.411"></a>
+<span class="sourceLineNo">412</span>        case TAG_STRING:<a name="line.412"></a>
+<span class="sourceLineNo">413</span>          input.readUnsignedShort(); // drop on floor<a name="line.413"></a>
+<span class="sourceLineNo">414</span>          break;<a name="line.414"></a>
+<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">416</span>        default:<a name="line.416"></a>
+<span class="sourceLineNo">417</span>          throw new ClassFormatError("bad constant pool entry: " + tmpTags[i]);<a name="line.417"></a>
+<span class="sourceLineNo">418</span>      }<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    }<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>    //<a name="line.421"></a>
+<span class="sourceLineNo">422</span>    // pass 2: post-process type constant pool entries<a name="line.422"></a>
+<span class="sourceLineNo">423</span>    // (we must do this in a second pass because of forward references)<a name="line.423"></a>
+<span class="sourceLineNo">424</span>    //<a name="line.424"></a>
+<span class="sourceLineNo">425</span>    for (int i = 1; i &lt; constantPool.length; i++) {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>      switch (tmpTags[i]) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        case TAG_LONG:<a name="line.427"></a>
+<span class="sourceLineNo">428</span>        case TAG_DOUBLE:<a name="line.428"></a>
+<span class="sourceLineNo">429</span>          ++i;<a name="line.429"></a>
+<span class="sourceLineNo">430</span>          break;<a name="line.430"></a>
 <span class="sourceLineNo">431</span><a name="line.431"></a>
-<span class="sourceLineNo">432</span><a name="line.432"></a>
-<span class="sourceLineNo">433</span>  /**<a name="line.433"></a>
-<span class="sourceLineNo">434</span>   * An unpleasant hack to deal with the problem of replaying work<a name="line.434"></a>
-<span class="sourceLineNo">435</span>   * when using dynamic classloaders (whose identity will vary from<a name="line.435"></a>
-<span class="sourceLineNo">436</span>   * run to run).  When we can't find the classloader that was specified,<a name="line.436"></a>
-<span class="sourceLineNo">437</span>   * see if there are any other (non-matching) classloaders that<a name="line.437"></a>
-<span class="sourceLineNo">438</span>   * have the relevant class loaded.<a name="line.438"></a>
-<span class="sourceLineNo">439</span>   *<a name="line.439"></a>
-<span class="sourceLineNo">440</span>   * @param clazz The class we're after<a name="line.440"></a>
-<span class="sourceLineNo">441</span>   * @return A usable classloader or null<a name="line.441"></a>
-<span class="sourceLineNo">442</span>   */<a name="line.442"></a>
-<span class="sourceLineNo">443</span>  public static ClassLoader findWorkableClassloader(Atom clazz) {<a name="line.443"></a>
-<span class="sourceLineNo">444</span>    for (ClassLoader clx: TypeReference.getCLDict()) {<a name="line.444"></a>
-<span class="sourceLineNo">445</span>      TypeReference tRef = TypeReference.findOrCreate(clx, clazz);<a name="line.445"></a>
-<span class="sourceLineNo">446</span>      RVMClass cls = (RVMClass) tRef.peekType();<a name="line.446"></a>
+<span class="sourceLineNo">432</span>        case TAG_TYPEREF: { // in: utf index<a name="line.432"></a>
+<span class="sourceLineNo">433</span>          Atom typeName = Atom.getAtom(constantPool[constantPool[i]]);<a name="line.433"></a>
+<span class="sourceLineNo">434</span>          constantPool[i] = TypeReference.findOrCreate(cl, typeName.descriptorFromClassName()).getId();<a name="line.434"></a>
+<span class="sourceLineNo">435</span>          break;<a name="line.435"></a>
+<span class="sourceLineNo">436</span>        } // out: type reference id<a name="line.436"></a>
+<span class="sourceLineNo">437</span>      }<a name="line.437"></a>
+<span class="sourceLineNo">438</span>    }<a name="line.438"></a>
+<span class="sourceLineNo">439</span><a name="line.439"></a>
+<span class="sourceLineNo">440</span>    // drop modifiers on floor.<a name="line.440"></a>
+<span class="sourceLineNo">441</span>    input.readUnsignedShort();<a name="line.441"></a>
+<span class="sourceLineNo">442</span><a name="line.442"></a>
+<span class="sourceLineNo">443</span>    int myTypeIndex = input.readUnsignedShort();<a name="line.443"></a>
+<span class="sourceLineNo">444</span>    return TypeReference.getTypeRef(constantPool[myTypeIndex]);<a name="line.444"></a>
+<span class="sourceLineNo">445</span>  }<a name="line.445"></a>
+<span class="sourceLineNo">446</span><a name="line.446"></a>
 <span class="sourceLineNo">447</span><a name="line.447"></a>
-<span class="sourceLineNo">448</span>      if (cls != null)<a name="line.448"></a>
-<span class="sourceLineNo">449</span>        return clx;<a name="line.449"></a>
-<span class="sourceLineNo">450</span>      else {<a name="line.450"></a>
-<span class="sourceLineNo">451</span>        try {<a name="line.451"></a>
-<span class="sourceLineNo">452</span>          cls = tRef.resolve().asClass();<a name="line.452"></a>
-<span class="sourceLineNo">453</span>          cls.resolve();<a name="line.453"></a>
-<span class="sourceLineNo">454</span>          cls.instantiate();<a name="line.454"></a>
-<span class="sourceLineNo">455</span>          cls.initialize();<a name="line.455"></a>
-<span class="sourceLineNo">456</span>          return clx;<a name="line.456"></a>
-<span class="sourceLineNo">457</span>        } catch (NoClassDefFoundError cnf) {<a name="line.457"></a>
-<span class="sourceLineNo">458</span>          /* silently catch this exception and try another class loader */<a name="line.458"></a>
-<span class="sourceLineNo">459</span>        }<a name="line.459"></a>
-<span class="sourceLineNo">460</span>      }<a name="line.460"></a>
-<span class="sourceLineNo">461</span>    }<a name="line.461"></a>
-<span class="sourceLineNo">462</span>    return null;<a name="line.462"></a>
-<span class="sourceLineNo">463</span>  }<a name="line.463"></a>
-<span class="sourceLineNo">464</span>}<a name="line.464"></a>
+<span class="sourceLineNo">448</span>  /**<a name="line.448"></a>
+<span class="sourceLineNo">449</span>   * An unpleasant hack to deal with the problem of replaying work<a name="line.449"></a>
+<span class="sourceLineNo">450</span>   * when using dynamic classloaders (whose identity will vary from<a name="line.450"></a>
+<span class="sourceLineNo">451</span>   * run to run).  When we can't find the classloader that was specified,<a name="line.451"></a>
+<span class="sourceLineNo">452</span>   * see if there are any other (non-matching) classloaders that<a name="line.452"></a>
+<span class="sourceLineNo">453</span>   * have the relevant class loaded.<a name="line.453"></a>
+<span class="sourceLineNo">454</span>   *<a name="line.454"></a>
+<span class="sourceLineNo">455</span>   * @param clazz The class we're after<a name="line.455"></a>
+<span class="sourceLineNo">456</span>   * @return A usable classloader or null<a name="line.456"></a>
+<span class="sourceLineNo">457</span>   */<a name="line.457"></a>
+<span class="sourceLineNo">458</span>  public static ClassLoader findWorkableClassloader(Atom clazz) {<a name="line.458"></a>
+<span class="sourceLineNo">459</span>    for (ClassLoader clx: TypeReference.getCLDict()) {<a name="line.459"></a>
+<span class="sourceLineNo">460</span>      TypeReference tRef = TypeReference.findOrCreate(clx, clazz);<a name="line.460"></a>
+<span class="sourceLineNo">461</span>      RVMClass cls = (RVMClass) tRef.peekType();<a name="line.461"></a>
+<span class="sourceLineNo">462</span><a name="line.462"></a>
+<span class="sourceLineNo">463</span>      if (cls != null)<a name="line.463"></a>
+<span class="sourceLineNo">464</span>        return clx;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>      else {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>        try {<a name="line.466"></a>
+<span class="sourceLineNo">467</span>          cls = tRef.resolve().asClass();<a name="line.467"></a>
+<span class="sourceLineNo">468</span>          cls.resolve();<a name="line.468"></a>
+<span class="sourceLineNo">469</span>          cls.instantiate();<a name="line.469"></a>
+<span class="sourceLineNo">470</span>          cls.initialize();<a name="line.470"></a>
+<span class="sourceLineNo">471</span>          return clx;<a name="line.471"></a>
+<span class="sourceLineNo">472</span>        } catch (NoClassDefFoundError cnf) {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>          /* silently catch this exception and try another class loader */<a name="line.473"></a>
+<span class="sourceLineNo">474</span>        }<a name="line.474"></a>
+<span class="sourceLineNo">475</span>      }<a name="line.475"></a>
+<span class="sourceLineNo">476</span>    }<a name="line.476"></a>
+<span class="sourceLineNo">477</span>    return null;<a name="line.477"></a>
+<span class="sourceLineNo">478</span>  }<a name="line.478"></a>
+<span class="sourceLineNo">479</span>}<a name="line.479"></a>
 
 
 

@@ -33,7 +33,7 @@
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>/**<a name="line.26"></a>
 <span class="sourceLineNo">027</span> * This class implements unsynchronized (local) per-collector-thread elements of a<a name="line.27"></a>
-<span class="sourceLineNo">028</span> * sliding mark-compact collector.&lt;p&gt;<a name="line.28"></a>
+<span class="sourceLineNo">028</span> * sliding mark-compact collector.<a name="line.28"></a>
 <span class="sourceLineNo">029</span> *&lt;p&gt;<a name="line.29"></a>
 <span class="sourceLineNo">030</span> * Specifically, this class provides the methods that<a name="line.30"></a>
 <span class="sourceLineNo">031</span> * &lt;ul&gt;<a name="line.31"></a>
@@ -115,7 +115,7 @@
 <span class="sourceLineNo">107</span>    /**<a name="line.107"></a>
 <span class="sourceLineNo">108</span>     * @param name The name of the region - for debugging messages.<a name="line.108"></a>
 <span class="sourceLineNo">109</span>     */<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    public RegionCursor(String name) {<a name="line.110"></a>
+<span class="sourceLineNo">110</span>    RegionCursor(String name) {<a name="line.110"></a>
 <span class="sourceLineNo">111</span>      this.name = name;<a name="line.111"></a>
 <span class="sourceLineNo">112</span>    }<a name="line.112"></a>
 <span class="sourceLineNo">113</span><a name="line.113"></a>
@@ -241,7 +241,7 @@
 <span class="sourceLineNo">233</span>   */<a name="line.233"></a>
 <span class="sourceLineNo">234</span>  @Uninterruptible<a name="line.234"></a>
 <span class="sourceLineNo">235</span>  private static final class FromCursor extends RegionCursor {<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    public FromCursor() {<a name="line.236"></a>
+<span class="sourceLineNo">236</span>    FromCursor() {<a name="line.236"></a>
 <span class="sourceLineNo">237</span>      super("from");<a name="line.237"></a>
 <span class="sourceLineNo">238</span>    }<a name="line.238"></a>
 <span class="sourceLineNo">239</span><a name="line.239"></a>
@@ -272,286 +272,288 @@
 <span class="sourceLineNo">264</span>    }<a name="line.264"></a>
 <span class="sourceLineNo">265</span><a name="line.265"></a>
 <span class="sourceLineNo">266</span>    /**<a name="line.266"></a>
-<span class="sourceLineNo">267</span>     * Advance the cursor to the end of the given object.<a name="line.267"></a>
-<span class="sourceLineNo">268</span>     */<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    @Inline<a name="line.269"></a>
-<span class="sourceLineNo">270</span>    void advanceToObjectEnd(ObjectReference current) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>      cursor = VM.objectModel.getObjectEndAddress(current);<a name="line.271"></a>
-<span class="sourceLineNo">272</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
-<span class="sourceLineNo">274</span><a name="line.274"></a>
-<span class="sourceLineNo">275</span>    /**<a name="line.275"></a>
-<span class="sourceLineNo">276</span>     * Advance the cursor either to the next region in the list,<a name="line.276"></a>
-<span class="sourceLineNo">277</span>     * or to a new region allocated from the global list.<a name="line.277"></a>
-<span class="sourceLineNo">278</span>     * @param space<a name="line.278"></a>
-<span class="sourceLineNo">279</span>     */<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    void advanceToNextForwardableRegion(MarkCompactSpace space) {<a name="line.280"></a>
-<span class="sourceLineNo">281</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(get().EQ(getLimit()));<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      Address nextRegion = BumpPointer.getNextRegion(region);<a name="line.282"></a>
-<span class="sourceLineNo">283</span>      if (nextRegion.isZero()) {<a name="line.283"></a>
-<span class="sourceLineNo">284</span>        nextRegion = space.getNextRegion();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>        if (nextRegion.isZero()) {<a name="line.285"></a>
-<span class="sourceLineNo">286</span>          region = Address.zero();<a name="line.286"></a>
-<span class="sourceLineNo">287</span>          return;<a name="line.287"></a>
-<span class="sourceLineNo">288</span>        }<a name="line.288"></a>
-<span class="sourceLineNo">289</span>        MarkCompactLocal.setNextRegion(region,nextRegion);<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        MarkCompactLocal.clearNextRegion(nextRegion);<a name="line.290"></a>
-<span class="sourceLineNo">291</span>      }<a name="line.291"></a>
-<span class="sourceLineNo">292</span>      init(nextRegion);<a name="line.292"></a>
-<span class="sourceLineNo">293</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.293"></a>
-<span class="sourceLineNo">294</span>    }<a name="line.294"></a>
-<span class="sourceLineNo">295</span><a name="line.295"></a>
-<span class="sourceLineNo">296</span>    /**<a name="line.296"></a>
-<span class="sourceLineNo">297</span>     * Override the superclass with an additional assertion - we only advance<a name="line.297"></a>
-<span class="sourceLineNo">298</span>     * when we have read to the end, and the cursor must point *precisely*<a name="line.298"></a>
-<span class="sourceLineNo">299</span>     * to the last allocated byte in the region.<a name="line.299"></a>
-<span class="sourceLineNo">300</span>     */<a name="line.300"></a>
-<span class="sourceLineNo">301</span>    @Override<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    void advanceToNextRegion() {<a name="line.302"></a>
-<span class="sourceLineNo">303</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(get().EQ(getLimit()));<a name="line.303"></a>
-<span class="sourceLineNo">304</span>      super.advanceToNextRegion();<a name="line.304"></a>
-<span class="sourceLineNo">305</span>    }<a name="line.305"></a>
-<span class="sourceLineNo">306</span><a name="line.306"></a>
-<span class="sourceLineNo">307</span>    /**<a name="line.307"></a>
-<span class="sourceLineNo">308</span>     * @return {@code true} if there are more objects in this region<a name="line.308"></a>
-<span class="sourceLineNo">309</span>     */<a name="line.309"></a>
-<span class="sourceLineNo">310</span>    boolean hasMoreObjects() {<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      return cursor.LT(limit);<a name="line.311"></a>
-<span class="sourceLineNo">312</span>    }<a name="line.312"></a>
-<span class="sourceLineNo">313</span>  }<a name="line.313"></a>
-<span class="sourceLineNo">314</span><a name="line.314"></a>
-<span class="sourceLineNo">315</span>  /**<a name="line.315"></a>
-<span class="sourceLineNo">316</span>   * Subclass for the read-only cursor that follows the 'from' cursor,<a name="line.316"></a>
-<span class="sourceLineNo">317</span>   * writing or calculating the position of copied objects<a name="line.317"></a>
-<span class="sourceLineNo">318</span>   */<a name="line.318"></a>
-<span class="sourceLineNo">319</span>  @Uninterruptible<a name="line.319"></a>
-<span class="sourceLineNo">320</span>  private static final class ToCursor extends RegionCursor {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>    public ToCursor() {<a name="line.321"></a>
-<span class="sourceLineNo">322</span>      super("to");<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    }<a name="line.323"></a>
-<span class="sourceLineNo">324</span><a name="line.324"></a>
-<span class="sourceLineNo">325</span>    /**<a name="line.325"></a>
-<span class="sourceLineNo">326</span>     * Initialize the cursor to a given region.  The limit is the limit of<a name="line.326"></a>
-<span class="sourceLineNo">327</span>     * available space in the region.<a name="line.327"></a>
-<span class="sourceLineNo">328</span>     */<a name="line.328"></a>
-<span class="sourceLineNo">329</span>    @Override<a name="line.329"></a>
-<span class="sourceLineNo">330</span>    void init(Address region) {<a name="line.330"></a>
-<span class="sourceLineNo">331</span>      if (VM.VERIFY_ASSERTIONS) BumpPointer.checkRegionMetadata(region);<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      this.region = region;<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      this.cursor = MarkCompactLocal.getDataStart(region);<a name="line.333"></a>
-<span class="sourceLineNo">334</span>      this.limit = MarkCompactLocal.getRegionLimit(region);<a name="line.334"></a>
-<span class="sourceLineNo">335</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.335"></a>
-<span class="sourceLineNo">336</span>    }<a name="line.336"></a>
-<span class="sourceLineNo">337</span><a name="line.337"></a>
-<span class="sourceLineNo">338</span>    /**<a name="line.338"></a>
-<span class="sourceLineNo">339</span>     * Update the metadata of the current region with the current value<a name="line.339"></a>
-<span class="sourceLineNo">340</span>     * of the cursor.  Zero the region from here to the end.<a name="line.340"></a>
-<span class="sourceLineNo">341</span>     */<a name="line.341"></a>
-<span class="sourceLineNo">342</span>    void finish() {<a name="line.342"></a>
-<span class="sourceLineNo">343</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      Extent zeroBytes = limit.diff(cursor).toWord().toExtent();<a name="line.344"></a>
-<span class="sourceLineNo">345</span>      VM.memory.zero(false, cursor, zeroBytes);<a name="line.345"></a>
-<span class="sourceLineNo">346</span>      MarkCompactLocal.setDataEnd(region, cursor);<a name="line.346"></a>
-<span class="sourceLineNo">347</span>      MarkCompactLocal.checkRegionMetadata(region);<a name="line.347"></a>
-<span class="sourceLineNo">348</span>    }<a name="line.348"></a>
-<span class="sourceLineNo">349</span><a name="line.349"></a>
-<span class="sourceLineNo">350</span>    /**<a name="line.350"></a>
-<span class="sourceLineNo">351</span>     * Terminate the list of regions here.<a name="line.351"></a>
-<span class="sourceLineNo">352</span>     * @return The address of the (old) next region in the list.<a name="line.352"></a>
-<span class="sourceLineNo">353</span>     */<a name="line.353"></a>
-<span class="sourceLineNo">354</span>    Address snip() {<a name="line.354"></a>
-<span class="sourceLineNo">355</span>      Address nextRegion = BumpPointer.getNextRegion(region);<a name="line.355"></a>
-<span class="sourceLineNo">356</span>      BumpPointer.clearNextRegion(region);<a name="line.356"></a>
-<span class="sourceLineNo">357</span>      finish();<a name="line.357"></a>
-<span class="sourceLineNo">358</span>      return nextRegion;<a name="line.358"></a>
-<span class="sourceLineNo">359</span>    }<a name="line.359"></a>
-<span class="sourceLineNo">360</span><a name="line.360"></a>
-<span class="sourceLineNo">361</span>    /**<a name="line.361"></a>
-<span class="sourceLineNo">362</span>     * Copy an object to an address within this cursor's region.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>     * @param from The source object<a name="line.363"></a>
-<span class="sourceLineNo">364</span>     * @param to The target object<a name="line.364"></a>
-<span class="sourceLineNo">365</span>     */<a name="line.365"></a>
-<span class="sourceLineNo">366</span>    @Inline<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    void copy(ObjectReference from, ObjectReference to) {<a name="line.367"></a>
-<span class="sourceLineNo">368</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        VM.assertions._assert(MarkCompactSpace.getForwardingPointer(from).toAddress().EQ(to.toAddress()));<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        VM.assertions._assert(cursor.GT(region) &amp;&amp; cursor.LE(limit));<a name="line.370"></a>
-<span class="sourceLineNo">371</span>      }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>      Address savedCursor = Address.zero();<a name="line.372"></a>
-<span class="sourceLineNo">373</span>      if (VM.VERIFY_ASSERTIONS) savedCursor = cursor;<a name="line.373"></a>
-<span class="sourceLineNo">374</span>      cursor = VM.objectModel.copyTo(from, to, cursor);<a name="line.374"></a>
-<span class="sourceLineNo">375</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>        if (cursor.LT(BumpPointer.getDataStart(region)) || cursor.GT(limit)) {<a name="line.376"></a>
-<span class="sourceLineNo">377</span>          Log.write("Copy of "); Log.write(from);<a name="line.377"></a>
-<span class="sourceLineNo">378</span>          Log.write(" to "); Log.write(to);<a name="line.378"></a>
-<span class="sourceLineNo">379</span>          Log.write(" puts cursor at "); Log.write(cursor);<a name="line.379"></a>
-<span class="sourceLineNo">380</span>          Log.write(" (was: "); Log.write(savedCursor);<a name="line.380"></a>
-<span class="sourceLineNo">381</span>          Log.writeln(")");<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        }<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        VM.assertions._assert(cursor.GT(region) &amp;&amp; cursor.LE(limit));<a name="line.383"></a>
-<span class="sourceLineNo">384</span>      }<a name="line.384"></a>
-<span class="sourceLineNo">385</span>      MarkCompactSpace.setForwardingPointer(to, ObjectReference.nullReference());<a name="line.385"></a>
-<span class="sourceLineNo">386</span>      if (VM.VERIFY_ASSERTIONS)<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        VM.assertions._assert(VM.objectModel.getObjectEndAddress(to).LE(limit));<a name="line.387"></a>
-<span class="sourceLineNo">388</span>    }<a name="line.388"></a>
-<span class="sourceLineNo">389</span><a name="line.389"></a>
-<span class="sourceLineNo">390</span>    /**<a name="line.390"></a>
-<span class="sourceLineNo">391</span>     * Move to the next region, updating the metadata with the current 'write' state.<a name="line.391"></a>
-<span class="sourceLineNo">392</span>     */<a name="line.392"></a>
-<span class="sourceLineNo">393</span>    void finishAndAdvanceToNextRegion() {<a name="line.393"></a>
-<span class="sourceLineNo">394</span>      finish();<a name="line.394"></a>
-<span class="sourceLineNo">395</span>      advanceToNextRegion();<a name="line.395"></a>
-<span class="sourceLineNo">396</span>    }<a name="line.396"></a>
-<span class="sourceLineNo">397</span><a name="line.397"></a>
-<span class="sourceLineNo">398</span>    /**<a name="line.398"></a>
-<span class="sourceLineNo">399</span>     * Move to the next region, in read-only mode.  Add the assertion of validity,<a name="line.399"></a>
-<span class="sourceLineNo">400</span>     * since we shouldn't be able to fall off the end of the list while writing.<a name="line.400"></a>
-<span class="sourceLineNo">401</span>     */<a name="line.401"></a>
-<span class="sourceLineNo">402</span>    @Override<a name="line.402"></a>
-<span class="sourceLineNo">403</span>    void advanceToNextRegion() {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>      super.advanceToNextRegion();<a name="line.404"></a>
-<span class="sourceLineNo">405</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(isValid());<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    }<a name="line.406"></a>
-<span class="sourceLineNo">407</span>  }<a name="line.407"></a>
-<span class="sourceLineNo">408</span><a name="line.408"></a>
-<span class="sourceLineNo">409</span>  /* ***************************************************************************************** */<a name="line.409"></a>
+<span class="sourceLineNo">267</span>     * Advances the cursor to the end of the given object.<a name="line.267"></a>
+<span class="sourceLineNo">268</span>     *<a name="line.268"></a>
+<span class="sourceLineNo">269</span>     * @param current the object's reference<a name="line.269"></a>
+<span class="sourceLineNo">270</span>     */<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    @Inline<a name="line.271"></a>
+<span class="sourceLineNo">272</span>    void advanceToObjectEnd(ObjectReference current) {<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      cursor = VM.objectModel.getObjectEndAddress(current);<a name="line.273"></a>
+<span class="sourceLineNo">274</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    }<a name="line.275"></a>
+<span class="sourceLineNo">276</span><a name="line.276"></a>
+<span class="sourceLineNo">277</span>    /**<a name="line.277"></a>
+<span class="sourceLineNo">278</span>     * Advance the cursor either to the next region in the list,<a name="line.278"></a>
+<span class="sourceLineNo">279</span>     * or to a new region allocated from the global list.<a name="line.279"></a>
+<span class="sourceLineNo">280</span>     * @param space the space that acts as the global list<a name="line.280"></a>
+<span class="sourceLineNo">281</span>     */<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    void advanceToNextForwardableRegion(MarkCompactSpace space) {<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(get().EQ(getLimit()));<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      Address nextRegion = BumpPointer.getNextRegion(region);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      if (nextRegion.isZero()) {<a name="line.285"></a>
+<span class="sourceLineNo">286</span>        nextRegion = space.getNextRegion();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>        if (nextRegion.isZero()) {<a name="line.287"></a>
+<span class="sourceLineNo">288</span>          region = Address.zero();<a name="line.288"></a>
+<span class="sourceLineNo">289</span>          return;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>        }<a name="line.290"></a>
+<span class="sourceLineNo">291</span>        MarkCompactLocal.setNextRegion(region,nextRegion);<a name="line.291"></a>
+<span class="sourceLineNo">292</span>        MarkCompactLocal.clearNextRegion(nextRegion);<a name="line.292"></a>
+<span class="sourceLineNo">293</span>      }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      init(nextRegion);<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">298</span>    /**<a name="line.298"></a>
+<span class="sourceLineNo">299</span>     * Override the superclass with an additional assertion - we only advance<a name="line.299"></a>
+<span class="sourceLineNo">300</span>     * when we have read to the end, and the cursor must point *precisely*<a name="line.300"></a>
+<span class="sourceLineNo">301</span>     * to the last allocated byte in the region.<a name="line.301"></a>
+<span class="sourceLineNo">302</span>     */<a name="line.302"></a>
+<span class="sourceLineNo">303</span>    @Override<a name="line.303"></a>
+<span class="sourceLineNo">304</span>    void advanceToNextRegion() {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(get().EQ(getLimit()));<a name="line.305"></a>
+<span class="sourceLineNo">306</span>      super.advanceToNextRegion();<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>    /**<a name="line.309"></a>
+<span class="sourceLineNo">310</span>     * @return {@code true} if there are more objects in this region<a name="line.310"></a>
+<span class="sourceLineNo">311</span>     */<a name="line.311"></a>
+<span class="sourceLineNo">312</span>    boolean hasMoreObjects() {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>      return cursor.LT(limit);<a name="line.313"></a>
+<span class="sourceLineNo">314</span>    }<a name="line.314"></a>
+<span class="sourceLineNo">315</span>  }<a name="line.315"></a>
+<span class="sourceLineNo">316</span><a name="line.316"></a>
+<span class="sourceLineNo">317</span>  /**<a name="line.317"></a>
+<span class="sourceLineNo">318</span>   * Subclass for the read-only cursor that follows the 'from' cursor,<a name="line.318"></a>
+<span class="sourceLineNo">319</span>   * writing or calculating the position of copied objects<a name="line.319"></a>
+<span class="sourceLineNo">320</span>   */<a name="line.320"></a>
+<span class="sourceLineNo">321</span>  @Uninterruptible<a name="line.321"></a>
+<span class="sourceLineNo">322</span>  private static final class ToCursor extends RegionCursor {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>    ToCursor() {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>      super("to");<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    }<a name="line.325"></a>
+<span class="sourceLineNo">326</span><a name="line.326"></a>
+<span class="sourceLineNo">327</span>    /**<a name="line.327"></a>
+<span class="sourceLineNo">328</span>     * Initialize the cursor to a given region.  The limit is the limit of<a name="line.328"></a>
+<span class="sourceLineNo">329</span>     * available space in the region.<a name="line.329"></a>
+<span class="sourceLineNo">330</span>     */<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    @Override<a name="line.331"></a>
+<span class="sourceLineNo">332</span>    void init(Address region) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>      if (VM.VERIFY_ASSERTIONS) BumpPointer.checkRegionMetadata(region);<a name="line.333"></a>
+<span class="sourceLineNo">334</span>      this.region = region;<a name="line.334"></a>
+<span class="sourceLineNo">335</span>      this.cursor = MarkCompactLocal.getDataStart(region);<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      this.limit = MarkCompactLocal.getRegionLimit(region);<a name="line.336"></a>
+<span class="sourceLineNo">337</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.337"></a>
+<span class="sourceLineNo">338</span>    }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>    /**<a name="line.340"></a>
+<span class="sourceLineNo">341</span>     * Update the metadata of the current region with the current value<a name="line.341"></a>
+<span class="sourceLineNo">342</span>     * of the cursor.  Zero the region from here to the end.<a name="line.342"></a>
+<span class="sourceLineNo">343</span>     */<a name="line.343"></a>
+<span class="sourceLineNo">344</span>    void finish() {<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      if (VM.VERIFY_ASSERTIONS) assertCursorInBounds();<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      Extent zeroBytes = limit.diff(cursor).toWord().toExtent();<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      VM.memory.zero(false, cursor, zeroBytes);<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      MarkCompactLocal.setDataEnd(region, cursor);<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      MarkCompactLocal.checkRegionMetadata(region);<a name="line.349"></a>
+<span class="sourceLineNo">350</span>    }<a name="line.350"></a>
+<span class="sourceLineNo">351</span><a name="line.351"></a>
+<span class="sourceLineNo">352</span>    /**<a name="line.352"></a>
+<span class="sourceLineNo">353</span>     * Terminate the list of regions here.<a name="line.353"></a>
+<span class="sourceLineNo">354</span>     * @return The address of the (old) next region in the list.<a name="line.354"></a>
+<span class="sourceLineNo">355</span>     */<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    Address snip() {<a name="line.356"></a>
+<span class="sourceLineNo">357</span>      Address nextRegion = BumpPointer.getNextRegion(region);<a name="line.357"></a>
+<span class="sourceLineNo">358</span>      BumpPointer.clearNextRegion(region);<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      finish();<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      return nextRegion;<a name="line.360"></a>
+<span class="sourceLineNo">361</span>    }<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>    /**<a name="line.363"></a>
+<span class="sourceLineNo">364</span>     * Copy an object to an address within this cursor's region.<a name="line.364"></a>
+<span class="sourceLineNo">365</span>     * @param from The source object<a name="line.365"></a>
+<span class="sourceLineNo">366</span>     * @param to The target object<a name="line.366"></a>
+<span class="sourceLineNo">367</span>     */<a name="line.367"></a>
+<span class="sourceLineNo">368</span>    @Inline<a name="line.368"></a>
+<span class="sourceLineNo">369</span>    void copy(ObjectReference from, ObjectReference to) {<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>        VM.assertions._assert(MarkCompactSpace.getForwardingPointer(from).toAddress().EQ(to.toAddress()));<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        VM.assertions._assert(cursor.GT(region) &amp;&amp; cursor.LE(limit));<a name="line.372"></a>
+<span class="sourceLineNo">373</span>      }<a name="line.373"></a>
+<span class="sourceLineNo">374</span>      Address savedCursor = Address.zero();<a name="line.374"></a>
+<span class="sourceLineNo">375</span>      if (VM.VERIFY_ASSERTIONS) savedCursor = cursor;<a name="line.375"></a>
+<span class="sourceLineNo">376</span>      cursor = VM.objectModel.copyTo(from, to, cursor);<a name="line.376"></a>
+<span class="sourceLineNo">377</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        if (cursor.LT(BumpPointer.getDataStart(region)) || cursor.GT(limit)) {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>          Log.write("Copy of "); Log.write(from);<a name="line.379"></a>
+<span class="sourceLineNo">380</span>          Log.write(" to "); Log.write(to);<a name="line.380"></a>
+<span class="sourceLineNo">381</span>          Log.write(" puts cursor at "); Log.write(cursor);<a name="line.381"></a>
+<span class="sourceLineNo">382</span>          Log.write(" (was: "); Log.write(savedCursor);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>          Log.writeln(")");<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        }<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        VM.assertions._assert(cursor.GT(region) &amp;&amp; cursor.LE(limit));<a name="line.385"></a>
+<span class="sourceLineNo">386</span>      }<a name="line.386"></a>
+<span class="sourceLineNo">387</span>      MarkCompactSpace.setForwardingPointer(to, ObjectReference.nullReference());<a name="line.387"></a>
+<span class="sourceLineNo">388</span>      if (VM.VERIFY_ASSERTIONS)<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        VM.assertions._assert(VM.objectModel.getObjectEndAddress(to).LE(limit));<a name="line.389"></a>
+<span class="sourceLineNo">390</span>    }<a name="line.390"></a>
+<span class="sourceLineNo">391</span><a name="line.391"></a>
+<span class="sourceLineNo">392</span>    /**<a name="line.392"></a>
+<span class="sourceLineNo">393</span>     * Move to the next region, updating the metadata with the current 'write' state.<a name="line.393"></a>
+<span class="sourceLineNo">394</span>     */<a name="line.394"></a>
+<span class="sourceLineNo">395</span>    void finishAndAdvanceToNextRegion() {<a name="line.395"></a>
+<span class="sourceLineNo">396</span>      finish();<a name="line.396"></a>
+<span class="sourceLineNo">397</span>      advanceToNextRegion();<a name="line.397"></a>
+<span class="sourceLineNo">398</span>    }<a name="line.398"></a>
+<span class="sourceLineNo">399</span><a name="line.399"></a>
+<span class="sourceLineNo">400</span>    /**<a name="line.400"></a>
+<span class="sourceLineNo">401</span>     * Move to the next region, in read-only mode.  Add the assertion of validity,<a name="line.401"></a>
+<span class="sourceLineNo">402</span>     * since we shouldn't be able to fall off the end of the list while writing.<a name="line.402"></a>
+<span class="sourceLineNo">403</span>     */<a name="line.403"></a>
+<span class="sourceLineNo">404</span>    @Override<a name="line.404"></a>
+<span class="sourceLineNo">405</span>    void advanceToNextRegion() {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>      super.advanceToNextRegion();<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(isValid());<a name="line.407"></a>
+<span class="sourceLineNo">408</span>    }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>  }<a name="line.409"></a>
 <span class="sourceLineNo">410</span><a name="line.410"></a>
-<span class="sourceLineNo">411</span>  /**<a name="line.411"></a>
-<span class="sourceLineNo">412</span>   * Perform a linear scan through the objects allocated by this bump pointer,<a name="line.412"></a>
-<span class="sourceLineNo">413</span>   * calculating where each live object will be post collection.&lt;p&gt;<a name="line.413"></a>
-<span class="sourceLineNo">414</span>   *<a name="line.414"></a>
-<span class="sourceLineNo">415</span>   * We maintain two cursors, {@code fromCursor} and {@code toCursor}, and simulate<a name="line.415"></a>
-<span class="sourceLineNo">416</span>   * copying live objects from the former to the latter.  Initially, the cursors<a name="line.416"></a>
-<span class="sourceLineNo">417</span>   * point to the first region in this collector's local list, and increment in<a name="line.417"></a>
-<span class="sourceLineNo">418</span>   * lockstep until the first dead object is encountered.  After that, the to cursor<a name="line.418"></a>
-<span class="sourceLineNo">419</span>   * trails the from cursor.&lt;p&gt;<a name="line.419"></a>
-<span class="sourceLineNo">420</span>   *<a name="line.420"></a>
-<span class="sourceLineNo">421</span>   * The outer loop advances the 'from' pointer<a name="line.421"></a>
-<span class="sourceLineNo">422</span>   */<a name="line.422"></a>
-<span class="sourceLineNo">423</span>  public void calculateForwardingPointers() {<a name="line.423"></a>
-<span class="sourceLineNo">424</span>    if (regions.isZero()) {<a name="line.424"></a>
-<span class="sourceLineNo">425</span>      regions = space.getNextRegion();<a name="line.425"></a>
-<span class="sourceLineNo">426</span>    }<a name="line.426"></a>
-<span class="sourceLineNo">427</span><a name="line.427"></a>
-<span class="sourceLineNo">428</span>    if (regions.isZero())<a name="line.428"></a>
-<span class="sourceLineNo">429</span>      return;<a name="line.429"></a>
-<span class="sourceLineNo">430</span><a name="line.430"></a>
-<span class="sourceLineNo">431</span>    fromCursor.init(regions);<a name="line.431"></a>
-<span class="sourceLineNo">432</span>    toCursor.init(regions);<a name="line.432"></a>
-<span class="sourceLineNo">433</span><a name="line.433"></a>
-<span class="sourceLineNo">434</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(true);<a name="line.434"></a>
+<span class="sourceLineNo">411</span>  /* ***************************************************************************************** */<a name="line.411"></a>
+<span class="sourceLineNo">412</span><a name="line.412"></a>
+<span class="sourceLineNo">413</span>  /**<a name="line.413"></a>
+<span class="sourceLineNo">414</span>   * Perform a linear scan through the objects allocated by this bump pointer,<a name="line.414"></a>
+<span class="sourceLineNo">415</span>   * calculating where each live object will be post collection.&lt;p&gt;<a name="line.415"></a>
+<span class="sourceLineNo">416</span>   *<a name="line.416"></a>
+<span class="sourceLineNo">417</span>   * We maintain two cursors, {@code fromCursor} and {@code toCursor}, and simulate<a name="line.417"></a>
+<span class="sourceLineNo">418</span>   * copying live objects from the former to the latter.  Initially, the cursors<a name="line.418"></a>
+<span class="sourceLineNo">419</span>   * point to the first region in this collector's local list, and increment in<a name="line.419"></a>
+<span class="sourceLineNo">420</span>   * lockstep until the first dead object is encountered.  After that, the to cursor<a name="line.420"></a>
+<span class="sourceLineNo">421</span>   * trails the from cursor.&lt;p&gt;<a name="line.421"></a>
+<span class="sourceLineNo">422</span>   *<a name="line.422"></a>
+<span class="sourceLineNo">423</span>   * The outer loop advances the 'from' pointer<a name="line.423"></a>
+<span class="sourceLineNo">424</span>   */<a name="line.424"></a>
+<span class="sourceLineNo">425</span>  public void calculateForwardingPointers() {<a name="line.425"></a>
+<span class="sourceLineNo">426</span>    if (regions.isZero()) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>      regions = space.getNextRegion();<a name="line.427"></a>
+<span class="sourceLineNo">428</span>    }<a name="line.428"></a>
+<span class="sourceLineNo">429</span><a name="line.429"></a>
+<span class="sourceLineNo">430</span>    if (regions.isZero())<a name="line.430"></a>
+<span class="sourceLineNo">431</span>      return;<a name="line.431"></a>
+<span class="sourceLineNo">432</span><a name="line.432"></a>
+<span class="sourceLineNo">433</span>    fromCursor.init(regions);<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    toCursor.init(regions);<a name="line.434"></a>
 <span class="sourceLineNo">435</span><a name="line.435"></a>
-<span class="sourceLineNo">436</span>    /* Loop through active regions or until the last region */<a name="line.436"></a>
-<span class="sourceLineNo">437</span>    while (fromCursor.isValid()) {<a name="line.437"></a>
-<span class="sourceLineNo">438</span>      if (VERBOSE) {<a name="line.438"></a>
-<span class="sourceLineNo">439</span>        fromCursor.print();<a name="line.439"></a>
-<span class="sourceLineNo">440</span>        toCursor.print();<a name="line.440"></a>
-<span class="sourceLineNo">441</span>      }<a name="line.441"></a>
-<span class="sourceLineNo">442</span><a name="line.442"></a>
-<span class="sourceLineNo">443</span>      /* Loop through the objects in the current 'from' region */<a name="line.443"></a>
-<span class="sourceLineNo">444</span>      while (fromCursor.hasMoreObjects()) {<a name="line.444"></a>
-<span class="sourceLineNo">445</span>        ObjectReference current = fromCursor.advanceToObject();<a name="line.445"></a>
-<span class="sourceLineNo">446</span>        fromCursor.advanceToObjectEnd(current);<a name="line.446"></a>
-<span class="sourceLineNo">447</span><a name="line.447"></a>
-<span class="sourceLineNo">448</span>        if (MarkCompactSpace.toBeCompacted(current)) {<a name="line.448"></a>
-<span class="sourceLineNo">449</span>          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(MarkCompactSpace.getForwardingPointer(current).isNull());<a name="line.449"></a>
-<span class="sourceLineNo">450</span><a name="line.450"></a>
-<span class="sourceLineNo">451</span>          // Fake - allocate it.<a name="line.451"></a>
-<span class="sourceLineNo">452</span>          int size = VM.objectModel.getSizeWhenCopied(current);<a name="line.452"></a>
-<span class="sourceLineNo">453</span>          int align = VM.objectModel.getAlignWhenCopied(current);<a name="line.453"></a>
-<span class="sourceLineNo">454</span>          int offset = VM.objectModel.getAlignOffsetWhenCopied(current);<a name="line.454"></a>
-<span class="sourceLineNo">455</span>          // Move to the (aligned) start of the next object<a name="line.455"></a>
-<span class="sourceLineNo">456</span>          toCursor.incTo(Allocator.alignAllocationNoFill(toCursor.get(), align, offset));<a name="line.456"></a>
-<span class="sourceLineNo">457</span><a name="line.457"></a>
-<span class="sourceLineNo">458</span>          /*<a name="line.458"></a>
-<span class="sourceLineNo">459</span>           * If we're allocating into separate regions, and we've allocated beyond the end of the<a name="line.459"></a>
-<span class="sourceLineNo">460</span>           * current region, advance to the next one.  We always allocate into regions we have<a name="line.460"></a>
-<span class="sourceLineNo">461</span>           * scanned in this collector.<a name="line.461"></a>
-<span class="sourceLineNo">462</span>           */<a name="line.462"></a>
-<span class="sourceLineNo">463</span>          if (!toCursor.sameRegion(fromCursor) &amp;&amp; !toCursor.isAvailable(size)) {<a name="line.463"></a>
-<span class="sourceLineNo">464</span>            // The 'to' pointer always trails the 'from' pointer, guaranteeing that<a name="line.464"></a>
-<span class="sourceLineNo">465</span>            // there's a next region to advance to.<a name="line.465"></a>
-<span class="sourceLineNo">466</span>            toCursor.advanceToNextRegion();<a name="line.466"></a>
-<span class="sourceLineNo">467</span>            toCursor.incTo(Allocator.alignAllocationNoFill(toCursor.get(), align, offset));<a name="line.467"></a>
-<span class="sourceLineNo">468</span>          }<a name="line.468"></a>
-<span class="sourceLineNo">469</span><a name="line.469"></a>
-<span class="sourceLineNo">470</span>          ObjectReference target = VM.objectModel.getReferenceWhenCopiedTo(current, toCursor.get());<a name="line.470"></a>
-<span class="sourceLineNo">471</span>          if (toCursor.sameRegion(fromCursor) &amp;&amp; target.toAddress().GE(current.toAddress())) {<a name="line.471"></a>
-<span class="sourceLineNo">472</span>            // Don't move the object.<a name="line.472"></a>
-<span class="sourceLineNo">473</span>            MarkCompactSpace.setForwardingPointer(current, current);<a name="line.473"></a>
-<span class="sourceLineNo">474</span>            toCursor.incTo(VM.objectModel.getObjectEndAddress(current));<a name="line.474"></a>
-<span class="sourceLineNo">475</span>          } else {<a name="line.475"></a>
-<span class="sourceLineNo">476</span>            MarkCompactSpace.setForwardingPointer(current, target);<a name="line.476"></a>
-<span class="sourceLineNo">477</span>            toCursor.inc(size);<a name="line.477"></a>
-<span class="sourceLineNo">478</span>          }<a name="line.478"></a>
-<span class="sourceLineNo">479</span>        }<a name="line.479"></a>
-<span class="sourceLineNo">480</span>      }<a name="line.480"></a>
-<span class="sourceLineNo">481</span>      fromCursor.advanceToNextForwardableRegion(space);<a name="line.481"></a>
-<span class="sourceLineNo">482</span>    }<a name="line.482"></a>
-<span class="sourceLineNo">483</span>  }<a name="line.483"></a>
-<span class="sourceLineNo">484</span><a name="line.484"></a>
-<span class="sourceLineNo">485</span><a name="line.485"></a>
-<span class="sourceLineNo">486</span>  /**<a name="line.486"></a>
-<span class="sourceLineNo">487</span>   * Perform the compacting phase of the collection.<a name="line.487"></a>
-<span class="sourceLineNo">488</span>   */<a name="line.488"></a>
-<span class="sourceLineNo">489</span>  public void compact() {<a name="line.489"></a>
-<span class="sourceLineNo">490</span>    if (regions.isZero()) return;<a name="line.490"></a>
-<span class="sourceLineNo">491</span><a name="line.491"></a>
-<span class="sourceLineNo">492</span>    toCursor.init(regions);<a name="line.492"></a>
-<span class="sourceLineNo">493</span>    fromCursor.init(regions);<a name="line.493"></a>
-<span class="sourceLineNo">494</span><a name="line.494"></a>
-<span class="sourceLineNo">495</span>    /* Loop through active regions or until the last region */<a name="line.495"></a>
-<span class="sourceLineNo">496</span>    while (fromCursor.isValid()) {<a name="line.496"></a>
-<span class="sourceLineNo">497</span>      if (VERBOSE) {<a name="line.497"></a>
-<span class="sourceLineNo">498</span>        Log.write("Compacting from region "); Log.write(fromCursor.getRegion());<a name="line.498"></a>
-<span class="sourceLineNo">499</span>        Log.write(" to region "); Log.writeln(toCursor.getRegion());<a name="line.499"></a>
-<span class="sourceLineNo">500</span>      }<a name="line.500"></a>
-<span class="sourceLineNo">501</span><a name="line.501"></a>
-<span class="sourceLineNo">502</span>      /* Loop through the objects in the region */<a name="line.502"></a>
-<span class="sourceLineNo">503</span>      while (fromCursor.hasMoreObjects()) {<a name="line.503"></a>
-<span class="sourceLineNo">504</span>        ObjectReference current = fromCursor.advanceToObject();<a name="line.504"></a>
-<span class="sourceLineNo">505</span>        fromCursor.advanceToObjectEnd(current);<a name="line.505"></a>
-<span class="sourceLineNo">506</span><a name="line.506"></a>
-<span class="sourceLineNo">507</span>        ObjectReference copyTo = MarkCompactSpace.getForwardingPointer(current);<a name="line.507"></a>
-<span class="sourceLineNo">508</span>        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!copyTo.toAddress().EQ(Address.fromIntZeroExtend(VM.ALIGNMENT_VALUE)));<a name="line.508"></a>
-<span class="sourceLineNo">509</span><a name="line.509"></a>
-<span class="sourceLineNo">510</span>        if (!copyTo.isNull() &amp;&amp; Space.isInSpace(MC.MARK_COMPACT, copyTo)) {<a name="line.510"></a>
-<span class="sourceLineNo">511</span>          if (VM.VERIFY_ASSERTIONS) {<a name="line.511"></a>
-<span class="sourceLineNo">512</span>            if (MarkCompactSpace.isMarked(current)) {<a name="line.512"></a>
-<span class="sourceLineNo">513</span>              Log.write("Object "); Log.write(current);<a name="line.513"></a>
-<span class="sourceLineNo">514</span>              Log.writeln(" is marked during the compact phase");<a name="line.514"></a>
-<span class="sourceLineNo">515</span>              VM.objectModel.dumpObject(current);<a name="line.515"></a>
-<span class="sourceLineNo">516</span>            }<a name="line.516"></a>
-<span class="sourceLineNo">517</span>            VM.assertions._assert(!MarkCompactSpace.isMarked(current));<a name="line.517"></a>
-<span class="sourceLineNo">518</span>          }<a name="line.518"></a>
-<span class="sourceLineNo">519</span>          if (!toCursor.isInRegion(copyTo)) {<a name="line.519"></a>
-<span class="sourceLineNo">520</span>            // Update metadata and move on<a name="line.520"></a>
-<span class="sourceLineNo">521</span>            toCursor.finishAndAdvanceToNextRegion();<a name="line.521"></a>
-<span class="sourceLineNo">522</span>          }<a name="line.522"></a>
-<span class="sourceLineNo">523</span>          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(toCursor.isInRegion(copyTo));<a name="line.523"></a>
-<span class="sourceLineNo">524</span>          toCursor.copy(current, copyTo);<a name="line.524"></a>
+<span class="sourceLineNo">436</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(true);<a name="line.436"></a>
+<span class="sourceLineNo">437</span><a name="line.437"></a>
+<span class="sourceLineNo">438</span>    /* Loop through active regions or until the last region */<a name="line.438"></a>
+<span class="sourceLineNo">439</span>    while (fromCursor.isValid()) {<a name="line.439"></a>
+<span class="sourceLineNo">440</span>      if (VERBOSE) {<a name="line.440"></a>
+<span class="sourceLineNo">441</span>        fromCursor.print();<a name="line.441"></a>
+<span class="sourceLineNo">442</span>        toCursor.print();<a name="line.442"></a>
+<span class="sourceLineNo">443</span>      }<a name="line.443"></a>
+<span class="sourceLineNo">444</span><a name="line.444"></a>
+<span class="sourceLineNo">445</span>      /* Loop through the objects in the current 'from' region */<a name="line.445"></a>
+<span class="sourceLineNo">446</span>      while (fromCursor.hasMoreObjects()) {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>        ObjectReference current = fromCursor.advanceToObject();<a name="line.447"></a>
+<span class="sourceLineNo">448</span>        fromCursor.advanceToObjectEnd(current);<a name="line.448"></a>
+<span class="sourceLineNo">449</span><a name="line.449"></a>
+<span class="sourceLineNo">450</span>        if (MarkCompactSpace.toBeCompacted(current)) {<a name="line.450"></a>
+<span class="sourceLineNo">451</span>          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(MarkCompactSpace.getForwardingPointer(current).isNull());<a name="line.451"></a>
+<span class="sourceLineNo">452</span><a name="line.452"></a>
+<span class="sourceLineNo">453</span>          // Fake - allocate it.<a name="line.453"></a>
+<span class="sourceLineNo">454</span>          int size = VM.objectModel.getSizeWhenCopied(current);<a name="line.454"></a>
+<span class="sourceLineNo">455</span>          int align = VM.objectModel.getAlignWhenCopied(current);<a name="line.455"></a>
+<span class="sourceLineNo">456</span>          int offset = VM.objectModel.getAlignOffsetWhenCopied(current);<a name="line.456"></a>
+<span class="sourceLineNo">457</span>          // Move to the (aligned) start of the next object<a name="line.457"></a>
+<span class="sourceLineNo">458</span>          toCursor.incTo(Allocator.alignAllocationNoFill(toCursor.get(), align, offset));<a name="line.458"></a>
+<span class="sourceLineNo">459</span><a name="line.459"></a>
+<span class="sourceLineNo">460</span>          /*<a name="line.460"></a>
+<span class="sourceLineNo">461</span>           * If we're allocating into separate regions, and we've allocated beyond the end of the<a name="line.461"></a>
+<span class="sourceLineNo">462</span>           * current region, advance to the next one.  We always allocate into regions we have<a name="line.462"></a>
+<span class="sourceLineNo">463</span>           * scanned in this collector.<a name="line.463"></a>
+<span class="sourceLineNo">464</span>           */<a name="line.464"></a>
+<span class="sourceLineNo">465</span>          if (!toCursor.sameRegion(fromCursor) &amp;&amp; !toCursor.isAvailable(size)) {<a name="line.465"></a>
+<span class="sourceLineNo">466</span>            // The 'to' pointer always trails the 'from' pointer, guaranteeing that<a name="line.466"></a>
+<span class="sourceLineNo">467</span>            // there's a next region to advance to.<a name="line.467"></a>
+<span class="sourceLineNo">468</span>            toCursor.advanceToNextRegion();<a name="line.468"></a>
+<span class="sourceLineNo">469</span>            toCursor.incTo(Allocator.alignAllocationNoFill(toCursor.get(), align, offset));<a name="line.469"></a>
+<span class="sourceLineNo">470</span>          }<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>          ObjectReference target = VM.objectModel.getReferenceWhenCopiedTo(current, toCursor.get());<a name="line.472"></a>
+<span class="sourceLineNo">473</span>          if (toCursor.sameRegion(fromCursor) &amp;&amp; target.toAddress().GE(current.toAddress())) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>            // Don't move the object.<a name="line.474"></a>
+<span class="sourceLineNo">475</span>            MarkCompactSpace.setForwardingPointer(current, current);<a name="line.475"></a>
+<span class="sourceLineNo">476</span>            toCursor.incTo(VM.objectModel.getObjectEndAddress(current));<a name="line.476"></a>
+<span class="sourceLineNo">477</span>          } else {<a name="line.477"></a>
+<span class="sourceLineNo">478</span>            MarkCompactSpace.setForwardingPointer(current, target);<a name="line.478"></a>
+<span class="sourceLineNo">479</span>            toCursor.inc(size);<a name="line.479"></a>
+<span class="sourceLineNo">480</span>          }<a name="line.480"></a>
+<span class="sourceLineNo">481</span>        }<a name="line.481"></a>
+<span class="sourceLineNo">482</span>      }<a name="line.482"></a>
+<span class="sourceLineNo">483</span>      fromCursor.advanceToNextForwardableRegion(space);<a name="line.483"></a>
+<span class="sourceLineNo">484</span>    }<a name="line.484"></a>
+<span class="sourceLineNo">485</span>  }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span><a name="line.487"></a>
+<span class="sourceLineNo">488</span>  /**<a name="line.488"></a>
+<span class="sourceLineNo">489</span>   * Perform the compacting phase of the collection.<a name="line.489"></a>
+<span class="sourceLineNo">490</span>   */<a name="line.490"></a>
+<span class="sourceLineNo">491</span>  public void compact() {<a name="line.491"></a>
+<span class="sourceLineNo">492</span>    if (regions.isZero()) return;<a name="line.492"></a>
+<span class="sourceLineNo">493</span><a name="line.493"></a>
+<span class="sourceLineNo">494</span>    toCursor.init(regions);<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    fromCursor.init(regions);<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>    /* Loop through active regions or until the last region */<a name="line.497"></a>
+<span class="sourceLineNo">498</span>    while (fromCursor.isValid()) {<a name="line.498"></a>
+<span class="sourceLineNo">499</span>      if (VERBOSE) {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>        Log.write("Compacting from region "); Log.write(fromCursor.getRegion());<a name="line.500"></a>
+<span class="sourceLineNo">501</span>        Log.write(" to region "); Log.writeln(toCursor.getRegion());<a name="line.501"></a>
+<span class="sourceLineNo">502</span>      }<a name="line.502"></a>
+<span class="sourceLineNo">503</span><a name="line.503"></a>
+<span class="sourceLineNo">504</span>      /* Loop through the objects in the region */<a name="line.504"></a>
+<span class="sourceLineNo">505</span>      while (fromCursor.hasMoreObjects()) {<a name="line.505"></a>
+<span class="sourceLineNo">506</span>        ObjectReference current = fromCursor.advanceToObject();<a name="line.506"></a>
+<span class="sourceLineNo">507</span>        fromCursor.advanceToObjectEnd(current);<a name="line.507"></a>
+<span class="sourceLineNo">508</span><a name="line.508"></a>
+<span class="sourceLineNo">509</span>        ObjectReference copyTo = MarkCompactSpace.getForwardingPointer(current);<a name="line.509"></a>
+<span class="sourceLineNo">510</span>        if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(!copyTo.toAddress().EQ(Address.fromIntZeroExtend(VM.ALIGNMENT_VALUE)));<a name="line.510"></a>
+<span class="sourceLineNo">511</span><a name="line.511"></a>
+<span class="sourceLineNo">512</span>        if (!copyTo.isNull() &amp;&amp; Space.isInSpace(MC.MARK_COMPACT, copyTo)) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>          if (VM.VERIFY_ASSERTIONS) {<a name="line.513"></a>
+<span class="sourceLineNo">514</span>            if (MarkCompactSpace.isMarked(current)) {<a name="line.514"></a>
+<span class="sourceLineNo">515</span>              Log.write("Object "); Log.write(current);<a name="line.515"></a>
+<span class="sourceLineNo">516</span>              Log.writeln(" is marked during the compact phase");<a name="line.516"></a>
+<span class="sourceLineNo">517</span>              VM.objectModel.dumpObject(current);<a name="line.517"></a>
+<span class="sourceLineNo">518</span>            }<a name="line.518"></a>
+<span class="sourceLineNo">519</span>            VM.assertions._assert(!MarkCompactSpace.isMarked(current));<a name="line.519"></a>
+<span class="sourceLineNo">520</span>          }<a name="line.520"></a>
+<span class="sourceLineNo">521</span>          if (!toCursor.isInRegion(copyTo)) {<a name="line.521"></a>
+<span class="sourceLineNo">522</span>            // Update metadata and move on<a name="line.522"></a>
+<span class="sourceLineNo">523</span>            toCursor.finishAndAdvanceToNextRegion();<a name="line.523"></a>
+<span class="sourceLineNo">524</span>          }<a name="line.524"></a>
 <span class="sourceLineNo">525</span>          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(toCursor.isInRegion(copyTo));<a name="line.525"></a>
-<span class="sourceLineNo">526</span>          MarkCompactSpace.setForwardingPointer(copyTo, ObjectReference.nullReference());<a name="line.526"></a>
-<span class="sourceLineNo">527</span>        }<a name="line.527"></a>
-<span class="sourceLineNo">528</span>      }<a name="line.528"></a>
-<span class="sourceLineNo">529</span>      fromCursor.advanceToNextRegion();<a name="line.529"></a>
-<span class="sourceLineNo">530</span>    }<a name="line.530"></a>
-<span class="sourceLineNo">531</span><a name="line.531"></a>
-<span class="sourceLineNo">532</span>    /* Fix up the last object pointer etc */<a name="line.532"></a>
-<span class="sourceLineNo">533</span>    toCursor.finish();<a name="line.533"></a>
-<span class="sourceLineNo">534</span><a name="line.534"></a>
-<span class="sourceLineNo">535</span><a name="line.535"></a>
-<span class="sourceLineNo">536</span>    /*<a name="line.536"></a>
-<span class="sourceLineNo">537</span>     * Return unused pages to the global page resource<a name="line.537"></a>
-<span class="sourceLineNo">538</span>     */<a name="line.538"></a>
-<span class="sourceLineNo">539</span>    Address region = toCursor.snip();<a name="line.539"></a>
-<span class="sourceLineNo">540</span>    while (!region.isZero()) {<a name="line.540"></a>
-<span class="sourceLineNo">541</span>      Address nextRegion = MarkCompactLocal.getNextRegion(region);<a name="line.541"></a>
-<span class="sourceLineNo">542</span>      space.release(region);<a name="line.542"></a>
-<span class="sourceLineNo">543</span>      region = nextRegion;<a name="line.543"></a>
-<span class="sourceLineNo">544</span>    }<a name="line.544"></a>
-<span class="sourceLineNo">545</span>  }<a name="line.545"></a>
-<span class="sourceLineNo">546</span>}<a name="line.546"></a>
+<span class="sourceLineNo">526</span>          toCursor.copy(current, copyTo);<a name="line.526"></a>
+<span class="sourceLineNo">527</span>          if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(toCursor.isInRegion(copyTo));<a name="line.527"></a>
+<span class="sourceLineNo">528</span>          MarkCompactSpace.setForwardingPointer(copyTo, ObjectReference.nullReference());<a name="line.528"></a>
+<span class="sourceLineNo">529</span>        }<a name="line.529"></a>
+<span class="sourceLineNo">530</span>      }<a name="line.530"></a>
+<span class="sourceLineNo">531</span>      fromCursor.advanceToNextRegion();<a name="line.531"></a>
+<span class="sourceLineNo">532</span>    }<a name="line.532"></a>
+<span class="sourceLineNo">533</span><a name="line.533"></a>
+<span class="sourceLineNo">534</span>    /* Fix up the last object pointer etc */<a name="line.534"></a>
+<span class="sourceLineNo">535</span>    toCursor.finish();<a name="line.535"></a>
+<span class="sourceLineNo">536</span><a name="line.536"></a>
+<span class="sourceLineNo">537</span><a name="line.537"></a>
+<span class="sourceLineNo">538</span>    /*<a name="line.538"></a>
+<span class="sourceLineNo">539</span>     * Return unused pages to the global page resource<a name="line.539"></a>
+<span class="sourceLineNo">540</span>     */<a name="line.540"></a>
+<span class="sourceLineNo">541</span>    Address region = toCursor.snip();<a name="line.541"></a>
+<span class="sourceLineNo">542</span>    while (!region.isZero()) {<a name="line.542"></a>
+<span class="sourceLineNo">543</span>      Address nextRegion = MarkCompactLocal.getNextRegion(region);<a name="line.543"></a>
+<span class="sourceLineNo">544</span>      space.release(region);<a name="line.544"></a>
+<span class="sourceLineNo">545</span>      region = nextRegion;<a name="line.545"></a>
+<span class="sourceLineNo">546</span>    }<a name="line.546"></a>
+<span class="sourceLineNo">547</span>  }<a name="line.547"></a>
+<span class="sourceLineNo">548</span>}<a name="line.548"></a>
 
 
 

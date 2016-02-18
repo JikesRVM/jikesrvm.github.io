@@ -833,281 +833,283 @@
 <span class="sourceLineNo">825</span>   *                   evaluates to true<a name="line.825"></a>
 <span class="sourceLineNo">826</span>   * @param falseBlock The BasicBlock to continue at if the typecheck<a name="line.826"></a>
 <span class="sourceLineNo">827</span>   *                   evaluates to false.<a name="line.827"></a>
-<span class="sourceLineNo">828</span>   * @param falseProb   The probability that typecheck will branch to the falseBlock<a name="line.828"></a>
-<span class="sourceLineNo">829</span>   * @return the opt instruction immediately before the instruction to<a name="line.829"></a>
-<span class="sourceLineNo">830</span>   *         continue expansion.<a name="line.830"></a>
-<span class="sourceLineNo">831</span>   */<a name="line.831"></a>
-<span class="sourceLineNo">832</span>  private static Instruction generateBranchingTypeCheck(Instruction s, IR ir, Operand RHSobj,<a name="line.832"></a>
-<span class="sourceLineNo">833</span>                                                            TypeReference LHStype, Operand RHStib,<a name="line.833"></a>
-<span class="sourceLineNo">834</span>                                                            BasicBlock trueBlock, BasicBlock falseBlock,<a name="line.834"></a>
-<span class="sourceLineNo">835</span>                                                            RegisterOperand oldGuard,<a name="line.835"></a>
-<span class="sourceLineNo">836</span>                                                            BranchProfileOperand falseProb) {<a name="line.836"></a>
-<span class="sourceLineNo">837</span>    Instruction continueAt = Goto.create(GOTO, trueBlock.makeJumpTarget());<a name="line.837"></a>
-<span class="sourceLineNo">838</span>    continueAt.copyPosition(s);<a name="line.838"></a>
-<span class="sourceLineNo">839</span>    s.insertBefore(continueAt);<a name="line.839"></a>
-<span class="sourceLineNo">840</span>    s.remove();<a name="line.840"></a>
-<span class="sourceLineNo">841</span><a name="line.841"></a>
-<span class="sourceLineNo">842</span>    if (LHStype.isClassType()) {<a name="line.842"></a>
-<span class="sourceLineNo">843</span>      RVMClass LHSclass = (RVMClass) LHStype.peekType();<a name="line.843"></a>
-<span class="sourceLineNo">844</span>      if (LHSclass != null &amp;&amp; LHSclass.isResolved()) {<a name="line.844"></a>
-<span class="sourceLineNo">845</span>        // Cases 4, 5, and 6 of DynamicTypeCheck: LHSclass is a resolved<a name="line.845"></a>
-<span class="sourceLineNo">846</span>        // class or interface<a name="line.846"></a>
-<span class="sourceLineNo">847</span>        if (LHSclass.isInterface()) {<a name="line.847"></a>
-<span class="sourceLineNo">848</span>          // A resolved interface (case 4)<a name="line.848"></a>
-<span class="sourceLineNo">849</span>          int interfaceIndex = LHSclass.getDoesImplementIndex();<a name="line.849"></a>
-<span class="sourceLineNo">850</span>          int interfaceMask = LHSclass.getDoesImplementBitMask();<a name="line.850"></a>
-<span class="sourceLineNo">851</span>          RegisterOperand doesImpl =<a name="line.851"></a>
-<span class="sourceLineNo">852</span>              InsertUnary(continueAt, ir, GET_DOES_IMPLEMENT_FROM_TIB, TypeReference.IntArray, RHStib);<a name="line.852"></a>
-<span class="sourceLineNo">853</span><a name="line.853"></a>
-<span class="sourceLineNo">854</span>          if (DynamicTypeCheck.MIN_DOES_IMPLEMENT_SIZE &lt;= interfaceIndex) {<a name="line.854"></a>
-<span class="sourceLineNo">855</span>            RegisterOperand doesImplLength =<a name="line.855"></a>
-<span class="sourceLineNo">856</span>                InsertGuardedUnary(continueAt, ir, ARRAYLENGTH, TypeReference.Int, doesImpl.copyD2U(), TG());<a name="line.856"></a>
-<span class="sourceLineNo">857</span>            Instruction lengthCheck =<a name="line.857"></a>
-<span class="sourceLineNo">858</span>                IfCmp.create(INT_IFCMP,<a name="line.858"></a>
-<span class="sourceLineNo">859</span>                             oldGuard,<a name="line.859"></a>
-<span class="sourceLineNo">860</span>                             doesImplLength,<a name="line.860"></a>
-<span class="sourceLineNo">861</span>                             IC(interfaceIndex),<a name="line.861"></a>
-<span class="sourceLineNo">862</span>                             ConditionOperand.LESS_EQUAL(),<a name="line.862"></a>
-<span class="sourceLineNo">863</span>                             falseBlock.makeJumpTarget(),<a name="line.863"></a>
-<span class="sourceLineNo">864</span>                             BranchProfileOperand.unlikely());<a name="line.864"></a>
-<span class="sourceLineNo">865</span>            if (oldGuard != null) {<a name="line.865"></a>
-<span class="sourceLineNo">866</span>              oldGuard = oldGuard.copyD2D();<a name="line.866"></a>
-<span class="sourceLineNo">867</span>            }<a name="line.867"></a>
-<span class="sourceLineNo">868</span>            continueAt.insertBefore(lengthCheck);<a name="line.868"></a>
-<span class="sourceLineNo">869</span>            BasicBlock oldBlock = continueAt.getBasicBlock();<a name="line.869"></a>
-<span class="sourceLineNo">870</span>            oldBlock.splitNodeWithLinksAt(lengthCheck, ir);<a name="line.870"></a>
-<span class="sourceLineNo">871</span>            oldBlock.insertOut(falseBlock); // required due to splitNode!<a name="line.871"></a>
-<span class="sourceLineNo">872</span>          }<a name="line.872"></a>
-<span class="sourceLineNo">873</span>          RegisterOperand entry =<a name="line.873"></a>
-<span class="sourceLineNo">874</span>              InsertLoadOffset(continueAt,<a name="line.874"></a>
-<span class="sourceLineNo">875</span>                               ir,<a name="line.875"></a>
-<span class="sourceLineNo">876</span>                               INT_LOAD,<a name="line.876"></a>
-<span class="sourceLineNo">877</span>                               TypeReference.Int,<a name="line.877"></a>
-<span class="sourceLineNo">878</span>                               doesImpl,<a name="line.878"></a>
-<span class="sourceLineNo">879</span>                               Offset.fromIntZeroExtend(interfaceIndex &lt;&lt; 2),<a name="line.879"></a>
-<span class="sourceLineNo">880</span>                               new LocationOperand(TypeReference.Int),<a name="line.880"></a>
-<span class="sourceLineNo">881</span>                               TG());<a name="line.881"></a>
-<span class="sourceLineNo">882</span>          RegisterOperand bit =<a name="line.882"></a>
-<span class="sourceLineNo">883</span>              insertBinary(continueAt, ir, INT_AND, TypeReference.Int, entry, IC(interfaceMask));<a name="line.883"></a>
-<span class="sourceLineNo">884</span>          continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.884"></a>
-<span class="sourceLineNo">885</span>                                               oldGuard,<a name="line.885"></a>
-<span class="sourceLineNo">886</span>                                               bit,<a name="line.886"></a>
-<span class="sourceLineNo">887</span>                                               IC(0),<a name="line.887"></a>
-<span class="sourceLineNo">888</span>                                               ConditionOperand.EQUAL(),<a name="line.888"></a>
-<span class="sourceLineNo">889</span>                                               falseBlock.makeJumpTarget(),<a name="line.889"></a>
-<span class="sourceLineNo">890</span>                                               falseProb));<a name="line.890"></a>
-<span class="sourceLineNo">891</span>          return continueAt;<a name="line.891"></a>
-<span class="sourceLineNo">892</span>        } else {<a name="line.892"></a>
-<span class="sourceLineNo">893</span>          // A resolved class (cases 5 and 6 in DynamicTypeCheck)<a name="line.893"></a>
-<span class="sourceLineNo">894</span>          if (LHSclass.isFinal()) {<a name="line.894"></a>
-<span class="sourceLineNo">895</span>            // For a final class, we can do a PTR compare of<a name="line.895"></a>
-<span class="sourceLineNo">896</span>            // rhsTIB and the TIB of the class<a name="line.896"></a>
-<span class="sourceLineNo">897</span>            Operand classTIB = getTIB(continueAt, ir, LHSclass);<a name="line.897"></a>
-<span class="sourceLineNo">898</span>            continueAt.insertBefore(IfCmp.create(REF_IFCMP,<a name="line.898"></a>
-<span class="sourceLineNo">899</span>                                                 oldGuard,<a name="line.899"></a>
-<span class="sourceLineNo">900</span>                                                 RHStib,<a name="line.900"></a>
-<span class="sourceLineNo">901</span>                                                 classTIB,<a name="line.901"></a>
-<span class="sourceLineNo">902</span>                                                 ConditionOperand.NOT_EQUAL(),<a name="line.902"></a>
-<span class="sourceLineNo">903</span>                                                 falseBlock.makeJumpTarget(),<a name="line.903"></a>
-<span class="sourceLineNo">904</span>                                                 falseProb));<a name="line.904"></a>
-<span class="sourceLineNo">905</span>            return continueAt;<a name="line.905"></a>
-<span class="sourceLineNo">906</span>          } else {<a name="line.906"></a>
-<span class="sourceLineNo">907</span>            // Do the full blown case 5 or 6 typecheck.<a name="line.907"></a>
-<span class="sourceLineNo">908</span>            int LHSDepth = LHSclass.getTypeDepth();<a name="line.908"></a>
-<span class="sourceLineNo">909</span>            int LHSId = LHSclass.getId();<a name="line.909"></a>
-<span class="sourceLineNo">910</span>            RegisterOperand superclassIds =<a name="line.910"></a>
-<span class="sourceLineNo">911</span>                InsertUnary(continueAt, ir, GET_SUPERCLASS_IDS_FROM_TIB, TypeReference.ShortArray, RHStib);<a name="line.911"></a>
-<span class="sourceLineNo">912</span>            if (DynamicTypeCheck.MIN_SUPERCLASS_IDS_SIZE &lt;= LHSDepth) {<a name="line.912"></a>
-<span class="sourceLineNo">913</span>              RegisterOperand superclassIdsLength =<a name="line.913"></a>
-<span class="sourceLineNo">914</span>                  InsertGuardedUnary(continueAt, ir, ARRAYLENGTH, TypeReference.Int, superclassIds.copyD2U(), TG());<a name="line.914"></a>
-<span class="sourceLineNo">915</span>              Instruction lengthCheck =<a name="line.915"></a>
-<span class="sourceLineNo">916</span>                  IfCmp.create(INT_IFCMP,<a name="line.916"></a>
-<span class="sourceLineNo">917</span>                               oldGuard,<a name="line.917"></a>
-<span class="sourceLineNo">918</span>                               superclassIdsLength,<a name="line.918"></a>
-<span class="sourceLineNo">919</span>                               IC(LHSDepth),<a name="line.919"></a>
-<span class="sourceLineNo">920</span>                               ConditionOperand.LESS(),<a name="line.920"></a>
-<span class="sourceLineNo">921</span>                               falseBlock.makeJumpTarget(),<a name="line.921"></a>
-<span class="sourceLineNo">922</span>                               BranchProfileOperand.unlikely());<a name="line.922"></a>
-<span class="sourceLineNo">923</span>              if (oldGuard != null) {<a name="line.923"></a>
-<span class="sourceLineNo">924</span>                oldGuard = oldGuard.copyD2D();<a name="line.924"></a>
-<span class="sourceLineNo">925</span>              }<a name="line.925"></a>
-<span class="sourceLineNo">926</span>              continueAt.insertBefore(lengthCheck);<a name="line.926"></a>
-<span class="sourceLineNo">927</span>              BasicBlock oldBlock = continueAt.getBasicBlock();<a name="line.927"></a>
-<span class="sourceLineNo">928</span>              oldBlock.splitNodeWithLinksAt(lengthCheck, ir);<a name="line.928"></a>
-<span class="sourceLineNo">929</span>              oldBlock.insertOut(falseBlock); // required due to splitNode!<a name="line.929"></a>
-<span class="sourceLineNo">930</span>            }<a name="line.930"></a>
-<span class="sourceLineNo">931</span>            RegisterOperand refCandidate =<a name="line.931"></a>
-<span class="sourceLineNo">932</span>                InsertLoadOffset(continueAt,<a name="line.932"></a>
-<span class="sourceLineNo">933</span>                                 ir,<a name="line.933"></a>
-<span class="sourceLineNo">934</span>                                 USHORT_LOAD,<a name="line.934"></a>
-<span class="sourceLineNo">935</span>                                 TypeReference.Short,<a name="line.935"></a>
-<span class="sourceLineNo">936</span>                                 superclassIds,<a name="line.936"></a>
-<span class="sourceLineNo">937</span>                                 Offset.fromIntZeroExtend(LHSDepth &lt;&lt; 1),<a name="line.937"></a>
-<span class="sourceLineNo">938</span>                                 new LocationOperand(TypeReference.Short),<a name="line.938"></a>
-<span class="sourceLineNo">939</span>                                 TG());<a name="line.939"></a>
-<span class="sourceLineNo">940</span>            continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.940"></a>
-<span class="sourceLineNo">941</span>                                                 oldGuard,<a name="line.941"></a>
-<span class="sourceLineNo">942</span>                                                 refCandidate,<a name="line.942"></a>
-<span class="sourceLineNo">943</span>                                                 IC(LHSId),<a name="line.943"></a>
-<span class="sourceLineNo">944</span>                                                 ConditionOperand.NOT_EQUAL(),<a name="line.944"></a>
-<span class="sourceLineNo">945</span>                                                 falseBlock.makeJumpTarget(),<a name="line.945"></a>
-<span class="sourceLineNo">946</span>                                                 falseProb));<a name="line.946"></a>
-<span class="sourceLineNo">947</span>            return continueAt;<a name="line.947"></a>
-<span class="sourceLineNo">948</span>          }<a name="line.948"></a>
-<span class="sourceLineNo">949</span>        }<a name="line.949"></a>
-<span class="sourceLineNo">950</span>      } else {<a name="line.950"></a>
-<span class="sourceLineNo">951</span>        // A non-resolved class or interface. Case 3 of DynamicTypeCheck<a name="line.951"></a>
-<span class="sourceLineNo">952</span>        // Branch on the result of a call to<a name="line.952"></a>
-<span class="sourceLineNo">953</span>        // RuntimeEntrypoints.instance<a name="line.953"></a>
-<span class="sourceLineNo">954</span>        RegisterOperand result = ir.regpool.makeTempInt();<a name="line.954"></a>
-<span class="sourceLineNo">955</span>        RVMMethod target = Entrypoints.instanceOfMethod;<a name="line.955"></a>
-<span class="sourceLineNo">956</span>        Instruction call =<a name="line.956"></a>
-<span class="sourceLineNo">957</span>            Call.create2(CALL,<a name="line.957"></a>
-<span class="sourceLineNo">958</span>                         result,<a name="line.958"></a>
-<span class="sourceLineNo">959</span>                         AC(target.getOffset()),<a name="line.959"></a>
-<span class="sourceLineNo">960</span>                         MethodOperand.STATIC(target),<a name="line.960"></a>
-<span class="sourceLineNo">961</span>                         RHSobj,<a name="line.961"></a>
-<span class="sourceLineNo">962</span>                         IC(LHStype.getId()));<a name="line.962"></a>
-<span class="sourceLineNo">963</span>        call.copyPosition(continueAt);<a name="line.963"></a>
-<span class="sourceLineNo">964</span>        continueAt.insertBefore(call);<a name="line.964"></a>
-<span class="sourceLineNo">965</span>        call = callHelper(call, ir);<a name="line.965"></a>
-<span class="sourceLineNo">966</span>        continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.966"></a>
-<span class="sourceLineNo">967</span>                                             oldGuard,<a name="line.967"></a>
-<span class="sourceLineNo">968</span>                                             result.copyD2U(),<a name="line.968"></a>
-<span class="sourceLineNo">969</span>                                             IC(0),<a name="line.969"></a>
-<span class="sourceLineNo">970</span>                                             ConditionOperand.EQUAL(),<a name="line.970"></a>
-<span class="sourceLineNo">971</span>                                             falseBlock.makeJumpTarget(),<a name="line.971"></a>
-<span class="sourceLineNo">972</span>                                             falseProb));<a name="line.972"></a>
-<span class="sourceLineNo">973</span>        return continueAt;<a name="line.973"></a>
-<span class="sourceLineNo">974</span>      }<a name="line.974"></a>
-<span class="sourceLineNo">975</span>    }<a name="line.975"></a>
-<span class="sourceLineNo">976</span><a name="line.976"></a>
-<span class="sourceLineNo">977</span>    if (LHStype.isArrayType()) {<a name="line.977"></a>
-<span class="sourceLineNo">978</span>      // Case 2 of DynamicTypeCheck: LHS is an array.<a name="line.978"></a>
-<span class="sourceLineNo">979</span>      RVMArray LHSArray = (RVMArray) LHStype.peekType();<a name="line.979"></a>
-<span class="sourceLineNo">980</span>      if (LHSArray != null) {<a name="line.980"></a>
-<span class="sourceLineNo">981</span>        Operand classTIB = getTIB(continueAt, ir, LHSArray);<a name="line.981"></a>
-<span class="sourceLineNo">982</span>        RVMType innermostElementType = LHSArray.getInnermostElementType();<a name="line.982"></a>
-<span class="sourceLineNo">983</span>        if (innermostElementType.isPrimitiveType() || innermostElementType.isUnboxedType() ||<a name="line.983"></a>
-<span class="sourceLineNo">984</span>            (innermostElementType.asClass().isResolved() &amp;&amp; innermostElementType.asClass().isFinal())) {<a name="line.984"></a>
-<span class="sourceLineNo">985</span>          // [^k of primitive or [^k of final class. Just like final classes,<a name="line.985"></a>
-<span class="sourceLineNo">986</span>          // a PTR compare of rhsTIB and the TIB of the class gives the answer.<a name="line.986"></a>
-<span class="sourceLineNo">987</span>          continueAt.insertBefore(IfCmp.create(REF_IFCMP,<a name="line.987"></a>
-<span class="sourceLineNo">988</span>                                               oldGuard,<a name="line.988"></a>
-<span class="sourceLineNo">989</span>                                               RHStib,<a name="line.989"></a>
-<span class="sourceLineNo">990</span>                                               classTIB,<a name="line.990"></a>
-<span class="sourceLineNo">991</span>                                               ConditionOperand.NOT_EQUAL(),<a name="line.991"></a>
-<span class="sourceLineNo">992</span>                                               falseBlock.makeJumpTarget(),<a name="line.992"></a>
-<span class="sourceLineNo">993</span>                                               falseProb));<a name="line.993"></a>
-<span class="sourceLineNo">994</span>          return continueAt;<a name="line.994"></a>
-<span class="sourceLineNo">995</span>        }<a name="line.995"></a>
-<span class="sourceLineNo">996</span>        // TODO: branch probability calculation is somewhat bogus for this case.<a name="line.996"></a>
-<span class="sourceLineNo">997</span>        Instruction shortcircuit =<a name="line.997"></a>
-<span class="sourceLineNo">998</span>            IfCmp.create(REF_IFCMP,<a name="line.998"></a>
-<span class="sourceLineNo">999</span>                         oldGuard,<a name="line.999"></a>
-<span class="sourceLineNo">1000</span>                         RHStib,<a name="line.1000"></a>
-<span class="sourceLineNo">1001</span>                         classTIB,<a name="line.1001"></a>
-<span class="sourceLineNo">1002</span>                         ConditionOperand.EQUAL(),<a name="line.1002"></a>
-<span class="sourceLineNo">1003</span>                         trueBlock.makeJumpTarget(),<a name="line.1003"></a>
-<span class="sourceLineNo">1004</span>                         new BranchProfileOperand());<a name="line.1004"></a>
-<span class="sourceLineNo">1005</span>        if (oldGuard != null) {<a name="line.1005"></a>
-<span class="sourceLineNo">1006</span>          oldGuard = oldGuard.copyD2D();<a name="line.1006"></a>
-<span class="sourceLineNo">1007</span>        }<a name="line.1007"></a>
-<span class="sourceLineNo">1008</span>        continueAt.insertBefore(shortcircuit);<a name="line.1008"></a>
-<span class="sourceLineNo">1009</span>        BasicBlock myBlock = shortcircuit.getBasicBlock();<a name="line.1009"></a>
-<span class="sourceLineNo">1010</span>        BasicBlock mainBlock = myBlock.splitNodeWithLinksAt(shortcircuit, ir);<a name="line.1010"></a>
-<span class="sourceLineNo">1011</span>        myBlock.insertOut(trueBlock);       // must come after the splitNodeAt<a name="line.1011"></a>
-<span class="sourceLineNo">1012</span>        RegisterOperand rhsType =<a name="line.1012"></a>
-<span class="sourceLineNo">1013</span>            InsertUnary(continueAt, ir, GET_TYPE_FROM_TIB, TypeReference.Type, RHStib.copy());<a name="line.1013"></a>
-<span class="sourceLineNo">1014</span>        if (innermostElementType.isJavaLangObjectType()) {<a name="line.1014"></a>
-<span class="sourceLineNo">1015</span>          IntConstantOperand lhsDimension = IC(LHStype.getDimensionality());<a name="line.1015"></a>
-<span class="sourceLineNo">1016</span>          RegisterOperand rhsDimension = getField(continueAt, ir, rhsType, Entrypoints.dimensionField);<a name="line.1016"></a>
-<span class="sourceLineNo">1017</span>          Instruction dimTest =<a name="line.1017"></a>
-<span class="sourceLineNo">1018</span>              IfCmp2.create(INT_IFCMP2,<a name="line.1018"></a>
-<span class="sourceLineNo">1019</span>                            oldGuard,<a name="line.1019"></a>
-<span class="sourceLineNo">1020</span>                            rhsDimension,<a name="line.1020"></a>
-<span class="sourceLineNo">1021</span>                            lhsDimension,<a name="line.1021"></a>
-<span class="sourceLineNo">1022</span>                            ConditionOperand.GREATER(),<a name="line.1022"></a>
-<span class="sourceLineNo">1023</span>                            trueBlock.makeJumpTarget(),<a name="line.1023"></a>
-<span class="sourceLineNo">1024</span>                            ((BranchProfileOperand) falseProb.copy()).flip(),<a name="line.1024"></a>
-<span class="sourceLineNo">1025</span>                            ConditionOperand.LESS(),<a name="line.1025"></a>
-<span class="sourceLineNo">1026</span>                            falseBlock.makeJumpTarget(),<a name="line.1026"></a>
-<span class="sourceLineNo">1027</span>                            (BranchProfileOperand) falseProb.copy());<a name="line.1027"></a>
-<span class="sourceLineNo">1028</span>          if (oldGuard != null) {<a name="line.1028"></a>
-<span class="sourceLineNo">1029</span>            oldGuard = oldGuard.copyD2D();<a name="line.1029"></a>
-<span class="sourceLineNo">1030</span>          }<a name="line.1030"></a>
-<span class="sourceLineNo">1031</span>          continueAt.insertBefore(dimTest);<a name="line.1031"></a>
-<span class="sourceLineNo">1032</span>          //BasicBlock testBlock =<a name="line.1032"></a>
-<span class="sourceLineNo">1033</span>          mainBlock.splitNodeWithLinksAt(dimTest, ir);<a name="line.1033"></a>
-<span class="sourceLineNo">1034</span>          mainBlock.insertOut(trueBlock);<a name="line.1034"></a>
-<span class="sourceLineNo">1035</span>          mainBlock.insertOut(falseBlock);<a name="line.1035"></a>
-<span class="sourceLineNo">1036</span>          RegisterOperand rhsInnermostElementTypeDimension =<a name="line.1036"></a>
-<span class="sourceLineNo">1037</span>              getField(continueAt, ir, rhsType.copyU2U(), Entrypoints.innermostElementTypeDimensionField);<a name="line.1037"></a>
-<span class="sourceLineNo">1038</span>          continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.1038"></a>
-<span class="sourceLineNo">1039</span>                                               oldGuard,<a name="line.1039"></a>
-<span class="sourceLineNo">1040</span>                                               rhsInnermostElementTypeDimension,<a name="line.1040"></a>
-<span class="sourceLineNo">1041</span>                                               IC(0),<a name="line.1041"></a>
-<span class="sourceLineNo">1042</span>                                               ConditionOperand.NOT_EQUAL(),<a name="line.1042"></a>
-<span class="sourceLineNo">1043</span>                                               falseBlock.makeJumpTarget(),<a name="line.1043"></a>
-<span class="sourceLineNo">1044</span>                                               falseProb));<a name="line.1044"></a>
-<span class="sourceLineNo">1045</span>          return continueAt;<a name="line.1045"></a>
-<span class="sourceLineNo">1046</span>        }<a name="line.1046"></a>
-<span class="sourceLineNo">1047</span>      }<a name="line.1047"></a>
-<span class="sourceLineNo">1048</span><a name="line.1048"></a>
-<span class="sourceLineNo">1049</span>      // Not a case we want to handle inline<a name="line.1049"></a>
-<span class="sourceLineNo">1050</span>      RVMMethod target = Entrypoints.instanceOfMethod;<a name="line.1050"></a>
-<span class="sourceLineNo">1051</span>      RegisterOperand callResult = ir.regpool.makeTempInt();<a name="line.1051"></a>
-<span class="sourceLineNo">1052</span>      Instruction call =<a name="line.1052"></a>
-<span class="sourceLineNo">1053</span>          Call.create2(CALL,<a name="line.1053"></a>
-<span class="sourceLineNo">1054</span>                       callResult,<a name="line.1054"></a>
-<span class="sourceLineNo">1055</span>                       AC(target.getOffset()),<a name="line.1055"></a>
-<span class="sourceLineNo">1056</span>                       MethodOperand.STATIC(target),<a name="line.1056"></a>
-<span class="sourceLineNo">1057</span>                       RHSobj,<a name="line.1057"></a>
-<span class="sourceLineNo">1058</span>                       IC(LHStype.getId()));<a name="line.1058"></a>
-<span class="sourceLineNo">1059</span>      call.copyPosition(continueAt);<a name="line.1059"></a>
-<span class="sourceLineNo">1060</span>      continueAt.insertBefore(call);<a name="line.1060"></a>
-<span class="sourceLineNo">1061</span>      call = callHelper(call, ir);<a name="line.1061"></a>
-<span class="sourceLineNo">1062</span>      continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.1062"></a>
-<span class="sourceLineNo">1063</span>                                           oldGuard,<a name="line.1063"></a>
-<span class="sourceLineNo">1064</span>                                           callResult.copyD2U(),<a name="line.1064"></a>
-<span class="sourceLineNo">1065</span>                                           IC(0),<a name="line.1065"></a>
-<span class="sourceLineNo">1066</span>                                           ConditionOperand.EQUAL(),<a name="line.1066"></a>
-<span class="sourceLineNo">1067</span>                                           falseBlock.makeJumpTarget(),<a name="line.1067"></a>
-<span class="sourceLineNo">1068</span>                                           falseProb));<a name="line.1068"></a>
-<span class="sourceLineNo">1069</span>      return continueAt;<a name="line.1069"></a>
-<span class="sourceLineNo">1070</span>    }<a name="line.1070"></a>
-<span class="sourceLineNo">1071</span>    OptimizingCompilerException.UNREACHABLE();<a name="line.1071"></a>
-<span class="sourceLineNo">1072</span>    return null;<a name="line.1072"></a>
-<span class="sourceLineNo">1073</span>  }<a name="line.1073"></a>
-<span class="sourceLineNo">1074</span><a name="line.1074"></a>
-<span class="sourceLineNo">1075</span>  // helper routine.<a name="line.1075"></a>
-<span class="sourceLineNo">1076</span>  // s is a conditional branch; Make it the last instruction in its block<a name="line.1076"></a>
-<span class="sourceLineNo">1077</span>  // if it isn't already and return the fallthrough block.<a name="line.1077"></a>
-<span class="sourceLineNo">1078</span>  private static BasicBlock fallThroughBB(Instruction s, IR ir) {<a name="line.1078"></a>
-<span class="sourceLineNo">1079</span>    Instruction next = s.nextInstructionInCodeOrder();<a name="line.1079"></a>
-<span class="sourceLineNo">1080</span>    if (next.operator() == BBEND) {<a name="line.1080"></a>
-<span class="sourceLineNo">1081</span>      return next.getBasicBlock().nextBasicBlockInCodeOrder();<a name="line.1081"></a>
-<span class="sourceLineNo">1082</span>    } else if (next.operator() == GOTO) {<a name="line.1082"></a>
-<span class="sourceLineNo">1083</span>      BasicBlock target = next.getBranchTarget();<a name="line.1083"></a>
-<span class="sourceLineNo">1084</span>      next.remove();<a name="line.1084"></a>
-<span class="sourceLineNo">1085</span>      return target;<a name="line.1085"></a>
-<span class="sourceLineNo">1086</span>    } else {<a name="line.1086"></a>
-<span class="sourceLineNo">1087</span>      BasicBlock myBlock = s.getBasicBlock();<a name="line.1087"></a>
-<span class="sourceLineNo">1088</span>      BasicBlock succBlock = myBlock.splitNodeAt(s, ir);<a name="line.1088"></a>
-<span class="sourceLineNo">1089</span>      myBlock.insertOut(succBlock);<a name="line.1089"></a>
-<span class="sourceLineNo">1090</span>      ir.cfg.linkInCodeOrder(myBlock, succBlock);<a name="line.1090"></a>
-<span class="sourceLineNo">1091</span>      return succBlock;<a name="line.1091"></a>
-<span class="sourceLineNo">1092</span>    }<a name="line.1092"></a>
-<span class="sourceLineNo">1093</span>  }<a name="line.1093"></a>
-<span class="sourceLineNo">1094</span><a name="line.1094"></a>
-<span class="sourceLineNo">1095</span>  private static BasicBlock advanceBlock(int bcIndex, BasicBlock curBlock, IR ir) {<a name="line.1095"></a>
-<span class="sourceLineNo">1096</span>    BasicBlock newBlock = curBlock.createSubBlock(bcIndex, ir);<a name="line.1096"></a>
-<span class="sourceLineNo">1097</span>    curBlock.insertOut(newBlock);<a name="line.1097"></a>
-<span class="sourceLineNo">1098</span>    ir.cfg.linkInCodeOrder(curBlock, newBlock);<a name="line.1098"></a>
-<span class="sourceLineNo">1099</span>    return newBlock;<a name="line.1099"></a>
-<span class="sourceLineNo">1100</span>  }<a name="line.1100"></a>
-<span class="sourceLineNo">1101</span><a name="line.1101"></a>
-<span class="sourceLineNo">1102</span>}<a name="line.1102"></a>
+<span class="sourceLineNo">828</span>   * @param oldGuard   A suitable guard operand (not necessarily related<a name="line.828"></a>
+<span class="sourceLineNo">829</span>   *                   the instruction that is to be replaced).<a name="line.829"></a>
+<span class="sourceLineNo">830</span>   * @param falseProb   The probability that typecheck will branch to the falseBlock<a name="line.830"></a>
+<span class="sourceLineNo">831</span>   * @return the opt instruction immediately before the instruction to<a name="line.831"></a>
+<span class="sourceLineNo">832</span>   *         continue expansion.<a name="line.832"></a>
+<span class="sourceLineNo">833</span>   */<a name="line.833"></a>
+<span class="sourceLineNo">834</span>  private static Instruction generateBranchingTypeCheck(Instruction s, IR ir, Operand RHSobj,<a name="line.834"></a>
+<span class="sourceLineNo">835</span>                                                            TypeReference LHStype, Operand RHStib,<a name="line.835"></a>
+<span class="sourceLineNo">836</span>                                                            BasicBlock trueBlock, BasicBlock falseBlock,<a name="line.836"></a>
+<span class="sourceLineNo">837</span>                                                            RegisterOperand oldGuard,<a name="line.837"></a>
+<span class="sourceLineNo">838</span>                                                            BranchProfileOperand falseProb) {<a name="line.838"></a>
+<span class="sourceLineNo">839</span>    Instruction continueAt = Goto.create(GOTO, trueBlock.makeJumpTarget());<a name="line.839"></a>
+<span class="sourceLineNo">840</span>    continueAt.copyPosition(s);<a name="line.840"></a>
+<span class="sourceLineNo">841</span>    s.insertBefore(continueAt);<a name="line.841"></a>
+<span class="sourceLineNo">842</span>    s.remove();<a name="line.842"></a>
+<span class="sourceLineNo">843</span><a name="line.843"></a>
+<span class="sourceLineNo">844</span>    if (LHStype.isClassType()) {<a name="line.844"></a>
+<span class="sourceLineNo">845</span>      RVMClass LHSclass = (RVMClass) LHStype.peekType();<a name="line.845"></a>
+<span class="sourceLineNo">846</span>      if (LHSclass != null &amp;&amp; LHSclass.isResolved()) {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>        // Cases 4, 5, and 6 of DynamicTypeCheck: LHSclass is a resolved<a name="line.847"></a>
+<span class="sourceLineNo">848</span>        // class or interface<a name="line.848"></a>
+<span class="sourceLineNo">849</span>        if (LHSclass.isInterface()) {<a name="line.849"></a>
+<span class="sourceLineNo">850</span>          // A resolved interface (case 4)<a name="line.850"></a>
+<span class="sourceLineNo">851</span>          int interfaceIndex = LHSclass.getDoesImplementIndex();<a name="line.851"></a>
+<span class="sourceLineNo">852</span>          int interfaceMask = LHSclass.getDoesImplementBitMask();<a name="line.852"></a>
+<span class="sourceLineNo">853</span>          RegisterOperand doesImpl =<a name="line.853"></a>
+<span class="sourceLineNo">854</span>              InsertUnary(continueAt, ir, GET_DOES_IMPLEMENT_FROM_TIB, TypeReference.IntArray, RHStib);<a name="line.854"></a>
+<span class="sourceLineNo">855</span><a name="line.855"></a>
+<span class="sourceLineNo">856</span>          if (DynamicTypeCheck.MIN_DOES_IMPLEMENT_SIZE &lt;= interfaceIndex) {<a name="line.856"></a>
+<span class="sourceLineNo">857</span>            RegisterOperand doesImplLength =<a name="line.857"></a>
+<span class="sourceLineNo">858</span>                InsertGuardedUnary(continueAt, ir, ARRAYLENGTH, TypeReference.Int, doesImpl.copyD2U(), TG());<a name="line.858"></a>
+<span class="sourceLineNo">859</span>            Instruction lengthCheck =<a name="line.859"></a>
+<span class="sourceLineNo">860</span>                IfCmp.create(INT_IFCMP,<a name="line.860"></a>
+<span class="sourceLineNo">861</span>                             oldGuard,<a name="line.861"></a>
+<span class="sourceLineNo">862</span>                             doesImplLength,<a name="line.862"></a>
+<span class="sourceLineNo">863</span>                             IC(interfaceIndex),<a name="line.863"></a>
+<span class="sourceLineNo">864</span>                             ConditionOperand.LESS_EQUAL(),<a name="line.864"></a>
+<span class="sourceLineNo">865</span>                             falseBlock.makeJumpTarget(),<a name="line.865"></a>
+<span class="sourceLineNo">866</span>                             BranchProfileOperand.unlikely());<a name="line.866"></a>
+<span class="sourceLineNo">867</span>            if (oldGuard != null) {<a name="line.867"></a>
+<span class="sourceLineNo">868</span>              oldGuard = oldGuard.copyD2D();<a name="line.868"></a>
+<span class="sourceLineNo">869</span>            }<a name="line.869"></a>
+<span class="sourceLineNo">870</span>            continueAt.insertBefore(lengthCheck);<a name="line.870"></a>
+<span class="sourceLineNo">871</span>            BasicBlock oldBlock = continueAt.getBasicBlock();<a name="line.871"></a>
+<span class="sourceLineNo">872</span>            oldBlock.splitNodeWithLinksAt(lengthCheck, ir);<a name="line.872"></a>
+<span class="sourceLineNo">873</span>            oldBlock.insertOut(falseBlock); // required due to splitNode!<a name="line.873"></a>
+<span class="sourceLineNo">874</span>          }<a name="line.874"></a>
+<span class="sourceLineNo">875</span>          RegisterOperand entry =<a name="line.875"></a>
+<span class="sourceLineNo">876</span>              InsertLoadOffset(continueAt,<a name="line.876"></a>
+<span class="sourceLineNo">877</span>                               ir,<a name="line.877"></a>
+<span class="sourceLineNo">878</span>                               INT_LOAD,<a name="line.878"></a>
+<span class="sourceLineNo">879</span>                               TypeReference.Int,<a name="line.879"></a>
+<span class="sourceLineNo">880</span>                               doesImpl,<a name="line.880"></a>
+<span class="sourceLineNo">881</span>                               Offset.fromIntZeroExtend(interfaceIndex &lt;&lt; 2),<a name="line.881"></a>
+<span class="sourceLineNo">882</span>                               new LocationOperand(TypeReference.Int),<a name="line.882"></a>
+<span class="sourceLineNo">883</span>                               TG());<a name="line.883"></a>
+<span class="sourceLineNo">884</span>          RegisterOperand bit =<a name="line.884"></a>
+<span class="sourceLineNo">885</span>              insertBinary(continueAt, ir, INT_AND, TypeReference.Int, entry, IC(interfaceMask));<a name="line.885"></a>
+<span class="sourceLineNo">886</span>          continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.886"></a>
+<span class="sourceLineNo">887</span>                                               oldGuard,<a name="line.887"></a>
+<span class="sourceLineNo">888</span>                                               bit,<a name="line.888"></a>
+<span class="sourceLineNo">889</span>                                               IC(0),<a name="line.889"></a>
+<span class="sourceLineNo">890</span>                                               ConditionOperand.EQUAL(),<a name="line.890"></a>
+<span class="sourceLineNo">891</span>                                               falseBlock.makeJumpTarget(),<a name="line.891"></a>
+<span class="sourceLineNo">892</span>                                               falseProb));<a name="line.892"></a>
+<span class="sourceLineNo">893</span>          return continueAt;<a name="line.893"></a>
+<span class="sourceLineNo">894</span>        } else {<a name="line.894"></a>
+<span class="sourceLineNo">895</span>          // A resolved class (cases 5 and 6 in DynamicTypeCheck)<a name="line.895"></a>
+<span class="sourceLineNo">896</span>          if (LHSclass.isFinal()) {<a name="line.896"></a>
+<span class="sourceLineNo">897</span>            // For a final class, we can do a PTR compare of<a name="line.897"></a>
+<span class="sourceLineNo">898</span>            // rhsTIB and the TIB of the class<a name="line.898"></a>
+<span class="sourceLineNo">899</span>            Operand classTIB = getTIB(continueAt, ir, LHSclass);<a name="line.899"></a>
+<span class="sourceLineNo">900</span>            continueAt.insertBefore(IfCmp.create(REF_IFCMP,<a name="line.900"></a>
+<span class="sourceLineNo">901</span>                                                 oldGuard,<a name="line.901"></a>
+<span class="sourceLineNo">902</span>                                                 RHStib,<a name="line.902"></a>
+<span class="sourceLineNo">903</span>                                                 classTIB,<a name="line.903"></a>
+<span class="sourceLineNo">904</span>                                                 ConditionOperand.NOT_EQUAL(),<a name="line.904"></a>
+<span class="sourceLineNo">905</span>                                                 falseBlock.makeJumpTarget(),<a name="line.905"></a>
+<span class="sourceLineNo">906</span>                                                 falseProb));<a name="line.906"></a>
+<span class="sourceLineNo">907</span>            return continueAt;<a name="line.907"></a>
+<span class="sourceLineNo">908</span>          } else {<a name="line.908"></a>
+<span class="sourceLineNo">909</span>            // Do the full blown case 5 or 6 typecheck.<a name="line.909"></a>
+<span class="sourceLineNo">910</span>            int LHSDepth = LHSclass.getTypeDepth();<a name="line.910"></a>
+<span class="sourceLineNo">911</span>            int LHSId = LHSclass.getId();<a name="line.911"></a>
+<span class="sourceLineNo">912</span>            RegisterOperand superclassIds =<a name="line.912"></a>
+<span class="sourceLineNo">913</span>                InsertUnary(continueAt, ir, GET_SUPERCLASS_IDS_FROM_TIB, TypeReference.ShortArray, RHStib);<a name="line.913"></a>
+<span class="sourceLineNo">914</span>            if (DynamicTypeCheck.MIN_SUPERCLASS_IDS_SIZE &lt;= LHSDepth) {<a name="line.914"></a>
+<span class="sourceLineNo">915</span>              RegisterOperand superclassIdsLength =<a name="line.915"></a>
+<span class="sourceLineNo">916</span>                  InsertGuardedUnary(continueAt, ir, ARRAYLENGTH, TypeReference.Int, superclassIds.copyD2U(), TG());<a name="line.916"></a>
+<span class="sourceLineNo">917</span>              Instruction lengthCheck =<a name="line.917"></a>
+<span class="sourceLineNo">918</span>                  IfCmp.create(INT_IFCMP,<a name="line.918"></a>
+<span class="sourceLineNo">919</span>                               oldGuard,<a name="line.919"></a>
+<span class="sourceLineNo">920</span>                               superclassIdsLength,<a name="line.920"></a>
+<span class="sourceLineNo">921</span>                               IC(LHSDepth),<a name="line.921"></a>
+<span class="sourceLineNo">922</span>                               ConditionOperand.LESS(),<a name="line.922"></a>
+<span class="sourceLineNo">923</span>                               falseBlock.makeJumpTarget(),<a name="line.923"></a>
+<span class="sourceLineNo">924</span>                               BranchProfileOperand.unlikely());<a name="line.924"></a>
+<span class="sourceLineNo">925</span>              if (oldGuard != null) {<a name="line.925"></a>
+<span class="sourceLineNo">926</span>                oldGuard = oldGuard.copyD2D();<a name="line.926"></a>
+<span class="sourceLineNo">927</span>              }<a name="line.927"></a>
+<span class="sourceLineNo">928</span>              continueAt.insertBefore(lengthCheck);<a name="line.928"></a>
+<span class="sourceLineNo">929</span>              BasicBlock oldBlock = continueAt.getBasicBlock();<a name="line.929"></a>
+<span class="sourceLineNo">930</span>              oldBlock.splitNodeWithLinksAt(lengthCheck, ir);<a name="line.930"></a>
+<span class="sourceLineNo">931</span>              oldBlock.insertOut(falseBlock); // required due to splitNode!<a name="line.931"></a>
+<span class="sourceLineNo">932</span>            }<a name="line.932"></a>
+<span class="sourceLineNo">933</span>            RegisterOperand refCandidate =<a name="line.933"></a>
+<span class="sourceLineNo">934</span>                InsertLoadOffset(continueAt,<a name="line.934"></a>
+<span class="sourceLineNo">935</span>                                 ir,<a name="line.935"></a>
+<span class="sourceLineNo">936</span>                                 USHORT_LOAD,<a name="line.936"></a>
+<span class="sourceLineNo">937</span>                                 TypeReference.Short,<a name="line.937"></a>
+<span class="sourceLineNo">938</span>                                 superclassIds,<a name="line.938"></a>
+<span class="sourceLineNo">939</span>                                 Offset.fromIntZeroExtend(LHSDepth &lt;&lt; 1),<a name="line.939"></a>
+<span class="sourceLineNo">940</span>                                 new LocationOperand(TypeReference.Short),<a name="line.940"></a>
+<span class="sourceLineNo">941</span>                                 TG());<a name="line.941"></a>
+<span class="sourceLineNo">942</span>            continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.942"></a>
+<span class="sourceLineNo">943</span>                                                 oldGuard,<a name="line.943"></a>
+<span class="sourceLineNo">944</span>                                                 refCandidate,<a name="line.944"></a>
+<span class="sourceLineNo">945</span>                                                 IC(LHSId),<a name="line.945"></a>
+<span class="sourceLineNo">946</span>                                                 ConditionOperand.NOT_EQUAL(),<a name="line.946"></a>
+<span class="sourceLineNo">947</span>                                                 falseBlock.makeJumpTarget(),<a name="line.947"></a>
+<span class="sourceLineNo">948</span>                                                 falseProb));<a name="line.948"></a>
+<span class="sourceLineNo">949</span>            return continueAt;<a name="line.949"></a>
+<span class="sourceLineNo">950</span>          }<a name="line.950"></a>
+<span class="sourceLineNo">951</span>        }<a name="line.951"></a>
+<span class="sourceLineNo">952</span>      } else {<a name="line.952"></a>
+<span class="sourceLineNo">953</span>        // A non-resolved class or interface. Case 3 of DynamicTypeCheck<a name="line.953"></a>
+<span class="sourceLineNo">954</span>        // Branch on the result of a call to<a name="line.954"></a>
+<span class="sourceLineNo">955</span>        // RuntimeEntrypoints.instance<a name="line.955"></a>
+<span class="sourceLineNo">956</span>        RegisterOperand result = ir.regpool.makeTempInt();<a name="line.956"></a>
+<span class="sourceLineNo">957</span>        RVMMethod target = Entrypoints.instanceOfMethod;<a name="line.957"></a>
+<span class="sourceLineNo">958</span>        Instruction call =<a name="line.958"></a>
+<span class="sourceLineNo">959</span>            Call.create2(CALL,<a name="line.959"></a>
+<span class="sourceLineNo">960</span>                         result,<a name="line.960"></a>
+<span class="sourceLineNo">961</span>                         AC(target.getOffset()),<a name="line.961"></a>
+<span class="sourceLineNo">962</span>                         MethodOperand.STATIC(target),<a name="line.962"></a>
+<span class="sourceLineNo">963</span>                         RHSobj,<a name="line.963"></a>
+<span class="sourceLineNo">964</span>                         IC(LHStype.getId()));<a name="line.964"></a>
+<span class="sourceLineNo">965</span>        call.copyPosition(continueAt);<a name="line.965"></a>
+<span class="sourceLineNo">966</span>        continueAt.insertBefore(call);<a name="line.966"></a>
+<span class="sourceLineNo">967</span>        call = callHelper(call, ir);<a name="line.967"></a>
+<span class="sourceLineNo">968</span>        continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.968"></a>
+<span class="sourceLineNo">969</span>                                             oldGuard,<a name="line.969"></a>
+<span class="sourceLineNo">970</span>                                             result.copyD2U(),<a name="line.970"></a>
+<span class="sourceLineNo">971</span>                                             IC(0),<a name="line.971"></a>
+<span class="sourceLineNo">972</span>                                             ConditionOperand.EQUAL(),<a name="line.972"></a>
+<span class="sourceLineNo">973</span>                                             falseBlock.makeJumpTarget(),<a name="line.973"></a>
+<span class="sourceLineNo">974</span>                                             falseProb));<a name="line.974"></a>
+<span class="sourceLineNo">975</span>        return continueAt;<a name="line.975"></a>
+<span class="sourceLineNo">976</span>      }<a name="line.976"></a>
+<span class="sourceLineNo">977</span>    }<a name="line.977"></a>
+<span class="sourceLineNo">978</span><a name="line.978"></a>
+<span class="sourceLineNo">979</span>    if (LHStype.isArrayType()) {<a name="line.979"></a>
+<span class="sourceLineNo">980</span>      // Case 2 of DynamicTypeCheck: LHS is an array.<a name="line.980"></a>
+<span class="sourceLineNo">981</span>      RVMArray LHSArray = (RVMArray) LHStype.peekType();<a name="line.981"></a>
+<span class="sourceLineNo">982</span>      if (LHSArray != null) {<a name="line.982"></a>
+<span class="sourceLineNo">983</span>        Operand classTIB = getTIB(continueAt, ir, LHSArray);<a name="line.983"></a>
+<span class="sourceLineNo">984</span>        RVMType innermostElementType = LHSArray.getInnermostElementType();<a name="line.984"></a>
+<span class="sourceLineNo">985</span>        if (innermostElementType.isPrimitiveType() || innermostElementType.isUnboxedType() ||<a name="line.985"></a>
+<span class="sourceLineNo">986</span>            (innermostElementType.asClass().isResolved() &amp;&amp; innermostElementType.asClass().isFinal())) {<a name="line.986"></a>
+<span class="sourceLineNo">987</span>          // [^k of primitive or [^k of final class. Just like final classes,<a name="line.987"></a>
+<span class="sourceLineNo">988</span>          // a PTR compare of rhsTIB and the TIB of the class gives the answer.<a name="line.988"></a>
+<span class="sourceLineNo">989</span>          continueAt.insertBefore(IfCmp.create(REF_IFCMP,<a name="line.989"></a>
+<span class="sourceLineNo">990</span>                                               oldGuard,<a name="line.990"></a>
+<span class="sourceLineNo">991</span>                                               RHStib,<a name="line.991"></a>
+<span class="sourceLineNo">992</span>                                               classTIB,<a name="line.992"></a>
+<span class="sourceLineNo">993</span>                                               ConditionOperand.NOT_EQUAL(),<a name="line.993"></a>
+<span class="sourceLineNo">994</span>                                               falseBlock.makeJumpTarget(),<a name="line.994"></a>
+<span class="sourceLineNo">995</span>                                               falseProb));<a name="line.995"></a>
+<span class="sourceLineNo">996</span>          return continueAt;<a name="line.996"></a>
+<span class="sourceLineNo">997</span>        }<a name="line.997"></a>
+<span class="sourceLineNo">998</span>        // TODO: branch probability calculation is somewhat bogus for this case.<a name="line.998"></a>
+<span class="sourceLineNo">999</span>        Instruction shortcircuit =<a name="line.999"></a>
+<span class="sourceLineNo">1000</span>            IfCmp.create(REF_IFCMP,<a name="line.1000"></a>
+<span class="sourceLineNo">1001</span>                         oldGuard,<a name="line.1001"></a>
+<span class="sourceLineNo">1002</span>                         RHStib,<a name="line.1002"></a>
+<span class="sourceLineNo">1003</span>                         classTIB,<a name="line.1003"></a>
+<span class="sourceLineNo">1004</span>                         ConditionOperand.EQUAL(),<a name="line.1004"></a>
+<span class="sourceLineNo">1005</span>                         trueBlock.makeJumpTarget(),<a name="line.1005"></a>
+<span class="sourceLineNo">1006</span>                         new BranchProfileOperand());<a name="line.1006"></a>
+<span class="sourceLineNo">1007</span>        if (oldGuard != null) {<a name="line.1007"></a>
+<span class="sourceLineNo">1008</span>          oldGuard = oldGuard.copyD2D();<a name="line.1008"></a>
+<span class="sourceLineNo">1009</span>        }<a name="line.1009"></a>
+<span class="sourceLineNo">1010</span>        continueAt.insertBefore(shortcircuit);<a name="line.1010"></a>
+<span class="sourceLineNo">1011</span>        BasicBlock myBlock = shortcircuit.getBasicBlock();<a name="line.1011"></a>
+<span class="sourceLineNo">1012</span>        BasicBlock mainBlock = myBlock.splitNodeWithLinksAt(shortcircuit, ir);<a name="line.1012"></a>
+<span class="sourceLineNo">1013</span>        myBlock.insertOut(trueBlock);       // must come after the splitNodeAt<a name="line.1013"></a>
+<span class="sourceLineNo">1014</span>        RegisterOperand rhsType =<a name="line.1014"></a>
+<span class="sourceLineNo">1015</span>            InsertUnary(continueAt, ir, GET_TYPE_FROM_TIB, TypeReference.Type, RHStib.copy());<a name="line.1015"></a>
+<span class="sourceLineNo">1016</span>        if (innermostElementType.isJavaLangObjectType()) {<a name="line.1016"></a>
+<span class="sourceLineNo">1017</span>          IntConstantOperand lhsDimension = IC(LHStype.getDimensionality());<a name="line.1017"></a>
+<span class="sourceLineNo">1018</span>          RegisterOperand rhsDimension = getField(continueAt, ir, rhsType, Entrypoints.dimensionField);<a name="line.1018"></a>
+<span class="sourceLineNo">1019</span>          Instruction dimTest =<a name="line.1019"></a>
+<span class="sourceLineNo">1020</span>              IfCmp2.create(INT_IFCMP2,<a name="line.1020"></a>
+<span class="sourceLineNo">1021</span>                            oldGuard,<a name="line.1021"></a>
+<span class="sourceLineNo">1022</span>                            rhsDimension,<a name="line.1022"></a>
+<span class="sourceLineNo">1023</span>                            lhsDimension,<a name="line.1023"></a>
+<span class="sourceLineNo">1024</span>                            ConditionOperand.GREATER(),<a name="line.1024"></a>
+<span class="sourceLineNo">1025</span>                            trueBlock.makeJumpTarget(),<a name="line.1025"></a>
+<span class="sourceLineNo">1026</span>                            ((BranchProfileOperand) falseProb.copy()).flip(),<a name="line.1026"></a>
+<span class="sourceLineNo">1027</span>                            ConditionOperand.LESS(),<a name="line.1027"></a>
+<span class="sourceLineNo">1028</span>                            falseBlock.makeJumpTarget(),<a name="line.1028"></a>
+<span class="sourceLineNo">1029</span>                            (BranchProfileOperand) falseProb.copy());<a name="line.1029"></a>
+<span class="sourceLineNo">1030</span>          if (oldGuard != null) {<a name="line.1030"></a>
+<span class="sourceLineNo">1031</span>            oldGuard = oldGuard.copyD2D();<a name="line.1031"></a>
+<span class="sourceLineNo">1032</span>          }<a name="line.1032"></a>
+<span class="sourceLineNo">1033</span>          continueAt.insertBefore(dimTest);<a name="line.1033"></a>
+<span class="sourceLineNo">1034</span>          //BasicBlock testBlock =<a name="line.1034"></a>
+<span class="sourceLineNo">1035</span>          mainBlock.splitNodeWithLinksAt(dimTest, ir);<a name="line.1035"></a>
+<span class="sourceLineNo">1036</span>          mainBlock.insertOut(trueBlock);<a name="line.1036"></a>
+<span class="sourceLineNo">1037</span>          mainBlock.insertOut(falseBlock);<a name="line.1037"></a>
+<span class="sourceLineNo">1038</span>          RegisterOperand rhsInnermostElementTypeDimension =<a name="line.1038"></a>
+<span class="sourceLineNo">1039</span>              getField(continueAt, ir, rhsType.copyU2U(), Entrypoints.innermostElementTypeDimensionField);<a name="line.1039"></a>
+<span class="sourceLineNo">1040</span>          continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.1040"></a>
+<span class="sourceLineNo">1041</span>                                               oldGuard,<a name="line.1041"></a>
+<span class="sourceLineNo">1042</span>                                               rhsInnermostElementTypeDimension,<a name="line.1042"></a>
+<span class="sourceLineNo">1043</span>                                               IC(0),<a name="line.1043"></a>
+<span class="sourceLineNo">1044</span>                                               ConditionOperand.NOT_EQUAL(),<a name="line.1044"></a>
+<span class="sourceLineNo">1045</span>                                               falseBlock.makeJumpTarget(),<a name="line.1045"></a>
+<span class="sourceLineNo">1046</span>                                               falseProb));<a name="line.1046"></a>
+<span class="sourceLineNo">1047</span>          return continueAt;<a name="line.1047"></a>
+<span class="sourceLineNo">1048</span>        }<a name="line.1048"></a>
+<span class="sourceLineNo">1049</span>      }<a name="line.1049"></a>
+<span class="sourceLineNo">1050</span><a name="line.1050"></a>
+<span class="sourceLineNo">1051</span>      // Not a case we want to handle inline<a name="line.1051"></a>
+<span class="sourceLineNo">1052</span>      RVMMethod target = Entrypoints.instanceOfMethod;<a name="line.1052"></a>
+<span class="sourceLineNo">1053</span>      RegisterOperand callResult = ir.regpool.makeTempInt();<a name="line.1053"></a>
+<span class="sourceLineNo">1054</span>      Instruction call =<a name="line.1054"></a>
+<span class="sourceLineNo">1055</span>          Call.create2(CALL,<a name="line.1055"></a>
+<span class="sourceLineNo">1056</span>                       callResult,<a name="line.1056"></a>
+<span class="sourceLineNo">1057</span>                       AC(target.getOffset()),<a name="line.1057"></a>
+<span class="sourceLineNo">1058</span>                       MethodOperand.STATIC(target),<a name="line.1058"></a>
+<span class="sourceLineNo">1059</span>                       RHSobj,<a name="line.1059"></a>
+<span class="sourceLineNo">1060</span>                       IC(LHStype.getId()));<a name="line.1060"></a>
+<span class="sourceLineNo">1061</span>      call.copyPosition(continueAt);<a name="line.1061"></a>
+<span class="sourceLineNo">1062</span>      continueAt.insertBefore(call);<a name="line.1062"></a>
+<span class="sourceLineNo">1063</span>      call = callHelper(call, ir);<a name="line.1063"></a>
+<span class="sourceLineNo">1064</span>      continueAt.insertBefore(IfCmp.create(INT_IFCMP,<a name="line.1064"></a>
+<span class="sourceLineNo">1065</span>                                           oldGuard,<a name="line.1065"></a>
+<span class="sourceLineNo">1066</span>                                           callResult.copyD2U(),<a name="line.1066"></a>
+<span class="sourceLineNo">1067</span>                                           IC(0),<a name="line.1067"></a>
+<span class="sourceLineNo">1068</span>                                           ConditionOperand.EQUAL(),<a name="line.1068"></a>
+<span class="sourceLineNo">1069</span>                                           falseBlock.makeJumpTarget(),<a name="line.1069"></a>
+<span class="sourceLineNo">1070</span>                                           falseProb));<a name="line.1070"></a>
+<span class="sourceLineNo">1071</span>      return continueAt;<a name="line.1071"></a>
+<span class="sourceLineNo">1072</span>    }<a name="line.1072"></a>
+<span class="sourceLineNo">1073</span>    OptimizingCompilerException.UNREACHABLE();<a name="line.1073"></a>
+<span class="sourceLineNo">1074</span>    return null;<a name="line.1074"></a>
+<span class="sourceLineNo">1075</span>  }<a name="line.1075"></a>
+<span class="sourceLineNo">1076</span><a name="line.1076"></a>
+<span class="sourceLineNo">1077</span>  // helper routine.<a name="line.1077"></a>
+<span class="sourceLineNo">1078</span>  // s is a conditional branch; Make it the last instruction in its block<a name="line.1078"></a>
+<span class="sourceLineNo">1079</span>  // if it isn't already and return the fallthrough block.<a name="line.1079"></a>
+<span class="sourceLineNo">1080</span>  private static BasicBlock fallThroughBB(Instruction s, IR ir) {<a name="line.1080"></a>
+<span class="sourceLineNo">1081</span>    Instruction next = s.nextInstructionInCodeOrder();<a name="line.1081"></a>
+<span class="sourceLineNo">1082</span>    if (next.operator() == BBEND) {<a name="line.1082"></a>
+<span class="sourceLineNo">1083</span>      return next.getBasicBlock().nextBasicBlockInCodeOrder();<a name="line.1083"></a>
+<span class="sourceLineNo">1084</span>    } else if (next.operator() == GOTO) {<a name="line.1084"></a>
+<span class="sourceLineNo">1085</span>      BasicBlock target = next.getBranchTarget();<a name="line.1085"></a>
+<span class="sourceLineNo">1086</span>      next.remove();<a name="line.1086"></a>
+<span class="sourceLineNo">1087</span>      return target;<a name="line.1087"></a>
+<span class="sourceLineNo">1088</span>    } else {<a name="line.1088"></a>
+<span class="sourceLineNo">1089</span>      BasicBlock myBlock = s.getBasicBlock();<a name="line.1089"></a>
+<span class="sourceLineNo">1090</span>      BasicBlock succBlock = myBlock.splitNodeAt(s, ir);<a name="line.1090"></a>
+<span class="sourceLineNo">1091</span>      myBlock.insertOut(succBlock);<a name="line.1091"></a>
+<span class="sourceLineNo">1092</span>      ir.cfg.linkInCodeOrder(myBlock, succBlock);<a name="line.1092"></a>
+<span class="sourceLineNo">1093</span>      return succBlock;<a name="line.1093"></a>
+<span class="sourceLineNo">1094</span>    }<a name="line.1094"></a>
+<span class="sourceLineNo">1095</span>  }<a name="line.1095"></a>
+<span class="sourceLineNo">1096</span><a name="line.1096"></a>
+<span class="sourceLineNo">1097</span>  private static BasicBlock advanceBlock(int bcIndex, BasicBlock curBlock, IR ir) {<a name="line.1097"></a>
+<span class="sourceLineNo">1098</span>    BasicBlock newBlock = curBlock.createSubBlock(bcIndex, ir);<a name="line.1098"></a>
+<span class="sourceLineNo">1099</span>    curBlock.insertOut(newBlock);<a name="line.1099"></a>
+<span class="sourceLineNo">1100</span>    ir.cfg.linkInCodeOrder(curBlock, newBlock);<a name="line.1100"></a>
+<span class="sourceLineNo">1101</span>    return newBlock;<a name="line.1101"></a>
+<span class="sourceLineNo">1102</span>  }<a name="line.1102"></a>
+<span class="sourceLineNo">1103</span><a name="line.1103"></a>
+<span class="sourceLineNo">1104</span>}<a name="line.1104"></a>
 
 
 

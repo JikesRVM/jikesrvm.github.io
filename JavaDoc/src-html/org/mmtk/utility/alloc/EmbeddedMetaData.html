@@ -20,7 +20,7 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.mmtk.utility.alloc;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.mmtk.utility.Constants;<a name="line.15"></a>
+<span class="sourceLineNo">015</span>import static org.mmtk.utility.Constants.LOG_BYTES_IN_PAGE;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
 <span class="sourceLineNo">017</span>import org.vmmagic.unboxed.*;<a name="line.17"></a>
 <span class="sourceLineNo">018</span>import org.vmmagic.pragma.*;<a name="line.18"></a>
@@ -37,7 +37,7 @@
 <span class="sourceLineNo">029</span> * to the start of each page to be heavily conflicted).<a name="line.29"></a>
 <span class="sourceLineNo">030</span> */<a name="line.30"></a>
 <span class="sourceLineNo">031</span>@Uninterruptible<a name="line.31"></a>
-<span class="sourceLineNo">032</span>public final class EmbeddedMetaData implements Constants {<a name="line.32"></a>
+<span class="sourceLineNo">032</span>public final class EmbeddedMetaData {<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
 <span class="sourceLineNo">034</span>  /* The (log of the) size of each region of meta data management */<a name="line.34"></a>
 <span class="sourceLineNo">035</span>  public static final int LOG_BYTES_IN_REGION = 22;<a name="line.35"></a>
@@ -78,7 +78,7 @@
 <span class="sourceLineNo">070</span>  public static Extent getMetaDataOffset(Address address,<a name="line.70"></a>
 <span class="sourceLineNo">071</span>                                                  int logCoverage,<a name="line.71"></a>
 <span class="sourceLineNo">072</span>                                                  int logAlign) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    return address.toWord().and(REGION_MASK).rshl(logCoverage+logAlign).lsh(logAlign).toExtent();<a name="line.73"></a>
+<span class="sourceLineNo">073</span>    return address.toWord().and(REGION_MASK).rshl(logCoverage + logAlign).lsh(logAlign).toExtent();<a name="line.73"></a>
 <span class="sourceLineNo">074</span>  }<a name="line.74"></a>
 <span class="sourceLineNo">075</span>}<a name="line.75"></a>
 

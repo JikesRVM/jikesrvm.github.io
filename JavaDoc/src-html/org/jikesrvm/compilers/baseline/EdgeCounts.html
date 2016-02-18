@@ -27,10 +27,10 @@
 <span class="sourceLineNo">019</span>import java.io.PrintStream;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import java.util.StringTokenizer;<a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.jikesrvm.VM;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.Callbacks;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.classloader.MemberReference;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.25"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.adaptive.controller.Controller;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.classloader.MemberReference;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.runtime.Callbacks;<a name="line.25"></a>
 <span class="sourceLineNo">026</span>import org.jikesrvm.runtime.Magic;<a name="line.26"></a>
 <span class="sourceLineNo">027</span>import org.vmmagic.pragma.Entrypoint;<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
@@ -62,153 +62,165 @@
 <span class="sourceLineNo">054</span>  private static int[][] data;<a name="line.54"></a>
 <span class="sourceLineNo">055</span><a name="line.55"></a>
 <span class="sourceLineNo">056</span>  @Override<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  public void notifyExit(int value) { dumpCounts(); }<a name="line.57"></a>
-<span class="sourceLineNo">058</span><a name="line.58"></a>
-<span class="sourceLineNo">059</span>  /**<a name="line.59"></a>
-<span class="sourceLineNo">060</span>   * Attempt to use edge counts from an input file.  If the source<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   * file is not {@code null}, then clear any existing counts and read in new<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   * counts from the file provided.<a name="line.62"></a>
-<span class="sourceLineNo">063</span>   *<a name="line.63"></a>
-<span class="sourceLineNo">064</span>   * @param inputFileName The name of the edge count file (possibly null)<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   */<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  public static void loadCountsFromFileIfAvailable(String inputFileName) {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    if (inputFileName != null) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>      /* first clear all counts */<a name="line.68"></a>
-<span class="sourceLineNo">069</span>      for (int i = 0; i &lt; data.length; i++) {<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        int[] d = data[i];<a name="line.70"></a>
-<span class="sourceLineNo">071</span>        if (d != null) {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>          for (int j = 0; j &lt; d.length; j++) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>            d[j] = 0;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>          }<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        }<a name="line.75"></a>
-<span class="sourceLineNo">076</span>      }<a name="line.76"></a>
-<span class="sourceLineNo">077</span>      /* then read in the provided counts */<a name="line.77"></a>
-<span class="sourceLineNo">078</span>      if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWrite("Loading edge count file: ", inputFileName, " "); }<a name="line.78"></a>
-<span class="sourceLineNo">079</span>      readCounts(inputFileName);<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWriteln(); }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>  public static synchronized void allocateCounters(NormalMethod m, int numEntries) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    if (numEntries == 0) return;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    if (!VM.BuildForAdaptiveSystem &amp;&amp; !registered) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>      // Assumption: If edge counters were enabled in a non-adaptive system<a name="line.87"></a>
-<span class="sourceLineNo">088</span>      // then the user must want us to dump them when the system<a name="line.88"></a>
-<span class="sourceLineNo">089</span>      // exits.  Otherwise why would they have enabled them...<a name="line.89"></a>
-<span class="sourceLineNo">090</span>      registered = true;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      Callbacks.addExitMonitor(new EdgeCounts());<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    allocateCounters(m.getId(), numEntries);<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  private static synchronized void allocateCounters(int id, int numEntries) {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>    if (data == null) {<a name="line.97"></a>
-<span class="sourceLineNo">098</span>      data = new int[id + 500][];<a name="line.98"></a>
-<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    if (id &gt;= data.length) {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>      int newSize = data.length * 2;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>      if (newSize &lt;= id) newSize = id + 500;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>      int[][] tmp = new int[newSize][];<a name="line.103"></a>
-<span class="sourceLineNo">104</span>      System.arraycopy(data, 0, tmp, 0, data.length);<a name="line.104"></a>
-<span class="sourceLineNo">105</span>      Magic.sync();<a name="line.105"></a>
-<span class="sourceLineNo">106</span>      data = tmp;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    data[id] = new int[numEntries];<a name="line.108"></a>
-<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
-<span class="sourceLineNo">110</span><a name="line.110"></a>
-<span class="sourceLineNo">111</span>  public static BranchProfiles getBranchProfiles(NormalMethod m) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    int id = m.getId();<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    if (data == null || id &gt;= data.length) return null;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>    if (data[id] == null) return null;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    return new BranchProfiles(m, data[id]);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>  /**<a name="line.118"></a>
-<span class="sourceLineNo">119</span>   * Dump all the profile data to the file BaselineCompiler.options.PROFILE_EDGE_COUNTER_FILE<a name="line.119"></a>
-<span class="sourceLineNo">120</span>   */<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  public static void dumpCounts() {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    dumpCounts(BaselineCompiler.options.PROFILE_EDGE_COUNTER_FILE);<a name="line.122"></a>
-<span class="sourceLineNo">123</span>  }<a name="line.123"></a>
-<span class="sourceLineNo">124</span><a name="line.124"></a>
-<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   * Dump all profile data to the given file<a name="line.126"></a>
-<span class="sourceLineNo">127</span>   * @param fn output file name<a name="line.127"></a>
-<span class="sourceLineNo">128</span>   */<a name="line.128"></a>
-<span class="sourceLineNo">129</span>  public static void dumpCounts(String fn) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>    PrintStream f;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>    try {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>      f = new PrintStream(new FileOutputStream(fn));<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    } catch (IOException e) {<a name="line.133"></a>
-<span class="sourceLineNo">134</span>      VM.sysWrite("\n\nEdgeCounts.dumpCounts: Error opening output file!!\n\n");<a name="line.134"></a>
-<span class="sourceLineNo">135</span>      return;<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
-<span class="sourceLineNo">137</span>    if (data == null) return;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>    for (int i = 0; i &lt; data.length; i++) {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>      if (data[i] != null) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        NormalMethod m =<a name="line.140"></a>
-<span class="sourceLineNo">141</span>            (NormalMethod) MemberReference.getMemberRef(i).asMethodReference().peekResolvedMethod();<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        if (m != null) {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>          new BranchProfiles(m, data[i]).print(f);<a name="line.143"></a>
-<span class="sourceLineNo">144</span>        }<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      }<a name="line.145"></a>
-<span class="sourceLineNo">146</span>    }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>  }<a name="line.147"></a>
-<span class="sourceLineNo">148</span><a name="line.148"></a>
-<span class="sourceLineNo">149</span>  public static void readCounts(String fn) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    LineNumberReader in = null;<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    try {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      in = new LineNumberReader(new FileReader(fn));<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    } catch (IOException e) {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      e.printStackTrace();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>      VM.sysFail("Unable to open input edge counter file " + fn);<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    }<a name="line.156"></a>
+<span class="sourceLineNo">057</span>  public void notifyExit(int value) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    dumpCounts();<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * Attempt to use edge counts from an input file.  If the source<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * file is not {@code null}, then clear any existing counts and read in new<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   * counts from the file provided.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   *<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * @param inputFileName The name of the edge count file (possibly null)<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  public static void loadCountsFromFileIfAvailable(String inputFileName) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    if (inputFileName != null) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      /* first clear all counts */<a name="line.70"></a>
+<span class="sourceLineNo">071</span>      for (int i = 0; i &lt; data.length; i++) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        int[] d = data[i];<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        if (d != null) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>          for (int j = 0; j &lt; d.length; j++) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>            d[j] = 0;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>          }<a name="line.76"></a>
+<span class="sourceLineNo">077</span>        }<a name="line.77"></a>
+<span class="sourceLineNo">078</span>      }<a name="line.78"></a>
+<span class="sourceLineNo">079</span>      /* then read in the provided counts */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>      if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        VM.sysWrite("Loading edge count file: ", inputFileName, " ");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>      readCounts(inputFileName);<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        VM.sysWriteln();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      }<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>  public static synchronized void allocateCounters(NormalMethod m, int numEntries) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    if (numEntries == 0) return;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    if (!VM.BuildForAdaptiveSystem &amp;&amp; !registered) {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      // Assumption: If edge counters were enabled in a non-adaptive system<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      // then the user must want us to dump them when the system<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      // exits.  Otherwise why would they have enabled them...<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      registered = true;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      Callbacks.addExitMonitor(new EdgeCounts());<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    }<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    allocateCounters(m.getId(), numEntries);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>  private static synchronized void allocateCounters(int id, int numEntries) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    if (data == null) {<a name="line.103"></a>
+<span class="sourceLineNo">104</span>      data = new int[id + 500][];<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    if (id &gt;= data.length) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      int newSize = data.length * 2;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      if (newSize &lt;= id) newSize = id + 500;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      int[][] tmp = new int[newSize][];<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      System.arraycopy(data, 0, tmp, 0, data.length);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>      Magic.sync();<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      data = tmp;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    data[id] = new int[numEntries];<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  }<a name="line.115"></a>
+<span class="sourceLineNo">116</span><a name="line.116"></a>
+<span class="sourceLineNo">117</span>  public static BranchProfiles getBranchProfiles(NormalMethod m) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    int id = m.getId();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    if (data == null || id &gt;= data.length) return null;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    if (data[id] == null) return null;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    return new BranchProfiles(m, data[id]);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>  /**<a name="line.124"></a>
+<span class="sourceLineNo">125</span>   * Dump all the profile data to the file BaselineCompiler.options.PROFILE_EDGE_COUNTER_FILE<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   */<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  public static void dumpCounts() {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    dumpCounts(BaselineCompiler.options.PROFILE_EDGE_COUNTER_FILE);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  }<a name="line.129"></a>
+<span class="sourceLineNo">130</span><a name="line.130"></a>
+<span class="sourceLineNo">131</span>  /**<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * Dump all profile data to the given file<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   * @param fn output file name<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  public static void dumpCounts(String fn) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    PrintStream f;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    try {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      f = new PrintStream(new FileOutputStream(fn));<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    } catch (IOException e) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>      VM.sysWrite("\n\nEdgeCounts.dumpCounts: Error opening output file!!\n\n");<a name="line.140"></a>
+<span class="sourceLineNo">141</span>      return;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    }<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    if (data == null) return;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    for (int i = 0; i &lt; data.length; i++) {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>      if (data[i] != null) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        NormalMethod m =<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            (NormalMethod) MemberReference.getMethodRef(i).peekResolvedMethod();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>        if (m != null) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>          new BranchProfiles(m, data[i]).print(f);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>      }<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>  public static void readCounts(String fn) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    LineNumberReader in = null;<a name="line.156"></a>
 <span class="sourceLineNo">157</span>    try {<a name="line.157"></a>
-<span class="sourceLineNo">158</span>      int[] cur = null;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>      int curIdx = 0;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      for (String s = in.readLine(); s != null; s = in.readLine()) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        s = s.replaceAll("\\{urls[^\\}]*\\}", ""); // strip classloader cruft we can't parse<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        StringTokenizer parser = new StringTokenizer(s, " \t\n\r\f,{}");<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        String firstToken = parser.nextToken();<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        if (firstToken.equals("M")) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>          int numCounts = Integer.parseInt(parser.nextToken());<a name="line.165"></a>
-<span class="sourceLineNo">166</span>          MemberReference key = MemberReference.parse(parser);<a name="line.166"></a>
-<span class="sourceLineNo">167</span>          int id = key.getId();<a name="line.167"></a>
-<span class="sourceLineNo">168</span>          allocateCounters(id, numCounts);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>          cur = data[id];<a name="line.169"></a>
-<span class="sourceLineNo">170</span>          curIdx = 0;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>          if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWrite("M"); }<a name="line.171"></a>
-<span class="sourceLineNo">172</span>        } else {<a name="line.172"></a>
-<span class="sourceLineNo">173</span>          String type = parser.nextToken(); // discard bytecode index, we don't care.<a name="line.173"></a>
-<span class="sourceLineNo">174</span>          if (type.equals("switch")) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>            parser.nextToken(); // discard '&lt;'<a name="line.175"></a>
-<span class="sourceLineNo">176</span>            for (String nt = parser.nextToken(); !nt.equals("&gt;"); nt = parser.nextToken()) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>              cur[curIdx++] = Integer.parseInt(nt);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>            if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWrite("S"); }<a name="line.179"></a>
-<span class="sourceLineNo">180</span>          } else if (type.equals("forwbranch") || type.equals("backbranch")) {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>            parser.nextToken(); // discard '&lt;'<a name="line.181"></a>
-<span class="sourceLineNo">182</span>            cur[curIdx + TAKEN] = Integer.parseInt(parser.nextToken());<a name="line.182"></a>
-<span class="sourceLineNo">183</span>            cur[curIdx + NOT_TAKEN] = Integer.parseInt(parser.nextToken());<a name="line.183"></a>
-<span class="sourceLineNo">184</span>            curIdx += 2;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>            if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) { VM.sysWrite("B"); }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>          } else {<a name="line.186"></a>
-<span class="sourceLineNo">187</span>            VM.sysFail("Format error in edge counter input file");<a name="line.187"></a>
-<span class="sourceLineNo">188</span>          }<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        }<a name="line.189"></a>
-<span class="sourceLineNo">190</span>      }<a name="line.190"></a>
-<span class="sourceLineNo">191</span>      in.close();<a name="line.191"></a>
-<span class="sourceLineNo">192</span>    } catch (IOException e) {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>      e.printStackTrace();<a name="line.193"></a>
-<span class="sourceLineNo">194</span>      VM.sysFail("Error parsing input edge counter file" + fn);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    // Enable debug of input by dumping file as we exit the VM.<a name="line.196"></a>
-<span class="sourceLineNo">197</span>    if (false) {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>      Callbacks.addExitMonitor(new EdgeCounts());<a name="line.198"></a>
-<span class="sourceLineNo">199</span>      BaselineCompiler.processCommandLineArg("-X:base:", "edge_counter_file=DebugEdgeCounters");<a name="line.199"></a>
-<span class="sourceLineNo">200</span>    }<a name="line.200"></a>
-<span class="sourceLineNo">201</span>  }<a name="line.201"></a>
-<span class="sourceLineNo">202</span><a name="line.202"></a>
-<span class="sourceLineNo">203</span>}<a name="line.203"></a>
+<span class="sourceLineNo">158</span>      in = new LineNumberReader(new FileReader(fn));<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    } catch (IOException e) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>      e.printStackTrace();<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      VM.sysFail("Unable to open input edge counter file " + fn);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    try {<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      int[] cur = null;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      int curIdx = 0;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      for (String s = in.readLine(); s != null; s = in.readLine()) {<a name="line.166"></a>
+<span class="sourceLineNo">167</span>        s = s.replaceAll("\\{urls[^\\}]*\\}", ""); // strip classloader cruft we can't parse<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        StringTokenizer parser = new StringTokenizer(s, " \t\n\r\f,{}");<a name="line.168"></a>
+<span class="sourceLineNo">169</span>        String firstToken = parser.nextToken();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        if (firstToken.equals("M")) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>          int numCounts = Integer.parseInt(parser.nextToken());<a name="line.171"></a>
+<span class="sourceLineNo">172</span>          MemberReference key = MemberReference.parse(parser);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>          int id = key.getId();<a name="line.173"></a>
+<span class="sourceLineNo">174</span>          allocateCounters(id, numCounts);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>          cur = data[id];<a name="line.175"></a>
+<span class="sourceLineNo">176</span>          curIdx = 0;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>          if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>            VM.sysWrite("M");<a name="line.178"></a>
+<span class="sourceLineNo">179</span>          }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>        } else {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>          String type = parser.nextToken(); // discard bytecode index, we don't care.<a name="line.181"></a>
+<span class="sourceLineNo">182</span>          if (type.equals("switch")) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>            parser.nextToken(); // discard '&lt;'<a name="line.183"></a>
+<span class="sourceLineNo">184</span>            for (String nt = parser.nextToken(); !nt.equals("&gt;"); nt = parser.nextToken()) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>              cur[curIdx++] = Integer.parseInt(nt);<a name="line.185"></a>
+<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
+<span class="sourceLineNo">187</span>            if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>              VM.sysWrite("S");<a name="line.188"></a>
+<span class="sourceLineNo">189</span>            }<a name="line.189"></a>
+<span class="sourceLineNo">190</span>          } else if (type.equals("forwbranch") || type.equals("backbranch")) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>            parser.nextToken(); // discard '&lt;'<a name="line.191"></a>
+<span class="sourceLineNo">192</span>            cur[curIdx + TAKEN] = Integer.parseInt(parser.nextToken());<a name="line.192"></a>
+<span class="sourceLineNo">193</span>            cur[curIdx + NOT_TAKEN] = Integer.parseInt(parser.nextToken());<a name="line.193"></a>
+<span class="sourceLineNo">194</span>            curIdx += 2;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>            if (Controller.options.BULK_COMPILATION_VERBOSITY &gt;= 1) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>              VM.sysWrite("B");<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            }<a name="line.197"></a>
+<span class="sourceLineNo">198</span>          } else {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>            VM.sysFail("Format error in edge counter input file");<a name="line.199"></a>
+<span class="sourceLineNo">200</span>          }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        }<a name="line.201"></a>
+<span class="sourceLineNo">202</span>      }<a name="line.202"></a>
+<span class="sourceLineNo">203</span>      in.close();<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    } catch (IOException e) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      e.printStackTrace();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>      VM.sysFail("Error parsing input edge counter file" + fn);<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    }<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    // Enable debug of input by dumping file as we exit the VM.<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    if (false) {<a name="line.209"></a>
+<span class="sourceLineNo">210</span>      Callbacks.addExitMonitor(new EdgeCounts());<a name="line.210"></a>
+<span class="sourceLineNo">211</span>      BaselineCompiler.processCommandLineArg("-X:base:", "edge_counter_file=DebugEdgeCounters");<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  }<a name="line.213"></a>
+<span class="sourceLineNo">214</span><a name="line.214"></a>
+<span class="sourceLineNo">215</span>}<a name="line.215"></a>
 
 
 

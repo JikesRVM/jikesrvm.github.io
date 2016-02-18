@@ -27,250 +27,262 @@
 <span class="sourceLineNo">019</span>import org.jikesrvm.classloader.RVMMethod;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import org.jikesrvm.classloader.NormalMethod;<a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.jikesrvm.classloader.TypeReference;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.driver.OptConstants;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.Call;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.jikesrvm.runtime.Entrypoints;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.vmmagic.pragma.Inline;<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>/**<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * This class provides some utilities that are useful for inlining.<a name="line.32"></a>
-<span class="sourceLineNo">033</span> */<a name="line.33"></a>
-<span class="sourceLineNo">034</span>public abstract class InlineTools implements OptConstants {<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>  /**<a name="line.36"></a>
-<span class="sourceLineNo">037</span>   * Does class &lt;code&gt;A&lt;/code&gt; directly implement the interface &lt;code&gt;B&lt;/code&gt;?<a name="line.37"></a>
-<span class="sourceLineNo">038</span>   */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  public static boolean implementsInterface(Class&lt;?&gt; A, Class&lt;?&gt; B) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    for (Class&lt;?&gt; i : A.getInterfaces()) {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>      if (i == B) {<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        return true;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>      }<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    return false;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>  /**<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * Does the callee method have a body?<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   * @param callee The callee method<a name="line.50"></a>
-<span class="sourceLineNo">051</span>   * @return &lt;code&gt;true&lt;/code&gt; if it has bytecodes, false otherwise.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>   */<a name="line.52"></a>
-<span class="sourceLineNo">053</span>  public static boolean hasBody(RVMMethod callee) {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    return !(callee.isNative() || callee.isAbstract());<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   * Does an inlined call to callee need a guard, to protect against<a name="line.58"></a>
-<span class="sourceLineNo">059</span>   * a mispredicted dynamic dispatch?<a name="line.59"></a>
-<span class="sourceLineNo">060</span>   *<a name="line.60"></a>
-<span class="sourceLineNo">061</span>   * @param callee the callee method<a name="line.61"></a>
-<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
-<span class="sourceLineNo">063</span>  public static boolean needsGuard(RVMMethod callee) {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    return !(callee.isFinal() ||<a name="line.64"></a>
-<span class="sourceLineNo">065</span>             callee.getDeclaringClass().isFinal() ||<a name="line.65"></a>
-<span class="sourceLineNo">066</span>             callee.isPrivate() ||<a name="line.66"></a>
-<span class="sourceLineNo">067</span>             callee.isObjectInitializer() ||<a name="line.67"></a>
-<span class="sourceLineNo">068</span>             callee.isStatic());<a name="line.68"></a>
-<span class="sourceLineNo">069</span>  }<a name="line.69"></a>
-<span class="sourceLineNo">070</span><a name="line.70"></a>
-<span class="sourceLineNo">071</span>  /**<a name="line.71"></a>
-<span class="sourceLineNo">072</span>   * Is the method CURRENTLY final (not overridden by any subclass)?<a name="line.72"></a>
-<span class="sourceLineNo">073</span>   * Note that this says nothing about whether or not the method will<a name="line.73"></a>
-<span class="sourceLineNo">074</span>   * be overriden by future dynamically loaded classes.<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   */<a name="line.75"></a>
-<span class="sourceLineNo">076</span>  public static boolean isCurrentlyFinal(RVMMethod callee, boolean searchSubclasses) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    RVMClass klass = callee.getDeclaringClass();<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    if (klass.isInterface()) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>      // interface methods are not final.<a name="line.79"></a>
-<span class="sourceLineNo">080</span>      return false;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    RVMClass[] subClasses = klass.getSubClasses();<a name="line.82"></a>
-<span class="sourceLineNo">083</span>    if (subClasses.length == 0) {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>      //  Currently no subclasses, so trivially not overridden<a name="line.84"></a>
-<span class="sourceLineNo">085</span>      return true;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>    } else if (searchSubclasses) {<a name="line.86"></a>
-<span class="sourceLineNo">087</span>      // see if any subclasses have overridden the method<a name="line.87"></a>
-<span class="sourceLineNo">088</span>      Stack&lt;RVMClass&gt; s = new Stack&lt;RVMClass&gt;();<a name="line.88"></a>
-<span class="sourceLineNo">089</span>      for (RVMClass subClass1 : subClasses) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>        s.push(subClass1);<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>      while (!s.isEmpty()) {<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        RVMClass subClass = s.pop();<a name="line.93"></a>
-<span class="sourceLineNo">094</span>        if (subClass.findDeclaredMethod(callee.getName(), callee.getDescriptor()) != null) {<a name="line.94"></a>
-<span class="sourceLineNo">095</span>          return false;        // found an overridding method<a name="line.95"></a>
-<span class="sourceLineNo">096</span>        }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>        subClasses = subClass.getSubClasses();<a name="line.97"></a>
-<span class="sourceLineNo">098</span>        for (RVMClass subClass1 : subClasses) {<a name="line.98"></a>
-<span class="sourceLineNo">099</span>          s.push(subClass1);<a name="line.99"></a>
-<span class="sourceLineNo">100</span>        }<a name="line.100"></a>
-<span class="sourceLineNo">101</span>      }<a name="line.101"></a>
-<span class="sourceLineNo">102</span>      return true;  // didn't find an overridding method in all currently resolved subclasses<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    } else {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>      return false; // could be one, so be conservative.<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  }<a name="line.106"></a>
-<span class="sourceLineNo">107</span><a name="line.107"></a>
-<span class="sourceLineNo">108</span>  /**<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * Given the currently available information at the call site,<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   * what's our best guess on the inlined size of the callee?<a name="line.110"></a>
-<span class="sourceLineNo">111</span>   * @param callee the method to be inlined<a name="line.111"></a>
-<span class="sourceLineNo">112</span>   * @param state the compilation state decribing the call site where it<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   *              is to be inlined<a name="line.113"></a>
-<span class="sourceLineNo">114</span>   * @return an inlined size estimate (number of machine code instructions)<a name="line.114"></a>
-<span class="sourceLineNo">115</span>   */<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  public static int inlinedSizeEstimate(NormalMethod callee, CompilationState state) {<a name="line.116"></a>
-<span class="sourceLineNo">117</span>    int sizeEstimate = callee.inlinedSizeEstimate();<a name="line.117"></a>
-<span class="sourceLineNo">118</span>    // Adjust size estimate downward to account for optimizations<a name="line.118"></a>
-<span class="sourceLineNo">119</span>    // that are typically enabled by constant parameters.<a name="line.119"></a>
-<span class="sourceLineNo">120</span>    Instruction callInstr = state.getCallInstruction();<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    int numArgs = Call.getNumberOfParams(callInstr);<a name="line.121"></a>
-<span class="sourceLineNo">122</span>    double reductionFactor = 1.0;               // no reduction.<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    OptOptions opts = state.getOptions();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    for (int i = 0; i &lt; numArgs; i++) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      Operand op = Call.getParam(callInstr, i);<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      if (op instanceof RegisterOperand) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        RegisterOperand rop = (RegisterOperand)op;<a name="line.127"></a>
-<span class="sourceLineNo">128</span>        TypeReference type = rop.getType();<a name="line.128"></a>
-<span class="sourceLineNo">129</span>        if (type.isReferenceType()) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>          if (type.isArrayType()) {<a name="line.130"></a>
-<span class="sourceLineNo">131</span>            // Reductions only come from optimization of dynamic type checks; all virtual methods on arrays are defined on Object.<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            if (rop.isPreciseType()) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>              reductionFactor -= opts.INLINE_PRECISE_REG_ARRAY_ARG_BONUS;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            } else if (rop.isDeclaredType() &amp;&amp; callee.hasArrayWrite() &amp;&amp; type.getArrayElementType().isReferenceType()) {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>              // potential to optimize checkstore portion of aastore bytecode on parameter<a name="line.135"></a>
-<span class="sourceLineNo">136</span>              reductionFactor -= opts.INLINE_DECLARED_AASTORED_ARRAY_ARG_BONUS;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>            }<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          } else {<a name="line.138"></a>
-<span class="sourceLineNo">139</span>            // Reductions come from optimization of dynamic type checks and improved inlining of virtual/interface calls<a name="line.139"></a>
+<span class="sourceLineNo">022</span>import org.jikesrvm.compilers.opt.ir.Call;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.jikesrvm.compilers.opt.ir.operand.Operand;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.jikesrvm.compilers.opt.ir.operand.RegisterOperand;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.jikesrvm.compilers.opt.OptOptions;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.jikesrvm.runtime.Entrypoints;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.vmmagic.pragma.Inline;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>/**<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * This class provides some utilities that are useful for inlining.<a name="line.31"></a>
+<span class="sourceLineNo">032</span> */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>public abstract class InlineTools {<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>  /**<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   * @param A a class<a name="line.36"></a>
+<span class="sourceLineNo">037</span>   * @param B an interface<a name="line.37"></a>
+<span class="sourceLineNo">038</span>   * @return whether class &lt;code&gt;A&lt;/code&gt; directly implement the interface &lt;code&gt;B&lt;/code&gt;?<a name="line.38"></a>
+<span class="sourceLineNo">039</span>   */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static boolean implementsInterface(Class&lt;?&gt; A, Class&lt;?&gt; B) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    for (Class&lt;?&gt; i : A.getInterfaces()) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      if (i == B) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        return true;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>      }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    return false;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  }<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * Does the callee method have a body?<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   * @param callee The callee method<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   * @return &lt;code&gt;true&lt;/code&gt; if it has bytecodes, false otherwise.<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static boolean hasBody(RVMMethod callee) {<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    return !(callee.isNative() || callee.isAbstract());<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  }<a name="line.56"></a>
+<span class="sourceLineNo">057</span><a name="line.57"></a>
+<span class="sourceLineNo">058</span>  /**<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   * Does an inlined call to callee need a guard, to protect against<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   * a mispredicted dynamic dispatch?<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   *<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * @param callee the callee method<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   * @return whether a guard is needed<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public static boolean needsGuard(RVMMethod callee) {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    return !(callee.isFinal() ||<a name="line.66"></a>
+<span class="sourceLineNo">067</span>             callee.getDeclaringClass().isFinal() ||<a name="line.67"></a>
+<span class="sourceLineNo">068</span>             callee.isPrivate() ||<a name="line.68"></a>
+<span class="sourceLineNo">069</span>             callee.isObjectInitializer() ||<a name="line.69"></a>
+<span class="sourceLineNo">070</span>             callee.isStatic());<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  /**<a name="line.73"></a>
+<span class="sourceLineNo">074</span>   * Is the method CURRENTLY final (not overridden by any subclass)?<a name="line.74"></a>
+<span class="sourceLineNo">075</span>   * &lt;p&gt;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * Note that this says nothing about whether or not the method will<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * be overridden by future dynamically loaded classes.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   *<a name="line.78"></a>
+<span class="sourceLineNo">079</span>   * @param callee the method to check<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * @param searchSubclasses whether so search subclasses.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * @return whether the method is currently final. This will be a<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   *  conservative approximation if subclasses are not searched.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public static boolean isCurrentlyFinal(RVMMethod callee, boolean searchSubclasses) {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    RVMClass klass = callee.getDeclaringClass();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    if (klass.isInterface()) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      // interface methods are not final.<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      return false;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    RVMClass[] subClasses = klass.getSubClasses();<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    if (subClasses.length == 0) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      //  Currently no subclasses, so trivially not overridden<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      return true;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    } else if (searchSubclasses) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      // see if any subclasses have overridden the method<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      Stack&lt;RVMClass&gt; s = new Stack&lt;RVMClass&gt;();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>      for (RVMClass subClass1 : subClasses) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        s.push(subClass1);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      while (!s.isEmpty()) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        RVMClass subClass = s.pop();<a name="line.101"></a>
+<span class="sourceLineNo">102</span>        if (subClass.findDeclaredMethod(callee.getName(), callee.getDescriptor()) != null) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>          return false;        // found an overridding method<a name="line.103"></a>
+<span class="sourceLineNo">104</span>        }<a name="line.104"></a>
+<span class="sourceLineNo">105</span>        subClasses = subClass.getSubClasses();<a name="line.105"></a>
+<span class="sourceLineNo">106</span>        for (RVMClass subClass1 : subClasses) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>          s.push(subClass1);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        }<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      return true;  // didn't find an overridding method in all currently resolved subclasses<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    } else {<a name="line.111"></a>
+<span class="sourceLineNo">112</span>      return false; // could be one, so be conservative.<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    }<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  }<a name="line.114"></a>
+<span class="sourceLineNo">115</span><a name="line.115"></a>
+<span class="sourceLineNo">116</span>  /**<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * Given the currently available information at the call site,<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * what's our best guess on the inlined size of the callee?<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * @param callee the method to be inlined<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   * @param state the compilation state decribing the call site where it<a name="line.120"></a>
+<span class="sourceLineNo">121</span>   *              is to be inlined<a name="line.121"></a>
+<span class="sourceLineNo">122</span>   * @return an inlined size estimate (number of machine code instructions)<a name="line.122"></a>
+<span class="sourceLineNo">123</span>   */<a name="line.123"></a>
+<span class="sourceLineNo">124</span>  public static int inlinedSizeEstimate(NormalMethod callee, CompilationState state) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    int sizeEstimate = callee.inlinedSizeEstimate();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    // Adjust size estimate downward to account for optimizations<a name="line.126"></a>
+<span class="sourceLineNo">127</span>    // that are typically enabled by constant parameters.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    Instruction callInstr = state.getCallInstruction();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    int numArgs = Call.getNumberOfParams(callInstr);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    double reductionFactor = 1.0;               // no reduction.<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    OptOptions opts = state.getOptions();<a name="line.131"></a>
+<span class="sourceLineNo">132</span>    for (int i = 0; i &lt; numArgs; i++) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>      Operand op = Call.getParam(callInstr, i);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      if (op instanceof RegisterOperand) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        RegisterOperand rop = (RegisterOperand)op;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        TypeReference type = rop.getType();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>        if (type.isReferenceType()) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>          if (type.isArrayType()) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            // Reductions only come from optimization of dynamic type checks; all virtual methods on arrays are defined on Object.<a name="line.139"></a>
 <span class="sourceLineNo">140</span>            if (rop.isPreciseType()) {<a name="line.140"></a>
-<span class="sourceLineNo">141</span>              reductionFactor -= opts.INLINE_PRECISE_REG_CLASS_ARG_BONUS;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>            } else if (rop.isExtant()) {<a name="line.142"></a>
-<span class="sourceLineNo">143</span>              reductionFactor -= opts.INLINE_EXTANT_REG_CLASS_ARG_BONUS;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>            }<a name="line.144"></a>
-<span class="sourceLineNo">145</span>          }<a name="line.145"></a>
-<span class="sourceLineNo">146</span>        }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>      } else if (op.isIntConstant()) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>        reductionFactor -= opts.INLINE_INT_CONST_ARG_BONUS;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>      } else if (op.isNullConstant()) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>        reductionFactor -= opts.INLINE_NULL_CONST_ARG_BONUS;<a name="line.150"></a>
-<span class="sourceLineNo">151</span>      } else if (op.isObjectConstant()) {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        reductionFactor -= opts.INLINE_OBJECT_CONST_ARG_BONUS;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>      }<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    }<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    reductionFactor = Math.max(reductionFactor, 1.0-opts.INLINE_MAX_ARG_BONUS);<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    if (opts.INLINE_CALL_DEPTH_COST != 0.00) {<a name="line.156"></a>
-<span class="sourceLineNo">157</span>      double depthCost = Math.pow(1.0+opts.INLINE_CALL_DEPTH_COST, state.getInlineDepth()+1);<a name="line.157"></a>
-<span class="sourceLineNo">158</span>      return (int) (sizeEstimate * reductionFactor * depthCost);<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    } else {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      return (int) (sizeEstimate * reductionFactor);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    }<a name="line.161"></a>
-<span class="sourceLineNo">162</span>  }<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>  /**<a name="line.164"></a>
-<span class="sourceLineNo">165</span>   * Should the callee method always be inlined?<a name="line.165"></a>
-<span class="sourceLineNo">166</span>   * Usually this is because of a programmer directive (InlinePragma),<a name="line.166"></a>
-<span class="sourceLineNo">167</span>   * but we also use this mechanism to hardwire a couple special cases.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>   *<a name="line.168"></a>
-<span class="sourceLineNo">169</span>   * @param callee the method being considered for inlining<a name="line.169"></a>
-<span class="sourceLineNo">170</span>   * @param state the compilation state of the caller.<a name="line.170"></a>
-<span class="sourceLineNo">171</span>   * @return whether or not the callee should be unconditionally inlined.<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   */<a name="line.172"></a>
-<span class="sourceLineNo">173</span>  public static boolean hasInlinePragma(RVMMethod callee, CompilationState state) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    if (callee.hasInlineAnnotation()) {<a name="line.174"></a>
-<span class="sourceLineNo">175</span>      Inline ann = callee.getAnnotation(Inline.class);<a name="line.175"></a>
-<span class="sourceLineNo">176</span>      if (ann == null) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        // annotation was lost, assume it was Always<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        return true;<a name="line.178"></a>
-<span class="sourceLineNo">179</span>      }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>      switch (ann.value()) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>      case Always:<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        return true;<a name="line.183"></a>
-<span class="sourceLineNo">184</span>      case AllArgumentsAreConstant: {<a name="line.184"></a>
-<span class="sourceLineNo">185</span>        boolean result = true;<a name="line.185"></a>
-<span class="sourceLineNo">186</span>        Instruction s = state.getCallInstruction();<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        for (int i=0, n=Call.getNumberOfParams(s); i &lt; n; i++) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>          if (!Call.getParam(s, i).isConstant()) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>            result = false;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>            break;<a name="line.190"></a>
-<span class="sourceLineNo">191</span>          }<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        }<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        if (result) {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>          return true;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>        }<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        break;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>      }<a name="line.197"></a>
-<span class="sourceLineNo">198</span>      case ArgumentsAreConstant: {<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        boolean result = true;<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        Instruction s = state.getCallInstruction();<a name="line.200"></a>
-<span class="sourceLineNo">201</span>        int[] args = ann.arguments();<a name="line.201"></a>
-<span class="sourceLineNo">202</span>        for (int arg : args) {<a name="line.202"></a>
-<span class="sourceLineNo">203</span>          if (VM.VerifyAssertions) {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>            VM._assert(arg &gt;= 0, "argument is invalid: " + arg);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>            VM._assert(arg &lt; Call.getNumberOfParams(s), "argument is invalid: " + arg);<a name="line.205"></a>
-<span class="sourceLineNo">206</span>          }<a name="line.206"></a>
-<span class="sourceLineNo">207</span>          if (!Call.getParam(s, arg).isConstant()) {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>            result = false;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>            break;<a name="line.209"></a>
-<span class="sourceLineNo">210</span>          }<a name="line.210"></a>
-<span class="sourceLineNo">211</span>        }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>        if (result) {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>          return true;<a name="line.213"></a>
-<span class="sourceLineNo">214</span>        }<a name="line.214"></a>
-<span class="sourceLineNo">215</span>        break;<a name="line.215"></a>
-<span class="sourceLineNo">216</span>      }<a name="line.216"></a>
-<span class="sourceLineNo">217</span>      case AssertionsDisabled: {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        return !VM.VerifyAssertions;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>      }<a name="line.219"></a>
-<span class="sourceLineNo">220</span>      }<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    // TODO: clean this hack up<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    // Hack to inline java.lang.VMSystem.arraycopy in the case that<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    // arg 0 isn't an Object<a name="line.224"></a>
-<span class="sourceLineNo">225</span>    if (callee == Entrypoints.sysArrayCopy) {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>      Operand src = Call.getParam(state.getCallInstruction(), 0);<a name="line.226"></a>
-<span class="sourceLineNo">227</span>      return src.getType() != TypeReference.JavaLangObject;<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    }<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    return false;<a name="line.229"></a>
-<span class="sourceLineNo">230</span>  }<a name="line.230"></a>
-<span class="sourceLineNo">231</span><a name="line.231"></a>
-<span class="sourceLineNo">232</span>  /**<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * Should the callee method be barred from ever being considered for inlining?<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   *<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   * @param callee the method being considered for inlining<a name="line.235"></a>
-<span class="sourceLineNo">236</span>   * @param state the compilation state of the caller.<a name="line.236"></a>
-<span class="sourceLineNo">237</span>   * @return whether or not the callee should be unconditionally barred<a name="line.237"></a>
-<span class="sourceLineNo">238</span>   *         from being inlined.<a name="line.238"></a>
-<span class="sourceLineNo">239</span>   */<a name="line.239"></a>
-<span class="sourceLineNo">240</span>  public static boolean hasNoInlinePragma(RVMMethod callee, CompilationState state) {<a name="line.240"></a>
-<span class="sourceLineNo">241</span>    return callee.hasNoInlinePragma();<a name="line.241"></a>
+<span class="sourceLineNo">141</span>              reductionFactor -= opts.INLINE_PRECISE_REG_ARRAY_ARG_BONUS;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            } else if (rop.isDeclaredType() &amp;&amp; callee.hasArrayWrite() &amp;&amp; type.getArrayElementType().isReferenceType()) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>              // potential to optimize checkstore portion of aastore bytecode on parameter<a name="line.143"></a>
+<span class="sourceLineNo">144</span>              reductionFactor -= opts.INLINE_DECLARED_AASTORED_ARRAY_ARG_BONUS;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>            }<a name="line.145"></a>
+<span class="sourceLineNo">146</span>          } else {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            // Reductions come from optimization of dynamic type checks and improved inlining of virtual/interface calls<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            if (rop.isPreciseType()) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>              reductionFactor -= opts.INLINE_PRECISE_REG_CLASS_ARG_BONUS;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>            } else if (rop.isExtant()) {<a name="line.150"></a>
+<span class="sourceLineNo">151</span>              reductionFactor -= opts.INLINE_EXTANT_REG_CLASS_ARG_BONUS;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>            }<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          }<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        }<a name="line.154"></a>
+<span class="sourceLineNo">155</span>      } else if (op.isIntConstant()) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>        reductionFactor -= opts.INLINE_INT_CONST_ARG_BONUS;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>      } else if (op.isNullConstant()) {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>        reductionFactor -= opts.INLINE_NULL_CONST_ARG_BONUS;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      } else if (op.isObjectConstant()) {<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        reductionFactor -= opts.INLINE_OBJECT_CONST_ARG_BONUS;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    reductionFactor = Math.max(reductionFactor, 1.0 - opts.INLINE_MAX_ARG_BONUS);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    if (opts.INLINE_CALL_DEPTH_COST != 0.00) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      double depthCost = Math.pow(1.0 + opts.INLINE_CALL_DEPTH_COST, state.getInlineDepth() + 1);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      return (int) (sizeEstimate * reductionFactor * depthCost);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    } else {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>      return (int) (sizeEstimate * reductionFactor);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    }<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>  /**<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * Should the callee method always be inlined?<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   * Usually this is because of a programmer directive (InlinePragma),<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   * but we also use this mechanism to hardwire a couple special cases.<a name="line.175"></a>
+<span class="sourceLineNo">176</span>   *<a name="line.176"></a>
+<span class="sourceLineNo">177</span>   * @param callee the method being considered for inlining<a name="line.177"></a>
+<span class="sourceLineNo">178</span>   * @param state the compilation state of the caller.<a name="line.178"></a>
+<span class="sourceLineNo">179</span>   * @return whether or not the callee should be unconditionally inlined.<a name="line.179"></a>
+<span class="sourceLineNo">180</span>   */<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  public static boolean hasInlinePragma(RVMMethod callee, CompilationState state) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    if (callee.hasInlineAnnotation()) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      Inline ann = callee.getAnnotation(Inline.class);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      if (ann == null) {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // annotation was lost, assume it was Always<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        return true;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>      }<a name="line.187"></a>
+<span class="sourceLineNo">188</span><a name="line.188"></a>
+<span class="sourceLineNo">189</span>      switch (ann.value()) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>      case Always:<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        return true;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      case AllArgumentsAreConstant: {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        boolean result = true;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        Instruction s = state.getCallInstruction();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        for (int i = 0, n = Call.getNumberOfParams(s); i &lt; n; i++) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>          if (!Call.getParam(s, i).isConstant()) {<a name="line.196"></a>
+<span class="sourceLineNo">197</span>            result = false;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>            break;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>          }<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        if (result) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>          return true;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        break;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      }<a name="line.205"></a>
+<span class="sourceLineNo">206</span>      case ArgumentsAreConstant: {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        boolean result = true;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>        Instruction s = state.getCallInstruction();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        int[] args = ann.arguments();<a name="line.209"></a>
+<span class="sourceLineNo">210</span>        for (int arg : args) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>          if (VM.VerifyAssertions) {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>            boolean biggerThanMin = arg &gt;= 0;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>            boolean smallerThanMax = arg &lt; Call.getNumberOfParams(s);<a name="line.213"></a>
+<span class="sourceLineNo">214</span>            if (!(smallerThanMax &amp;&amp; biggerThanMin)) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>              String msg = "argument is invalid: " + arg;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>              VM._assert(VM.NOT_REACHED, msg);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>          }<a name="line.218"></a>
+<span class="sourceLineNo">219</span>          if (!Call.getParam(s, arg).isConstant()) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>            result = false;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            break;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>          }<a name="line.222"></a>
+<span class="sourceLineNo">223</span>        }<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        if (result) {<a name="line.224"></a>
+<span class="sourceLineNo">225</span>          return true;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>        }<a name="line.226"></a>
+<span class="sourceLineNo">227</span>        break;<a name="line.227"></a>
+<span class="sourceLineNo">228</span>      }<a name="line.228"></a>
+<span class="sourceLineNo">229</span>      case AssertionsDisabled: {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        return !VM.VerifyAssertions;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      }<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    // TODO: clean this hack up<a name="line.234"></a>
+<span class="sourceLineNo">235</span>    // Hack to inline java.lang.VMSystem.arraycopy in the case that<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    // arg 0 isn't an Object<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    if (callee == Entrypoints.sysArrayCopy) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      Operand src = Call.getParam(state.getCallInstruction(), 0);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>      return src.getType() != TypeReference.JavaLangObject;<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    }<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    return false;<a name="line.241"></a>
 <span class="sourceLineNo">242</span>  }<a name="line.242"></a>
 <span class="sourceLineNo">243</span><a name="line.243"></a>
 <span class="sourceLineNo">244</span>  /**<a name="line.244"></a>
-<span class="sourceLineNo">245</span>   * Is it safe to speculatively inline the callee into the caller?<a name="line.245"></a>
-<span class="sourceLineNo">246</span>   * &lt;p&gt;<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   * Some forms of speculative inlining are unsafe to apply to<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   * methods of the core virtual machine because if we are forced to<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * invalidate the methods, we will be unable to compile their<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   * replacement method.<a name="line.250"></a>
-<span class="sourceLineNo">251</span>   * &lt;p&gt;<a name="line.251"></a>
-<span class="sourceLineNo">252</span>   * TODO The current test is overly conservative, but past attempts at<a name="line.252"></a>
-<span class="sourceLineNo">253</span>   * defining a more precise set of "third rail" classes have<a name="line.253"></a>
-<span class="sourceLineNo">254</span>   * always resulted in missing some (only to discover them later<a name="line.254"></a>
-<span class="sourceLineNo">255</span>   * when Jikes RVM hangs or crashes.)<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   *<a name="line.256"></a>
-<span class="sourceLineNo">257</span>   * @param caller the caller method<a name="line.257"></a>
-<span class="sourceLineNo">258</span>   * @param callee the callee method<a name="line.258"></a>
-<span class="sourceLineNo">259</span>   * @return Whether or not we are allowed to speculatively inline<a name="line.259"></a>
-<span class="sourceLineNo">260</span>   *         the callee into the caller.<a name="line.260"></a>
-<span class="sourceLineNo">261</span>   */<a name="line.261"></a>
-<span class="sourceLineNo">262</span>  public static boolean isForbiddenSpeculation(RVMMethod caller, RVMMethod callee) {<a name="line.262"></a>
-<span class="sourceLineNo">263</span>    return caller.getDeclaringClass().isInBootImage() &amp;&amp; !callee.getDeclaringClass().getDescriptor().isRVMDescriptor();<a name="line.263"></a>
-<span class="sourceLineNo">264</span>  }<a name="line.264"></a>
-<span class="sourceLineNo">265</span>}<a name="line.265"></a>
+<span class="sourceLineNo">245</span>   * Should the callee method be barred from ever being considered for inlining?<a name="line.245"></a>
+<span class="sourceLineNo">246</span>   *<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   * @param callee the method being considered for inlining<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   * @param state the compilation state of the caller.<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   * @return whether or not the callee should be unconditionally barred<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   *         from being inlined.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   */<a name="line.251"></a>
+<span class="sourceLineNo">252</span>  public static boolean hasNoInlinePragma(RVMMethod callee, CompilationState state) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>    return callee.hasNoInlinePragma();<a name="line.253"></a>
+<span class="sourceLineNo">254</span>  }<a name="line.254"></a>
+<span class="sourceLineNo">255</span><a name="line.255"></a>
+<span class="sourceLineNo">256</span>  /**<a name="line.256"></a>
+<span class="sourceLineNo">257</span>   * Is it safe to speculatively inline the callee into the caller?<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   * &lt;p&gt;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * Some forms of speculative inlining are unsafe to apply to<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   * methods of the core virtual machine because if we are forced to<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * invalidate the methods, we will be unable to compile their<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   * replacement method.<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   * &lt;p&gt;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>   * TODO The current test is overly conservative, but past attempts at<a name="line.264"></a>
+<span class="sourceLineNo">265</span>   * defining a more precise set of "third rail" classes have<a name="line.265"></a>
+<span class="sourceLineNo">266</span>   * always resulted in missing some (only to discover them later<a name="line.266"></a>
+<span class="sourceLineNo">267</span>   * when Jikes RVM hangs or crashes.)<a name="line.267"></a>
+<span class="sourceLineNo">268</span>   *<a name="line.268"></a>
+<span class="sourceLineNo">269</span>   * @param caller the caller method<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * @param callee the callee method<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   * @return Whether or not we are allowed to speculatively inline<a name="line.271"></a>
+<span class="sourceLineNo">272</span>   *         the callee into the caller.<a name="line.272"></a>
+<span class="sourceLineNo">273</span>   */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  public static boolean isForbiddenSpeculation(RVMMethod caller, RVMMethod callee) {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    return caller.getDeclaringClass().isInBootImage() &amp;&amp; !callee.getDeclaringClass().getDescriptor().isRVMDescriptor();<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  }<a name="line.276"></a>
+<span class="sourceLineNo">277</span>}<a name="line.277"></a>
 
 
 

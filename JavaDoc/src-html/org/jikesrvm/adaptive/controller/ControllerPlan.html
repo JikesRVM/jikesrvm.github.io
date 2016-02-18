@@ -42,8 +42,8 @@
 <span class="sourceLineNo">034</span> * &lt;p&gt;<a name="line.34"></a>
 <span class="sourceLineNo">035</span> * status states:<a name="line.35"></a>
 <span class="sourceLineNo">036</span> * &lt;pre&gt;<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * UNINITIALIZED -&gt; IN_PROGRESS -&gt; COMPLETED -&gt; OUTDATED<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *             \              \--&gt; ABORTED_COMPILATION_ERROR (never recompile method)<a name="line.38"></a>
+<span class="sourceLineNo">037</span> * UNINITIALIZED -&amp;gt; IN_PROGRESS -&amp;gt; COMPLETED -&amp;gt; OUTDATED<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *             \              \--&amp;gt; ABORTED_COMPILATION_ERROR (never recompile method)<a name="line.38"></a>
 <span class="sourceLineNo">039</span> * &lt;/pre&gt;<a name="line.39"></a>
 <span class="sourceLineNo">040</span> */<a name="line.40"></a>
 <span class="sourceLineNo">041</span>public final class ControllerPlan {<a name="line.41"></a>
@@ -73,12 +73,12 @@
 <span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
 <span class="sourceLineNo">066</span>   *  The associate compilation plan<a name="line.66"></a>
 <span class="sourceLineNo">067</span>   */<a name="line.67"></a>
-<span class="sourceLineNo">068</span>  private CompilationPlan compPlan;<a name="line.68"></a>
+<span class="sourceLineNo">068</span>  private final CompilationPlan compPlan;<a name="line.68"></a>
 <span class="sourceLineNo">069</span><a name="line.69"></a>
 <span class="sourceLineNo">070</span>  /**<a name="line.70"></a>
 <span class="sourceLineNo">071</span>   *  The time we created this plan<a name="line.71"></a>
 <span class="sourceLineNo">072</span>   */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>  private int timeCreated;<a name="line.73"></a>
+<span class="sourceLineNo">073</span>  private final int timeCreated;<a name="line.73"></a>
 <span class="sourceLineNo">074</span><a name="line.74"></a>
 <span class="sourceLineNo">075</span>  /**<a name="line.75"></a>
 <span class="sourceLineNo">076</span>   *  The time compilation began<a name="line.76"></a>
@@ -93,17 +93,17 @@
 <span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
 <span class="sourceLineNo">086</span>   *  The speedup we were expecting<a name="line.86"></a>
 <span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  private double expectedSpeedup;<a name="line.88"></a>
+<span class="sourceLineNo">088</span>  private final double expectedSpeedup;<a name="line.88"></a>
 <span class="sourceLineNo">089</span><a name="line.89"></a>
 <span class="sourceLineNo">090</span>  /**<a name="line.90"></a>
 <span class="sourceLineNo">091</span>   *  The compilation time we were expecting<a name="line.91"></a>
 <span class="sourceLineNo">092</span>   */<a name="line.92"></a>
-<span class="sourceLineNo">093</span>  private double expectedCompilationTime;<a name="line.93"></a>
+<span class="sourceLineNo">093</span>  private final double expectedCompilationTime;<a name="line.93"></a>
 <span class="sourceLineNo">094</span><a name="line.94"></a>
 <span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
 <span class="sourceLineNo">096</span>   *  The priority associated with this plan<a name="line.96"></a>
 <span class="sourceLineNo">097</span>   */<a name="line.97"></a>
-<span class="sourceLineNo">098</span>  private double priority;<a name="line.98"></a>
+<span class="sourceLineNo">098</span>  private final double priority;<a name="line.98"></a>
 <span class="sourceLineNo">099</span><a name="line.99"></a>
 <span class="sourceLineNo">100</span>  /**<a name="line.100"></a>
 <span class="sourceLineNo">101</span>   *  The compiled method ID for this plan<a name="line.101"></a>
@@ -113,7 +113,7 @@
 <span class="sourceLineNo">105</span>  /**<a name="line.105"></a>
 <span class="sourceLineNo">106</span>   *  The compiled method ID for the previous plan for this method<a name="line.106"></a>
 <span class="sourceLineNo">107</span>   */<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  private int prevCMID;<a name="line.108"></a>
+<span class="sourceLineNo">108</span>  private final int prevCMID;<a name="line.108"></a>
 <span class="sourceLineNo">109</span><a name="line.109"></a>
 <span class="sourceLineNo">110</span>  /**<a name="line.110"></a>
 <span class="sourceLineNo">111</span>   *  The status of this plan<a name="line.111"></a>
@@ -177,176 +177,205 @@
 <span class="sourceLineNo">169</span>   *   &lt;li&gt;clears inlining information<a name="line.169"></a>
 <span class="sourceLineNo">170</span>   *   &lt;li&gt;updates the status of the controller plan<a name="line.170"></a>
 <span class="sourceLineNo">171</span>   * &lt;/ol&gt;<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   */<a name="line.172"></a>
-<span class="sourceLineNo">173</span>  public CompiledMethod doRecompile() {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>    CompilationPlan cp = getCompPlan();<a name="line.174"></a>
-<span class="sourceLineNo">175</span><a name="line.175"></a>
-<span class="sourceLineNo">176</span>    setTimeInitiated(Controller.controllerClock);<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    AOSLogging.logger.recompilationStarted(cp);<a name="line.177"></a>
+<span class="sourceLineNo">172</span>   *<a name="line.172"></a>
+<span class="sourceLineNo">173</span>   * @return {@code null} if the compilation was aborted, the new compiled<a name="line.173"></a>
+<span class="sourceLineNo">174</span>   *  method otherwise<a name="line.174"></a>
+<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  public CompiledMethod doRecompile() {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    CompilationPlan cp = getCompPlan();<a name="line.177"></a>
 <span class="sourceLineNo">178</span><a name="line.178"></a>
-<span class="sourceLineNo">179</span>    if (cp.options.PRINT_METHOD) {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>      VM.sysWrite("-oc:O" + cp.options.getOptLevel() + " \n");<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
-<span class="sourceLineNo">182</span><a name="line.182"></a>
-<span class="sourceLineNo">183</span>    // Compile the method.<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    int newCMID = RuntimeCompiler.recompileWithOpt(cp);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    int prevCMID = getPrevCMID();<a name="line.185"></a>
-<span class="sourceLineNo">186</span><a name="line.186"></a>
-<span class="sourceLineNo">187</span>    if (Controller.options.sampling()) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>      // transfer the samples from the old CMID to the new CMID.<a name="line.188"></a>
-<span class="sourceLineNo">189</span>      // scale the number of samples down by the expected speedup<a name="line.189"></a>
-<span class="sourceLineNo">190</span>      // in the newly compiled method.<a name="line.190"></a>
-<span class="sourceLineNo">191</span>      double expectedSpeedup = getExpectedSpeedup();<a name="line.191"></a>
-<span class="sourceLineNo">192</span>      double oldNumSamples = Controller.methodSamples.getData(prevCMID);<a name="line.192"></a>
-<span class="sourceLineNo">193</span>      double newNumSamples = oldNumSamples / expectedSpeedup;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>      Controller.methodSamples.reset(prevCMID);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>      if (newCMID &gt; -1) {<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        Controller.methodSamples.augmentData(newCMID, newNumSamples);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>      }<a name="line.197"></a>
-<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
-<span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>    // set the status of the plan accordingly<a name="line.200"></a>
-<span class="sourceLineNo">201</span>    if (newCMID != -1) {<a name="line.201"></a>
-<span class="sourceLineNo">202</span>      setStatus(ControllerPlan.COMPLETED);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>    } else {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>      setStatus(ControllerPlan.ABORTED_COMPILATION_ERROR);<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>    setCMID(newCMID);<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    setTimeCompleted(Controller.controllerClock);<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    CompiledMethod cm = newCMID == -1 ? null : CompiledMethods.getCompiledMethod(newCMID);<a name="line.209"></a>
-<span class="sourceLineNo">210</span>    if (newCMID == -1) {<a name="line.210"></a>
-<span class="sourceLineNo">211</span>      AOSLogging.logger.recompilationAborted(cp);<a name="line.211"></a>
-<span class="sourceLineNo">212</span>    } else {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>      AOSLogging.logger.recompilationCompleted(cp);<a name="line.213"></a>
-<span class="sourceLineNo">214</span>      AOSLogging.logger.recordCompileTime(cm, getExpectedCompilationTime());<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    }<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    if (Controller.options.ENABLE_ADVICE_GENERATION &amp;&amp; (newCMID != -1)) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>      AOSGenerator.reCompilationWithOpt(cp);<a name="line.217"></a>
+<span class="sourceLineNo">179</span>    setTimeInitiated(Controller.controllerClock);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    AOSLogging.logger.recompilationStarted(cp);<a name="line.180"></a>
+<span class="sourceLineNo">181</span><a name="line.181"></a>
+<span class="sourceLineNo">182</span>    if (cp.options.PRINT_METHOD) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      VM.sysWrite("-oc:O" + cp.options.getOptLevel() + " \n");<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    }<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span>    // Compile the method.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    int newCMID = RuntimeCompiler.recompileWithOpt(cp);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    int prevCMID = getPrevCMID();<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>    if (Controller.options.sampling()) {<a name="line.190"></a>
+<span class="sourceLineNo">191</span>      // transfer the samples from the old CMID to the new CMID.<a name="line.191"></a>
+<span class="sourceLineNo">192</span>      // scale the number of samples down by the expected speedup<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      // in the newly compiled method.<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      double expectedSpeedup = getExpectedSpeedup();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>      double oldNumSamples = Controller.methodSamples.getData(prevCMID);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      double newNumSamples = oldNumSamples / expectedSpeedup;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      Controller.methodSamples.reset(prevCMID);<a name="line.197"></a>
+<span class="sourceLineNo">198</span>      if (newCMID &gt; -1) {<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        Controller.methodSamples.augmentData(newCMID, newNumSamples);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>      }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    }<a name="line.201"></a>
+<span class="sourceLineNo">202</span><a name="line.202"></a>
+<span class="sourceLineNo">203</span>    // set the status of the plan accordingly<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    if (newCMID != -1) {<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      setStatus(ControllerPlan.COMPLETED);<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    } else {<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      setStatus(ControllerPlan.ABORTED_COMPILATION_ERROR);<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    }<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    setCMID(newCMID);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    setTimeCompleted(Controller.controllerClock);<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    CompiledMethod cm = newCMID == -1 ? null : CompiledMethods.getCompiledMethod(newCMID);<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    if (newCMID == -1) {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      AOSLogging.logger.recompilationAborted(cp);<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    } else {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      AOSLogging.logger.recompilationCompleted(cp);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>      AOSLogging.logger.recordCompileTime(cm, getExpectedCompilationTime());<a name="line.217"></a>
 <span class="sourceLineNo">218</span>    }<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    return cm;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>  }<a name="line.220"></a>
-<span class="sourceLineNo">221</span><a name="line.221"></a>
-<span class="sourceLineNo">222</span>  /**<a name="line.222"></a>
-<span class="sourceLineNo">223</span>   * The compilation plan<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   */<a name="line.224"></a>
-<span class="sourceLineNo">225</span>  public CompilationPlan getCompPlan() { return compPlan; }<a name="line.225"></a>
-<span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>  /**<a name="line.227"></a>
-<span class="sourceLineNo">228</span>   * The expected speedup &lt;em&gt;for this method &lt;/em&gt; due to this recompilation<a name="line.228"></a>
-<span class="sourceLineNo">229</span>   */<a name="line.229"></a>
-<span class="sourceLineNo">230</span>  public double getExpectedSpeedup() { return expectedSpeedup; }<a name="line.230"></a>
+<span class="sourceLineNo">219</span>    if (Controller.options.ENABLE_ADVICE_GENERATION &amp;&amp; (newCMID != -1)) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>      AOSGenerator.reCompilationWithOpt(cp);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    return cm;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  }<a name="line.223"></a>
+<span class="sourceLineNo">224</span><a name="line.224"></a>
+<span class="sourceLineNo">225</span>  /**<a name="line.225"></a>
+<span class="sourceLineNo">226</span>   * @return the compilation plan<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   */<a name="line.227"></a>
+<span class="sourceLineNo">228</span>  public CompilationPlan getCompPlan() {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>    return compPlan;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>  }<a name="line.230"></a>
 <span class="sourceLineNo">231</span><a name="line.231"></a>
 <span class="sourceLineNo">232</span>  /**<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * The expected compilation time for this method<a name="line.233"></a>
+<span class="sourceLineNo">233</span>   * @return the expected speedup &lt;em&gt;for this method &lt;/em&gt; due to this recompilation<a name="line.233"></a>
 <span class="sourceLineNo">234</span>   */<a name="line.234"></a>
-<span class="sourceLineNo">235</span>  public double getExpectedCompilationTime() { return expectedCompilationTime; }<a name="line.235"></a>
-<span class="sourceLineNo">236</span><a name="line.236"></a>
-<span class="sourceLineNo">237</span>  /**<a name="line.237"></a>
-<span class="sourceLineNo">238</span>   * The priority (how important is it that this plan be executed)<a name="line.238"></a>
-<span class="sourceLineNo">239</span>   */<a name="line.239"></a>
-<span class="sourceLineNo">240</span>  public double getPriority() { return priority; }<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>  /**<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   * The time this plan was created<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   */<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  public int getTimeCreated() { return timeCreated; }<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>  /**<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   * The time (according to the controller clock) compilation of this plan<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * began.<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   */<a name="line.250"></a>
-<span class="sourceLineNo">251</span>  public int getTimeInitiated() { return timeInitiated; }<a name="line.251"></a>
+<span class="sourceLineNo">235</span>  public double getExpectedSpeedup() {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    return expectedSpeedup;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  }<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>  /**<a name="line.239"></a>
+<span class="sourceLineNo">240</span>   * @return the expected compilation time for this method<a name="line.240"></a>
+<span class="sourceLineNo">241</span>   */<a name="line.241"></a>
+<span class="sourceLineNo">242</span>  public double getExpectedCompilationTime() {<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    return expectedCompilationTime;<a name="line.243"></a>
+<span class="sourceLineNo">244</span>  }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>  /**<a name="line.246"></a>
+<span class="sourceLineNo">247</span>   * @return the priority (how important is it that this plan be executed)<a name="line.247"></a>
+<span class="sourceLineNo">248</span>   */<a name="line.248"></a>
+<span class="sourceLineNo">249</span>  public double getPriority() {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    return priority;<a name="line.250"></a>
+<span class="sourceLineNo">251</span>  }<a name="line.251"></a>
 <span class="sourceLineNo">252</span><a name="line.252"></a>
-<span class="sourceLineNo">253</span>  public void setTimeInitiated(int t) { timeInitiated = t; }<a name="line.253"></a>
-<span class="sourceLineNo">254</span><a name="line.254"></a>
-<span class="sourceLineNo">255</span>  /**<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   * The time (according to the controller clock) compilation of this plan<a name="line.256"></a>
-<span class="sourceLineNo">257</span>   * completed.<a name="line.257"></a>
-<span class="sourceLineNo">258</span>   */<a name="line.258"></a>
-<span class="sourceLineNo">259</span>  public int getTimeCompleted() { return timeCompleted; }<a name="line.259"></a>
-<span class="sourceLineNo">260</span><a name="line.260"></a>
-<span class="sourceLineNo">261</span>  public void setTimeCompleted(int t) { timeCompleted = t; }<a name="line.261"></a>
-<span class="sourceLineNo">262</span><a name="line.262"></a>
-<span class="sourceLineNo">263</span>  /**<a name="line.263"></a>
-<span class="sourceLineNo">264</span>   * CMID (compiled method id) associated with the code produced<a name="line.264"></a>
-<span class="sourceLineNo">265</span>   * by executing this plan<a name="line.265"></a>
-<span class="sourceLineNo">266</span>   */<a name="line.266"></a>
-<span class="sourceLineNo">267</span>  public int getCMID() { return CMID; }<a name="line.267"></a>
-<span class="sourceLineNo">268</span><a name="line.268"></a>
-<span class="sourceLineNo">269</span>  public void setCMID(int x) { CMID = x; }<a name="line.269"></a>
-<span class="sourceLineNo">270</span><a name="line.270"></a>
-<span class="sourceLineNo">271</span>  /**<a name="line.271"></a>
-<span class="sourceLineNo">272</span>   * CMID (compiled method id) associated with the *PREVIOUS* compiled<a name="line.272"></a>
-<span class="sourceLineNo">273</span>   * version of this method<a name="line.273"></a>
-<span class="sourceLineNo">274</span>   */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>  public int getPrevCMID() { return prevCMID; }<a name="line.275"></a>
-<span class="sourceLineNo">276</span><a name="line.276"></a>
-<span class="sourceLineNo">277</span>  /**<a name="line.277"></a>
-<span class="sourceLineNo">278</span>   * Status of this compilation plan, choose from the values above<a name="line.278"></a>
-<span class="sourceLineNo">279</span>   */<a name="line.279"></a>
-<span class="sourceLineNo">280</span>  public byte getStatus() { return status; }<a name="line.280"></a>
-<span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>  public void setStatus(byte newStatus) {<a name="line.282"></a>
-<span class="sourceLineNo">283</span>    status = newStatus;<a name="line.283"></a>
-<span class="sourceLineNo">284</span><a name="line.284"></a>
-<span class="sourceLineNo">285</span>    // if we are marking this plan as completed, all previous completed plans<a name="line.285"></a>
-<span class="sourceLineNo">286</span>    // for this method should be marked as OUTDATED<a name="line.286"></a>
-<span class="sourceLineNo">287</span>    if (newStatus == COMPLETED) {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>      // iterate over the planList until we get to this item<a name="line.288"></a>
-<span class="sourceLineNo">289</span>      synchronized (planList) {<a name="line.289"></a>
-<span class="sourceLineNo">290</span>        for (ControllerPlan curPlan : planList) {<a name="line.290"></a>
-<span class="sourceLineNo">291</span>          // exit when we find ourselves<a name="line.291"></a>
-<span class="sourceLineNo">292</span>          if (curPlan == this) break;<a name="line.292"></a>
-<span class="sourceLineNo">293</span><a name="line.293"></a>
-<span class="sourceLineNo">294</span>          if (curPlan.getStatus() == COMPLETED) {<a name="line.294"></a>
-<span class="sourceLineNo">295</span>            curPlan.status = OUTDATED;<a name="line.295"></a>
-<span class="sourceLineNo">296</span>          }<a name="line.296"></a>
-<span class="sourceLineNo">297</span>        } // more to process<a name="line.297"></a>
-<span class="sourceLineNo">298</span>      }<a name="line.298"></a>
-<span class="sourceLineNo">299</span>    }<a name="line.299"></a>
-<span class="sourceLineNo">300</span>  }<a name="line.300"></a>
-<span class="sourceLineNo">301</span><a name="line.301"></a>
-<span class="sourceLineNo">302</span>  /**<a name="line.302"></a>
-<span class="sourceLineNo">303</span>   * List of plans for a source method<a name="line.303"></a>
-<span class="sourceLineNo">304</span>   */<a name="line.304"></a>
-<span class="sourceLineNo">305</span>  public void setPlanList(LinkedList&lt;ControllerPlan&gt; list) { planList = list; }<a name="line.305"></a>
-<span class="sourceLineNo">306</span><a name="line.306"></a>
-<span class="sourceLineNo">307</span>  public String getStatusString() {<a name="line.307"></a>
-<span class="sourceLineNo">308</span>    switch (status) {<a name="line.308"></a>
-<span class="sourceLineNo">309</span>      case UNINITIALIZED:<a name="line.309"></a>
-<span class="sourceLineNo">310</span>        return "UNINITIALIZED";<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      case COMPLETED:<a name="line.311"></a>
-<span class="sourceLineNo">312</span>        return "COMPLETED";<a name="line.312"></a>
-<span class="sourceLineNo">313</span>      case ABORTED_COMPILATION_ERROR:<a name="line.313"></a>
-<span class="sourceLineNo">314</span>        return "ABORTED_COMPILATION_ERROR";<a name="line.314"></a>
-<span class="sourceLineNo">315</span>      case IN_PROGRESS:<a name="line.315"></a>
-<span class="sourceLineNo">316</span>        return "IN_PROGRESS";<a name="line.316"></a>
-<span class="sourceLineNo">317</span>      case OUTDATED:<a name="line.317"></a>
-<span class="sourceLineNo">318</span>        return "OUTDATED";<a name="line.318"></a>
-<span class="sourceLineNo">319</span>      case OSR_BASE_2_OPT:<a name="line.319"></a>
-<span class="sourceLineNo">320</span>        return "OSR_BASE_2_OPT";<a name="line.320"></a>
-<span class="sourceLineNo">321</span>      case UNKNOWN:<a name="line.321"></a>
-<span class="sourceLineNo">322</span>        return "UNKNOWN (not error)";<a name="line.322"></a>
-<span class="sourceLineNo">323</span>      default:<a name="line.323"></a>
-<span class="sourceLineNo">324</span>        return "**** ERROR, UNKNOWN STATUS ****";<a name="line.324"></a>
-<span class="sourceLineNo">325</span>    }<a name="line.325"></a>
-<span class="sourceLineNo">326</span>  }<a name="line.326"></a>
-<span class="sourceLineNo">327</span><a name="line.327"></a>
-<span class="sourceLineNo">328</span>  @Override<a name="line.328"></a>
-<span class="sourceLineNo">329</span>  public String toString() {<a name="line.329"></a>
-<span class="sourceLineNo">330</span>    StringBuilder buf = new StringBuilder();<a name="line.330"></a>
+<span class="sourceLineNo">253</span>  /**<a name="line.253"></a>
+<span class="sourceLineNo">254</span>   * @return the time this plan was created<a name="line.254"></a>
+<span class="sourceLineNo">255</span>   */<a name="line.255"></a>
+<span class="sourceLineNo">256</span>  public int getTimeCreated() {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    return timeCreated;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>  }<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>  /**<a name="line.260"></a>
+<span class="sourceLineNo">261</span>   * @return the time (according to the controller clock) compilation of this plan<a name="line.261"></a>
+<span class="sourceLineNo">262</span>   * began.<a name="line.262"></a>
+<span class="sourceLineNo">263</span>   */<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  public int getTimeInitiated() {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    return timeInitiated;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>  }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>  public void setTimeInitiated(int t) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>    timeInitiated = t;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>  }<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>  /**<a name="line.272"></a>
+<span class="sourceLineNo">273</span>   * @return the time (according to the controller clock) compilation of this plan<a name="line.273"></a>
+<span class="sourceLineNo">274</span>   * completed.<a name="line.274"></a>
+<span class="sourceLineNo">275</span>   */<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  public int getTimeCompleted() {<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    return timeCompleted;<a name="line.277"></a>
+<span class="sourceLineNo">278</span>  }<a name="line.278"></a>
+<span class="sourceLineNo">279</span><a name="line.279"></a>
+<span class="sourceLineNo">280</span>  public void setTimeCompleted(int t) {<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    timeCompleted = t;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>  /**<a name="line.284"></a>
+<span class="sourceLineNo">285</span>   * @return CMID (compiled method id) associated with the code produced<a name="line.285"></a>
+<span class="sourceLineNo">286</span>   * by executing this plan<a name="line.286"></a>
+<span class="sourceLineNo">287</span>   */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>  public int getCMID() {<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    return CMID;<a name="line.289"></a>
+<span class="sourceLineNo">290</span>  }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>  public void setCMID(int x) {<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    CMID = x;<a name="line.293"></a>
+<span class="sourceLineNo">294</span>  }<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>  /**<a name="line.296"></a>
+<span class="sourceLineNo">297</span>   * @return CMID (compiled method id) associated with the *PREVIOUS* compiled<a name="line.297"></a>
+<span class="sourceLineNo">298</span>   * version of this method<a name="line.298"></a>
+<span class="sourceLineNo">299</span>   */<a name="line.299"></a>
+<span class="sourceLineNo">300</span>  public int getPrevCMID() {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    return prevCMID;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>  }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>  /**<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   * @return status of this compilation plan, chosen from the values defined<a name="line.305"></a>
+<span class="sourceLineNo">306</span>   *  in this class<a name="line.306"></a>
+<span class="sourceLineNo">307</span>   */<a name="line.307"></a>
+<span class="sourceLineNo">308</span>  public byte getStatus() {<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    return status;<a name="line.309"></a>
+<span class="sourceLineNo">310</span>  }<a name="line.310"></a>
+<span class="sourceLineNo">311</span><a name="line.311"></a>
+<span class="sourceLineNo">312</span>  public void setStatus(byte newStatus) {<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    status = newStatus;<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>    // if we are marking this plan as completed, all previous completed plans<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    // for this method should be marked as OUTDATED<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    if (newStatus == COMPLETED) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>      // iterate over the planList until we get to this item<a name="line.318"></a>
+<span class="sourceLineNo">319</span>      synchronized (planList) {<a name="line.319"></a>
+<span class="sourceLineNo">320</span>        for (ControllerPlan curPlan : planList) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>          // exit when we find ourselves<a name="line.321"></a>
+<span class="sourceLineNo">322</span>          if (curPlan == this) break;<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>          if (curPlan.getStatus() == COMPLETED) {<a name="line.324"></a>
+<span class="sourceLineNo">325</span>            curPlan.status = OUTDATED;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>          }<a name="line.326"></a>
+<span class="sourceLineNo">327</span>        } // more to process<a name="line.327"></a>
+<span class="sourceLineNo">328</span>      }<a name="line.328"></a>
+<span class="sourceLineNo">329</span>    }<a name="line.329"></a>
+<span class="sourceLineNo">330</span>  }<a name="line.330"></a>
 <span class="sourceLineNo">331</span><a name="line.331"></a>
-<span class="sourceLineNo">332</span>    buf.append("Method: ").append(getCompPlan().method).append("\n\tCompiled Method ID: ").append(CMID).append(<a name="line.332"></a>
-<span class="sourceLineNo">333</span>        "\n\tPrevious Compiled Method ID: ").append(prevCMID).append("\n\tCreated at ").append(timeCreated).append(<a name="line.333"></a>
-<span class="sourceLineNo">334</span>        "\n\tInitiated at ").append(timeInitiated).append("\n\tCompleted at ").append(timeCompleted).append(<a name="line.334"></a>
-<span class="sourceLineNo">335</span>        "\n\tExpected Speedup: ").append(expectedSpeedup).append("\n\tExpected Compilation Time: ").append(<a name="line.335"></a>
-<span class="sourceLineNo">336</span>        expectedCompilationTime).append("\n\tPriority: ").append(priority).append("\n\tStatus: ").append(getStatusString()).append(<a name="line.336"></a>
-<span class="sourceLineNo">337</span>        "\n\tComp. Plan Level: ").append(compPlan.options.getOptLevel()).append("\n");<a name="line.337"></a>
-<span class="sourceLineNo">338</span>    return buf.toString();<a name="line.338"></a>
-<span class="sourceLineNo">339</span>  }<a name="line.339"></a>
-<span class="sourceLineNo">340</span><a name="line.340"></a>
-<span class="sourceLineNo">341</span>}<a name="line.341"></a>
+<span class="sourceLineNo">332</span>  public void setPlanList(LinkedList&lt;ControllerPlan&gt; list) {<a name="line.332"></a>
+<span class="sourceLineNo">333</span>    planList = list;<a name="line.333"></a>
+<span class="sourceLineNo">334</span>  }<a name="line.334"></a>
+<span class="sourceLineNo">335</span><a name="line.335"></a>
+<span class="sourceLineNo">336</span>  public String getStatusString() {<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    switch (status) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      case UNINITIALIZED:<a name="line.338"></a>
+<span class="sourceLineNo">339</span>        return "UNINITIALIZED";<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      case COMPLETED:<a name="line.340"></a>
+<span class="sourceLineNo">341</span>        return "COMPLETED";<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      case ABORTED_COMPILATION_ERROR:<a name="line.342"></a>
+<span class="sourceLineNo">343</span>        return "ABORTED_COMPILATION_ERROR";<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      case IN_PROGRESS:<a name="line.344"></a>
+<span class="sourceLineNo">345</span>        return "IN_PROGRESS";<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      case OUTDATED:<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        return "OUTDATED";<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      case OSR_BASE_2_OPT:<a name="line.348"></a>
+<span class="sourceLineNo">349</span>        return "OSR_BASE_2_OPT";<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      case UNKNOWN:<a name="line.350"></a>
+<span class="sourceLineNo">351</span>        return "UNKNOWN (not error)";<a name="line.351"></a>
+<span class="sourceLineNo">352</span>      default:<a name="line.352"></a>
+<span class="sourceLineNo">353</span>        return "**** ERROR, UNKNOWN STATUS ****";<a name="line.353"></a>
+<span class="sourceLineNo">354</span>    }<a name="line.354"></a>
+<span class="sourceLineNo">355</span>  }<a name="line.355"></a>
+<span class="sourceLineNo">356</span><a name="line.356"></a>
+<span class="sourceLineNo">357</span>  @Override<a name="line.357"></a>
+<span class="sourceLineNo">358</span>  public String toString() {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>    StringBuilder buf = new StringBuilder();<a name="line.359"></a>
+<span class="sourceLineNo">360</span><a name="line.360"></a>
+<span class="sourceLineNo">361</span>    buf.append("Method: ").append(getCompPlan().method).append("\n\tCompiled Method ID: ").append(CMID).append(<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        "\n\tPrevious Compiled Method ID: ").append(prevCMID).append("\n\tCreated at ").append(timeCreated).append(<a name="line.362"></a>
+<span class="sourceLineNo">363</span>        "\n\tInitiated at ").append(timeInitiated).append("\n\tCompleted at ").append(timeCompleted).append(<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        "\n\tExpected Speedup: ").append(expectedSpeedup).append("\n\tExpected Compilation Time: ").append(<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        expectedCompilationTime).append("\n\tPriority: ").append(priority).append("\n\tStatus: ").append(getStatusString()).append(<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        "\n\tComp. Plan Level: ").append(compPlan.options.getOptLevel()).append("\n");<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    return buf.toString();<a name="line.367"></a>
+<span class="sourceLineNo">368</span>  }<a name="line.368"></a>
+<span class="sourceLineNo">369</span><a name="line.369"></a>
+<span class="sourceLineNo">370</span>}<a name="line.370"></a>
 
 
 

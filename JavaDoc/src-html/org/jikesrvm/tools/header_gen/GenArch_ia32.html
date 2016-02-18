@@ -20,57 +20,82 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.tools.header_gen;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.ia32.ArchConstants;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.ia32.BaselineConstants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.ia32.RegisterConstants;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.ia32.StackframeLayoutConstants;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.ia32.TrapConstants;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.runtime.ArchEntrypoints;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.vmmagic.unboxed.Offset;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * Emit the architecture-specific part of a header file containing declarations<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * required to access VM data structures from C++.<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * Posix version: AIX PPC, Linux PPC, Linux IA32<a name="line.26"></a>
-<span class="sourceLineNo">027</span> */<a name="line.27"></a>
-<span class="sourceLineNo">028</span>final class GenArch_ia32 extends GenArch {<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  @Override<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  public void emitArchVirtualMachineDeclarations() {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>    Offset offset;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>    offset = ArchEntrypoints.registersFPField.getOffset();<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    pln("Registers_fp_offset = ", offset);<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>    p("static const int Constants_EAX                    = " + RegisterConstants.EAX.value() + ";\n");<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    p("static const int Constants_ECX                    = " + RegisterConstants.ECX.value() + ";\n");<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    p("static const int Constants_EDX                    = " + RegisterConstants.EDX.value() + ";\n");<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    p("static const int Constants_EBX                    = " + RegisterConstants.EBX.value() + ";\n");<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    p("static const int Constants_ESP                    = " + RegisterConstants.ESP.value() + ";\n");<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    p("static const int Constants_EBP                    = " + RegisterConstants.EBP.value() + ";\n");<a name="line.41"></a>
-<span class="sourceLineNo">042</span>    p("static const int Constants_ESI                    = " + RegisterConstants.ESI.value() + ";\n");<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    p("static const int Constants_EDI                    = " + RegisterConstants.EDI.value() + ";\n");<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    p("static const int Constants_STACKFRAME_BODY_OFFSET             = " +<a name="line.44"></a>
-<span class="sourceLineNo">045</span>      StackframeLayoutConstants.STACKFRAME_BODY_OFFSET + ";\n");<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    p("static const int Constants_STACKFRAME_RETURN_ADDRESS_OFFSET   = " +<a name="line.46"></a>
-<span class="sourceLineNo">047</span>      StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET + ";\n");<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    p("static const int Constants_RVM_TRAP_BASE  = " + TrapConstants.RVM_TRAP_BASE + ";\n");<a name="line.48"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.ia32.ArchConstants.SSE2_BASE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.jikesrvm.ia32.BaselineConstants.TR;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import static org.jikesrvm.ia32.RegisterConstants.EAX;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import static org.jikesrvm.ia32.RegisterConstants.EBP;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import static org.jikesrvm.ia32.RegisterConstants.EBX;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import static org.jikesrvm.ia32.RegisterConstants.ECX;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import static org.jikesrvm.ia32.RegisterConstants.EDI;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import static org.jikesrvm.ia32.RegisterConstants.EDX;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import static org.jikesrvm.ia32.RegisterConstants.ESI;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import static org.jikesrvm.ia32.RegisterConstants.ESP;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import static org.jikesrvm.ia32.RegisterConstants.R10;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import static org.jikesrvm.ia32.RegisterConstants.R11;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import static org.jikesrvm.ia32.RegisterConstants.R12;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import static org.jikesrvm.ia32.RegisterConstants.R13;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import static org.jikesrvm.ia32.RegisterConstants.R14;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import static org.jikesrvm.ia32.RegisterConstants.R15;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import static org.jikesrvm.ia32.RegisterConstants.R8;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import static org.jikesrvm.ia32.RegisterConstants.R9;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_BODY_OFFSET;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import static org.jikesrvm.ia32.StackframeLayoutConstants.STACKFRAME_RETURN_ADDRESS_OFFSET;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import static org.jikesrvm.ia32.TrapConstants.RVM_TRAP_BASE;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.jikesrvm.VM;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.jikesrvm.runtime.ArchEntrypoints;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.vmmagic.unboxed.Offset;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>/**<a name="line.41"></a>
+<span class="sourceLineNo">042</span> * Emit the architecture-specific part of a header file containing declarations<a name="line.42"></a>
+<span class="sourceLineNo">043</span> * required to access VM data structures from C.<a name="line.43"></a>
+<span class="sourceLineNo">044</span> */<a name="line.44"></a>
+<span class="sourceLineNo">045</span>final class GenArch_ia32 extends GenArch {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  @Override<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public void emitArchVirtualMachineDeclarations() {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    Offset offset;<a name="line.48"></a>
 <span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    offset = ArchEntrypoints.framePointerField.getOffset();<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    pln("Thread_framePointer_offset = ", offset);<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    offset = ArchEntrypoints.arrayIndexTrapParamField.getOffset();<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    pln("Thread_arrayIndexTrapParam_offset = ", offset);<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    p("static const int ArchConstants_SSE2 = " + (ArchConstants.SSE2_BASE ? "1;\n" : "0;\n"));<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  }<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>  @Override<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  public void emitArchAssemblerDeclarations() {<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    if (BaselineConstants.TR != BaselineConstants.ESI) {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>      throw new Error("Unexpected TR value");<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    p("#define TR %ESI;\n");<a name="line.63"></a>
-<span class="sourceLineNo">064</span>  }<a name="line.64"></a>
-<span class="sourceLineNo">065</span>}<a name="line.65"></a>
+<span class="sourceLineNo">050</span>    offset = ArchEntrypoints.registersFPField.getOffset();<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    pln("Registers_fp_offset", offset);<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    pln("Constants_EAX", EAX.value());<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    pln("Constants_ECX", ECX.value());<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    pln("Constants_EDX", EDX.value());<a name="line.55"></a>
+<span class="sourceLineNo">056</span>    pln("Constants_EBX", EBX.value());<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    pln("Constants_ESP", ESP.value());<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    pln("Constants_EBP", EBP.value());<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    pln("Constants_ESI", ESI.value());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    pln("Constants_EDI", EDI.value());<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    if (VM.BuildFor64Addr) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      pln("Constants_R8", R8.value());<a name="line.62"></a>
+<span class="sourceLineNo">063</span>      pln("Constants_R9", R9.value());<a name="line.63"></a>
+<span class="sourceLineNo">064</span>      pln("Constants_R10", R10.value());<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      pln("Constants_R11", R11.value());<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      pln("Constants_R12", R12.value());<a name="line.66"></a>
+<span class="sourceLineNo">067</span>      pln("Constants_R13", R13.value());<a name="line.67"></a>
+<span class="sourceLineNo">068</span>      pln("Constants_R14", R14.value());<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      pln("Constants_R15", R15.value());<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    pln("Constants_STACKFRAME_BODY_OFFSET", STACKFRAME_BODY_OFFSET);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    pln("Constants_STACKFRAME_RETURN_ADDRESS_OFFSET", STACKFRAME_RETURN_ADDRESS_OFFSET);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    pln("Constants_RVM_TRAP_BASE", RVM_TRAP_BASE);<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>    offset = ArchEntrypoints.framePointerField.getOffset();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    pln("Thread_framePointer_offset", offset);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    offset = ArchEntrypoints.arrayIndexTrapParamField.getOffset();<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    pln("Thread_arrayIndexTrapParam_offset", offset);<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>    pln("ArchConstants_SSE2", (SSE2_BASE ? 1 : 0));<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public void emitArchAssemblerDeclarations() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    if (TR != ESI) {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      throw new Error("Unexpected TR value");<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    p("#define TR %ESI\n");<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span>}<a name="line.90"></a>
 
 
 

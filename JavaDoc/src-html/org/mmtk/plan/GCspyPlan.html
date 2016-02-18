@@ -24,19 +24,25 @@
 <span class="sourceLineNo">016</span>import org.mmtk.utility.heap.VMRequest;<a name="line.16"></a>
 <span class="sourceLineNo">017</span><a name="line.17"></a>
 <span class="sourceLineNo">018</span>/**<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * This interface provides an immortal allocation space for GCspy objects.<a name="line.19"></a>
-<span class="sourceLineNo">020</span> */<a name="line.20"></a>
-<span class="sourceLineNo">021</span>public interface GCspyPlan {<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>  /**<a name="line.23"></a>
-<span class="sourceLineNo">024</span>   * Any GCspy objects allocated after booting are allocated<a name="line.24"></a>
-<span class="sourceLineNo">025</span>   * in a separate immortal space.<a name="line.25"></a>
-<span class="sourceLineNo">026</span>   */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>  ImmortalSpace gcspySpace = new ImmortalSpace("gcspy", VMRequest.create());<a name="line.27"></a>
+<span class="sourceLineNo">019</span> * This interface provides an immortal allocation space for GCspy objects.&lt;p&gt;<a name="line.19"></a>
+<span class="sourceLineNo">020</span> *<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * TODO constant interfaces are bad practice. Converting this to a class does<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * not seem to be the right thing to do because it does not fit well with the<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * current MMTk architecture and the plan concept. It's probably best to fix<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * this up if we get around to updating GCSpy.<a name="line.24"></a>
+<span class="sourceLineNo">025</span> */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>@Deprecated<a name="line.26"></a>
+<span class="sourceLineNo">027</span>public interface GCspyPlan {<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>  /** The descriptor for the GCspy allocation space */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  int GCSPY = gcspySpace.getDescriptor();<a name="line.30"></a>
-<span class="sourceLineNo">031</span>}<a name="line.31"></a>
+<span class="sourceLineNo">029</span>  /**<a name="line.29"></a>
+<span class="sourceLineNo">030</span>   * Any GCspy objects allocated after booting are allocated<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   * in a separate immortal space.<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  ImmortalSpace gcspySpace = new ImmortalSpace("gcspy", VMRequest.discontiguous());<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>  /** The descriptor for the GCspy allocation space */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  int GCSPY = gcspySpace.getDescriptor();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>}<a name="line.37"></a>
 
 
 

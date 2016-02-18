@@ -61,7 +61,7 @@
 <span class="sourceLineNo">053</span>  private DominatorTree dominator;<a name="line.53"></a>
 <span class="sourceLineNo">054</span>  /**<a name="line.54"></a>
 <span class="sourceLineNo">055</span>   * Available expressions. From Muchnick, "an expression<a name="line.55"></a>
-<span class="sourceLineNo">056</span>   * &lt;em&gt;exp&lt;/em&gt;is said to be &lt;/em&gt;available&lt;/em&gt; at the entry to a<a name="line.56"></a>
+<span class="sourceLineNo">056</span>   * &lt;em&gt;exp&lt;/em&gt;is said to be &lt;em&gt;available&lt;/em&gt; at the entry to a<a name="line.56"></a>
 <span class="sourceLineNo">057</span>   * basic block if along every control-flow path from the entry block<a name="line.57"></a>
 <span class="sourceLineNo">058</span>   * to this block there is an evaluation of exp that is not<a name="line.58"></a>
 <span class="sourceLineNo">059</span>   * subsequently killed by having one or more of its operands<a name="line.59"></a>
@@ -138,119 +138,119 @@
 <span class="sourceLineNo">130</span>    globalCSE(ir.firstBasicBlockInCodeOrder());<a name="line.130"></a>
 <span class="sourceLineNo">131</span><a name="line.131"></a>
 <span class="sourceLineNo">132</span>    if (VM.VerifyAssertions) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>      VM._assert(avail.isEmpty(), avail.toString());<a name="line.133"></a>
-<span class="sourceLineNo">134</span>    }<a name="line.134"></a>
-<span class="sourceLineNo">135</span>    ir.actualSSAOptions.setScalarValid(false);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>  }<a name="line.136"></a>
-<span class="sourceLineNo">137</span><a name="line.137"></a>
-<span class="sourceLineNo">138</span>  /**<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   * Recursively descend over all blocks dominated by b. For each<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   * instruction in the block, if it defines a GVN then record it in<a name="line.140"></a>
-<span class="sourceLineNo">141</span>   * the available expressions. If the GVN already exists in the<a name="line.141"></a>
-<span class="sourceLineNo">142</span>   * available expressions then eliminate the instruction and change<a name="line.142"></a>
-<span class="sourceLineNo">143</span>   * all uses of the result of the instruction to be uses of the first<a name="line.143"></a>
-<span class="sourceLineNo">144</span>   * instruction to define the result of this expression.<a name="line.144"></a>
-<span class="sourceLineNo">145</span>   * @param b the current block to process<a name="line.145"></a>
-<span class="sourceLineNo">146</span>   */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>  private void globalCSE(BasicBlock b) {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    Instruction next, inst;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    // Iterate over instructions in b<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    inst = b.firstInstruction();<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    while (!BBend.conforms(inst)) {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      next = inst.nextInstructionInCodeOrder();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>      // check instruction is safe for GCSE, {@see shouldCSE}<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      if (!shouldCSE(inst)) {<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        inst = next;<a name="line.155"></a>
-<span class="sourceLineNo">156</span>        continue;<a name="line.156"></a>
-<span class="sourceLineNo">157</span>      }<a name="line.157"></a>
-<span class="sourceLineNo">158</span>      // check the instruction defines a result<a name="line.158"></a>
-<span class="sourceLineNo">159</span>      RegisterOperand result = getResult(inst);<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      if (result == null) {<a name="line.160"></a>
-<span class="sourceLineNo">161</span>        inst = next;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        continue;<a name="line.162"></a>
-<span class="sourceLineNo">163</span>      }<a name="line.163"></a>
-<span class="sourceLineNo">164</span>      // get the value number for this result. The value number for<a name="line.164"></a>
-<span class="sourceLineNo">165</span>      // the same sub-expression is shared by all results showing they<a name="line.165"></a>
-<span class="sourceLineNo">166</span>      // can be eliminated. If the value number is UNKNOWN the result<a name="line.166"></a>
-<span class="sourceLineNo">167</span>      // is negative.<a name="line.167"></a>
-<span class="sourceLineNo">168</span>      int vn = valueNumbers.getValueNumber(result);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>      if (vn &lt; 0) {<a name="line.169"></a>
-<span class="sourceLineNo">170</span>        inst = next;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>        continue;<a name="line.171"></a>
-<span class="sourceLineNo">172</span>      }<a name="line.172"></a>
-<span class="sourceLineNo">173</span>      // was this the first definition of the value number?<a name="line.173"></a>
-<span class="sourceLineNo">174</span>      Integer Vn = vn;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>      Instruction former = avail.get(Vn);<a name="line.175"></a>
-<span class="sourceLineNo">176</span>      if (former == null) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>        // first occurance of value number, record it in the available<a name="line.177"></a>
-<span class="sourceLineNo">178</span>        // expressions<a name="line.178"></a>
-<span class="sourceLineNo">179</span>        avail.put(Vn, inst);<a name="line.179"></a>
-<span class="sourceLineNo">180</span>      } else {<a name="line.180"></a>
-<span class="sourceLineNo">181</span>        // this value number has been seen before so we can use the<a name="line.181"></a>
-<span class="sourceLineNo">182</span>        // earlier version<a name="line.182"></a>
-<span class="sourceLineNo">183</span>        // NB instead of trying to repair Heap SSA, we rebuild it<a name="line.183"></a>
-<span class="sourceLineNo">184</span>        // after CSE<a name="line.184"></a>
-<span class="sourceLineNo">185</span><a name="line.185"></a>
-<span class="sourceLineNo">186</span>        // relink scalar dependencies - make all uses of the current<a name="line.186"></a>
-<span class="sourceLineNo">187</span>        // instructions result use the first definition of the result<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        // by the earlier expression<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        RegisterOperand formerDef = getResult(former);<a name="line.189"></a>
-<span class="sourceLineNo">190</span>        Register reg = result.getRegister();<a name="line.190"></a>
-<span class="sourceLineNo">191</span>        formerDef.getRegister().setSpansBasicBlock();<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        Enumeration&lt;RegisterOperand&gt; uses = DefUse.uses(reg);<a name="line.192"></a>
-<span class="sourceLineNo">193</span>        while (uses.hasMoreElements()) {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>          RegisterOperand use = uses.nextElement();<a name="line.194"></a>
-<span class="sourceLineNo">195</span>          DefUse.transferUse(use, formerDef);<a name="line.195"></a>
-<span class="sourceLineNo">196</span>        }<a name="line.196"></a>
-<span class="sourceLineNo">197</span>        if (verbose) {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>          VM.sysWrite("using      " + former + "\n" + "instead of " + inst + "\n");<a name="line.198"></a>
-<span class="sourceLineNo">199</span>        }<a name="line.199"></a>
-<span class="sourceLineNo">200</span>        // remove the redundant instruction<a name="line.200"></a>
-<span class="sourceLineNo">201</span>        inst.remove();<a name="line.201"></a>
-<span class="sourceLineNo">202</span>      }<a name="line.202"></a>
-<span class="sourceLineNo">203</span>      inst = next;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    } // end of instruction iteration<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    // Recurse over all blocks that this block dominates<a name="line.205"></a>
-<span class="sourceLineNo">206</span>    Enumeration&lt;TreeNode&gt; e = dominator.getChildren(b);<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    while (e.hasMoreElements()) {<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      DominatorTreeNode n = (DominatorTreeNode) e.nextElement();<a name="line.208"></a>
-<span class="sourceLineNo">209</span>      BasicBlock bl = n.getBlock();<a name="line.209"></a>
-<span class="sourceLineNo">210</span>      // don't process infrequently executed basic blocks<a name="line.210"></a>
-<span class="sourceLineNo">211</span>      if (ir.options.FREQ_FOCUS_EFFORT &amp;&amp; bl.getInfrequent()) continue;<a name="line.211"></a>
-<span class="sourceLineNo">212</span>      globalCSE(bl);<a name="line.212"></a>
-<span class="sourceLineNo">213</span>    }<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    // Iterate over instructions in this basic block removing<a name="line.214"></a>
-<span class="sourceLineNo">215</span>    // available expressions that had been created for this block<a name="line.215"></a>
-<span class="sourceLineNo">216</span>    inst = b.firstInstruction();<a name="line.216"></a>
-<span class="sourceLineNo">217</span>    while (!BBend.conforms(inst)) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>      next = inst.nextInstructionInCodeOrder();<a name="line.218"></a>
-<span class="sourceLineNo">219</span>      if (!shouldCSE(inst)) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        inst = next;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>        continue;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>      }<a name="line.222"></a>
-<span class="sourceLineNo">223</span>      RegisterOperand result = getResult(inst);<a name="line.223"></a>
-<span class="sourceLineNo">224</span>      if (result == null) {<a name="line.224"></a>
-<span class="sourceLineNo">225</span>        inst = next;<a name="line.225"></a>
-<span class="sourceLineNo">226</span>        continue;<a name="line.226"></a>
-<span class="sourceLineNo">227</span>      }<a name="line.227"></a>
-<span class="sourceLineNo">228</span>      int vn = valueNumbers.getValueNumber(result);<a name="line.228"></a>
-<span class="sourceLineNo">229</span>      if (vn &lt; 0) {<a name="line.229"></a>
-<span class="sourceLineNo">230</span>        inst = next;<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        continue;<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      }<a name="line.232"></a>
-<span class="sourceLineNo">233</span>      Integer Vn = vn;<a name="line.233"></a>
-<span class="sourceLineNo">234</span>      Instruction former = avail.get(Vn);<a name="line.234"></a>
-<span class="sourceLineNo">235</span>      if (former == inst) {<a name="line.235"></a>
-<span class="sourceLineNo">236</span>        avail.remove(Vn);<a name="line.236"></a>
-<span class="sourceLineNo">237</span>      }<a name="line.237"></a>
-<span class="sourceLineNo">238</span>      inst = next;<a name="line.238"></a>
-<span class="sourceLineNo">239</span>    }<a name="line.239"></a>
-<span class="sourceLineNo">240</span>  }<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>  /**<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   * Get the result operand of the instruction<a name="line.243"></a>
-<span class="sourceLineNo">244</span>   * @param inst<a name="line.244"></a>
-<span class="sourceLineNo">245</span>   */<a name="line.245"></a>
+<span class="sourceLineNo">133</span>      boolean isEmpty = avail.isEmpty();<a name="line.133"></a>
+<span class="sourceLineNo">134</span>      if (!isEmpty) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        String msg = avail.toString();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>        VM._assert(isEmpty, msg);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      }<a name="line.137"></a>
+<span class="sourceLineNo">138</span>    }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>    ir.actualSSAOptions.setScalarValid(false);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>  /**<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * Recursively descend over all blocks dominated by b. For each<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * instruction in the block, if it defines a GVN then record it in<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   * the available expressions. If the GVN already exists in the<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   * available expressions then eliminate the instruction and change<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   * all uses of the result of the instruction to be uses of the first<a name="line.147"></a>
+<span class="sourceLineNo">148</span>   * instruction to define the result of this expression.<a name="line.148"></a>
+<span class="sourceLineNo">149</span>   * @param b the current block to process<a name="line.149"></a>
+<span class="sourceLineNo">150</span>   */<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  private void globalCSE(BasicBlock b) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    Instruction next, inst;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    // Iterate over instructions in b<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    inst = b.firstInstruction();<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    while (!BBend.conforms(inst)) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      next = inst.nextInstructionInCodeOrder();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>      // check instruction is safe for GCSE, {@see shouldCSE}<a name="line.157"></a>
+<span class="sourceLineNo">158</span>      if (!shouldCSE(inst)) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>        inst = next;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>        continue;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>      // check the instruction defines a result<a name="line.162"></a>
+<span class="sourceLineNo">163</span>      RegisterOperand result = getResult(inst);<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      if (result == null) {<a name="line.164"></a>
+<span class="sourceLineNo">165</span>        inst = next;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>        continue;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      }<a name="line.167"></a>
+<span class="sourceLineNo">168</span>      // get the value number for this result. The value number for<a name="line.168"></a>
+<span class="sourceLineNo">169</span>      // the same sub-expression is shared by all results showing they<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      // can be eliminated. If the value number is UNKNOWN the result<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      // is negative.<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      int vn = valueNumbers.getValueNumber(result);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>      if (vn &lt; 0) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>        inst = next;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>        continue;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>      }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      // was this the first definition of the value number?<a name="line.177"></a>
+<span class="sourceLineNo">178</span>      Integer Vn = vn;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      Instruction former = avail.get(Vn);<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      if (former == null) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>        // first occurance of value number, record it in the available<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        // expressions<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        avail.put(Vn, inst);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      } else {<a name="line.184"></a>
+<span class="sourceLineNo">185</span>        // this value number has been seen before so we can use the<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        // earlier version<a name="line.186"></a>
+<span class="sourceLineNo">187</span>        // NB instead of trying to repair Heap SSA, we rebuild it<a name="line.187"></a>
+<span class="sourceLineNo">188</span>        // after CSE<a name="line.188"></a>
+<span class="sourceLineNo">189</span><a name="line.189"></a>
+<span class="sourceLineNo">190</span>        // relink scalar dependencies - make all uses of the current<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        // instructions result use the first definition of the result<a name="line.191"></a>
+<span class="sourceLineNo">192</span>        // by the earlier expression<a name="line.192"></a>
+<span class="sourceLineNo">193</span>        RegisterOperand formerDef = getResult(former);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>        Register reg = result.getRegister();<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        formerDef.getRegister().setSpansBasicBlock();<a name="line.195"></a>
+<span class="sourceLineNo">196</span>        Enumeration&lt;RegisterOperand&gt; uses = DefUse.uses(reg);<a name="line.196"></a>
+<span class="sourceLineNo">197</span>        while (uses.hasMoreElements()) {<a name="line.197"></a>
+<span class="sourceLineNo">198</span>          RegisterOperand use = uses.nextElement();<a name="line.198"></a>
+<span class="sourceLineNo">199</span>          DefUse.transferUse(use, formerDef);<a name="line.199"></a>
+<span class="sourceLineNo">200</span>        }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>        if (verbose) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>          VM.sysWrite("using      " + former + "\n" + "instead of " + inst + "\n");<a name="line.202"></a>
+<span class="sourceLineNo">203</span>        }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        // remove the redundant instruction<a name="line.204"></a>
+<span class="sourceLineNo">205</span>        inst.remove();<a name="line.205"></a>
+<span class="sourceLineNo">206</span>      }<a name="line.206"></a>
+<span class="sourceLineNo">207</span>      inst = next;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    } // end of instruction iteration<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    // Recurse over all blocks that this block dominates<a name="line.209"></a>
+<span class="sourceLineNo">210</span>    Enumeration&lt;TreeNode&gt; e = dominator.getChildren(b);<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    while (e.hasMoreElements()) {<a name="line.211"></a>
+<span class="sourceLineNo">212</span>      DominatorTreeNode n = (DominatorTreeNode) e.nextElement();<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      BasicBlock bl = n.getBlock();<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      // don't process infrequently executed basic blocks<a name="line.214"></a>
+<span class="sourceLineNo">215</span>      if (ir.options.FREQ_FOCUS_EFFORT &amp;&amp; bl.getInfrequent()) continue;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      globalCSE(bl);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    // Iterate over instructions in this basic block removing<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    // available expressions that had been created for this block<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    inst = b.firstInstruction();<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    while (!BBend.conforms(inst)) {<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      next = inst.nextInstructionInCodeOrder();<a name="line.222"></a>
+<span class="sourceLineNo">223</span>      if (!shouldCSE(inst)) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>        inst = next;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>        continue;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>      }<a name="line.226"></a>
+<span class="sourceLineNo">227</span>      RegisterOperand result = getResult(inst);<a name="line.227"></a>
+<span class="sourceLineNo">228</span>      if (result == null) {<a name="line.228"></a>
+<span class="sourceLineNo">229</span>        inst = next;<a name="line.229"></a>
+<span class="sourceLineNo">230</span>        continue;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      int vn = valueNumbers.getValueNumber(result);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>      if (vn &lt; 0) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        inst = next;<a name="line.234"></a>
+<span class="sourceLineNo">235</span>        continue;<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      }<a name="line.236"></a>
+<span class="sourceLineNo">237</span>      Integer Vn = vn;<a name="line.237"></a>
+<span class="sourceLineNo">238</span>      Instruction former = avail.get(Vn);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>      if (former == inst) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>        avail.remove(Vn);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>      }<a name="line.241"></a>
+<span class="sourceLineNo">242</span>      inst = next;<a name="line.242"></a>
+<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
+<span class="sourceLineNo">244</span>  }<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
 <span class="sourceLineNo">246</span>  private RegisterOperand getResult(Instruction inst) {<a name="line.246"></a>
 <span class="sourceLineNo">247</span>    if (ResultCarrier.conforms(inst)) {<a name="line.247"></a>
 <span class="sourceLineNo">248</span>      return ResultCarrier.getResult(inst);<a name="line.248"></a>
@@ -261,134 +261,130 @@
 <span class="sourceLineNo">253</span>    return null;<a name="line.253"></a>
 <span class="sourceLineNo">254</span>  }<a name="line.254"></a>
 <span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>  /**<a name="line.256"></a>
-<span class="sourceLineNo">257</span>   * should this instruction be cse'd  ?<a name="line.257"></a>
-<span class="sourceLineNo">258</span>   * @param inst<a name="line.258"></a>
-<span class="sourceLineNo">259</span>   */<a name="line.259"></a>
-<span class="sourceLineNo">260</span>  private boolean shouldCSE(Instruction inst) {<a name="line.260"></a>
-<span class="sourceLineNo">261</span><a name="line.261"></a>
-<span class="sourceLineNo">262</span>    if ((inst.isAllocation()) ||<a name="line.262"></a>
-<span class="sourceLineNo">263</span>        inst.isDynamicLinkingPoint() ||<a name="line.263"></a>
-<span class="sourceLineNo">264</span>        inst.isImplicitLoad() ||<a name="line.264"></a>
-<span class="sourceLineNo">265</span>        inst.isImplicitStore() ||<a name="line.265"></a>
-<span class="sourceLineNo">266</span>        inst.operator.opcode &gt;= ARCH_INDEPENDENT_END_opcode) {<a name="line.266"></a>
-<span class="sourceLineNo">267</span>      return false;<a name="line.267"></a>
-<span class="sourceLineNo">268</span>    }<a name="line.268"></a>
-<span class="sourceLineNo">269</span><a name="line.269"></a>
-<span class="sourceLineNo">270</span>    switch (inst.operator.opcode) {<a name="line.270"></a>
-<span class="sourceLineNo">271</span>      case INT_MOVE_opcode:<a name="line.271"></a>
-<span class="sourceLineNo">272</span>      case LONG_MOVE_opcode:<a name="line.272"></a>
-<span class="sourceLineNo">273</span>      case CHECKCAST_opcode:<a name="line.273"></a>
-<span class="sourceLineNo">274</span>      case CHECKCAST_NOTNULL_opcode:<a name="line.274"></a>
-<span class="sourceLineNo">275</span>      case CHECKCAST_UNRESOLVED_opcode:<a name="line.275"></a>
-<span class="sourceLineNo">276</span>      case MUST_IMPLEMENT_INTERFACE_opcode:<a name="line.276"></a>
-<span class="sourceLineNo">277</span>      case INSTANCEOF_opcode:<a name="line.277"></a>
-<span class="sourceLineNo">278</span>      case INSTANCEOF_NOTNULL_opcode:<a name="line.278"></a>
-<span class="sourceLineNo">279</span>      case INSTANCEOF_UNRESOLVED_opcode:<a name="line.279"></a>
-<span class="sourceLineNo">280</span>      case PI_opcode:<a name="line.280"></a>
-<span class="sourceLineNo">281</span>      case FLOAT_MOVE_opcode:<a name="line.281"></a>
-<span class="sourceLineNo">282</span>      case DOUBLE_MOVE_opcode:<a name="line.282"></a>
-<span class="sourceLineNo">283</span>      case REF_MOVE_opcode:<a name="line.283"></a>
-<span class="sourceLineNo">284</span>      case GUARD_MOVE_opcode:<a name="line.284"></a>
-<span class="sourceLineNo">285</span>      case GUARD_COMBINE_opcode:<a name="line.285"></a>
-<span class="sourceLineNo">286</span>      case TRAP_IF_opcode:<a name="line.286"></a>
-<span class="sourceLineNo">287</span>      case REF_ADD_opcode:<a name="line.287"></a>
-<span class="sourceLineNo">288</span>      case INT_ADD_opcode:<a name="line.288"></a>
-<span class="sourceLineNo">289</span>      case LONG_ADD_opcode:<a name="line.289"></a>
-<span class="sourceLineNo">290</span>      case FLOAT_ADD_opcode:<a name="line.290"></a>
-<span class="sourceLineNo">291</span>      case DOUBLE_ADD_opcode:<a name="line.291"></a>
-<span class="sourceLineNo">292</span>      case REF_SUB_opcode:<a name="line.292"></a>
-<span class="sourceLineNo">293</span>      case INT_SUB_opcode:<a name="line.293"></a>
-<span class="sourceLineNo">294</span>      case LONG_SUB_opcode:<a name="line.294"></a>
-<span class="sourceLineNo">295</span>      case FLOAT_SUB_opcode:<a name="line.295"></a>
-<span class="sourceLineNo">296</span>      case DOUBLE_SUB_opcode:<a name="line.296"></a>
-<span class="sourceLineNo">297</span>      case INT_MUL_opcode:<a name="line.297"></a>
-<span class="sourceLineNo">298</span>      case LONG_MUL_opcode:<a name="line.298"></a>
-<span class="sourceLineNo">299</span>      case FLOAT_MUL_opcode:<a name="line.299"></a>
-<span class="sourceLineNo">300</span>      case DOUBLE_MUL_opcode:<a name="line.300"></a>
-<span class="sourceLineNo">301</span>      case INT_DIV_opcode:<a name="line.301"></a>
-<span class="sourceLineNo">302</span>      case LONG_DIV_opcode:<a name="line.302"></a>
-<span class="sourceLineNo">303</span>      case FLOAT_DIV_opcode:<a name="line.303"></a>
-<span class="sourceLineNo">304</span>      case DOUBLE_DIV_opcode:<a name="line.304"></a>
-<span class="sourceLineNo">305</span>      case INT_REM_opcode:<a name="line.305"></a>
-<span class="sourceLineNo">306</span>      case LONG_REM_opcode:<a name="line.306"></a>
-<span class="sourceLineNo">307</span>      case FLOAT_REM_opcode:<a name="line.307"></a>
-<span class="sourceLineNo">308</span>      case DOUBLE_REM_opcode:<a name="line.308"></a>
-<span class="sourceLineNo">309</span>      case INT_NEG_opcode:<a name="line.309"></a>
-<span class="sourceLineNo">310</span>      case LONG_NEG_opcode:<a name="line.310"></a>
-<span class="sourceLineNo">311</span>      case FLOAT_NEG_opcode:<a name="line.311"></a>
-<span class="sourceLineNo">312</span>      case DOUBLE_NEG_opcode:<a name="line.312"></a>
-<span class="sourceLineNo">313</span>      case REF_SHL_opcode:<a name="line.313"></a>
-<span class="sourceLineNo">314</span>      case INT_SHL_opcode:<a name="line.314"></a>
-<span class="sourceLineNo">315</span>      case LONG_SHL_opcode:<a name="line.315"></a>
-<span class="sourceLineNo">316</span>      case REF_SHR_opcode:<a name="line.316"></a>
-<span class="sourceLineNo">317</span>      case INT_SHR_opcode:<a name="line.317"></a>
-<span class="sourceLineNo">318</span>      case LONG_SHR_opcode:<a name="line.318"></a>
-<span class="sourceLineNo">319</span>      case REF_USHR_opcode:<a name="line.319"></a>
-<span class="sourceLineNo">320</span>      case INT_USHR_opcode:<a name="line.320"></a>
-<span class="sourceLineNo">321</span>      case LONG_USHR_opcode:<a name="line.321"></a>
-<span class="sourceLineNo">322</span>      case REF_AND_opcode:<a name="line.322"></a>
-<span class="sourceLineNo">323</span>      case INT_AND_opcode:<a name="line.323"></a>
-<span class="sourceLineNo">324</span>      case LONG_AND_opcode:<a name="line.324"></a>
-<span class="sourceLineNo">325</span>      case REF_OR_opcode:<a name="line.325"></a>
-<span class="sourceLineNo">326</span>      case INT_OR_opcode:<a name="line.326"></a>
-<span class="sourceLineNo">327</span>      case LONG_OR_opcode:<a name="line.327"></a>
-<span class="sourceLineNo">328</span>      case REF_XOR_opcode:<a name="line.328"></a>
-<span class="sourceLineNo">329</span>      case INT_XOR_opcode:<a name="line.329"></a>
-<span class="sourceLineNo">330</span>      case REF_NOT_opcode:<a name="line.330"></a>
-<span class="sourceLineNo">331</span>      case INT_NOT_opcode:<a name="line.331"></a>
-<span class="sourceLineNo">332</span>      case LONG_NOT_opcode:<a name="line.332"></a>
-<span class="sourceLineNo">333</span>      case LONG_XOR_opcode:<a name="line.333"></a>
-<span class="sourceLineNo">334</span>      case INT_2LONG_opcode:<a name="line.334"></a>
-<span class="sourceLineNo">335</span>      case INT_2FLOAT_opcode:<a name="line.335"></a>
-<span class="sourceLineNo">336</span>      case INT_2DOUBLE_opcode:<a name="line.336"></a>
-<span class="sourceLineNo">337</span>      case INT_2ADDRSigExt_opcode:<a name="line.337"></a>
-<span class="sourceLineNo">338</span>      case INT_2ADDRZerExt_opcode:<a name="line.338"></a>
-<span class="sourceLineNo">339</span>      case LONG_2ADDR_opcode:<a name="line.339"></a>
-<span class="sourceLineNo">340</span>      case ADDR_2INT_opcode:<a name="line.340"></a>
-<span class="sourceLineNo">341</span>      case ADDR_2LONG_opcode:<a name="line.341"></a>
-<span class="sourceLineNo">342</span>      case LONG_2INT_opcode:<a name="line.342"></a>
-<span class="sourceLineNo">343</span>      case LONG_2FLOAT_opcode:<a name="line.343"></a>
-<span class="sourceLineNo">344</span>      case LONG_2DOUBLE_opcode:<a name="line.344"></a>
-<span class="sourceLineNo">345</span>      case FLOAT_2INT_opcode:<a name="line.345"></a>
-<span class="sourceLineNo">346</span>      case FLOAT_2LONG_opcode:<a name="line.346"></a>
-<span class="sourceLineNo">347</span>      case FLOAT_2DOUBLE_opcode:<a name="line.347"></a>
-<span class="sourceLineNo">348</span>      case DOUBLE_2INT_opcode:<a name="line.348"></a>
-<span class="sourceLineNo">349</span>      case DOUBLE_2LONG_opcode:<a name="line.349"></a>
-<span class="sourceLineNo">350</span>      case DOUBLE_2FLOAT_opcode:<a name="line.350"></a>
-<span class="sourceLineNo">351</span>      case INT_2BYTE_opcode:<a name="line.351"></a>
-<span class="sourceLineNo">352</span>      case INT_2USHORT_opcode:<a name="line.352"></a>
-<span class="sourceLineNo">353</span>      case INT_2SHORT_opcode:<a name="line.353"></a>
-<span class="sourceLineNo">354</span>      case LONG_CMP_opcode:<a name="line.354"></a>
-<span class="sourceLineNo">355</span>      case FLOAT_CMPL_opcode:<a name="line.355"></a>
-<span class="sourceLineNo">356</span>      case FLOAT_CMPG_opcode:<a name="line.356"></a>
-<span class="sourceLineNo">357</span>      case DOUBLE_CMPL_opcode:<a name="line.357"></a>
-<span class="sourceLineNo">358</span>      case DOUBLE_CMPG_opcode:<a name="line.358"></a>
-<span class="sourceLineNo">359</span>      case NULL_CHECK_opcode:<a name="line.359"></a>
-<span class="sourceLineNo">360</span>      case BOUNDS_CHECK_opcode:<a name="line.360"></a>
-<span class="sourceLineNo">361</span>      case INT_ZERO_CHECK_opcode:<a name="line.361"></a>
-<span class="sourceLineNo">362</span>      case LONG_ZERO_CHECK_opcode:<a name="line.362"></a>
-<span class="sourceLineNo">363</span>      case OBJARRAY_STORE_CHECK_opcode:<a name="line.363"></a>
-<span class="sourceLineNo">364</span>      case OBJARRAY_STORE_CHECK_NOTNULL_opcode:<a name="line.364"></a>
-<span class="sourceLineNo">365</span>      case BOOLEAN_NOT_opcode:<a name="line.365"></a>
-<span class="sourceLineNo">366</span>      case BOOLEAN_CMP_INT_opcode:<a name="line.366"></a>
-<span class="sourceLineNo">367</span>      case BOOLEAN_CMP_ADDR_opcode:<a name="line.367"></a>
-<span class="sourceLineNo">368</span>      case FLOAT_AS_INT_BITS_opcode:<a name="line.368"></a>
-<span class="sourceLineNo">369</span>      case INT_BITS_AS_FLOAT_opcode:<a name="line.369"></a>
-<span class="sourceLineNo">370</span>      case DOUBLE_AS_LONG_BITS_opcode:<a name="line.370"></a>
-<span class="sourceLineNo">371</span>      case LONG_BITS_AS_DOUBLE_opcode:<a name="line.371"></a>
-<span class="sourceLineNo">372</span>      case ARRAYLENGTH_opcode:<a name="line.372"></a>
-<span class="sourceLineNo">373</span>      case GET_OBJ_TIB_opcode:<a name="line.373"></a>
-<span class="sourceLineNo">374</span>      case GET_CLASS_TIB_opcode:<a name="line.374"></a>
-<span class="sourceLineNo">375</span>      case GET_TYPE_FROM_TIB_opcode:<a name="line.375"></a>
-<span class="sourceLineNo">376</span>      case GET_SUPERCLASS_IDS_FROM_TIB_opcode:<a name="line.376"></a>
-<span class="sourceLineNo">377</span>      case GET_DOES_IMPLEMENT_FROM_TIB_opcode:<a name="line.377"></a>
-<span class="sourceLineNo">378</span>      case GET_ARRAY_ELEMENT_TIB_FROM_TIB_opcode:<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        return !(GCP.usesOrDefsPhysicalRegisterOrAddressType(inst));<a name="line.379"></a>
-<span class="sourceLineNo">380</span>    }<a name="line.380"></a>
-<span class="sourceLineNo">381</span>    return false;<a name="line.381"></a>
-<span class="sourceLineNo">382</span>  }<a name="line.382"></a>
-<span class="sourceLineNo">383</span>}<a name="line.383"></a>
+<span class="sourceLineNo">256</span>  private boolean shouldCSE(Instruction inst) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span><a name="line.257"></a>
+<span class="sourceLineNo">258</span>    if ((inst.isAllocation()) ||<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        inst.isDynamicLinkingPoint() ||<a name="line.259"></a>
+<span class="sourceLineNo">260</span>        inst.isImplicitLoad() ||<a name="line.260"></a>
+<span class="sourceLineNo">261</span>        inst.isImplicitStore() ||<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        inst.getOpcode() &gt;= ARCH_INDEPENDENT_END_opcode) {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      return false;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>    switch (inst.getOpcode()) {<a name="line.266"></a>
+<span class="sourceLineNo">267</span>      case INT_MOVE_opcode:<a name="line.267"></a>
+<span class="sourceLineNo">268</span>      case LONG_MOVE_opcode:<a name="line.268"></a>
+<span class="sourceLineNo">269</span>      case CHECKCAST_opcode:<a name="line.269"></a>
+<span class="sourceLineNo">270</span>      case CHECKCAST_NOTNULL_opcode:<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      case CHECKCAST_UNRESOLVED_opcode:<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      case MUST_IMPLEMENT_INTERFACE_opcode:<a name="line.272"></a>
+<span class="sourceLineNo">273</span>      case INSTANCEOF_opcode:<a name="line.273"></a>
+<span class="sourceLineNo">274</span>      case INSTANCEOF_NOTNULL_opcode:<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      case INSTANCEOF_UNRESOLVED_opcode:<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      case PI_opcode:<a name="line.276"></a>
+<span class="sourceLineNo">277</span>      case FLOAT_MOVE_opcode:<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      case DOUBLE_MOVE_opcode:<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      case REF_MOVE_opcode:<a name="line.279"></a>
+<span class="sourceLineNo">280</span>      case GUARD_MOVE_opcode:<a name="line.280"></a>
+<span class="sourceLineNo">281</span>      case GUARD_COMBINE_opcode:<a name="line.281"></a>
+<span class="sourceLineNo">282</span>      case TRAP_IF_opcode:<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      case REF_ADD_opcode:<a name="line.283"></a>
+<span class="sourceLineNo">284</span>      case INT_ADD_opcode:<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      case LONG_ADD_opcode:<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      case FLOAT_ADD_opcode:<a name="line.286"></a>
+<span class="sourceLineNo">287</span>      case DOUBLE_ADD_opcode:<a name="line.287"></a>
+<span class="sourceLineNo">288</span>      case REF_SUB_opcode:<a name="line.288"></a>
+<span class="sourceLineNo">289</span>      case INT_SUB_opcode:<a name="line.289"></a>
+<span class="sourceLineNo">290</span>      case LONG_SUB_opcode:<a name="line.290"></a>
+<span class="sourceLineNo">291</span>      case FLOAT_SUB_opcode:<a name="line.291"></a>
+<span class="sourceLineNo">292</span>      case DOUBLE_SUB_opcode:<a name="line.292"></a>
+<span class="sourceLineNo">293</span>      case INT_MUL_opcode:<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      case LONG_MUL_opcode:<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      case FLOAT_MUL_opcode:<a name="line.295"></a>
+<span class="sourceLineNo">296</span>      case DOUBLE_MUL_opcode:<a name="line.296"></a>
+<span class="sourceLineNo">297</span>      case INT_DIV_opcode:<a name="line.297"></a>
+<span class="sourceLineNo">298</span>      case LONG_DIV_opcode:<a name="line.298"></a>
+<span class="sourceLineNo">299</span>      case FLOAT_DIV_opcode:<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      case DOUBLE_DIV_opcode:<a name="line.300"></a>
+<span class="sourceLineNo">301</span>      case INT_REM_opcode:<a name="line.301"></a>
+<span class="sourceLineNo">302</span>      case LONG_REM_opcode:<a name="line.302"></a>
+<span class="sourceLineNo">303</span>      case FLOAT_REM_opcode:<a name="line.303"></a>
+<span class="sourceLineNo">304</span>      case DOUBLE_REM_opcode:<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      case INT_NEG_opcode:<a name="line.305"></a>
+<span class="sourceLineNo">306</span>      case LONG_NEG_opcode:<a name="line.306"></a>
+<span class="sourceLineNo">307</span>      case FLOAT_NEG_opcode:<a name="line.307"></a>
+<span class="sourceLineNo">308</span>      case DOUBLE_NEG_opcode:<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      case REF_SHL_opcode:<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      case INT_SHL_opcode:<a name="line.310"></a>
+<span class="sourceLineNo">311</span>      case LONG_SHL_opcode:<a name="line.311"></a>
+<span class="sourceLineNo">312</span>      case REF_SHR_opcode:<a name="line.312"></a>
+<span class="sourceLineNo">313</span>      case INT_SHR_opcode:<a name="line.313"></a>
+<span class="sourceLineNo">314</span>      case LONG_SHR_opcode:<a name="line.314"></a>
+<span class="sourceLineNo">315</span>      case REF_USHR_opcode:<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      case INT_USHR_opcode:<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      case LONG_USHR_opcode:<a name="line.317"></a>
+<span class="sourceLineNo">318</span>      case REF_AND_opcode:<a name="line.318"></a>
+<span class="sourceLineNo">319</span>      case INT_AND_opcode:<a name="line.319"></a>
+<span class="sourceLineNo">320</span>      case LONG_AND_opcode:<a name="line.320"></a>
+<span class="sourceLineNo">321</span>      case REF_OR_opcode:<a name="line.321"></a>
+<span class="sourceLineNo">322</span>      case INT_OR_opcode:<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      case LONG_OR_opcode:<a name="line.323"></a>
+<span class="sourceLineNo">324</span>      case REF_XOR_opcode:<a name="line.324"></a>
+<span class="sourceLineNo">325</span>      case INT_XOR_opcode:<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      case REF_NOT_opcode:<a name="line.326"></a>
+<span class="sourceLineNo">327</span>      case INT_NOT_opcode:<a name="line.327"></a>
+<span class="sourceLineNo">328</span>      case LONG_NOT_opcode:<a name="line.328"></a>
+<span class="sourceLineNo">329</span>      case LONG_XOR_opcode:<a name="line.329"></a>
+<span class="sourceLineNo">330</span>      case INT_2LONG_opcode:<a name="line.330"></a>
+<span class="sourceLineNo">331</span>      case INT_2FLOAT_opcode:<a name="line.331"></a>
+<span class="sourceLineNo">332</span>      case INT_2DOUBLE_opcode:<a name="line.332"></a>
+<span class="sourceLineNo">333</span>      case INT_2ADDRSigExt_opcode:<a name="line.333"></a>
+<span class="sourceLineNo">334</span>      case INT_2ADDRZerExt_opcode:<a name="line.334"></a>
+<span class="sourceLineNo">335</span>      case LONG_2ADDR_opcode:<a name="line.335"></a>
+<span class="sourceLineNo">336</span>      case ADDR_2INT_opcode:<a name="line.336"></a>
+<span class="sourceLineNo">337</span>      case ADDR_2LONG_opcode:<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      case LONG_2INT_opcode:<a name="line.338"></a>
+<span class="sourceLineNo">339</span>      case LONG_2FLOAT_opcode:<a name="line.339"></a>
+<span class="sourceLineNo">340</span>      case LONG_2DOUBLE_opcode:<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      case FLOAT_2INT_opcode:<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      case FLOAT_2LONG_opcode:<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      case FLOAT_2DOUBLE_opcode:<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      case DOUBLE_2INT_opcode:<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      case DOUBLE_2LONG_opcode:<a name="line.345"></a>
+<span class="sourceLineNo">346</span>      case DOUBLE_2FLOAT_opcode:<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      case INT_2BYTE_opcode:<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      case INT_2USHORT_opcode:<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      case INT_2SHORT_opcode:<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      case LONG_CMP_opcode:<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      case FLOAT_CMPL_opcode:<a name="line.351"></a>
+<span class="sourceLineNo">352</span>      case FLOAT_CMPG_opcode:<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      case DOUBLE_CMPL_opcode:<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      case DOUBLE_CMPG_opcode:<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      case NULL_CHECK_opcode:<a name="line.355"></a>
+<span class="sourceLineNo">356</span>      case BOUNDS_CHECK_opcode:<a name="line.356"></a>
+<span class="sourceLineNo">357</span>      case INT_ZERO_CHECK_opcode:<a name="line.357"></a>
+<span class="sourceLineNo">358</span>      case LONG_ZERO_CHECK_opcode:<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      case OBJARRAY_STORE_CHECK_opcode:<a name="line.359"></a>
+<span class="sourceLineNo">360</span>      case OBJARRAY_STORE_CHECK_NOTNULL_opcode:<a name="line.360"></a>
+<span class="sourceLineNo">361</span>      case BOOLEAN_NOT_opcode:<a name="line.361"></a>
+<span class="sourceLineNo">362</span>      case BOOLEAN_CMP_INT_opcode:<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      case BOOLEAN_CMP_ADDR_opcode:<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      case FLOAT_AS_INT_BITS_opcode:<a name="line.364"></a>
+<span class="sourceLineNo">365</span>      case INT_BITS_AS_FLOAT_opcode:<a name="line.365"></a>
+<span class="sourceLineNo">366</span>      case DOUBLE_AS_LONG_BITS_opcode:<a name="line.366"></a>
+<span class="sourceLineNo">367</span>      case LONG_BITS_AS_DOUBLE_opcode:<a name="line.367"></a>
+<span class="sourceLineNo">368</span>      case ARRAYLENGTH_opcode:<a name="line.368"></a>
+<span class="sourceLineNo">369</span>      case GET_OBJ_TIB_opcode:<a name="line.369"></a>
+<span class="sourceLineNo">370</span>      case GET_CLASS_TIB_opcode:<a name="line.370"></a>
+<span class="sourceLineNo">371</span>      case GET_TYPE_FROM_TIB_opcode:<a name="line.371"></a>
+<span class="sourceLineNo">372</span>      case GET_SUPERCLASS_IDS_FROM_TIB_opcode:<a name="line.372"></a>
+<span class="sourceLineNo">373</span>      case GET_DOES_IMPLEMENT_FROM_TIB_opcode:<a name="line.373"></a>
+<span class="sourceLineNo">374</span>      case GET_ARRAY_ELEMENT_TIB_FROM_TIB_opcode:<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        return !(GCP.usesOrDefsPhysicalRegisterOrAddressType(inst));<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    }<a name="line.376"></a>
+<span class="sourceLineNo">377</span>    return false;<a name="line.377"></a>
+<span class="sourceLineNo">378</span>  }<a name="line.378"></a>
+<span class="sourceLineNo">379</span>}<a name="line.379"></a>
 
 
 

@@ -28,55 +28,68 @@
 <span class="sourceLineNo">020</span>@Uninterruptible<a name="line.20"></a>
 <span class="sourceLineNo">021</span>public class Time {<a name="line.21"></a>
 <span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>  /**<a name="line.23"></a>
-<span class="sourceLineNo">024</span>   * Convert a long representing a time in nanoseconds into<a name="line.24"></a>
-<span class="sourceLineNo">025</span>   * a double representing the same time in milliseconds.<a name="line.25"></a>
-<span class="sourceLineNo">026</span>   * @param c a time in nanoseconds<a name="line.26"></a>
-<span class="sourceLineNo">027</span>   * @return c converted to milliseconds<a name="line.27"></a>
-<span class="sourceLineNo">028</span>   */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  public static double nanosToMillis(long c) {<a name="line.29"></a>
-<span class="sourceLineNo">030</span>    return (c)/1e6;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  }<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>  /**<a name="line.33"></a>
-<span class="sourceLineNo">034</span>   * Return the value of a hardware cycle counter (RDTSC on IA32, time base register on PPC).<a name="line.34"></a>
-<span class="sourceLineNo">035</span>   * This is a very cheap, but also unreliable "timing" mechanism.<a name="line.35"></a>
-<span class="sourceLineNo">036</span>   * There is absolutely no guarantee that the values returned from this method will<a name="line.36"></a>
-<span class="sourceLineNo">037</span>   * either by monotonic (i.e., "time" can go backwards) or<a name="line.37"></a>
-<span class="sourceLineNo">038</span>   * smooth ("time" can appear to move at a variable rate).<a name="line.38"></a>
-<span class="sourceLineNo">039</span>   * This method should only be used for approximate timing in frequently executed code.<a name="line.39"></a>
-<span class="sourceLineNo">040</span>   * We intentionally do not provide an API for converting from cycles to seconds because<a name="line.40"></a>
-<span class="sourceLineNo">041</span>   * the conversion cannot be reliably supported on all of our platforms.<a name="line.41"></a>
-<span class="sourceLineNo">042</span>   */<a name="line.42"></a>
-<span class="sourceLineNo">043</span>  public static long cycles() {<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    return Magic.getTimeBase();<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  }<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
-<span class="sourceLineNo">048</span>   * Same semantics as java.lang.System.nanoTime();<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * This (or java.lang.System.nanoTime) is the<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   * preferred API for VM internal timing functions.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>   * @return a monotonic timer value in nanoseconds.<a name="line.51"></a>
-<span class="sourceLineNo">052</span>   */<a name="line.52"></a>
-<span class="sourceLineNo">053</span>  public static long nanoTime() {<a name="line.53"></a>
-<span class="sourceLineNo">054</span>    return SysCall.sysCall.sysNanoTime();<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  }<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   * Time in milliseconds (epoch Jan 1 1970).<a name="line.58"></a>
-<span class="sourceLineNo">059</span>   */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  public static long currentTimeMillis() {<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    return SysCall.sysCall.sysCurrentTimeMillis();<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>  public static double nanosToSecs(long nanos) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    return (nanos)/1E9;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>  public static long secsToNanos(double secs) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    return (long)(secs*1E9);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>  }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>}<a name="line.71"></a>
+<span class="sourceLineNo">023</span>  /** boot time in milliseconds */<a name="line.23"></a>
+<span class="sourceLineNo">024</span>  private static long bootTime;<a name="line.24"></a>
+<span class="sourceLineNo">025</span><a name="line.25"></a>
+<span class="sourceLineNo">026</span>  public static void boot() {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    bootTime = currentTimeMillis();<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  }<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>  /**<a name="line.30"></a>
+<span class="sourceLineNo">031</span>   * Convert a long representing a time in nanoseconds into<a name="line.31"></a>
+<span class="sourceLineNo">032</span>   * a double representing the same time in milliseconds.<a name="line.32"></a>
+<span class="sourceLineNo">033</span>   * @param c a time in nanoseconds<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   * @return c converted to milliseconds<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static double nanosToMillis(long c) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>    return (c) / 1e6;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  }<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>  /**<a name="line.40"></a>
+<span class="sourceLineNo">041</span>   * Return the value of a hardware cycle counter (RDTSC on IA32, time base register on PPC).<a name="line.41"></a>
+<span class="sourceLineNo">042</span>   * This is a very cheap, but also unreliable "timing" mechanism.<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   * There is absolutely no guarantee that the values returned from this method will<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   * either by monotonic (i.e., "time" can go backwards) or<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   * smooth ("time" can appear to move at a variable rate).<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * This method should only be used for approximate timing in frequently executed code.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   * We intentionally do not provide an API for converting from cycles to seconds because<a name="line.47"></a>
+<span class="sourceLineNo">048</span>   * the conversion cannot be reliably supported on all of our platforms.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>   *<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * @return the value of the hardware cycle counter<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static long cycles() {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>    return Magic.getTimeBase();<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>  /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   * Same semantics as java.lang.System.nanoTime();<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   * This (or java.lang.System.nanoTime) is the<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   * preferred API for VM internal timing functions.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   * @return a monotonic timer value in nanoseconds.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   */<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static long nanoTime() {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    return SysCall.sysCall.sysNanoTime();<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>  /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   * @return current time in milliseconds (epoch Jan 1 1970).<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   */<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  public static long currentTimeMillis() {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    return SysCall.sysCall.sysCurrentTimeMillis();<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  }<a name="line.71"></a>
+<span class="sourceLineNo">072</span><a name="line.72"></a>
+<span class="sourceLineNo">073</span>  public static double nanosToSecs(long nanos) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    return (nanos) / 1E9;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>  public static long secsToNanos(double secs) {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    return (long)(secs * 1E9);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>  public static long bootTime() {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    return bootTime;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>}<a name="line.84"></a>
 
 
 

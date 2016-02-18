@@ -38,82 +38,88 @@
 <span class="sourceLineNo">030</span><a name="line.30"></a>
 <span class="sourceLineNo">031</span>  /**<a name="line.31"></a>
 <span class="sourceLineNo">032</span>   * Use the runtime compiler to forcibly recompile all dynamically<a name="line.32"></a>
-<span class="sourceLineNo">033</span>   * loaded methods<a name="line.33"></a>
-<span class="sourceLineNo">034</span>   */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  public static void recompileAllDynamicallyLoadedMethods(boolean report) {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    int numMethods = CompiledMethods.numCompiledMethods();<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    for (int cmid = 1; cmid &lt; numMethods; cmid++) {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>      // To avoid the assertion for unused cmids<a name="line.38"></a>
-<span class="sourceLineNo">039</span>      CompiledMethod cpMeth = CompiledMethods.getCompiledMethodUnchecked(cmid);<a name="line.39"></a>
-<span class="sourceLineNo">040</span>      if (cpMeth == null) {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>        if (DEBUG) {<a name="line.41"></a>
-<span class="sourceLineNo">042</span>          VM.sysWrite("Not recompiling method ID ", cmid, " because it has no compiledMethod\n");<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        }<a name="line.43"></a>
-<span class="sourceLineNo">044</span>      } else {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        RVMMethod meth = cpMeth.getMethod();<a name="line.45"></a>
-<span class="sourceLineNo">046</span>        if (DEBUG) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>          VM.sysWrite("numMethods: " +<a name="line.47"></a>
-<span class="sourceLineNo">048</span>                      numMethods +<a name="line.48"></a>
-<span class="sourceLineNo">049</span>                      ", Inspecting cpMethod " +<a name="line.49"></a>
-<span class="sourceLineNo">050</span>                      cpMeth +<a name="line.50"></a>
-<span class="sourceLineNo">051</span>                      ", method: " +<a name="line.51"></a>
-<span class="sourceLineNo">052</span>                      cpMeth.getMethod() +<a name="line.52"></a>
-<span class="sourceLineNo">053</span>                      "(" +<a name="line.53"></a>
-<span class="sourceLineNo">054</span>                      cmid +<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                      ")\n");<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        }<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        if (cpMeth.getCompilerType() == CompiledMethod.TRAP) {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>          if (DEBUG) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>            VM.sysWrite("Not recompiling compiled method " +<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                        cpMeth +<a name="line.60"></a>
-<span class="sourceLineNo">061</span>                        "(" +<a name="line.61"></a>
-<span class="sourceLineNo">062</span>                        cmid +<a name="line.62"></a>
-<span class="sourceLineNo">063</span>                        ") because it a TRAP, i.e. has no source code\n");<a name="line.63"></a>
-<span class="sourceLineNo">064</span>          }<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        } else {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>          if (meth.getDeclaringClass().isResolved()) {<a name="line.66"></a>
-<span class="sourceLineNo">067</span>            if (meth.getDeclaringClass().isInBootImage()) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>              if (DEBUG) {<a name="line.68"></a>
-<span class="sourceLineNo">069</span>                VM.sysWrite("Not recompiling bootimage method " + meth + "(" + cmid + ")\n");<a name="line.69"></a>
-<span class="sourceLineNo">070</span>              }<a name="line.70"></a>
-<span class="sourceLineNo">071</span>            } else {<a name="line.71"></a>
-<span class="sourceLineNo">072</span>              if (meth.isAbstract()) {<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                if (DEBUG) VM.sysWrite("Not recompiling abstract method " + meth + "(" + cmid + ")\n");<a name="line.73"></a>
-<span class="sourceLineNo">074</span>              } else if (meth.isNative()) {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>                if (DEBUG) VM.sysWrite("Not recompiling native method " + meth + "(" + cmid + ")\n");<a name="line.75"></a>
-<span class="sourceLineNo">076</span>              } else {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>                if (DEBUG || report) VM.sysWrite("Recompiling " + meth + "(" + cmid + ") ");<a name="line.77"></a>
-<span class="sourceLineNo">078</span>                recompile((NormalMethod) meth);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                if (DEBUG || report) VM.sysWrite("...done\n");<a name="line.79"></a>
-<span class="sourceLineNo">080</span>              }<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>          } else {<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            if (DEBUG) VM.sysWrite("Class not resolved" + meth + "(" + cmid + ")\n");<a name="line.83"></a>
-<span class="sourceLineNo">084</span>          }<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>      }<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    if (VM.BuildForAdaptiveSystem) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>      // clear profiling counter<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      if (DEBUG || report) { VM.sysWrite("Reseting profiling information\n"); }<a name="line.91"></a>
-<span class="sourceLineNo">092</span>      RuntimeMeasurements.resetReportableObjects();<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    }<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  /**<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * recompile and replace the argument method by invoking the runtime compiler<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   */<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  public static void recompile(NormalMethod meth) {<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    try {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>      CompiledMethod cm = RuntimeCompiler.compile(meth);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>      meth.replaceCompiledMethod(cm);<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    } catch (Throwable e) {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>      VM.sysWrite("Failure while recompiling \"" + meth + "\" : " + e + "\n");<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  }<a name="line.106"></a>
-<span class="sourceLineNo">107</span>}<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">033</span>   * loaded methods.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>   *<a name="line.34"></a>
+<span class="sourceLineNo">035</span>   * @param report whether to print a report<a name="line.35"></a>
+<span class="sourceLineNo">036</span>   */<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static void recompileAllDynamicallyLoadedMethods(boolean report) {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>    int numMethods = CompiledMethods.numCompiledMethods();<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    for (int cmid = 1; cmid &lt; numMethods; cmid++) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>      // To avoid the assertion for unused cmids<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      CompiledMethod cpMeth = CompiledMethods.getCompiledMethodUnchecked(cmid);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      if (cpMeth == null) {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>        if (DEBUG) {<a name="line.43"></a>
+<span class="sourceLineNo">044</span>          VM.sysWrite("Not recompiling method ID ", cmid, " because it has no compiledMethod\n");<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        }<a name="line.45"></a>
+<span class="sourceLineNo">046</span>      } else {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        RVMMethod meth = cpMeth.getMethod();<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        if (DEBUG) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>          VM.sysWrite("numMethods: " +<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                      numMethods +<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                      ", Inspecting cpMethod " +<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                      cpMeth +<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                      ", method: " +<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                      cpMeth.getMethod() +<a name="line.54"></a>
+<span class="sourceLineNo">055</span>                      "(" +<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                      cmid +<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                      ")\n");<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        }<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        if (cpMeth.getCompilerType() == CompiledMethod.TRAP) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>          if (DEBUG) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>            VM.sysWrite("Not recompiling compiled method " +<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                        cpMeth +<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                        "(" +<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                        cmid +<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                        ") because it a TRAP, i.e. has no source code\n");<a name="line.65"></a>
+<span class="sourceLineNo">066</span>          }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        } else {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>          if (meth.getDeclaringClass().isResolved()) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>            if (meth.getDeclaringClass().isInBootImage()) {<a name="line.69"></a>
+<span class="sourceLineNo">070</span>              if (DEBUG) {<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                VM.sysWrite("Not recompiling bootimage method " + meth + "(" + cmid + ")\n");<a name="line.71"></a>
+<span class="sourceLineNo">072</span>              }<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            } else {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>              if (meth.isAbstract()) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                if (DEBUG) VM.sysWrite("Not recompiling abstract method " + meth + "(" + cmid + ")\n");<a name="line.75"></a>
+<span class="sourceLineNo">076</span>              } else if (meth.isNative()) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                if (DEBUG) VM.sysWrite("Not recompiling native method " + meth + "(" + cmid + ")\n");<a name="line.77"></a>
+<span class="sourceLineNo">078</span>              } else {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                if (DEBUG || report) VM.sysWrite("Recompiling " + meth + "(" + cmid + ") ");<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                recompile((NormalMethod) meth);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                if (DEBUG || report) VM.sysWrite("...done\n");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>              }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>          } else {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            if (DEBUG) VM.sysWrite("Class not resolved" + meth + "(" + cmid + ")\n");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>          }<a name="line.86"></a>
+<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      }<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    if (VM.BuildForAdaptiveSystem) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      // clear profiling counter<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      if (DEBUG || report) {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>        VM.sysWrite("Reseting profiling information\n");<a name="line.94"></a>
+<span class="sourceLineNo">095</span>      }<a name="line.95"></a>
+<span class="sourceLineNo">096</span>      RuntimeMeasurements.resetReportableObjects();<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  }<a name="line.98"></a>
+<span class="sourceLineNo">099</span><a name="line.99"></a>
+<span class="sourceLineNo">100</span>  /**<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * recompile and replace the argument method by invoking the runtime compiler.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   *<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * @param meth the method to recompile<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   */<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  public static void recompile(NormalMethod meth) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    try {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      CompiledMethod cm = RuntimeCompiler.compile(meth);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      meth.replaceCompiledMethod(cm);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    } catch (Throwable e) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>      VM.sysWrite("Failure while recompiling \"" + meth + "\" : " + e + "\n");<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  }<a name="line.112"></a>
+<span class="sourceLineNo">113</span>}<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
 
 
 

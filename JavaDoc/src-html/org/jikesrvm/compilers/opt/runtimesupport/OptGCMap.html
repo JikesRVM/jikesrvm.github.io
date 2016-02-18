@@ -21,401 +21,404 @@
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.opt.runtimesupport;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import java.util.List;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.ArchitectureSpecificOpt.OptGCMapIteratorConstants;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.VM;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.ir.GCIRMapElement;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.ir.RegSpillListElement;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.vmmagic.pragma.Interruptible;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * A class that encapsulates the GCMap portion of the machine code maps.<a name="line.24"></a>
-<span class="sourceLineNo">025</span> * An instance of this class is created to encode and instance of a<a name="line.25"></a>
-<span class="sourceLineNo">026</span> * GCIRMap into an int[].  The int[] is stored persistently,<a name="line.26"></a>
-<span class="sourceLineNo">027</span> * but the instance of the OptGCMap is NOT.<a name="line.27"></a>
-<span class="sourceLineNo">028</span> *<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * &lt;ul&gt;<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * &lt;li&gt; each map will be a sequence of 1 or more ints<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * &lt;li&gt; the first int in each map is a bit map of registers that<a name="line.31"></a>
-<span class="sourceLineNo">032</span> *   contain references (the MSB is used for chaining,<a name="line.32"></a>
-<span class="sourceLineNo">033</span> *   we assume it will never contain a reference)<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * &lt;li&gt; the remaining ints will be spill locations<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * &lt;li&gt; the sequence will continue as long as the most significant bit<a name="line.35"></a>
-<span class="sourceLineNo">036</span> *   is set to 1<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * &lt;/ul&gt;<a name="line.37"></a>
-<span class="sourceLineNo">038</span> *<a name="line.38"></a>
-<span class="sourceLineNo">039</span> *  Note: This file contains two types of methods<a name="line.39"></a>
-<span class="sourceLineNo">040</span> *  &lt;ul&gt;<a name="line.40"></a>
-<span class="sourceLineNo">041</span> *    &lt;li&gt;1) methods called during compilation to create the GC maps<a name="line.41"></a>
-<span class="sourceLineNo">042</span> *            these methods are virtual<a name="line.42"></a>
-<span class="sourceLineNo">043</span> *    &lt;li&gt;2) methods called at GC time (no allocation allowed!)<a name="line.43"></a>
-<span class="sourceLineNo">044</span> *            these methods are static<a name="line.44"></a>
-<span class="sourceLineNo">045</span> *  &lt;/ul&gt;<a name="line.45"></a>
-<span class="sourceLineNo">046</span> */<a name="line.46"></a>
-<span class="sourceLineNo">047</span>@Uninterruptible<a name="line.47"></a>
-<span class="sourceLineNo">048</span>public final class OptGCMap implements OptGCMapIteratorConstants {<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  public static final int NO_MAP_ENTRY = -1;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  public static final int ERROR = -2;<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   *  The initial allocation size for a map<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  public static final int INITIAL_MAP_SIZE = 16;<a name="line.55"></a>
-<span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   * bit pattern for the "next" bit in the GC maps array<a name="line.58"></a>
-<span class="sourceLineNo">059</span>   */<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  private static final int NEXT_BIT = 0x80000000;<a name="line.60"></a>
-<span class="sourceLineNo">061</span><a name="line.61"></a>
-<span class="sourceLineNo">062</span>  /**<a name="line.62"></a>
-<span class="sourceLineNo">063</span>   * the index of the last map entry in use<a name="line.63"></a>
-<span class="sourceLineNo">064</span>   */<a name="line.64"></a>
-<span class="sourceLineNo">065</span>  private int lastGCMapEntry;<a name="line.65"></a>
-<span class="sourceLineNo">066</span><a name="line.66"></a>
-<span class="sourceLineNo">067</span>  /**<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   *  The gc map array, a sequence of gc maps.  Each sequence starts<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   *  with a register bit mask and is followed by a list of spills.<a name="line.69"></a>
-<span class="sourceLineNo">070</span>   *  The most significant bit of the spill location is used to chain<a name="line.70"></a>
-<span class="sourceLineNo">071</span>   *  the list.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>  private int[] gcMapInformation;<a name="line.73"></a>
-<span class="sourceLineNo">074</span><a name="line.74"></a>
-<span class="sourceLineNo">075</span>  public static final boolean DEBUG = false;<a name="line.75"></a>
-<span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>  /**<a name="line.77"></a>
-<span class="sourceLineNo">078</span>   * Constructor, called during compilation<a name="line.78"></a>
-<span class="sourceLineNo">079</span>   */<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  OptGCMap() {<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    lastGCMapEntry = -1;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>    gcMapInformation = new int[INITIAL_MAP_SIZE];   // initial map size<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  }<a name="line.83"></a>
-<span class="sourceLineNo">084</span><a name="line.84"></a>
-<span class="sourceLineNo">085</span>  /**<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   * Called to complete the encoding and return the final int[]<a name="line.86"></a>
-<span class="sourceLineNo">087</span>   */<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  @Interruptible<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  public int[] finish() {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    if ((gcMapInformation != null) &amp;&amp; (lastGCMapEntry &lt; gcMapInformation.length - 1)) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      resizeMapInformation(lastGCMapEntry + 1);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
-<span class="sourceLineNo">093</span>    return gcMapInformation;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>  /**<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * Construct the GCMap for the argument GCIRMapElement<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   * @param irMapElem  The IR Map element to create a GCMap for<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   * @return the GCMap index.<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   */<a name="line.100"></a>
-<span class="sourceLineNo">101</span>  @Interruptible<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  public int generateGCMapEntry(GCIRMapElement irMapElem) {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    // the index into the GC maps we will use for this instruction.<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    int mapIndex = NO_MAP_ENTRY;<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>    // Before requesting the (first) map entry, lets make sure we<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    // will need it.  If the reg/spill list is empty, we don't<a name="line.107"></a>
-<span class="sourceLineNo">108</span>    // need a map slot, i.e., no references are live at this instruction<a name="line.108"></a>
-<span class="sourceLineNo">109</span>    List&lt;RegSpillListElement&gt; regSpillList = irMapElem.regSpillList();<a name="line.109"></a>
-<span class="sourceLineNo">110</span>    if (!regSpillList.isEmpty()) {<a name="line.110"></a>
-<span class="sourceLineNo">111</span><a name="line.111"></a>
-<span class="sourceLineNo">112</span>      // For efficiency we create our own bit map and then set the<a name="line.112"></a>
-<span class="sourceLineNo">113</span>      // appropriate array value<a name="line.113"></a>
-<span class="sourceLineNo">114</span>      int bitMap = 0;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      // count the spills so we know how big of an array we'll need<a name="line.115"></a>
-<span class="sourceLineNo">116</span>      int numSpills = 0;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>      int numRegs = 0;<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>      // Because the output data structure (the map) stores register<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      // information before spills, we need to traverse the list twice<a name="line.120"></a>
-<span class="sourceLineNo">121</span>      // the first time we get the register mask, the 2nd time we get<a name="line.121"></a>
-<span class="sourceLineNo">122</span>      // the spills<a name="line.122"></a>
-<span class="sourceLineNo">123</span>      // process the register<a name="line.123"></a>
-<span class="sourceLineNo">124</span>      for (RegSpillListElement elem : regSpillList) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>        if (elem.isSpill()) {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>          numSpills++;<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        } else {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>          numRegs++;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>          int realRegNumber = elem.getRealRegNumber();<a name="line.129"></a>
-<span class="sourceLineNo">130</span><a name="line.130"></a>
-<span class="sourceLineNo">131</span>          if (VM.VerifyAssertions &amp;&amp; realRegNumber &gt; LAST_GCMAP_REG) {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            System.out.println(elem);<a name="line.132"></a>
-<span class="sourceLineNo">133</span>            System.out.println(LAST_GCMAP_REG);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            VM._assert(VM.NOT_REACHED, "reg &gt; last GC Map Reg!!");<a name="line.134"></a>
-<span class="sourceLineNo">135</span>          }<a name="line.135"></a>
-<span class="sourceLineNo">136</span><a name="line.136"></a>
-<span class="sourceLineNo">137</span>          // get the bit position for this register number<a name="line.137"></a>
-<span class="sourceLineNo">138</span>          int bitPosition = getRegBitPosition(realRegNumber);<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>          // Set the appropriate bit<a name="line.140"></a>
-<span class="sourceLineNo">141</span>          bitMap = bitMap | (NEXT_BIT &gt;&gt;&gt; bitPosition);<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        }<a name="line.142"></a>
-<span class="sourceLineNo">143</span>      }<a name="line.143"></a>
-<span class="sourceLineNo">144</span><a name="line.144"></a>
-<span class="sourceLineNo">145</span>      // get the next free Map entry<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      int index = setRegisterBitMap(bitMap);<a name="line.146"></a>
-<span class="sourceLineNo">147</span><a name="line.147"></a>
-<span class="sourceLineNo">148</span>      int[] spillArray = new int[numSpills];<a name="line.148"></a>
-<span class="sourceLineNo">149</span>      int spillIndex = 0;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>      // Now we need to walk the list again to process the spills.<a name="line.150"></a>
-<span class="sourceLineNo">151</span>      // first, get a fresh enumerator<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      for (RegSpillListElement elem : regSpillList) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>        if (elem.isSpill()) {<a name="line.153"></a>
-<span class="sourceLineNo">154</span>          spillArray[spillIndex++] = elem.getSpill();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>        }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>      }<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>      // add the spills into the map<a name="line.158"></a>
-<span class="sourceLineNo">159</span>      addAllSpills(spillArray);<a name="line.159"></a>
-<span class="sourceLineNo">160</span><a name="line.160"></a>
-<span class="sourceLineNo">161</span>      // don't forget to report that there are no more spills<a name="line.161"></a>
-<span class="sourceLineNo">162</span>      mapIndex = endCurrentMap(index);<a name="line.162"></a>
-<span class="sourceLineNo">163</span><a name="line.163"></a>
-<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    return mapIndex;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  }<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>  ////////////////////////////////////////////<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  // Methods called at GC time<a name="line.169"></a>
-<span class="sourceLineNo">170</span>  ////////////////////////////////////////////<a name="line.170"></a>
-<span class="sourceLineNo">171</span>  /**<a name="line.171"></a>
-<span class="sourceLineNo">172</span>   * Returns the GC map information for the GC map information entry passed<a name="line.172"></a>
-<span class="sourceLineNo">173</span>   * @param  entry     map entry<a name="line.173"></a>
-<span class="sourceLineNo">174</span>   * @param  gcMap     the gc map<a name="line.174"></a>
-<span class="sourceLineNo">175</span>   */<a name="line.175"></a>
-<span class="sourceLineNo">176</span>  public static int gcMapInformation(int entry, int[] gcMap) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    // before returning remember to clear the MSB.<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    return gcMap[entry] &amp; ~NEXT_BIT;<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  }<a name="line.179"></a>
-<span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>  /**<a name="line.181"></a>
-<span class="sourceLineNo">182</span>   * Determines if the register map information for the entry passed is true<a name="line.182"></a>
-<span class="sourceLineNo">183</span>   * @param  entry            map entry<a name="line.183"></a>
-<span class="sourceLineNo">184</span>   * @param  registerNumber   the register number<a name="line.184"></a>
-<span class="sourceLineNo">185</span>   * @param  gcMap            the encoded GCMap<a name="line.185"></a>
-<span class="sourceLineNo">186</span>   */<a name="line.186"></a>
-<span class="sourceLineNo">187</span>  public static boolean registerIsSet(int entry, int registerNumber, int[] gcMap) {<a name="line.187"></a>
-<span class="sourceLineNo">188</span>    if (VM.VerifyAssertions) {<a name="line.188"></a>
-<span class="sourceLineNo">189</span>      VM._assert(registerNumber &gt;= FIRST_GCMAP_REG &amp;&amp; registerNumber &lt;= LAST_GCMAP_REG, "Bad registerNumber");<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    }<a name="line.190"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.ir.GCIRMapElement;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.ir.RegSpillListElement;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.vmmagic.pragma.Interruptible;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.20"></a>
+<span class="sourceLineNo">021</span><a name="line.21"></a>
+<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
+<span class="sourceLineNo">023</span> * A class that encapsulates the GCMap portion of the machine code maps.<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * An instance of this class is created to encode and instance of a<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * GCIRMap into an int[].  The int[] is stored persistently,<a name="line.25"></a>
+<span class="sourceLineNo">026</span> * but the instance of the OptGCMap is NOT.<a name="line.26"></a>
+<span class="sourceLineNo">027</span> *<a name="line.27"></a>
+<span class="sourceLineNo">028</span> * &lt;ul&gt;<a name="line.28"></a>
+<span class="sourceLineNo">029</span> * &lt;li&gt; each map will be a sequence of 1 or more ints<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * &lt;li&gt; the first int in each map is a bit map of registers that<a name="line.30"></a>
+<span class="sourceLineNo">031</span> *   contain references (the MSB is used for chaining,<a name="line.31"></a>
+<span class="sourceLineNo">032</span> *   we assume it will never contain a reference)<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * &lt;li&gt; the remaining ints will be spill locations<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * &lt;li&gt; the sequence will continue as long as the most significant bit<a name="line.34"></a>
+<span class="sourceLineNo">035</span> *   is set to 1<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * &lt;/ul&gt;<a name="line.36"></a>
+<span class="sourceLineNo">037</span> *<a name="line.37"></a>
+<span class="sourceLineNo">038</span> *  Note: This file contains two types of methods<a name="line.38"></a>
+<span class="sourceLineNo">039</span> *  &lt;ul&gt;<a name="line.39"></a>
+<span class="sourceLineNo">040</span> *    &lt;li&gt;1) methods called during compilation to create the GC maps<a name="line.40"></a>
+<span class="sourceLineNo">041</span> *            these methods are virtual<a name="line.41"></a>
+<span class="sourceLineNo">042</span> *    &lt;li&gt;2) methods called at GC time (no allocation allowed!)<a name="line.42"></a>
+<span class="sourceLineNo">043</span> *            these methods are static<a name="line.43"></a>
+<span class="sourceLineNo">044</span> *  &lt;/ul&gt;<a name="line.44"></a>
+<span class="sourceLineNo">045</span> */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>@Uninterruptible<a name="line.46"></a>
+<span class="sourceLineNo">047</span>public final class OptGCMap {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final int NO_MAP_ENTRY = -1;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public static final int ERROR = -2;<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>  /**<a name="line.51"></a>
+<span class="sourceLineNo">052</span>   *  The initial allocation size for a map<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static final int INITIAL_MAP_SIZE = 16;<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>  /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   * bit pattern for the "next" bit in the GC maps array<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  private static final int NEXT_BIT = 0x80000000;<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * the index of the last map entry in use<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  private int lastGCMapEntry;<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>  /**<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   *  The gc map array, a sequence of gc maps.  Each sequence starts<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   *  with a register bit mask and is followed by a list of spills.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   *  The most significant bit of the spill location is used to chain<a name="line.69"></a>
+<span class="sourceLineNo">070</span>   *  the list.<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  private int[] gcMapInformation;<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>  public static final boolean DEBUG = false;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  public static final int FIRST_GCMAP_REG;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  public static final int LAST_GCMAP_REG;<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  static {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    if (VM.BuildForIA32) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>      FIRST_GCMAP_REG = org.jikesrvm.compilers.opt.runtimesupport.ia32.OptGCMapIteratorConstants.FIRST_GCMAP_REG;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      LAST_GCMAP_REG = org.jikesrvm.compilers.opt.runtimesupport.ia32.OptGCMapIteratorConstants.LAST_GCMAP_REG;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    } else {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>      if (VM.VerifyAssertions) VM._assert(VM.BuildForPowerPC);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      FIRST_GCMAP_REG = org.jikesrvm.compilers.opt.runtimesupport.ppc.OptGCMapIteratorConstants.FIRST_GCMAP_REG;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>      LAST_GCMAP_REG = org.jikesrvm.compilers.opt.runtimesupport.ppc.OptGCMapIteratorConstants.LAST_GCMAP_REG;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>  /**<a name="line.90"></a>
+<span class="sourceLineNo">091</span>   * Constructor, called during compilation<a name="line.91"></a>
+<span class="sourceLineNo">092</span>   */<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  OptGCMap() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    lastGCMapEntry = -1;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    gcMapInformation = new int[INITIAL_MAP_SIZE];   // initial map size<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  }<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   * Completes the encoding of the map.<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   *<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @return the final GC map<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  @Interruptible<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public int[] finish() {<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    if ((gcMapInformation != null) &amp;&amp; (lastGCMapEntry &lt; gcMapInformation.length - 1)) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>      resizeMapInformation(lastGCMapEntry + 1);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    return gcMapInformation;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  }<a name="line.109"></a>
+<span class="sourceLineNo">110</span><a name="line.110"></a>
+<span class="sourceLineNo">111</span>  /**<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * Construct the GCMap for the argument GCIRMapElement<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   * @param irMapElem  The IR Map element to create a GCMap for<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * @return the GCMap index.<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  @Interruptible<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  public int generateGCMapEntry(GCIRMapElement irMapElem) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    // the index into the GC maps we will use for this instruction.<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    int mapIndex = NO_MAP_ENTRY;<a name="line.119"></a>
+<span class="sourceLineNo">120</span><a name="line.120"></a>
+<span class="sourceLineNo">121</span>    // Before requesting the (first) map entry, lets make sure we<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    // will need it.  If the reg/spill list is empty, we don't<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    // need a map slot, i.e., no references are live at this instruction<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    List&lt;RegSpillListElement&gt; regSpillList = irMapElem.regSpillList();<a name="line.124"></a>
+<span class="sourceLineNo">125</span>    if (!regSpillList.isEmpty()) {<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>      // For efficiency we create our own bit map and then set the<a name="line.127"></a>
+<span class="sourceLineNo">128</span>      // appropriate array value<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      int bitMap = 0;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      // count the spills so we know how big of an array we'll need<a name="line.130"></a>
+<span class="sourceLineNo">131</span>      int numSpills = 0;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>      int numRegs = 0;<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>      // Because the output data structure (the map) stores register<a name="line.134"></a>
+<span class="sourceLineNo">135</span>      // information before spills, we need to traverse the list twice<a name="line.135"></a>
+<span class="sourceLineNo">136</span>      // the first time we get the register mask, the 2nd time we get<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      // the spills<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      // process the register<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      for (RegSpillListElement elem : regSpillList) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        if (elem.isSpill()) {<a name="line.140"></a>
+<span class="sourceLineNo">141</span>          numSpills++;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>        } else {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>          numRegs++;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>          int realRegNumber = elem.getRealRegNumber();<a name="line.144"></a>
+<span class="sourceLineNo">145</span><a name="line.145"></a>
+<span class="sourceLineNo">146</span>          if (VM.VerifyAssertions &amp;&amp; realRegNumber &gt; LAST_GCMAP_REG) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>            System.out.println(elem);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            System.out.println(LAST_GCMAP_REG);<a name="line.148"></a>
+<span class="sourceLineNo">149</span>            VM._assert(VM.NOT_REACHED, "reg &gt; last GC Map Reg!!");<a name="line.149"></a>
+<span class="sourceLineNo">150</span>          }<a name="line.150"></a>
+<span class="sourceLineNo">151</span><a name="line.151"></a>
+<span class="sourceLineNo">152</span>          // get the bit position for this register number<a name="line.152"></a>
+<span class="sourceLineNo">153</span>          int bitPosition = getRegBitPosition(realRegNumber);<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>          // Set the appropriate bit<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          bitMap = bitMap | (NEXT_BIT &gt;&gt;&gt; bitPosition);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        }<a name="line.157"></a>
+<span class="sourceLineNo">158</span>      }<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>      // get the next free Map entry<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      int index = setRegisterBitMap(bitMap);<a name="line.161"></a>
+<span class="sourceLineNo">162</span><a name="line.162"></a>
+<span class="sourceLineNo">163</span>      int[] spillArray = new int[numSpills];<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      int spillIndex = 0;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      // Now we need to walk the list again to process the spills.<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      // first, get a fresh enumerator<a name="line.166"></a>
+<span class="sourceLineNo">167</span>      for (RegSpillListElement elem : regSpillList) {<a name="line.167"></a>
+<span class="sourceLineNo">168</span>        if (elem.isSpill()) {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>          spillArray[spillIndex++] = elem.getSpill();<a name="line.169"></a>
+<span class="sourceLineNo">170</span>        }<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      }<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>      // add the spills into the map<a name="line.173"></a>
+<span class="sourceLineNo">174</span>      addAllSpills(spillArray);<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>      // don't forget to report that there are no more spills<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      mapIndex = endCurrentMap(index);<a name="line.177"></a>
+<span class="sourceLineNo">178</span><a name="line.178"></a>
+<span class="sourceLineNo">179</span>    }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    return mapIndex;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>  ////////////////////////////////////////////<a name="line.183"></a>
+<span class="sourceLineNo">184</span>  // Methods called at GC time<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  ////////////////////////////////////////////<a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>  public static int gcMapInformation(int mapEntry, int[] gcMap) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    // before returning remember to clear the MSB.<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    return gcMap[mapEntry] &amp; ~NEXT_BIT;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  }<a name="line.190"></a>
 <span class="sourceLineNo">191</span><a name="line.191"></a>
-<span class="sourceLineNo">192</span>    // Get the bit position for the register number<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    int bitPosition = getRegBitPosition(registerNumber);<a name="line.193"></a>
-<span class="sourceLineNo">194</span><a name="line.194"></a>
-<span class="sourceLineNo">195</span>    // Using the register number passed construct the appropriate bit string,<a name="line.195"></a>
-<span class="sourceLineNo">196</span>    // "and" it with the value, and see if we get a positive value<a name="line.196"></a>
-<span class="sourceLineNo">197</span>    return (gcMap[entry] &amp; (NEXT_BIT &gt;&gt;&gt; bitPosition)) &gt; 0;<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  }<a name="line.198"></a>
+<span class="sourceLineNo">192</span>  public static boolean registerIsSet(int entry, int registerNumber, int[] gcMap) {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    if (VM.VerifyAssertions) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      VM._assert(registerNumber &gt;= FIRST_GCMAP_REG &amp;&amp; registerNumber &lt;= LAST_GCMAP_REG, "Bad registerNumber");<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    }<a name="line.195"></a>
+<span class="sourceLineNo">196</span><a name="line.196"></a>
+<span class="sourceLineNo">197</span>    // Get the bit position for the register number<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    int bitPosition = getRegBitPosition(registerNumber);<a name="line.198"></a>
 <span class="sourceLineNo">199</span><a name="line.199"></a>
-<span class="sourceLineNo">200</span>  /**<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * @param  gcMap            the encoded GCMap<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   * @return the next (relative) location or -1 for no more locations<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   */<a name="line.203"></a>
-<span class="sourceLineNo">204</span>  public static int nextLocation(int currentIndex, int[] gcMap) {<a name="line.204"></a>
-<span class="sourceLineNo">205</span>    // Does the next entry contain anything useful?<a name="line.205"></a>
-<span class="sourceLineNo">206</span>    if (nextBitSet(currentIndex, gcMap)) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>      // if so, return the next index<a name="line.207"></a>
-<span class="sourceLineNo">208</span>      return currentIndex + 1;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>    } else {<a name="line.209"></a>
-<span class="sourceLineNo">210</span>      return -1;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>    }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>  }<a name="line.212"></a>
-<span class="sourceLineNo">213</span><a name="line.213"></a>
-<span class="sourceLineNo">214</span>  /**<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   *  This method maps a register number to its bit position<a name="line.215"></a>
-<span class="sourceLineNo">216</span>   *  @param registerNumber the register number of interest<a name="line.216"></a>
-<span class="sourceLineNo">217</span>   */<a name="line.217"></a>
-<span class="sourceLineNo">218</span>  private static int getRegBitPosition(int registerNumber) {<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    //  Because we can't use bit position 0 (that is the next bit), we<a name="line.219"></a>
-<span class="sourceLineNo">220</span>    // adjust depending on the value of FIRST_GCMAP_REG<a name="line.220"></a>
-<span class="sourceLineNo">221</span>    //<a name="line.221"></a>
-<span class="sourceLineNo">222</span>    // For example,<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    //  FIRST_GCMAP_REG = 1 =&gt; registerNumber = 1    (PPC)<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    //  FIRST_GCMAP_REG = 0 =&gt; registerNumber = 1    (IA32)<a name="line.224"></a>
-<span class="sourceLineNo">225</span>    //<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    return registerNumber - FIRST_GCMAP_REG + 1;<a name="line.226"></a>
-<span class="sourceLineNo">227</span>  }<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>  /**<a name="line.229"></a>
-<span class="sourceLineNo">230</span>   * Determines if the next bit is set for the entry passed in the gc map passed<a name="line.230"></a>
-<span class="sourceLineNo">231</span>   * @param entry the entry (index) to check<a name="line.231"></a>
-<span class="sourceLineNo">232</span>   * @param gcMap the gcmap<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * @return whether the next bit is set<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   */<a name="line.234"></a>
-<span class="sourceLineNo">235</span>  private static boolean nextBitSet(int entry, int[] gcMap) {<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    return (gcMap[entry] &amp; NEXT_BIT) == NEXT_BIT;<a name="line.236"></a>
-<span class="sourceLineNo">237</span>  }<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>  /**<a name="line.239"></a>
-<span class="sourceLineNo">240</span>   * Dumps the GCmap that starts at entry.<a name="line.240"></a>
-<span class="sourceLineNo">241</span>   * @param entry  the entry where the map begins<a name="line.241"></a>
-<span class="sourceLineNo">242</span>   * @param gcMap the encoded GCmaps<a name="line.242"></a>
-<span class="sourceLineNo">243</span>   */<a name="line.243"></a>
-<span class="sourceLineNo">244</span>  @Interruptible<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  public static void dumpMap(int entry, int[] gcMap) {<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    VM.sysWrite("Regs [");<a name="line.246"></a>
-<span class="sourceLineNo">247</span>    // Inspect the register bit map for the entry passed and print<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    // those bit map entries that are true<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    for (int registerNumber = FIRST_GCMAP_REG; registerNumber &lt;= LAST_GCMAP_REG; registerNumber++) {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>      if (registerIsSet(entry, registerNumber, gcMap)) {<a name="line.250"></a>
-<span class="sourceLineNo">251</span>        VM.sysWrite(registerNumber, " ");<a name="line.251"></a>
-<span class="sourceLineNo">252</span>      }<a name="line.252"></a>
-<span class="sourceLineNo">253</span>    }<a name="line.253"></a>
-<span class="sourceLineNo">254</span>    VM.sysWrite("]");<a name="line.254"></a>
-<span class="sourceLineNo">255</span>    VM.sysWrite(" Spills [");<a name="line.255"></a>
-<span class="sourceLineNo">256</span>    while (nextBitSet(entry, gcMap)) {<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      entry++;<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      VM.sysWrite(gcMapInformation(entry, gcMap));<a name="line.258"></a>
-<span class="sourceLineNo">259</span>      VM.sysWrite(" ");<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    }<a name="line.260"></a>
-<span class="sourceLineNo">261</span>    VM.sysWrite("]");<a name="line.261"></a>
-<span class="sourceLineNo">262</span>  }<a name="line.262"></a>
-<span class="sourceLineNo">263</span><a name="line.263"></a>
-<span class="sourceLineNo">264</span>  ////////////////////////////////////////////<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  // Helper methods for GCMap creation<a name="line.265"></a>
+<span class="sourceLineNo">200</span>    // Using the register number passed construct the appropriate bit string,<a name="line.200"></a>
+<span class="sourceLineNo">201</span>    // "and" it with the value, and see if we get a positive value<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    return (gcMap[entry] &amp; (NEXT_BIT &gt;&gt;&gt; bitPosition)) &gt; 0;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>  /**<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   * @param currentIndex the index of the current location<a name="line.206"></a>
+<span class="sourceLineNo">207</span>   * @param gcMap the encoded GCMap<a name="line.207"></a>
+<span class="sourceLineNo">208</span>   * @return the next (relative) location or -1 for no more locations<a name="line.208"></a>
+<span class="sourceLineNo">209</span>   */<a name="line.209"></a>
+<span class="sourceLineNo">210</span>  public static int nextLocation(int currentIndex, int[] gcMap) {<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    // Does the next entry contain anything useful?<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    if (nextBitSet(currentIndex, gcMap)) {<a name="line.212"></a>
+<span class="sourceLineNo">213</span>      // if so, return the next index<a name="line.213"></a>
+<span class="sourceLineNo">214</span>      return currentIndex + 1;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    } else {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>      return -1;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    }<a name="line.217"></a>
+<span class="sourceLineNo">218</span>  }<a name="line.218"></a>
+<span class="sourceLineNo">219</span><a name="line.219"></a>
+<span class="sourceLineNo">220</span>  private static int getRegBitPosition(int registerNumber) {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    //  Because we can't use bit position 0 (that is the next bit), we<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    // adjust depending on the value of FIRST_GCMAP_REG<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    //<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    // For example,<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    //  FIRST_GCMAP_REG = 1 =&gt; registerNumber = 1    (PPC)<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    //  FIRST_GCMAP_REG = 0 =&gt; registerNumber = 1    (IA32)<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    //<a name="line.227"></a>
+<span class="sourceLineNo">228</span>    return registerNumber - FIRST_GCMAP_REG + 1;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  }<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>  /**<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * Determines if the next bit is set for the entry passed in the gc map passed<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @param entry the entry (index) to check<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   * @param gcMap the gcmap<a name="line.234"></a>
+<span class="sourceLineNo">235</span>   * @return whether the next bit is set<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   */<a name="line.236"></a>
+<span class="sourceLineNo">237</span>  private static boolean nextBitSet(int entry, int[] gcMap) {<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    return (gcMap[entry] &amp; NEXT_BIT) == NEXT_BIT;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>  }<a name="line.239"></a>
+<span class="sourceLineNo">240</span><a name="line.240"></a>
+<span class="sourceLineNo">241</span>  /**<a name="line.241"></a>
+<span class="sourceLineNo">242</span>   * Dumps the GCmap that starts at entry.<a name="line.242"></a>
+<span class="sourceLineNo">243</span>   * @param entry  the entry where the map begins<a name="line.243"></a>
+<span class="sourceLineNo">244</span>   * @param gcMap the encoded GCmaps<a name="line.244"></a>
+<span class="sourceLineNo">245</span>   */<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  @Interruptible<a name="line.246"></a>
+<span class="sourceLineNo">247</span>  public static void dumpMap(int entry, int[] gcMap) {<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    VM.sysWrite("Regs [");<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    // Inspect the register bit map for the entry passed and print<a name="line.249"></a>
+<span class="sourceLineNo">250</span>    // those bit map entries that are true<a name="line.250"></a>
+<span class="sourceLineNo">251</span>    for (int registerNumber = FIRST_GCMAP_REG; registerNumber &lt;= LAST_GCMAP_REG; registerNumber++) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>      if (registerIsSet(entry, registerNumber, gcMap)) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        VM.sysWrite(registerNumber, " ");<a name="line.253"></a>
+<span class="sourceLineNo">254</span>      }<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    }<a name="line.255"></a>
+<span class="sourceLineNo">256</span>    VM.sysWrite("]");<a name="line.256"></a>
+<span class="sourceLineNo">257</span>    VM.sysWrite(" Spills [");<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    while (nextBitSet(entry, gcMap)) {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>      entry++;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      VM.sysWrite(gcMapInformation(entry, gcMap));<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      VM.sysWrite(" ");<a name="line.261"></a>
+<span class="sourceLineNo">262</span>    }<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    VM.sysWrite("]");<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  }<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
 <span class="sourceLineNo">266</span>  ////////////////////////////////////////////<a name="line.266"></a>
-<span class="sourceLineNo">267</span>  /**<a name="line.267"></a>
-<span class="sourceLineNo">268</span>   * Returns the next GC map entry for use<a name="line.268"></a>
-<span class="sourceLineNo">269</span>   * @return the entry in the map table that can be used<a name="line.269"></a>
-<span class="sourceLineNo">270</span>   */<a name="line.270"></a>
-<span class="sourceLineNo">271</span>  @Interruptible<a name="line.271"></a>
-<span class="sourceLineNo">272</span>  private int getNextMapEntry() {<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    // make sure we have enough room<a name="line.273"></a>
-<span class="sourceLineNo">274</span>    int oldLength = gcMapInformation.length - 1;<a name="line.274"></a>
-<span class="sourceLineNo">275</span>    if (lastGCMapEntry &gt;= oldLength) {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>      // expand the mapInformation array to be twice as big<a name="line.276"></a>
-<span class="sourceLineNo">277</span>      resizeMapInformation(oldLength &lt;&lt; 1);<a name="line.277"></a>
-<span class="sourceLineNo">278</span>    }<a name="line.278"></a>
-<span class="sourceLineNo">279</span>    return ++lastGCMapEntry;<a name="line.279"></a>
-<span class="sourceLineNo">280</span>  }<a name="line.280"></a>
-<span class="sourceLineNo">281</span><a name="line.281"></a>
-<span class="sourceLineNo">282</span>  /**<a name="line.282"></a>
-<span class="sourceLineNo">283</span>   * Resize the map array<a name="line.283"></a>
-<span class="sourceLineNo">284</span>   * @param newSize the new size for the map array<a name="line.284"></a>
-<span class="sourceLineNo">285</span>   */<a name="line.285"></a>
-<span class="sourceLineNo">286</span>  @Interruptible<a name="line.286"></a>
-<span class="sourceLineNo">287</span>  private void resizeMapInformation(int newSize) {<a name="line.287"></a>
-<span class="sourceLineNo">288</span>    int[] newMapInformation = new int[newSize];<a name="line.288"></a>
-<span class="sourceLineNo">289</span>    for (int i = 0; i &lt;= lastGCMapEntry; i++) {<a name="line.289"></a>
-<span class="sourceLineNo">290</span>      newMapInformation[i] = gcMapInformation[i];<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    }<a name="line.291"></a>
-<span class="sourceLineNo">292</span>    gcMapInformation = newMapInformation;<a name="line.292"></a>
-<span class="sourceLineNo">293</span>  }<a name="line.293"></a>
-<span class="sourceLineNo">294</span><a name="line.294"></a>
-<span class="sourceLineNo">295</span>  //////////<a name="line.295"></a>
-<span class="sourceLineNo">296</span>  // Setters for GC Maps<a name="line.296"></a>
+<span class="sourceLineNo">267</span>  // Helper methods for GCMap creation<a name="line.267"></a>
+<span class="sourceLineNo">268</span>  ////////////////////////////////////////////<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  /**<a name="line.269"></a>
+<span class="sourceLineNo">270</span>   * Returns the next GC map entry for use<a name="line.270"></a>
+<span class="sourceLineNo">271</span>   * @return the entry in the map table that can be used<a name="line.271"></a>
+<span class="sourceLineNo">272</span>   */<a name="line.272"></a>
+<span class="sourceLineNo">273</span>  @Interruptible<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  private int getNextMapEntry() {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>    // make sure we have enough room<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    int oldLength = gcMapInformation.length - 1;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    if (lastGCMapEntry &gt;= oldLength) {<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      // expand the mapInformation array to be twice as big<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      resizeMapInformation(oldLength &lt;&lt; 1);<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    return ++lastGCMapEntry;<a name="line.281"></a>
+<span class="sourceLineNo">282</span>  }<a name="line.282"></a>
+<span class="sourceLineNo">283</span><a name="line.283"></a>
+<span class="sourceLineNo">284</span>  /**<a name="line.284"></a>
+<span class="sourceLineNo">285</span>   * Resize the map array<a name="line.285"></a>
+<span class="sourceLineNo">286</span>   * @param newSize the new size for the map array<a name="line.286"></a>
+<span class="sourceLineNo">287</span>   */<a name="line.287"></a>
+<span class="sourceLineNo">288</span>  @Interruptible<a name="line.288"></a>
+<span class="sourceLineNo">289</span>  private void resizeMapInformation(int newSize) {<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    int[] newMapInformation = new int[newSize];<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    for (int i = 0; i &lt;= lastGCMapEntry; i++) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>      newMapInformation[i] = gcMapInformation[i];<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    }<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    gcMapInformation = newMapInformation;<a name="line.294"></a>
+<span class="sourceLineNo">295</span>  }<a name="line.295"></a>
+<span class="sourceLineNo">296</span><a name="line.296"></a>
 <span class="sourceLineNo">297</span>  //////////<a name="line.297"></a>
-<span class="sourceLineNo">298</span><a name="line.298"></a>
-<span class="sourceLineNo">299</span>  /**<a name="line.299"></a>
-<span class="sourceLineNo">300</span>   * Sets the register map information at the next available entry<a name="line.300"></a>
-<span class="sourceLineNo">301</span>   * @param  bitMap    map entry<a name="line.301"></a>
-<span class="sourceLineNo">302</span>   * @return The index of that entry.<a name="line.302"></a>
-<span class="sourceLineNo">303</span>   */<a name="line.303"></a>
-<span class="sourceLineNo">304</span>  @Interruptible<a name="line.304"></a>
-<span class="sourceLineNo">305</span>  private int setRegisterBitMap(int bitMap) {<a name="line.305"></a>
-<span class="sourceLineNo">306</span>    // Set the appropriate bit, but make sure we preserve the NEXT bit!<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    int entry = getNextMapEntry();<a name="line.307"></a>
-<span class="sourceLineNo">308</span>    gcMapInformation[entry] = bitMap | NEXT_BIT;<a name="line.308"></a>
-<span class="sourceLineNo">309</span>    return entry;<a name="line.309"></a>
-<span class="sourceLineNo">310</span>  }<a name="line.310"></a>
-<span class="sourceLineNo">311</span><a name="line.311"></a>
-<span class="sourceLineNo">312</span>  /**<a name="line.312"></a>
-<span class="sourceLineNo">313</span>   * If we will be looking for missed references we need to sort the list<a name="line.313"></a>
-<span class="sourceLineNo">314</span>   *  of spills and then add them to the map, otherwise, nothing to do<a name="line.314"></a>
-<span class="sourceLineNo">315</span>   * @param spillArray an array of spills<a name="line.315"></a>
-<span class="sourceLineNo">316</span>   */<a name="line.316"></a>
-<span class="sourceLineNo">317</span>  @Interruptible<a name="line.317"></a>
-<span class="sourceLineNo">318</span>  private void addAllSpills(int[] spillArray) {<a name="line.318"></a>
-<span class="sourceLineNo">319</span>    // 1) sort the spills to increase the odds of reusing the GC map<a name="line.319"></a>
-<span class="sourceLineNo">320</span>    java.util.Arrays.sort(spillArray);<a name="line.320"></a>
-<span class="sourceLineNo">321</span><a name="line.321"></a>
-<span class="sourceLineNo">322</span>    // 2) add them to the map using addSpillLocation<a name="line.322"></a>
-<span class="sourceLineNo">323</span>    for (int spill : spillArray) {<a name="line.323"></a>
-<span class="sourceLineNo">324</span>      addSpillLocation(spill);<a name="line.324"></a>
-<span class="sourceLineNo">325</span>    }<a name="line.325"></a>
-<span class="sourceLineNo">326</span>  }<a name="line.326"></a>
-<span class="sourceLineNo">327</span><a name="line.327"></a>
-<span class="sourceLineNo">328</span>  /**<a name="line.328"></a>
-<span class="sourceLineNo">329</span>   * Adds the passed spill value to the current map<a name="line.329"></a>
-<span class="sourceLineNo">330</span>   * @param spill the spill location<a name="line.330"></a>
-<span class="sourceLineNo">331</span>   */<a name="line.331"></a>
-<span class="sourceLineNo">332</span>  @Interruptible<a name="line.332"></a>
-<span class="sourceLineNo">333</span>  private void addSpillLocation(int spill) {<a name="line.333"></a>
-<span class="sourceLineNo">334</span>    // make sure the value doesn't overflow the maximum spill location<a name="line.334"></a>
-<span class="sourceLineNo">335</span>    if (VM.VerifyAssertions &amp;&amp; ((spill &lt; 0) || (spill &gt; 32767))) {<a name="line.335"></a>
-<span class="sourceLineNo">336</span>      VM._assert(VM.NOT_REACHED, "Unexpected spill passed:" + spill);<a name="line.336"></a>
-<span class="sourceLineNo">337</span>    }<a name="line.337"></a>
-<span class="sourceLineNo">338</span>    // get the next entry (with the NEXT bit set) ...<a name="line.338"></a>
-<span class="sourceLineNo">339</span>    int entry = getNextMapEntry();<a name="line.339"></a>
-<span class="sourceLineNo">340</span>    gcMapInformation[entry] = spill | NEXT_BIT;<a name="line.340"></a>
-<span class="sourceLineNo">341</span>  }<a name="line.341"></a>
-<span class="sourceLineNo">342</span><a name="line.342"></a>
-<span class="sourceLineNo">343</span>  /**<a name="line.343"></a>
-<span class="sourceLineNo">344</span>   * Ends the current map<a name="line.344"></a>
-<span class="sourceLineNo">345</span>   * @param firstIndex the index of the beginning of the map<a name="line.345"></a>
-<span class="sourceLineNo">346</span>   * @return the index of the beginning of the map (may be different)<a name="line.346"></a>
-<span class="sourceLineNo">347</span>   */<a name="line.347"></a>
-<span class="sourceLineNo">348</span>  @Interruptible<a name="line.348"></a>
-<span class="sourceLineNo">349</span>  private int endCurrentMap(int firstIndex) {<a name="line.349"></a>
-<span class="sourceLineNo">350</span>    int lastEntry = lastGCMapEntry;<a name="line.350"></a>
-<span class="sourceLineNo">351</span><a name="line.351"></a>
-<span class="sourceLineNo">352</span>    // adjust the last entry so that the NEXT bit is not set.<a name="line.352"></a>
-<span class="sourceLineNo">353</span>    gcMapInformation[lastEntry] = gcMapInformation[lastEntry] &amp; ~NEXT_BIT;<a name="line.353"></a>
+<span class="sourceLineNo">298</span>  // Setters for GC Maps<a name="line.298"></a>
+<span class="sourceLineNo">299</span>  //////////<a name="line.299"></a>
+<span class="sourceLineNo">300</span><a name="line.300"></a>
+<span class="sourceLineNo">301</span>  /**<a name="line.301"></a>
+<span class="sourceLineNo">302</span>   * Sets the register map information at the next available entry<a name="line.302"></a>
+<span class="sourceLineNo">303</span>   * @param  bitMap    map entry<a name="line.303"></a>
+<span class="sourceLineNo">304</span>   * @return The index of that entry.<a name="line.304"></a>
+<span class="sourceLineNo">305</span>   */<a name="line.305"></a>
+<span class="sourceLineNo">306</span>  @Interruptible<a name="line.306"></a>
+<span class="sourceLineNo">307</span>  private int setRegisterBitMap(int bitMap) {<a name="line.307"></a>
+<span class="sourceLineNo">308</span>    // Set the appropriate bit, but make sure we preserve the NEXT bit!<a name="line.308"></a>
+<span class="sourceLineNo">309</span>    int entry = getNextMapEntry();<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    gcMapInformation[entry] = bitMap | NEXT_BIT;<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    return entry;<a name="line.311"></a>
+<span class="sourceLineNo">312</span>  }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>  /**<a name="line.314"></a>
+<span class="sourceLineNo">315</span>   * If we will be looking for missed references we need to sort the list<a name="line.315"></a>
+<span class="sourceLineNo">316</span>   *  of spills and then add them to the map, otherwise, nothing to do<a name="line.316"></a>
+<span class="sourceLineNo">317</span>   * @param spillArray an array of spills<a name="line.317"></a>
+<span class="sourceLineNo">318</span>   */<a name="line.318"></a>
+<span class="sourceLineNo">319</span>  @Interruptible<a name="line.319"></a>
+<span class="sourceLineNo">320</span>  private void addAllSpills(int[] spillArray) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    // 1) sort the spills to increase the odds of reusing the GC map<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    java.util.Arrays.sort(spillArray);<a name="line.322"></a>
+<span class="sourceLineNo">323</span><a name="line.323"></a>
+<span class="sourceLineNo">324</span>    // 2) add them to the map using addSpillLocation<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    for (int spill : spillArray) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      addSpillLocation(spill);<a name="line.326"></a>
+<span class="sourceLineNo">327</span>    }<a name="line.327"></a>
+<span class="sourceLineNo">328</span>  }<a name="line.328"></a>
+<span class="sourceLineNo">329</span><a name="line.329"></a>
+<span class="sourceLineNo">330</span>  /**<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * Adds the passed spill value to the current map<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   * @param spill the spill location<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>  @Interruptible<a name="line.334"></a>
+<span class="sourceLineNo">335</span>  private void addSpillLocation(int spill) {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    // make sure the value doesn't overflow the maximum spill location<a name="line.336"></a>
+<span class="sourceLineNo">337</span>    if (VM.VerifyAssertions &amp;&amp; ((spill &lt; 0) || (spill &gt; 32767))) {<a name="line.337"></a>
+<span class="sourceLineNo">338</span>      String msg = "Unexpected spill passed:" + spill;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>      VM._assert(VM.NOT_REACHED, msg);<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    }<a name="line.340"></a>
+<span class="sourceLineNo">341</span>    // get the next entry (with the NEXT bit set) ...<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    int entry = getNextMapEntry();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    gcMapInformation[entry] = spill | NEXT_BIT;<a name="line.343"></a>
+<span class="sourceLineNo">344</span>  }<a name="line.344"></a>
+<span class="sourceLineNo">345</span><a name="line.345"></a>
+<span class="sourceLineNo">346</span>  /**<a name="line.346"></a>
+<span class="sourceLineNo">347</span>   * Ends the current map<a name="line.347"></a>
+<span class="sourceLineNo">348</span>   * @param firstIndex the index of the beginning of the map<a name="line.348"></a>
+<span class="sourceLineNo">349</span>   * @return the index of the beginning of the map (may be different)<a name="line.349"></a>
+<span class="sourceLineNo">350</span>   */<a name="line.350"></a>
+<span class="sourceLineNo">351</span>  @Interruptible<a name="line.351"></a>
+<span class="sourceLineNo">352</span>  private int endCurrentMap(int firstIndex) {<a name="line.352"></a>
+<span class="sourceLineNo">353</span>    int lastEntry = lastGCMapEntry;<a name="line.353"></a>
 <span class="sourceLineNo">354</span><a name="line.354"></a>
-<span class="sourceLineNo">355</span>    if (DEBUG) {<a name="line.355"></a>
-<span class="sourceLineNo">356</span>      System.out.println("\nendCurrentMap called with firstIndex: " +<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                         firstIndex +<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                         ", lastGCMapEntry: " +<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                         lastGCMapEntry);<a name="line.359"></a>
-<span class="sourceLineNo">360</span>      System.out.println("gc map array before reuse checking");<a name="line.360"></a>
-<span class="sourceLineNo">361</span>      for (int i = 0; i &lt;= lastGCMapEntry; i++) {<a name="line.361"></a>
-<span class="sourceLineNo">362</span>        System.out.println(i + ": " + gcMapInformation[i]);<a name="line.362"></a>
-<span class="sourceLineNo">363</span>      }<a name="line.363"></a>
-<span class="sourceLineNo">364</span>    }<a name="line.364"></a>
-<span class="sourceLineNo">365</span><a name="line.365"></a>
-<span class="sourceLineNo">366</span>    // Now that we know the complete map information, let's determine if<a name="line.366"></a>
-<span class="sourceLineNo">367</span>    // we really need to store it, or instead can reuse a previous map.<a name="line.367"></a>
-<span class="sourceLineNo">368</span>    int candidateBeginningIndex = 0; //this will be the beginning<a name="line.368"></a>
-<span class="sourceLineNo">369</span>    int candidateIndex = candidateBeginningIndex;  // this will walk the map<a name="line.369"></a>
-<span class="sourceLineNo">370</span>    int curIndex = firstIndex;<a name="line.370"></a>
-<span class="sourceLineNo">371</span>    while (candidateIndex &lt; firstIndex &amp;&amp; curIndex &lt;= lastEntry) {<a name="line.371"></a>
-<span class="sourceLineNo">372</span>      int old = gcMapInformation[candidateIndex++];<a name="line.372"></a>
-<span class="sourceLineNo">373</span>      int cur = gcMapInformation[curIndex++];<a name="line.373"></a>
-<span class="sourceLineNo">374</span>      if (old != cur) {<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        if (DEBUG) {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>          System.out.println("entries at " + (candidateIndex - 1) + " and " + (curIndex - 1) + " don't match");<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        // this entry won't work, advance to candidateIndex to GC map entry<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        //  and reset curIndex<a name="line.379"></a>
-<span class="sourceLineNo">380</span>        while ((old &amp; NEXT_BIT) != 0) {<a name="line.380"></a>
-<span class="sourceLineNo">381</span>          old = gcMapInformation[candidateIndex++];<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        }<a name="line.382"></a>
-<span class="sourceLineNo">383</span><a name="line.383"></a>
-<span class="sourceLineNo">384</span>        // update the beginning index too<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        candidateBeginningIndex = candidateIndex;<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        curIndex = firstIndex;<a name="line.386"></a>
-<span class="sourceLineNo">387</span>      } else if ((old &amp; NEXT_BIT) == 0) {<a name="line.387"></a>
-<span class="sourceLineNo">388</span>        // we've checked all of the candidate without stopping, so we found<a name="line.388"></a>
-<span class="sourceLineNo">389</span>        //  a winner to reuse<a name="line.389"></a>
-<span class="sourceLineNo">390</span><a name="line.390"></a>
-<span class="sourceLineNo">391</span>        if (DEBUG) {<a name="line.391"></a>
-<span class="sourceLineNo">392</span>          System.out.println("found a matching map: [" +<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                             candidateBeginningIndex +<a name="line.393"></a>
-<span class="sourceLineNo">394</span>                             ", " +<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                             (candidateIndex - 1) +<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                             "] == [" +<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                             firstIndex +<a name="line.397"></a>
-<span class="sourceLineNo">398</span>                             ", " +<a name="line.398"></a>
-<span class="sourceLineNo">399</span>                             lastGCMapEntry +<a name="line.399"></a>
-<span class="sourceLineNo">400</span>                             "]");<a name="line.400"></a>
-<span class="sourceLineNo">401</span>        }<a name="line.401"></a>
-<span class="sourceLineNo">402</span><a name="line.402"></a>
-<span class="sourceLineNo">403</span>        lastGCMapEntry = firstIndex - 1;<a name="line.403"></a>
-<span class="sourceLineNo">404</span>        return candidateBeginningIndex;<a name="line.404"></a>
-<span class="sourceLineNo">405</span>      }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>    }<a name="line.406"></a>
-<span class="sourceLineNo">407</span><a name="line.407"></a>
-<span class="sourceLineNo">408</span>    return firstIndex;<a name="line.408"></a>
-<span class="sourceLineNo">409</span>  }<a name="line.409"></a>
-<span class="sourceLineNo">410</span>}<a name="line.410"></a>
+<span class="sourceLineNo">355</span>    // adjust the last entry so that the NEXT bit is not set.<a name="line.355"></a>
+<span class="sourceLineNo">356</span>    gcMapInformation[lastEntry] = gcMapInformation[lastEntry] &amp; ~NEXT_BIT;<a name="line.356"></a>
+<span class="sourceLineNo">357</span><a name="line.357"></a>
+<span class="sourceLineNo">358</span>    if (DEBUG) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>      System.out.println("\nendCurrentMap called with firstIndex: " +<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                         firstIndex +<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                         ", lastGCMapEntry: " +<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                         lastGCMapEntry);<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      System.out.println("gc map array before reuse checking");<a name="line.363"></a>
+<span class="sourceLineNo">364</span>      for (int i = 0; i &lt;= lastGCMapEntry; i++) {<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        System.out.println(i + ": " + gcMapInformation[i]);<a name="line.365"></a>
+<span class="sourceLineNo">366</span>      }<a name="line.366"></a>
+<span class="sourceLineNo">367</span>    }<a name="line.367"></a>
+<span class="sourceLineNo">368</span><a name="line.368"></a>
+<span class="sourceLineNo">369</span>    // Now that we know the complete map information, let's determine if<a name="line.369"></a>
+<span class="sourceLineNo">370</span>    // we really need to store it, or instead can reuse a previous map.<a name="line.370"></a>
+<span class="sourceLineNo">371</span>    int candidateBeginningIndex = 0; //this will be the beginning<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    int candidateIndex = candidateBeginningIndex;  // this will walk the map<a name="line.372"></a>
+<span class="sourceLineNo">373</span>    int curIndex = firstIndex;<a name="line.373"></a>
+<span class="sourceLineNo">374</span>    while (candidateIndex &lt; firstIndex &amp;&amp; curIndex &lt;= lastEntry) {<a name="line.374"></a>
+<span class="sourceLineNo">375</span>      int old = gcMapInformation[candidateIndex++];<a name="line.375"></a>
+<span class="sourceLineNo">376</span>      int cur = gcMapInformation[curIndex++];<a name="line.376"></a>
+<span class="sourceLineNo">377</span>      if (old != cur) {<a name="line.377"></a>
+<span class="sourceLineNo">378</span>        if (DEBUG) {<a name="line.378"></a>
+<span class="sourceLineNo">379</span>          System.out.println("entries at " + (candidateIndex - 1) + " and " + (curIndex - 1) + " don't match");<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        }<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        // this entry won't work, advance to candidateIndex to GC map entry<a name="line.381"></a>
+<span class="sourceLineNo">382</span>        //  and reset curIndex<a name="line.382"></a>
+<span class="sourceLineNo">383</span>        while ((old &amp; NEXT_BIT) != 0) {<a name="line.383"></a>
+<span class="sourceLineNo">384</span>          old = gcMapInformation[candidateIndex++];<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        }<a name="line.385"></a>
+<span class="sourceLineNo">386</span><a name="line.386"></a>
+<span class="sourceLineNo">387</span>        // update the beginning index too<a name="line.387"></a>
+<span class="sourceLineNo">388</span>        candidateBeginningIndex = candidateIndex;<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        curIndex = firstIndex;<a name="line.389"></a>
+<span class="sourceLineNo">390</span>      } else if ((old &amp; NEXT_BIT) == 0) {<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        // we've checked all of the candidate without stopping, so we found<a name="line.391"></a>
+<span class="sourceLineNo">392</span>        //  a winner to reuse<a name="line.392"></a>
+<span class="sourceLineNo">393</span><a name="line.393"></a>
+<span class="sourceLineNo">394</span>        if (DEBUG) {<a name="line.394"></a>
+<span class="sourceLineNo">395</span>          System.out.println("found a matching map: [" +<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                             candidateBeginningIndex +<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                             ", " +<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                             (candidateIndex - 1) +<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                             "] == [" +<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                             firstIndex +<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                             ", " +<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                             lastGCMapEntry +<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                             "]");<a name="line.403"></a>
+<span class="sourceLineNo">404</span>        }<a name="line.404"></a>
+<span class="sourceLineNo">405</span><a name="line.405"></a>
+<span class="sourceLineNo">406</span>        lastGCMapEntry = firstIndex - 1;<a name="line.406"></a>
+<span class="sourceLineNo">407</span>        return candidateBeginningIndex;<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      }<a name="line.408"></a>
+<span class="sourceLineNo">409</span>    }<a name="line.409"></a>
+<span class="sourceLineNo">410</span><a name="line.410"></a>
+<span class="sourceLineNo">411</span>    return firstIndex;<a name="line.411"></a>
+<span class="sourceLineNo">412</span>  }<a name="line.412"></a>
+<span class="sourceLineNo">413</span>}<a name="line.413"></a>
 
 
 

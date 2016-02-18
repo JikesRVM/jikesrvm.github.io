@@ -44,65 +44,62 @@
 <span class="sourceLineNo">036</span>   */<a name="line.36"></a>
 <span class="sourceLineNo">037</span>  private final ObjectReferenceDeque modBuffer;<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>  /**<a name="line.39"></a>
-<span class="sourceLineNo">040</span>   * Constructor<a name="line.40"></a>
-<span class="sourceLineNo">041</span>   */<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  public MSTraceLocal(Trace trace, ObjectReferenceDeque modBuffer) {<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    super(MS.SCAN_MARK, trace);<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    this.modBuffer = modBuffer;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  }<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>  /****************************************************************************<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   * Externally visible Object processing and tracing<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   */<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   * {@inheritDoc}<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  @Override<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  public boolean isLive(ObjectReference object) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    if (object.isNull()) return false;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    if (Space.isInSpace(MS.MARK_SWEEP, object)) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>      return MS.msSpace.isLive(object);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    return super.isLive(object);<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>  /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   * {@inheritDoc}&lt;p&gt;<a name="line.65"></a>
+<span class="sourceLineNo">039</span>  public MSTraceLocal(Trace trace, ObjectReferenceDeque modBuffer) {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    super(MS.SCAN_MARK, trace);<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    this.modBuffer = modBuffer;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  }<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>  /****************************************************************************<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   * Externally visible Object processing and tracing<a name="line.46"></a>
+<span class="sourceLineNo">047</span>   */<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>  /**<a name="line.49"></a>
+<span class="sourceLineNo">050</span>   * {@inheritDoc}<a name="line.50"></a>
+<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  @Override<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public boolean isLive(ObjectReference object) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    if (object.isNull()) return false;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    if (Space.isInSpace(MS.MARK_SWEEP, object)) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      return MS.msSpace.isLive(object);<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    }<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    return super.isLive(object);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * {@inheritDoc}&lt;p&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   *<a name="line.63"></a>
+<span class="sourceLineNo">064</span>   * In this instance, we refer objects in the mark-sweep space to the<a name="line.64"></a>
+<span class="sourceLineNo">065</span>   * msSpace for tracing, and defer to the superclass for all others.<a name="line.65"></a>
 <span class="sourceLineNo">066</span>   *<a name="line.66"></a>
-<span class="sourceLineNo">067</span>   * In this instance, we refer objects in the mark-sweep space to the<a name="line.67"></a>
-<span class="sourceLineNo">068</span>   * msSpace for tracing, and defer to the superclass for all others.<a name="line.68"></a>
-<span class="sourceLineNo">069</span>   *<a name="line.69"></a>
-<span class="sourceLineNo">070</span>   * @param object The object to be traced.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>   * @return The new reference to the same object instance.<a name="line.71"></a>
-<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>  @Inline<a name="line.73"></a>
-<span class="sourceLineNo">074</span>  @Override<a name="line.74"></a>
-<span class="sourceLineNo">075</span>  public ObjectReference traceObject(ObjectReference object) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    if (object.isNull()) return object;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    if (Space.isInSpace(MS.MARK_SWEEP, object))<a name="line.77"></a>
-<span class="sourceLineNo">078</span>      return MS.msSpace.traceObject(this, object);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    return super.traceObject(object);<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  }<a name="line.80"></a>
-<span class="sourceLineNo">081</span><a name="line.81"></a>
-<span class="sourceLineNo">082</span>  /**<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   * Process any remembered set entries.  This means enumerating the<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   * mod buffer and for each entry, marking the object as unlogged<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * (we don't enqueue for scanning since we're doing a full heap GC).<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   */<a name="line.86"></a>
-<span class="sourceLineNo">087</span>  @Override<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  protected void processRememberedSets() {<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    if (modBuffer != null) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>      logMessage(5, "clearing modBuffer");<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      while (!modBuffer.isEmpty()) {<a name="line.91"></a>
-<span class="sourceLineNo">092</span>        ObjectReference src = modBuffer.pop();<a name="line.92"></a>
-<span class="sourceLineNo">093</span>        HeaderByte.markAsUnlogged(src);<a name="line.93"></a>
-<span class="sourceLineNo">094</span>      }<a name="line.94"></a>
-<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  }<a name="line.96"></a>
-<span class="sourceLineNo">097</span>}<a name="line.97"></a>
+<span class="sourceLineNo">067</span>   * @param object The object to be traced.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>   * @return The new reference to the same object instance.<a name="line.68"></a>
+<span class="sourceLineNo">069</span>   */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  @Inline<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  @Override<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  public ObjectReference traceObject(ObjectReference object) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    if (object.isNull()) return object;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    if (Space.isInSpace(MS.MARK_SWEEP, object))<a name="line.74"></a>
+<span class="sourceLineNo">075</span>      return MS.msSpace.traceObject(this, object);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    return super.traceObject(object);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
+<span class="sourceLineNo">080</span>   * Process any remembered set entries.  This means enumerating the<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * mod buffer and for each entry, marking the object as unlogged<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   * (we don't enqueue for scanning since we're doing a full heap GC).<a name="line.82"></a>
+<span class="sourceLineNo">083</span>   */<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  @Override<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  protected void processRememberedSets() {<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    if (modBuffer != null) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>      logMessage(5, "clearing modBuffer");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>      while (!modBuffer.isEmpty()) {<a name="line.88"></a>
+<span class="sourceLineNo">089</span>        ObjectReference src = modBuffer.pop();<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        HeaderByte.markAsUnlogged(src);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>      }<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
+<span class="sourceLineNo">094</span>}<a name="line.94"></a>
 
 
 

@@ -20,175 +20,184 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.mmtk.policy.immix;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.mmtk.plan.Plan;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.mmtk.policy.Space;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.mmtk.utility.Constants;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.mmtk.vm.VM;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.vmmagic.unboxed.Address;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.vmmagic.unboxed.AddressArray;<a name="line.21"></a>
-<span class="sourceLineNo">022</span><a name="line.22"></a>
-<span class="sourceLineNo">023</span>@Uninterruptible<a name="line.23"></a>
-<span class="sourceLineNo">024</span>public final class ChunkList implements Constants {<a name="line.24"></a>
-<span class="sourceLineNo">025</span>  private static final int LOG_PAGES_IN_CHUNK_MAP_BLOCK = 0;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>  private static final int ENTRIES_IN_CHUNK_MAP_BLOCK = (BYTES_IN_PAGE&lt;&lt;LOG_PAGES_IN_CHUNK_MAP_BLOCK)&gt;&gt;LOG_BYTES_IN_ADDRESS;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>  private static final int CHUNK_MAP_BLOCKS = 1&lt;&lt;4;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>  private static final int MAX_ENTRIES_IN_CHUNK_MAP = ENTRIES_IN_CHUNK_MAP_BLOCK * CHUNK_MAP_BLOCKS;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  private AddressArray chunkMap =  AddressArray.create(CHUNK_MAP_BLOCKS);<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  private int chunkMapLimit = -1;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  private int chunkMapCursor = -1;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>  void reset() {<a name="line.33"></a>
-<span class="sourceLineNo">034</span>    chunkMapLimit = chunkMapCursor;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  }<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>  public Address getHeadChunk() {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>    if (chunkMapLimit &lt; 0)<a name="line.38"></a>
-<span class="sourceLineNo">039</span>      return Address.zero();<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    else<a name="line.40"></a>
-<span class="sourceLineNo">041</span>      return getMapAddress(0).loadAddress();<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  }<a name="line.42"></a>
-<span class="sourceLineNo">043</span><a name="line.43"></a>
-<span class="sourceLineNo">044</span>  public Address getTailChunk() {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    if (chunkMapLimit &lt; 0)<a name="line.45"></a>
-<span class="sourceLineNo">046</span>      return Address.zero();<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    else<a name="line.47"></a>
-<span class="sourceLineNo">048</span>      return getMapAddress(chunkMapLimit).loadAddress();<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  }<a name="line.49"></a>
-<span class="sourceLineNo">050</span><a name="line.50"></a>
-<span class="sourceLineNo">051</span>  void addNewChunkToMap(Address chunk) {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(Chunk.isAligned(chunk));<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    if (chunkMapCursor == MAX_ENTRIES_IN_CHUNK_MAP - 1)<a name="line.53"></a>
-<span class="sourceLineNo">054</span>      consolidateMap();<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    chunkMapCursor++;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    int index = getChunkIndex(chunkMapCursor);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    int map = getChunkMap(chunkMapCursor);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    if (map &gt;= CHUNK_MAP_BLOCKS) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>      Space.printUsageMB();<a name="line.59"></a>
-<span class="sourceLineNo">060</span>      VM.assertions.fail("Overflow of chunk map!");<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    if (chunkMap.get(map).isZero()) {<a name="line.62"></a>
-<span class="sourceLineNo">063</span>      Address tmp = Plan.metaDataSpace.acquire(1&lt;&lt;LOG_PAGES_IN_CHUNK_MAP_BLOCK);<a name="line.63"></a>
-<span class="sourceLineNo">064</span>      if (tmp.isZero()) {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        Space.printUsageMB();<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        VM.assertions.fail("Failed to allocate space for chunk map.  Is metadata virtual memory exhausted?");<a name="line.66"></a>
-<span class="sourceLineNo">067</span>      }<a name="line.67"></a>
-<span class="sourceLineNo">068</span>      chunkMap.set(map, tmp);<a name="line.68"></a>
-<span class="sourceLineNo">069</span>    }<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    Address entry = chunkMap.get(map).plus(index&lt;&lt;LOG_BYTES_IN_ADDRESS);<a name="line.70"></a>
-<span class="sourceLineNo">071</span>    entry.store(chunk);<a name="line.71"></a>
-<span class="sourceLineNo">072</span>    Chunk.setMap(chunk, chunkMapCursor);<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.73"></a>
-<span class="sourceLineNo">074</span>  }<a name="line.74"></a>
-<span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>  void removeChunkFromMap(Address chunk) {<a name="line.76"></a>
-<span class="sourceLineNo">077</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(Chunk.isAligned(chunk));<a name="line.77"></a>
-<span class="sourceLineNo">078</span>    int entry = Chunk.getMap(chunk);<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    getMapAddress(entry).store(Address.zero());  // zero it it<a name="line.79"></a>
-<span class="sourceLineNo">080</span>    Chunk.setMap(chunk, -entry);<a name="line.80"></a>
-<span class="sourceLineNo">081</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
-<span class="sourceLineNo">083</span><a name="line.83"></a>
-<span class="sourceLineNo">084</span>  private int getChunkIndex(int entry) { return entry &amp; (ENTRIES_IN_CHUNK_MAP_BLOCK - 1);}<a name="line.84"></a>
-<span class="sourceLineNo">085</span>  private int getChunkMap(int entry) {return entry &amp; ~(ENTRIES_IN_CHUNK_MAP_BLOCK - 1);}<a name="line.85"></a>
-<span class="sourceLineNo">086</span><a name="line.86"></a>
-<span class="sourceLineNo">087</span>  private Address getMapAddress(int entry) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(entry &gt;= 0);<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(entry &lt;= chunkMapCursor);<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    int index = getChunkIndex(entry);<a name="line.90"></a>
-<span class="sourceLineNo">091</span>    int map = getChunkMap(entry);<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    return chunkMap.get(map).plus(index&lt;&lt;LOG_BYTES_IN_ADDRESS);<a name="line.92"></a>
-<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
-<span class="sourceLineNo">094</span><a name="line.94"></a>
-<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
-<span class="sourceLineNo">096</span>   * A chunk iterator.  Return the next chunk in sequence, or null if the<a name="line.96"></a>
-<span class="sourceLineNo">097</span>   * next chunk is the same chunk (ie there is only one chunk in the iterator).<a name="line.97"></a>
-<span class="sourceLineNo">098</span>   *<a name="line.98"></a>
-<span class="sourceLineNo">099</span>   * @param chunk The chunk<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   * @return The next chunk in the sequence, or null if next is chunk.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  public Address nextChunk(Address chunk) {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    return nextChunk(chunk, chunk);<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  }<a name="line.104"></a>
-<span class="sourceLineNo">105</span><a name="line.105"></a>
-<span class="sourceLineNo">106</span>  /**<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   * A chunk iterator.  Return the next chunk in sequence, or {@code null} if the<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   * next chunk is limit.<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   *<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   * @param chunk The chunk<a name="line.110"></a>
-<span class="sourceLineNo">111</span>   * @param limit The starting point (if next is equal to this, we're done)<a name="line.111"></a>
-<span class="sourceLineNo">112</span>   * @return The next chunk in the sequence, or {@code null} if next is limit.<a name="line.112"></a>
-<span class="sourceLineNo">113</span>   */<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  private Address nextChunk(final Address chunk, final Address limit) {<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    return nextChunk(chunk, Chunk.getMap(limit), 1);<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>  /**<a name="line.118"></a>
-<span class="sourceLineNo">119</span>   * A chunk iterator.  Return the next chunk in sequence, strided<a name="line.119"></a>
-<span class="sourceLineNo">120</span>   * by stride steps, or {@code null} if the next chunk is start.<a name="line.120"></a>
-<span class="sourceLineNo">121</span>   *<a name="line.121"></a>
-<span class="sourceLineNo">122</span>   * @param chunk The chunk<a name="line.122"></a>
-<span class="sourceLineNo">123</span>   * @param start The point where this iterator started, which defines its end-point<a name="line.123"></a>
-<span class="sourceLineNo">124</span>   * @param stride The stride by which the iterator should be stepped<a name="line.124"></a>
-<span class="sourceLineNo">125</span>   * @return The next chunk in the sequence, or {@code null} if next is start.<a name="line.125"></a>
-<span class="sourceLineNo">126</span>   */<a name="line.126"></a>
-<span class="sourceLineNo">127</span>  public Address nextChunk(final Address chunk, final int start, final int stride) {<a name="line.127"></a>
-<span class="sourceLineNo">128</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.128"></a>
-<span class="sourceLineNo">129</span>    return nextChunk(Chunk.getMap(chunk), start, stride);<a name="line.129"></a>
-<span class="sourceLineNo">130</span>  }<a name="line.130"></a>
-<span class="sourceLineNo">131</span><a name="line.131"></a>
-<span class="sourceLineNo">132</span>  /**<a name="line.132"></a>
-<span class="sourceLineNo">133</span>   * A chunk iterator.  Return the next chunk in sequence, strided<a name="line.133"></a>
-<span class="sourceLineNo">134</span>   * by stride steps, or {@code null} if the next chunk is start.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>   *<a name="line.135"></a>
-<span class="sourceLineNo">136</span>   * @param entry The entry we're currently up to<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * @param start The point where this iterator started, which defines its end-point<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   * @param stride The stride by which the iterator should be stepped<a name="line.138"></a>
-<span class="sourceLineNo">139</span>   * @return The next chunk in the sequence, or {@code null} if next is start.<a name="line.139"></a>
-<span class="sourceLineNo">140</span>   */<a name="line.140"></a>
-<span class="sourceLineNo">141</span>  private Address nextChunk(int entry, final int start, final int stride) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    Address chunk;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>    do {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>      entry += stride;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>      if (entry &gt; chunkMapLimit) { entry = entry % stride; }<a name="line.146"></a>
-<span class="sourceLineNo">147</span>      chunk = getMapAddress(entry).loadAddress();<a name="line.147"></a>
-<span class="sourceLineNo">148</span>    } while (chunk.isZero() &amp;&amp; entry != start);<a name="line.148"></a>
-<span class="sourceLineNo">149</span>    return entry == start ? Address.zero() : chunk;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>  }<a name="line.150"></a>
-<span class="sourceLineNo">151</span><a name="line.151"></a>
-<span class="sourceLineNo">152</span>  public Address firstChunk(int ordinal, int stride) {<a name="line.152"></a>
-<span class="sourceLineNo">153</span>    if (ordinal &gt; chunkMapCursor) return Address.zero();<a name="line.153"></a>
-<span class="sourceLineNo">154</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    Address chunk = getMapAddress(ordinal).loadAddress();<a name="line.155"></a>
-<span class="sourceLineNo">156</span>    return chunk.isZero() ? nextChunk(ordinal, ordinal, stride) : chunk;<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  }<a name="line.157"></a>
-<span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>  private void checkMap() {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    VM.assertions._assert(chunkMapLimit &lt;= chunkMapCursor);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    for (int entry = 0; entry &lt;= chunkMapCursor; entry++) {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>      Address chunk = getMapAddress(entry).loadAddress();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>      if (!chunk.isZero())<a name="line.163"></a>
-<span class="sourceLineNo">164</span>        VM.assertions._assert(Chunk.getMap(chunk) == entry);<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    }<a name="line.165"></a>
+<span class="sourceLineNo">015</span>import static org.mmtk.utility.Constants.BYTES_IN_PAGE;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import static org.mmtk.utility.Constants.LOG_BYTES_IN_ADDRESS;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.plan.Plan;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.mmtk.policy.Space;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.mmtk.vm.VM;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.vmmagic.unboxed.Address;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.vmmagic.unboxed.AddressArray;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>@Uninterruptible<a name="line.25"></a>
+<span class="sourceLineNo">026</span>public final class ChunkList {<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  private static final int LOG_PAGES_IN_CHUNK_MAP_BLOCK = 0;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  private static final int ENTRIES_IN_CHUNK_MAP_BLOCK = (BYTES_IN_PAGE &lt;&lt; LOG_PAGES_IN_CHUNK_MAP_BLOCK) &gt;&gt; LOG_BYTES_IN_ADDRESS;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  private static final int CHUNK_MAP_BLOCKS = 1 &lt;&lt; 4;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  private static final int MAX_ENTRIES_IN_CHUNK_MAP = ENTRIES_IN_CHUNK_MAP_BLOCK * CHUNK_MAP_BLOCKS;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  private final AddressArray chunkMap =  AddressArray.create(CHUNK_MAP_BLOCKS);<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  private int chunkMapLimit = -1;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  private int chunkMapCursor = -1;<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>  void reset() {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    chunkMapLimit = chunkMapCursor;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  }<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public Address getHeadChunk() {<a name="line.39"></a>
+<span class="sourceLineNo">040</span>    if (chunkMapLimit &lt; 0)<a name="line.40"></a>
+<span class="sourceLineNo">041</span>      return Address.zero();<a name="line.41"></a>
+<span class="sourceLineNo">042</span>    else<a name="line.42"></a>
+<span class="sourceLineNo">043</span>      return getMapAddress(0).loadAddress();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  }<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>  public Address getTailChunk() {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>    if (chunkMapLimit &lt; 0)<a name="line.47"></a>
+<span class="sourceLineNo">048</span>      return Address.zero();<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    else<a name="line.49"></a>
+<span class="sourceLineNo">050</span>      return getMapAddress(chunkMapLimit).loadAddress();<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  void addNewChunkToMap(Address chunk) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(Chunk.isAligned(chunk));<a name="line.54"></a>
+<span class="sourceLineNo">055</span>    if (chunkMapCursor == MAX_ENTRIES_IN_CHUNK_MAP - 1)<a name="line.55"></a>
+<span class="sourceLineNo">056</span>      consolidateMap();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    chunkMapCursor++;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    int index = getChunkIndex(chunkMapCursor);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    int map = getChunkMap(chunkMapCursor);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    if (map &gt;= CHUNK_MAP_BLOCKS) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>      Space.printUsageMB();<a name="line.61"></a>
+<span class="sourceLineNo">062</span>      VM.assertions.fail("Overflow of chunk map!");<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    if (chunkMap.get(map).isZero()) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      Address tmp = Plan.metaDataSpace.acquire(1 &lt;&lt; LOG_PAGES_IN_CHUNK_MAP_BLOCK);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>      if (tmp.isZero()) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        Space.printUsageMB();<a name="line.67"></a>
+<span class="sourceLineNo">068</span>        VM.assertions.fail("Failed to allocate space for chunk map.  Is metadata virtual memory exhausted?");<a name="line.68"></a>
+<span class="sourceLineNo">069</span>      }<a name="line.69"></a>
+<span class="sourceLineNo">070</span>      chunkMap.set(map, tmp);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    Address entry = chunkMap.get(map).plus(index &lt;&lt; LOG_BYTES_IN_ADDRESS);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    entry.store(chunk);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    Chunk.setMap(chunk, chunkMapCursor);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  }<a name="line.76"></a>
+<span class="sourceLineNo">077</span><a name="line.77"></a>
+<span class="sourceLineNo">078</span>  void removeChunkFromMap(Address chunk) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(Chunk.isAligned(chunk));<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    int entry = Chunk.getMap(chunk);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    getMapAddress(entry).store(Address.zero());  // zero it it<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    Chunk.setMap(chunk, -entry);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>  private int getChunkIndex(int entry) {<a name="line.86"></a>
+<span class="sourceLineNo">087</span>    return entry &amp; (ENTRIES_IN_CHUNK_MAP_BLOCK - 1);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  }<a name="line.88"></a>
+<span class="sourceLineNo">089</span><a name="line.89"></a>
+<span class="sourceLineNo">090</span>  private int getChunkMap(int entry) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    return entry &amp; ~(ENTRIES_IN_CHUNK_MAP_BLOCK - 1);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  }<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>  private Address getMapAddress(int entry) {<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(entry &gt;= 0);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    if (VM.VERIFY_ASSERTIONS) VM.assertions._assert(entry &lt;= chunkMapCursor);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>    int index = getChunkIndex(entry);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>    int map = getChunkMap(entry);<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    return chunkMap.get(map).plus(index &lt;&lt; LOG_BYTES_IN_ADDRESS);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>  /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * A chunk iterator.  Return the next chunk in sequence, or null if the<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * next chunk is the same chunk (ie there is only one chunk in the iterator).<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   *<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   * @param chunk The chunk<a name="line.106"></a>
+<span class="sourceLineNo">107</span>   * @return The next chunk in the sequence, or null if next is chunk.<a name="line.107"></a>
+<span class="sourceLineNo">108</span>   */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public Address nextChunk(Address chunk) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    return nextChunk(chunk, chunk);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>  /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * A chunk iterator.  Return the next chunk in sequence, or {@code null} if the<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   * next chunk is limit.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>   *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>   * @param chunk The chunk<a name="line.117"></a>
+<span class="sourceLineNo">118</span>   * @param limit The starting point (if next is equal to this, we're done)<a name="line.118"></a>
+<span class="sourceLineNo">119</span>   * @return The next chunk in the sequence, or {@code null} if next is limit.<a name="line.119"></a>
+<span class="sourceLineNo">120</span>   */<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  private Address nextChunk(final Address chunk, final Address limit) {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    return nextChunk(chunk, Chunk.getMap(limit), 1);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * A chunk iterator.  Return the next chunk in sequence, strided<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * by stride steps, or {@code null} if the next chunk is start.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>   * @param chunk The chunk<a name="line.129"></a>
+<span class="sourceLineNo">130</span>   * @param start The point where this iterator started, which defines its end-point<a name="line.130"></a>
+<span class="sourceLineNo">131</span>   * @param stride The stride by which the iterator should be stepped<a name="line.131"></a>
+<span class="sourceLineNo">132</span>   * @return The next chunk in the sequence, or {@code null} if next is start.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>   */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  public Address nextChunk(final Address chunk, final int start, final int stride) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    return nextChunk(Chunk.getMap(chunk), start, stride);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  }<a name="line.137"></a>
+<span class="sourceLineNo">138</span><a name="line.138"></a>
+<span class="sourceLineNo">139</span>  /**<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   * A chunk iterator.  Return the next chunk in sequence, strided<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * by stride steps, or {@code null} if the next chunk is start.<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   *<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   * @param entry The entry we're currently up to<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * @param start The point where this iterator started, which defines its end-point<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   * @param stride The stride by which the iterator should be stepped<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   * @return The next chunk in the sequence, or {@code null} if next is start.<a name="line.146"></a>
+<span class="sourceLineNo">147</span>   */<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  private Address nextChunk(int entry, final int start, final int stride) {<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    Address chunk;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    do {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>      entry += stride;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>      if (entry &gt; chunkMapLimit) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>        entry = entry % stride;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>      }<a name="line.155"></a>
+<span class="sourceLineNo">156</span>      chunk = getMapAddress(entry).loadAddress();<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    } while (chunk.isZero() &amp;&amp; entry != start);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    return entry == start ? Address.zero() : chunk;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  }<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>  public Address firstChunk(int ordinal, int stride) {<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    if (ordinal &gt; chunkMapCursor) return Address.zero();<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    Address chunk = getMapAddress(ordinal).loadAddress();<a name="line.164"></a>
+<span class="sourceLineNo">165</span>    return chunk.isZero() ? nextChunk(ordinal, ordinal, stride) : chunk;<a name="line.165"></a>
 <span class="sourceLineNo">166</span>  }<a name="line.166"></a>
 <span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>  public void consolidateMap() {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    int oldCursor = 0;<a name="line.169"></a>
-<span class="sourceLineNo">170</span>    int newCursor = -1;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    while (oldCursor &lt;= chunkMapCursor) {<a name="line.171"></a>
-<span class="sourceLineNo">172</span>      Address chunk = getMapAddress(oldCursor).loadAddress();<a name="line.172"></a>
-<span class="sourceLineNo">173</span>      if (!chunk.isZero()) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>        getMapAddress(++newCursor).store(chunk);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>        Chunk.setMap(chunk, newCursor);<a name="line.175"></a>
-<span class="sourceLineNo">176</span>      }<a name="line.176"></a>
-<span class="sourceLineNo">177</span>      oldCursor++;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    chunkMapCursor = newCursor;<a name="line.179"></a>
-<span class="sourceLineNo">180</span>    chunkMapLimit = newCursor;<a name="line.180"></a>
-<span class="sourceLineNo">181</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.181"></a>
-<span class="sourceLineNo">182</span>  }<a name="line.182"></a>
-<span class="sourceLineNo">183</span>}<a name="line.183"></a>
+<span class="sourceLineNo">168</span>  private void checkMap() {<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    VM.assertions._assert(chunkMapLimit &lt;= chunkMapCursor);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    for (int entry = 0; entry &lt;= chunkMapCursor; entry++) {<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      Address chunk = getMapAddress(entry).loadAddress();<a name="line.171"></a>
+<span class="sourceLineNo">172</span>      if (!chunk.isZero())<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        VM.assertions._assert(Chunk.getMap(chunk) == entry);<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    }<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  }<a name="line.175"></a>
+<span class="sourceLineNo">176</span><a name="line.176"></a>
+<span class="sourceLineNo">177</span>  public void consolidateMap() {<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    int oldCursor = 0;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    int newCursor = -1;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    while (oldCursor &lt;= chunkMapCursor) {<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      Address chunk = getMapAddress(oldCursor).loadAddress();<a name="line.181"></a>
+<span class="sourceLineNo">182</span>      if (!chunk.isZero()) {<a name="line.182"></a>
+<span class="sourceLineNo">183</span>        getMapAddress(++newCursor).store(chunk);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>        Chunk.setMap(chunk, newCursor);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>      oldCursor++;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>    }<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    chunkMapCursor = newCursor;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    chunkMapLimit = newCursor;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    if (VM.VERIFY_ASSERTIONS) checkMap();<a name="line.190"></a>
+<span class="sourceLineNo">191</span>  }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>}<a name="line.192"></a>
 
 
 

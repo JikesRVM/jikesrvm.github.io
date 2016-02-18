@@ -20,689 +20,730 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.classloader;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>/**<a name="line.15"></a>
-<span class="sourceLineNo">016</span> * Information about java byte codes that appear in the "code" attribute<a name="line.16"></a>
-<span class="sourceLineNo">017</span> * of a .class file.<a name="line.17"></a>
-<span class="sourceLineNo">018</span> */<a name="line.18"></a>
-<span class="sourceLineNo">019</span>public interface BytecodeConstants {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>  // The following mnemonics are defined in Chapter 10 of The Java Virtual Machine Specification.<a name="line.20"></a>
-<span class="sourceLineNo">021</span>  //<a name="line.21"></a>
-<span class="sourceLineNo">022</span>  int JBC_nop = 0;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>  int JBC_aconst_null = 1;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>  int JBC_iconst_m1 = 2;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>  int JBC_iconst_0 = 3;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>  int JBC_iconst_1 = 4;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>  int JBC_iconst_2 = 5;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>  int JBC_iconst_3 = 6;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  int JBC_iconst_4 = 7;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  int JBC_iconst_5 = 8;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  int JBC_lconst_0 = 9;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>  int JBC_lconst_1 = 10;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>  int JBC_fconst_0 = 11;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>  int JBC_fconst_1 = 12;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  int JBC_fconst_2 = 13;<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  int JBC_dconst_0 = 14;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  int JBC_dconst_1 = 15;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  int JBC_bipush = 16;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  int JBC_sipush = 17;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>  int JBC_ldc = 18;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>  int JBC_ldc_w = 19;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>  int JBC_ldc2_w = 20;<a name="line.42"></a>
-<span class="sourceLineNo">043</span>  int JBC_iload = 21;<a name="line.43"></a>
-<span class="sourceLineNo">044</span>  int JBC_lload = 22;<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  int JBC_fload = 23;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  int JBC_dload = 24;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>  int JBC_aload = 25;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  int JBC_iload_0 = 26;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  int JBC_iload_1 = 27;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  int JBC_iload_2 = 28;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>  int JBC_iload_3 = 29;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  int JBC_lload_0 = 30;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>  int JBC_lload_1 = 31;<a name="line.53"></a>
-<span class="sourceLineNo">054</span>  int JBC_lload_2 = 32;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  int JBC_lload_3 = 33;<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  int JBC_fload_0 = 34;<a name="line.56"></a>
-<span class="sourceLineNo">057</span>  int JBC_fload_1 = 35;<a name="line.57"></a>
-<span class="sourceLineNo">058</span>  int JBC_fload_2 = 36;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>  int JBC_fload_3 = 37;<a name="line.59"></a>
-<span class="sourceLineNo">060</span>  int JBC_dload_0 = 38;<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  int JBC_dload_1 = 39;<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  int JBC_dload_2 = 40;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>  int JBC_dload_3 = 41;<a name="line.63"></a>
-<span class="sourceLineNo">064</span>  int JBC_aload_0 = 42;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>  int JBC_aload_1 = 43;<a name="line.65"></a>
-<span class="sourceLineNo">066</span>  int JBC_aload_2 = 44;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  int JBC_aload_3 = 45;<a name="line.67"></a>
-<span class="sourceLineNo">068</span>  int JBC_iaload = 46;<a name="line.68"></a>
-<span class="sourceLineNo">069</span>  int JBC_laload = 47;<a name="line.69"></a>
-<span class="sourceLineNo">070</span>  int JBC_faload = 48;<a name="line.70"></a>
-<span class="sourceLineNo">071</span>  int JBC_daload = 49;<a name="line.71"></a>
-<span class="sourceLineNo">072</span>  int JBC_aaload = 50;<a name="line.72"></a>
-<span class="sourceLineNo">073</span>  int JBC_baload = 51;<a name="line.73"></a>
-<span class="sourceLineNo">074</span>  int JBC_caload = 52;<a name="line.74"></a>
-<span class="sourceLineNo">075</span>  int JBC_saload = 53;<a name="line.75"></a>
-<span class="sourceLineNo">076</span>  int JBC_istore = 54;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>  int JBC_lstore = 55;<a name="line.77"></a>
-<span class="sourceLineNo">078</span>  int JBC_fstore = 56;<a name="line.78"></a>
-<span class="sourceLineNo">079</span>  int JBC_dstore = 57;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>  int JBC_astore = 58;<a name="line.80"></a>
-<span class="sourceLineNo">081</span>  int JBC_istore_0 = 59;<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  int JBC_istore_1 = 60;<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  int JBC_istore_2 = 61;<a name="line.83"></a>
-<span class="sourceLineNo">084</span>  int JBC_istore_3 = 62;<a name="line.84"></a>
-<span class="sourceLineNo">085</span>  int JBC_lstore_0 = 63;<a name="line.85"></a>
-<span class="sourceLineNo">086</span>  int JBC_lstore_1 = 64;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>  int JBC_lstore_2 = 65;<a name="line.87"></a>
-<span class="sourceLineNo">088</span>  int JBC_lstore_3 = 66;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  int JBC_fstore_0 = 67;<a name="line.89"></a>
-<span class="sourceLineNo">090</span>  int JBC_fstore_1 = 68;<a name="line.90"></a>
-<span class="sourceLineNo">091</span>  int JBC_fstore_2 = 69;<a name="line.91"></a>
-<span class="sourceLineNo">092</span>  int JBC_fstore_3 = 70;<a name="line.92"></a>
-<span class="sourceLineNo">093</span>  int JBC_dstore_0 = 71;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  int JBC_dstore_1 = 72;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>  int JBC_dstore_2 = 73;<a name="line.95"></a>
-<span class="sourceLineNo">096</span>  int JBC_dstore_3 = 74;<a name="line.96"></a>
-<span class="sourceLineNo">097</span>  int JBC_astore_0 = 75;<a name="line.97"></a>
-<span class="sourceLineNo">098</span>  int JBC_astore_1 = 76;<a name="line.98"></a>
-<span class="sourceLineNo">099</span>  int JBC_astore_2 = 77;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>  int JBC_astore_3 = 78;<a name="line.100"></a>
-<span class="sourceLineNo">101</span>  int JBC_iastore = 79;<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  int JBC_lastore = 80;<a name="line.102"></a>
-<span class="sourceLineNo">103</span>  int JBC_fastore = 81;<a name="line.103"></a>
-<span class="sourceLineNo">104</span>  int JBC_dastore = 82;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>  int JBC_aastore = 83;<a name="line.105"></a>
-<span class="sourceLineNo">106</span>  int JBC_bastore = 84;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>  int JBC_castore = 85;<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  int JBC_sastore = 86;<a name="line.108"></a>
-<span class="sourceLineNo">109</span>  int JBC_pop = 87;<a name="line.109"></a>
-<span class="sourceLineNo">110</span>  int JBC_pop2 = 88;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  int JBC_dup = 89;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>  int JBC_dup_x1 = 90;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>  int JBC_dup_x2 = 91;<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  int JBC_dup2 = 92;<a name="line.114"></a>
-<span class="sourceLineNo">115</span>  int JBC_dup2_x1 = 93;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>  int JBC_dup2_x2 = 94;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>  int JBC_swap = 95;<a name="line.117"></a>
-<span class="sourceLineNo">118</span>  int JBC_iadd = 96;<a name="line.118"></a>
-<span class="sourceLineNo">119</span>  int JBC_ladd = 97;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>  int JBC_fadd = 98;<a name="line.120"></a>
-<span class="sourceLineNo">121</span>  int JBC_dadd = 99;<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  int JBC_isub = 100;<a name="line.122"></a>
-<span class="sourceLineNo">123</span>  int JBC_lsub = 101;<a name="line.123"></a>
-<span class="sourceLineNo">124</span>  int JBC_fsub = 102;<a name="line.124"></a>
-<span class="sourceLineNo">125</span>  int JBC_dsub = 103;<a name="line.125"></a>
-<span class="sourceLineNo">126</span>  int JBC_imul = 104;<a name="line.126"></a>
-<span class="sourceLineNo">127</span>  int JBC_lmul = 105;<a name="line.127"></a>
-<span class="sourceLineNo">128</span>  int JBC_fmul = 106;<a name="line.128"></a>
-<span class="sourceLineNo">129</span>  int JBC_dmul = 107;<a name="line.129"></a>
-<span class="sourceLineNo">130</span>  int JBC_idiv = 108;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>  int JBC_ldiv = 109;<a name="line.131"></a>
-<span class="sourceLineNo">132</span>  int JBC_fdiv = 110;<a name="line.132"></a>
-<span class="sourceLineNo">133</span>  int JBC_ddiv = 111;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  int JBC_irem = 112;<a name="line.134"></a>
-<span class="sourceLineNo">135</span>  int JBC_lrem = 113;<a name="line.135"></a>
-<span class="sourceLineNo">136</span>  int JBC_frem = 114;<a name="line.136"></a>
-<span class="sourceLineNo">137</span>  int JBC_drem = 115;<a name="line.137"></a>
-<span class="sourceLineNo">138</span>  int JBC_ineg = 116;<a name="line.138"></a>
-<span class="sourceLineNo">139</span>  int JBC_lneg = 117;<a name="line.139"></a>
-<span class="sourceLineNo">140</span>  int JBC_fneg = 118;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>  int JBC_dneg = 119;<a name="line.141"></a>
-<span class="sourceLineNo">142</span>  int JBC_ishl = 120;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>  int JBC_lshl = 121;<a name="line.143"></a>
-<span class="sourceLineNo">144</span>  int JBC_ishr = 122;<a name="line.144"></a>
-<span class="sourceLineNo">145</span>  int JBC_lshr = 123;<a name="line.145"></a>
-<span class="sourceLineNo">146</span>  int JBC_iushr = 124;<a name="line.146"></a>
-<span class="sourceLineNo">147</span>  int JBC_lushr = 125;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>  int JBC_iand = 126;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>  int JBC_land = 127;<a name="line.149"></a>
-<span class="sourceLineNo">150</span>  int JBC_ior = 128;<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  int JBC_lor = 129;<a name="line.151"></a>
-<span class="sourceLineNo">152</span>  int JBC_ixor = 130;<a name="line.152"></a>
-<span class="sourceLineNo">153</span>  int JBC_lxor = 131;<a name="line.153"></a>
-<span class="sourceLineNo">154</span>  int JBC_iinc = 132;<a name="line.154"></a>
-<span class="sourceLineNo">155</span>  int JBC_i2l = 133;<a name="line.155"></a>
-<span class="sourceLineNo">156</span>  int JBC_i2f = 134;<a name="line.156"></a>
-<span class="sourceLineNo">157</span>  int JBC_i2d = 135;<a name="line.157"></a>
-<span class="sourceLineNo">158</span>  int JBC_l2i = 136;<a name="line.158"></a>
-<span class="sourceLineNo">159</span>  int JBC_l2f = 137;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>  int JBC_l2d = 138;<a name="line.160"></a>
-<span class="sourceLineNo">161</span>  int JBC_f2i = 139;<a name="line.161"></a>
-<span class="sourceLineNo">162</span>  int JBC_f2l = 140;<a name="line.162"></a>
-<span class="sourceLineNo">163</span>  int JBC_f2d = 141;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>  int JBC_d2i = 142;<a name="line.164"></a>
-<span class="sourceLineNo">165</span>  int JBC_d2l = 143;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  int JBC_d2f = 144;<a name="line.166"></a>
-<span class="sourceLineNo">167</span>  int JBC_int2byte = 145;<a name="line.167"></a>
-<span class="sourceLineNo">168</span>  int JBC_int2char = 146;<a name="line.168"></a>
-<span class="sourceLineNo">169</span>  int JBC_int2short = 147;<a name="line.169"></a>
-<span class="sourceLineNo">170</span>  int JBC_lcmp = 148;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>  int JBC_fcmpl = 149;<a name="line.171"></a>
-<span class="sourceLineNo">172</span>  int JBC_fcmpg = 150;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>  int JBC_dcmpl = 151;<a name="line.173"></a>
-<span class="sourceLineNo">174</span>  int JBC_dcmpg = 152;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>  int JBC_ifeq = 153;<a name="line.175"></a>
-<span class="sourceLineNo">176</span>  int JBC_ifne = 154;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>  int JBC_iflt = 155;<a name="line.177"></a>
-<span class="sourceLineNo">178</span>  int JBC_ifge = 156;<a name="line.178"></a>
-<span class="sourceLineNo">179</span>  int JBC_ifgt = 157;<a name="line.179"></a>
-<span class="sourceLineNo">180</span>  int JBC_ifle = 158;<a name="line.180"></a>
-<span class="sourceLineNo">181</span>  int JBC_if_icmpeq = 159;<a name="line.181"></a>
-<span class="sourceLineNo">182</span>  int JBC_if_icmpne = 160;<a name="line.182"></a>
-<span class="sourceLineNo">183</span>  int JBC_if_icmplt = 161;<a name="line.183"></a>
-<span class="sourceLineNo">184</span>  int JBC_if_icmpge = 162;<a name="line.184"></a>
-<span class="sourceLineNo">185</span>  int JBC_if_icmpgt = 163;<a name="line.185"></a>
-<span class="sourceLineNo">186</span>  int JBC_if_icmple = 164;<a name="line.186"></a>
-<span class="sourceLineNo">187</span>  int JBC_if_acmpeq = 165;<a name="line.187"></a>
-<span class="sourceLineNo">188</span>  int JBC_if_acmpne = 166;<a name="line.188"></a>
-<span class="sourceLineNo">189</span>  int JBC_goto = 167;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>  int JBC_jsr = 168;<a name="line.190"></a>
-<span class="sourceLineNo">191</span>  int JBC_ret = 169;<a name="line.191"></a>
-<span class="sourceLineNo">192</span>  int JBC_tableswitch = 170;<a name="line.192"></a>
-<span class="sourceLineNo">193</span>  int JBC_lookupswitch = 171;<a name="line.193"></a>
-<span class="sourceLineNo">194</span>  int JBC_ireturn = 172;<a name="line.194"></a>
-<span class="sourceLineNo">195</span>  int JBC_lreturn = 173;<a name="line.195"></a>
-<span class="sourceLineNo">196</span>  int JBC_freturn = 174;<a name="line.196"></a>
-<span class="sourceLineNo">197</span>  int JBC_dreturn = 175;<a name="line.197"></a>
-<span class="sourceLineNo">198</span>  int JBC_areturn = 176;<a name="line.198"></a>
-<span class="sourceLineNo">199</span>  int JBC_return = 177;<a name="line.199"></a>
-<span class="sourceLineNo">200</span>  int JBC_getstatic = 178;<a name="line.200"></a>
-<span class="sourceLineNo">201</span>  int JBC_putstatic = 179;<a name="line.201"></a>
-<span class="sourceLineNo">202</span>  int JBC_getfield = 180;<a name="line.202"></a>
-<span class="sourceLineNo">203</span>  int JBC_putfield = 181;<a name="line.203"></a>
-<span class="sourceLineNo">204</span>  int JBC_invokevirtual = 182;<a name="line.204"></a>
-<span class="sourceLineNo">205</span>  int JBC_invokespecial = 183;<a name="line.205"></a>
-<span class="sourceLineNo">206</span>  int JBC_invokestatic = 184;<a name="line.206"></a>
-<span class="sourceLineNo">207</span>  int JBC_invokeinterface = 185;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>  int JBC_xxxunusedxxx = 186;<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  int JBC_new = 187;<a name="line.209"></a>
-<span class="sourceLineNo">210</span>  int JBC_newarray = 188;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>  int JBC_anewarray = 189;<a name="line.211"></a>
-<span class="sourceLineNo">212</span>  int JBC_arraylength = 190;<a name="line.212"></a>
-<span class="sourceLineNo">213</span>  int JBC_athrow = 191;<a name="line.213"></a>
-<span class="sourceLineNo">214</span>  int JBC_checkcast = 192;<a name="line.214"></a>
-<span class="sourceLineNo">215</span>  int JBC_instanceof = 193;<a name="line.215"></a>
-<span class="sourceLineNo">216</span>  int JBC_monitorenter = 194;<a name="line.216"></a>
-<span class="sourceLineNo">217</span>  int JBC_monitorexit = 195;<a name="line.217"></a>
-<span class="sourceLineNo">218</span>  int JBC_wide = 196;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>  int JBC_multianewarray = 197;<a name="line.219"></a>
-<span class="sourceLineNo">220</span>  int JBC_ifnull = 198;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>  int JBC_ifnonnull = 199;<a name="line.221"></a>
-<span class="sourceLineNo">222</span>  int JBC_goto_w = 200;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>  int JBC_jsr_w = 201;<a name="line.223"></a>
-<span class="sourceLineNo">224</span><a name="line.224"></a>
-<span class="sourceLineNo">225</span>  int JBC_impdep1 = 254;<a name="line.225"></a>
-<span class="sourceLineNo">226</span>  int JBC_impdep2 = 255;<a name="line.226"></a>
+<span class="sourceLineNo">015</span>import org.vmmagic.pragma.Pure;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * Information about java byte codes that appear in the "code" attribute<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * of a .class file.<a name="line.19"></a>
+<span class="sourceLineNo">020</span> */<a name="line.20"></a>
+<span class="sourceLineNo">021</span>public final class BytecodeConstants {<a name="line.21"></a>
+<span class="sourceLineNo">022</span>  // The following mnemonics are defined in Chapter 10 of The Java Virtual Machine Specification.<a name="line.22"></a>
+<span class="sourceLineNo">023</span>  //<a name="line.23"></a>
+<span class="sourceLineNo">024</span>  public static final int JBC_nop = 0;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  public static final int JBC_aconst_null = 1;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  public static final int JBC_iconst_m1 = 2;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  public static final int JBC_iconst_0 = 3;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  public static final int JBC_iconst_1 = 4;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  public static final int JBC_iconst_2 = 5;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public static final int JBC_iconst_3 = 6;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  public static final int JBC_iconst_4 = 7;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  public static final int JBC_iconst_5 = 8;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  public static final int JBC_lconst_0 = 9;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static final int JBC_lconst_1 = 10;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  public static final int JBC_fconst_0 = 11;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static final int JBC_fconst_1 = 12;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  public static final int JBC_fconst_2 = 13;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static final int JBC_dconst_0 = 14;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  public static final int JBC_dconst_1 = 15;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final int JBC_bipush = 16;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>  public static final int JBC_sipush = 17;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>  public static final int JBC_ldc = 18;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>  public static final int JBC_ldc_w = 19;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>  public static final int JBC_ldc2_w = 20;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>  public static final int JBC_iload = 21;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  public static final int JBC_lload = 22;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public static final int JBC_fload = 23;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  public static final int JBC_dload = 24;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public static final int JBC_aload = 25;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  public static final int JBC_iload_0 = 26;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  public static final int JBC_iload_1 = 27;<a name="line.51"></a>
+<span class="sourceLineNo">052</span>  public static final int JBC_iload_2 = 28;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  public static final int JBC_iload_3 = 29;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>  public static final int JBC_lload_0 = 30;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>  public static final int JBC_lload_1 = 31;<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public static final int JBC_lload_2 = 32;<a name="line.56"></a>
+<span class="sourceLineNo">057</span>  public static final int JBC_lload_3 = 33;<a name="line.57"></a>
+<span class="sourceLineNo">058</span>  public static final int JBC_fload_0 = 34;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  public static final int JBC_fload_1 = 35;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>  public static final int JBC_fload_2 = 36;<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  public static final int JBC_fload_3 = 37;<a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static final int JBC_dload_0 = 38;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  public static final int JBC_dload_1 = 39;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  public static final int JBC_dload_2 = 40;<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public static final int JBC_dload_3 = 41;<a name="line.65"></a>
+<span class="sourceLineNo">066</span>  public static final int JBC_aload_0 = 42;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  public static final int JBC_aload_1 = 43;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  public static final int JBC_aload_2 = 44;<a name="line.68"></a>
+<span class="sourceLineNo">069</span>  public static final int JBC_aload_3 = 45;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  public static final int JBC_iaload = 46;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  public static final int JBC_laload = 47;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  public static final int JBC_faload = 48;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  public static final int JBC_daload = 49;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  public static final int JBC_aaload = 50;<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  public static final int JBC_baload = 51;<a name="line.75"></a>
+<span class="sourceLineNo">076</span>  public static final int JBC_caload = 52;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  public static final int JBC_saload = 53;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>  public static final int JBC_istore = 54;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  public static final int JBC_lstore = 55;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  public static final int JBC_fstore = 56;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  public static final int JBC_dstore = 57;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  public static final int JBC_astore = 58;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  public static final int JBC_istore_0 = 59;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public static final int JBC_istore_1 = 60;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  public static final int JBC_istore_2 = 61;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  public static final int JBC_istore_3 = 62;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  public static final int JBC_lstore_0 = 63;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  public static final int JBC_lstore_1 = 64;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  public static final int JBC_lstore_2 = 65;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  public static final int JBC_lstore_3 = 66;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  public static final int JBC_fstore_0 = 67;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  public static final int JBC_fstore_1 = 68;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  public static final int JBC_fstore_2 = 69;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  public static final int JBC_fstore_3 = 70;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  public static final int JBC_dstore_0 = 71;<a name="line.95"></a>
+<span class="sourceLineNo">096</span>  public static final int JBC_dstore_1 = 72;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  public static final int JBC_dstore_2 = 73;<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  public static final int JBC_dstore_3 = 74;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public static final int JBC_astore_0 = 75;<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  public static final int JBC_astore_1 = 76;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  public static final int JBC_astore_2 = 77;<a name="line.101"></a>
+<span class="sourceLineNo">102</span>  public static final int JBC_astore_3 = 78;<a name="line.102"></a>
+<span class="sourceLineNo">103</span>  public static final int JBC_iastore = 79;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  public static final int JBC_lastore = 80;<a name="line.104"></a>
+<span class="sourceLineNo">105</span>  public static final int JBC_fastore = 81;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>  public static final int JBC_dastore = 82;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  public static final int JBC_aastore = 83;<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  public static final int JBC_bastore = 84;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>  public static final int JBC_castore = 85;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>  public static final int JBC_sastore = 86;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  public static final int JBC_pop = 87;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>  public static final int JBC_pop2 = 88;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>  public static final int JBC_dup = 89;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>  public static final int JBC_dup_x1 = 90;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>  public static final int JBC_dup_x2 = 91;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  public static final int JBC_dup2 = 92;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>  public static final int JBC_dup2_x1 = 93;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>  public static final int JBC_dup2_x2 = 94;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  public static final int JBC_swap = 95;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>  public static final int JBC_iadd = 96;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  public static final int JBC_ladd = 97;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>  public static final int JBC_fadd = 98;<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  public static final int JBC_dadd = 99;<a name="line.123"></a>
+<span class="sourceLineNo">124</span>  public static final int JBC_isub = 100;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  public static final int JBC_lsub = 101;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>  public static final int JBC_fsub = 102;<a name="line.126"></a>
+<span class="sourceLineNo">127</span>  public static final int JBC_dsub = 103;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  public static final int JBC_imul = 104;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  public static final int JBC_lmul = 105;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>  public static final int JBC_fmul = 106;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  public static final int JBC_dmul = 107;<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  public static final int JBC_idiv = 108;<a name="line.132"></a>
+<span class="sourceLineNo">133</span>  public static final int JBC_ldiv = 109;<a name="line.133"></a>
+<span class="sourceLineNo">134</span>  public static final int JBC_fdiv = 110;<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  public static final int JBC_ddiv = 111;<a name="line.135"></a>
+<span class="sourceLineNo">136</span>  public static final int JBC_irem = 112;<a name="line.136"></a>
+<span class="sourceLineNo">137</span>  public static final int JBC_lrem = 113;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  public static final int JBC_frem = 114;<a name="line.138"></a>
+<span class="sourceLineNo">139</span>  public static final int JBC_drem = 115;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>  public static final int JBC_ineg = 116;<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public static final int JBC_lneg = 117;<a name="line.141"></a>
+<span class="sourceLineNo">142</span>  public static final int JBC_fneg = 118;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>  public static final int JBC_dneg = 119;<a name="line.143"></a>
+<span class="sourceLineNo">144</span>  public static final int JBC_ishl = 120;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>  public static final int JBC_lshl = 121;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>  public static final int JBC_ishr = 122;<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  public static final int JBC_lshr = 123;<a name="line.147"></a>
+<span class="sourceLineNo">148</span>  public static final int JBC_iushr = 124;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>  public static final int JBC_lushr = 125;<a name="line.149"></a>
+<span class="sourceLineNo">150</span>  public static final int JBC_iand = 126;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  public static final int JBC_land = 127;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>  public static final int JBC_ior = 128;<a name="line.152"></a>
+<span class="sourceLineNo">153</span>  public static final int JBC_lor = 129;<a name="line.153"></a>
+<span class="sourceLineNo">154</span>  public static final int JBC_ixor = 130;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>  public static final int JBC_lxor = 131;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>  public static final int JBC_iinc = 132;<a name="line.156"></a>
+<span class="sourceLineNo">157</span>  public static final int JBC_i2l = 133;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>  public static final int JBC_i2f = 134;<a name="line.158"></a>
+<span class="sourceLineNo">159</span>  public static final int JBC_i2d = 135;<a name="line.159"></a>
+<span class="sourceLineNo">160</span>  public static final int JBC_l2i = 136;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>  public static final int JBC_l2f = 137;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>  public static final int JBC_l2d = 138;<a name="line.162"></a>
+<span class="sourceLineNo">163</span>  public static final int JBC_f2i = 139;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>  public static final int JBC_f2l = 140;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  public static final int JBC_f2d = 141;<a name="line.165"></a>
+<span class="sourceLineNo">166</span>  public static final int JBC_d2i = 142;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>  public static final int JBC_d2l = 143;<a name="line.167"></a>
+<span class="sourceLineNo">168</span>  public static final int JBC_d2f = 144;<a name="line.168"></a>
+<span class="sourceLineNo">169</span>  public static final int JBC_int2byte = 145;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  public static final int JBC_int2char = 146;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>  public static final int JBC_int2short = 147;<a name="line.171"></a>
+<span class="sourceLineNo">172</span>  public static final int JBC_lcmp = 148;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>  public static final int JBC_fcmpl = 149;<a name="line.173"></a>
+<span class="sourceLineNo">174</span>  public static final int JBC_fcmpg = 150;<a name="line.174"></a>
+<span class="sourceLineNo">175</span>  public static final int JBC_dcmpl = 151;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>  public static final int JBC_dcmpg = 152;<a name="line.176"></a>
+<span class="sourceLineNo">177</span>  public static final int JBC_ifeq = 153;<a name="line.177"></a>
+<span class="sourceLineNo">178</span>  public static final int JBC_ifne = 154;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  public static final int JBC_iflt = 155;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>  public static final int JBC_ifge = 156;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>  public static final int JBC_ifgt = 157;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>  public static final int JBC_ifle = 158;<a name="line.182"></a>
+<span class="sourceLineNo">183</span>  public static final int JBC_if_icmpeq = 159;<a name="line.183"></a>
+<span class="sourceLineNo">184</span>  public static final int JBC_if_icmpne = 160;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>  public static final int JBC_if_icmplt = 161;<a name="line.185"></a>
+<span class="sourceLineNo">186</span>  public static final int JBC_if_icmpge = 162;<a name="line.186"></a>
+<span class="sourceLineNo">187</span>  public static final int JBC_if_icmpgt = 163;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>  public static final int JBC_if_icmple = 164;<a name="line.188"></a>
+<span class="sourceLineNo">189</span>  public static final int JBC_if_acmpeq = 165;<a name="line.189"></a>
+<span class="sourceLineNo">190</span>  public static final int JBC_if_acmpne = 166;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>  public static final int JBC_goto = 167;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>  public static final int JBC_jsr = 168;<a name="line.192"></a>
+<span class="sourceLineNo">193</span>  public static final int JBC_ret = 169;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>  public static final int JBC_tableswitch = 170;<a name="line.194"></a>
+<span class="sourceLineNo">195</span>  public static final int JBC_lookupswitch = 171;<a name="line.195"></a>
+<span class="sourceLineNo">196</span>  public static final int JBC_ireturn = 172;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>  public static final int JBC_lreturn = 173;<a name="line.197"></a>
+<span class="sourceLineNo">198</span>  public static final int JBC_freturn = 174;<a name="line.198"></a>
+<span class="sourceLineNo">199</span>  public static final int JBC_dreturn = 175;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>  public static final int JBC_areturn = 176;<a name="line.200"></a>
+<span class="sourceLineNo">201</span>  public static final int JBC_return = 177;<a name="line.201"></a>
+<span class="sourceLineNo">202</span>  public static final int JBC_getstatic = 178;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  public static final int JBC_putstatic = 179;<a name="line.203"></a>
+<span class="sourceLineNo">204</span>  public static final int JBC_getfield = 180;<a name="line.204"></a>
+<span class="sourceLineNo">205</span>  public static final int JBC_putfield = 181;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>  public static final int JBC_invokevirtual = 182;<a name="line.206"></a>
+<span class="sourceLineNo">207</span>  public static final int JBC_invokespecial = 183;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>  public static final int JBC_invokestatic = 184;<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  public static final int JBC_invokeinterface = 185;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>  public static final int JBC_invokedynamic = 186;<a name="line.210"></a>
+<span class="sourceLineNo">211</span>  public static final int JBC_new = 187;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>  public static final int JBC_newarray = 188;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  public static final int JBC_anewarray = 189;<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  public static final int JBC_arraylength = 190;<a name="line.214"></a>
+<span class="sourceLineNo">215</span>  public static final int JBC_athrow = 191;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>  public static final int JBC_checkcast = 192;<a name="line.216"></a>
+<span class="sourceLineNo">217</span>  public static final int JBC_instanceof = 193;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>  public static final int JBC_monitorenter = 194;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>  public static final int JBC_monitorexit = 195;<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  public static final int JBC_wide = 196;<a name="line.220"></a>
+<span class="sourceLineNo">221</span>  public static final int JBC_multianewarray = 197;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>  public static final int JBC_ifnull = 198;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>  public static final int JBC_ifnonnull = 199;<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  public static final int JBC_goto_w = 200;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>  public static final int JBC_jsr_w = 201;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>  public static final int JBC_breakpoint = 202;<a name="line.226"></a>
 <span class="sourceLineNo">227</span><a name="line.227"></a>
-<span class="sourceLineNo">228</span>  // Length of each instruction introduced by the above bytecodes.<a name="line.228"></a>
-<span class="sourceLineNo">229</span>  // -1 indicates a variable length instruction.<a name="line.229"></a>
-<span class="sourceLineNo">230</span>  // -2 indicates an unused instruction.<a name="line.230"></a>
-<span class="sourceLineNo">231</span>  //<a name="line.231"></a>
-<span class="sourceLineNo">232</span>  byte[] JBC_length = {1, // nop<a name="line.232"></a>
-<span class="sourceLineNo">233</span>                       1, // aconst_null<a name="line.233"></a>
-<span class="sourceLineNo">234</span>                       1, // iconst_m1<a name="line.234"></a>
-<span class="sourceLineNo">235</span>                       1, // iconst_0<a name="line.235"></a>
-<span class="sourceLineNo">236</span>                       1, // iconst_1<a name="line.236"></a>
-<span class="sourceLineNo">237</span>                       1, // iconst_2<a name="line.237"></a>
-<span class="sourceLineNo">238</span>                       1, // iconst_3<a name="line.238"></a>
-<span class="sourceLineNo">239</span>                       1, // iconst_4<a name="line.239"></a>
-<span class="sourceLineNo">240</span>                       1, // iconst_5<a name="line.240"></a>
-<span class="sourceLineNo">241</span>                       1, // lconst_0<a name="line.241"></a>
-<span class="sourceLineNo">242</span>                       1, // lconst_1<a name="line.242"></a>
-<span class="sourceLineNo">243</span>                       1, // fconst_0<a name="line.243"></a>
-<span class="sourceLineNo">244</span>                       1, // fconst_1<a name="line.244"></a>
-<span class="sourceLineNo">245</span>                       1, // fconst_2<a name="line.245"></a>
-<span class="sourceLineNo">246</span>                       1, // dconst_0<a name="line.246"></a>
-<span class="sourceLineNo">247</span>                       1, // dconst_1<a name="line.247"></a>
-<span class="sourceLineNo">248</span>                       2, // bipush<a name="line.248"></a>
-<span class="sourceLineNo">249</span>                       3, // sipush<a name="line.249"></a>
-<span class="sourceLineNo">250</span>                       2, // ldc<a name="line.250"></a>
-<span class="sourceLineNo">251</span>                       3, // ldc_w<a name="line.251"></a>
-<span class="sourceLineNo">252</span>                       3, // ldc2_w<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                       2, // iload<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                       2, // lload<a name="line.254"></a>
-<span class="sourceLineNo">255</span>                       2, // fload<a name="line.255"></a>
-<span class="sourceLineNo">256</span>                       2, // dload<a name="line.256"></a>
-<span class="sourceLineNo">257</span>                       2, // aload<a name="line.257"></a>
-<span class="sourceLineNo">258</span>                       1, // iload_0<a name="line.258"></a>
-<span class="sourceLineNo">259</span>                       1, // iload_1<a name="line.259"></a>
-<span class="sourceLineNo">260</span>                       1, // iload_2<a name="line.260"></a>
-<span class="sourceLineNo">261</span>                       1, // iload_3<a name="line.261"></a>
-<span class="sourceLineNo">262</span>                       1, // lload_0<a name="line.262"></a>
-<span class="sourceLineNo">263</span>                       1, // lload_1<a name="line.263"></a>
-<span class="sourceLineNo">264</span>                       1, // lload_2<a name="line.264"></a>
-<span class="sourceLineNo">265</span>                       1, // lload_3<a name="line.265"></a>
-<span class="sourceLineNo">266</span>                       1, // fload_0<a name="line.266"></a>
-<span class="sourceLineNo">267</span>                       1, // fload_1<a name="line.267"></a>
-<span class="sourceLineNo">268</span>                       1, // fload_2<a name="line.268"></a>
-<span class="sourceLineNo">269</span>                       1, // fload_3<a name="line.269"></a>
-<span class="sourceLineNo">270</span>                       1, // dload_0<a name="line.270"></a>
-<span class="sourceLineNo">271</span>                       1, // dload_1<a name="line.271"></a>
-<span class="sourceLineNo">272</span>                       1, // dload_2<a name="line.272"></a>
-<span class="sourceLineNo">273</span>                       1, // dload_3<a name="line.273"></a>
-<span class="sourceLineNo">274</span>                       1, // aload_0<a name="line.274"></a>
-<span class="sourceLineNo">275</span>                       1, // aload_1<a name="line.275"></a>
-<span class="sourceLineNo">276</span>                       1, // aload_2<a name="line.276"></a>
-<span class="sourceLineNo">277</span>                       1, // aload_3<a name="line.277"></a>
-<span class="sourceLineNo">278</span>                       1, // iaload<a name="line.278"></a>
-<span class="sourceLineNo">279</span>                       1, // laload<a name="line.279"></a>
-<span class="sourceLineNo">280</span>                       1, // faload<a name="line.280"></a>
-<span class="sourceLineNo">281</span>                       1, // daload<a name="line.281"></a>
-<span class="sourceLineNo">282</span>                       1, // aaload<a name="line.282"></a>
-<span class="sourceLineNo">283</span>                       1, // baload<a name="line.283"></a>
-<span class="sourceLineNo">284</span>                       1, // caload<a name="line.284"></a>
-<span class="sourceLineNo">285</span>                       1, // saload<a name="line.285"></a>
-<span class="sourceLineNo">286</span>                       2, // istore<a name="line.286"></a>
-<span class="sourceLineNo">287</span>                       2, // lstore<a name="line.287"></a>
-<span class="sourceLineNo">288</span>                       2, // fstore<a name="line.288"></a>
-<span class="sourceLineNo">289</span>                       2, // dstore<a name="line.289"></a>
-<span class="sourceLineNo">290</span>                       2, // astore<a name="line.290"></a>
-<span class="sourceLineNo">291</span>                       1, // istore_0<a name="line.291"></a>
-<span class="sourceLineNo">292</span>                       1, // istore_1<a name="line.292"></a>
-<span class="sourceLineNo">293</span>                       1, // istore_2<a name="line.293"></a>
-<span class="sourceLineNo">294</span>                       1, // istore_3<a name="line.294"></a>
-<span class="sourceLineNo">295</span>                       1, // lstore_0<a name="line.295"></a>
-<span class="sourceLineNo">296</span>                       1, // lstore_1<a name="line.296"></a>
-<span class="sourceLineNo">297</span>                       1, // lstore_2<a name="line.297"></a>
-<span class="sourceLineNo">298</span>                       1, // lstore_3<a name="line.298"></a>
-<span class="sourceLineNo">299</span>                       1, // fstore_0<a name="line.299"></a>
-<span class="sourceLineNo">300</span>                       1, // fstore_1<a name="line.300"></a>
-<span class="sourceLineNo">301</span>                       1, // fstore_2<a name="line.301"></a>
-<span class="sourceLineNo">302</span>                       1, // fstore_3<a name="line.302"></a>
-<span class="sourceLineNo">303</span>                       1, // dstore_0<a name="line.303"></a>
-<span class="sourceLineNo">304</span>                       1, // dstore_1<a name="line.304"></a>
-<span class="sourceLineNo">305</span>                       1, // dstore_2<a name="line.305"></a>
-<span class="sourceLineNo">306</span>                       1, // dstore_3<a name="line.306"></a>
-<span class="sourceLineNo">307</span>                       1, // astore_0<a name="line.307"></a>
-<span class="sourceLineNo">308</span>                       1, // astore_1<a name="line.308"></a>
-<span class="sourceLineNo">309</span>                       1, // astore_2<a name="line.309"></a>
-<span class="sourceLineNo">310</span>                       1, // astore_3<a name="line.310"></a>
-<span class="sourceLineNo">311</span>                       1, // iastore<a name="line.311"></a>
-<span class="sourceLineNo">312</span>                       1, // lastore<a name="line.312"></a>
-<span class="sourceLineNo">313</span>                       1, // fastore<a name="line.313"></a>
-<span class="sourceLineNo">314</span>                       1, // dastore<a name="line.314"></a>
-<span class="sourceLineNo">315</span>                       1, // aastore<a name="line.315"></a>
-<span class="sourceLineNo">316</span>                       1, // bastore<a name="line.316"></a>
-<span class="sourceLineNo">317</span>                       1, // castore<a name="line.317"></a>
-<span class="sourceLineNo">318</span>                       1, // sastore<a name="line.318"></a>
-<span class="sourceLineNo">319</span>                       1, // pop<a name="line.319"></a>
-<span class="sourceLineNo">320</span>                       1, // pop2<a name="line.320"></a>
-<span class="sourceLineNo">321</span>                       1, // dup<a name="line.321"></a>
-<span class="sourceLineNo">322</span>                       1, // dup_x1<a name="line.322"></a>
-<span class="sourceLineNo">323</span>                       1, // dup_x2<a name="line.323"></a>
-<span class="sourceLineNo">324</span>                       1, // dup2<a name="line.324"></a>
-<span class="sourceLineNo">325</span>                       1, // dup2_x1<a name="line.325"></a>
-<span class="sourceLineNo">326</span>                       1, // dup2_x2<a name="line.326"></a>
-<span class="sourceLineNo">327</span>                       1, // swap<a name="line.327"></a>
-<span class="sourceLineNo">328</span>                       1, // iadd<a name="line.328"></a>
-<span class="sourceLineNo">329</span>                       1, // ladd<a name="line.329"></a>
-<span class="sourceLineNo">330</span>                       1, // fadd<a name="line.330"></a>
-<span class="sourceLineNo">331</span>                       1, // dadd<a name="line.331"></a>
-<span class="sourceLineNo">332</span>                       1, // isub<a name="line.332"></a>
-<span class="sourceLineNo">333</span>                       1, // lsub<a name="line.333"></a>
-<span class="sourceLineNo">334</span>                       1, // fsub<a name="line.334"></a>
-<span class="sourceLineNo">335</span>                       1, // dsub<a name="line.335"></a>
-<span class="sourceLineNo">336</span>                       1, // imul<a name="line.336"></a>
-<span class="sourceLineNo">337</span>                       1, // lmul<a name="line.337"></a>
-<span class="sourceLineNo">338</span>                       1, // fmul<a name="line.338"></a>
-<span class="sourceLineNo">339</span>                       1, // dmul<a name="line.339"></a>
-<span class="sourceLineNo">340</span>                       1, // idiv<a name="line.340"></a>
-<span class="sourceLineNo">341</span>                       1, // ldiv<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                       1, // fdiv<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                       1, // ddiv<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                       1, // irem<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                       1, // lrem<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                       1, // frem<a name="line.346"></a>
-<span class="sourceLineNo">347</span>                       1, // drem<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                       1, // ineg<a name="line.348"></a>
-<span class="sourceLineNo">349</span>                       1, // lneg<a name="line.349"></a>
-<span class="sourceLineNo">350</span>                       1, // fneg<a name="line.350"></a>
-<span class="sourceLineNo">351</span>                       1, // dneg<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                       1, // ishl<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                       1, // lshl<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                       1, // ishr<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                       1, // lshr<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                       1, // iushr<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                       1, // lushr<a name="line.357"></a>
-<span class="sourceLineNo">358</span>                       1, // iand<a name="line.358"></a>
-<span class="sourceLineNo">359</span>                       1, // land<a name="line.359"></a>
-<span class="sourceLineNo">360</span>                       1, // ior<a name="line.360"></a>
-<span class="sourceLineNo">361</span>                       1, // lor<a name="line.361"></a>
-<span class="sourceLineNo">362</span>                       1, // ixor<a name="line.362"></a>
-<span class="sourceLineNo">363</span>                       1, // lxor<a name="line.363"></a>
-<span class="sourceLineNo">364</span>                       3, // iinc<a name="line.364"></a>
-<span class="sourceLineNo">365</span>                       1, // i2l<a name="line.365"></a>
-<span class="sourceLineNo">366</span>                       1, // i2f<a name="line.366"></a>
-<span class="sourceLineNo">367</span>                       1, // i2d<a name="line.367"></a>
-<span class="sourceLineNo">368</span>                       1, // l2i<a name="line.368"></a>
-<span class="sourceLineNo">369</span>                       1, // l2f<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                       1, // l2d<a name="line.370"></a>
-<span class="sourceLineNo">371</span>                       1, // f2i<a name="line.371"></a>
-<span class="sourceLineNo">372</span>                       1, // f2l<a name="line.372"></a>
-<span class="sourceLineNo">373</span>                       1, // f2d<a name="line.373"></a>
-<span class="sourceLineNo">374</span>                       1, // d2i<a name="line.374"></a>
-<span class="sourceLineNo">375</span>                       1, // d2l<a name="line.375"></a>
-<span class="sourceLineNo">376</span>                       1, // d2f<a name="line.376"></a>
-<span class="sourceLineNo">377</span>                       1, // int2byte<a name="line.377"></a>
-<span class="sourceLineNo">378</span>                       1, // int2char<a name="line.378"></a>
-<span class="sourceLineNo">379</span>                       1, // int2short<a name="line.379"></a>
-<span class="sourceLineNo">380</span>                       1, // lcmp<a name="line.380"></a>
-<span class="sourceLineNo">381</span>                       1, // fcmpl<a name="line.381"></a>
-<span class="sourceLineNo">382</span>                       1, // fcmpg<a name="line.382"></a>
-<span class="sourceLineNo">383</span>                       1, // dcmpl<a name="line.383"></a>
-<span class="sourceLineNo">384</span>                       1, // dcmpg<a name="line.384"></a>
-<span class="sourceLineNo">385</span>                       3, // ifeq<a name="line.385"></a>
-<span class="sourceLineNo">386</span>                       3, // ifne<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                       3, // iflt<a name="line.387"></a>
-<span class="sourceLineNo">388</span>                       3, // ifge<a name="line.388"></a>
-<span class="sourceLineNo">389</span>                       3, // ifgt<a name="line.389"></a>
-<span class="sourceLineNo">390</span>                       3, // ifle<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                       3, // if_icmpeq<a name="line.391"></a>
-<span class="sourceLineNo">392</span>                       3, // if_icmpne<a name="line.392"></a>
-<span class="sourceLineNo">393</span>                       3, // if_icmplt<a name="line.393"></a>
-<span class="sourceLineNo">394</span>                       3, // if_icmpge<a name="line.394"></a>
-<span class="sourceLineNo">395</span>                       3, // if_icmpgt<a name="line.395"></a>
-<span class="sourceLineNo">396</span>                       3, // if_icmple<a name="line.396"></a>
-<span class="sourceLineNo">397</span>                       3, // if_acmpeq<a name="line.397"></a>
-<span class="sourceLineNo">398</span>                       3, // if_acmpne<a name="line.398"></a>
-<span class="sourceLineNo">399</span>                       3, // goto<a name="line.399"></a>
-<span class="sourceLineNo">400</span>                       3, // jsr<a name="line.400"></a>
-<span class="sourceLineNo">401</span>                       2, // ret<a name="line.401"></a>
-<span class="sourceLineNo">402</span>                       -1, // tableswitch<a name="line.402"></a>
-<span class="sourceLineNo">403</span>                       -1, // lookupswitch<a name="line.403"></a>
-<span class="sourceLineNo">404</span>                       1, // ireturn<a name="line.404"></a>
-<span class="sourceLineNo">405</span>                       1, // lreturn<a name="line.405"></a>
-<span class="sourceLineNo">406</span>                       1, // freturn<a name="line.406"></a>
-<span class="sourceLineNo">407</span>                       1, // dreturn<a name="line.407"></a>
-<span class="sourceLineNo">408</span>                       1, // areturn<a name="line.408"></a>
-<span class="sourceLineNo">409</span>                       1, // return<a name="line.409"></a>
-<span class="sourceLineNo">410</span>                       3, // getstatic<a name="line.410"></a>
-<span class="sourceLineNo">411</span>                       3, // putstatic<a name="line.411"></a>
-<span class="sourceLineNo">412</span>                       3, // getfield<a name="line.412"></a>
-<span class="sourceLineNo">413</span>                       3, // putfield<a name="line.413"></a>
-<span class="sourceLineNo">414</span>                       3, // invokevirtual<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                       3, // invokenonvirtual<a name="line.415"></a>
-<span class="sourceLineNo">416</span>                       3, // invokestatic<a name="line.416"></a>
-<span class="sourceLineNo">417</span>                       5, // invokeinterface<a name="line.417"></a>
-<span class="sourceLineNo">418</span>                       -2, // xxxunusedxxx<a name="line.418"></a>
-<span class="sourceLineNo">419</span>                       3, // new<a name="line.419"></a>
-<span class="sourceLineNo">420</span>                       2, // newarray<a name="line.420"></a>
-<span class="sourceLineNo">421</span>                       3, // anewarray<a name="line.421"></a>
-<span class="sourceLineNo">422</span>                       1, // arraylength<a name="line.422"></a>
-<span class="sourceLineNo">423</span>                       1, // athrow<a name="line.423"></a>
-<span class="sourceLineNo">424</span>                       3, // checkcast<a name="line.424"></a>
-<span class="sourceLineNo">425</span>                       3, // instanceof<a name="line.425"></a>
-<span class="sourceLineNo">426</span>                       1, // monitorenter<a name="line.426"></a>
-<span class="sourceLineNo">427</span>                       1, // monitorexit<a name="line.427"></a>
-<span class="sourceLineNo">428</span>                       -1, // wide<a name="line.428"></a>
-<span class="sourceLineNo">429</span>                       4, // multianewarray<a name="line.429"></a>
-<span class="sourceLineNo">430</span>                       3, // ifnull<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                       3, // ifnonnull<a name="line.431"></a>
-<span class="sourceLineNo">432</span>                       5, // goto_w<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                       5, // jsr_w<a name="line.433"></a>
-<span class="sourceLineNo">434</span>                       -2, // 202<a name="line.434"></a>
-<span class="sourceLineNo">435</span>                       -2, // 203<a name="line.435"></a>
-<span class="sourceLineNo">436</span>                       -2, // 204<a name="line.436"></a>
-<span class="sourceLineNo">437</span>                       -2, // 205<a name="line.437"></a>
-<span class="sourceLineNo">438</span>                       -2, // 206<a name="line.438"></a>
-<span class="sourceLineNo">439</span>                       -2, // 207<a name="line.439"></a>
-<span class="sourceLineNo">440</span>                       -2, // 208<a name="line.440"></a>
-<span class="sourceLineNo">441</span>                       -2, // 209<a name="line.441"></a>
-<span class="sourceLineNo">442</span>                       -2, // 210<a name="line.442"></a>
-<span class="sourceLineNo">443</span>                       -2, // 211<a name="line.443"></a>
-<span class="sourceLineNo">444</span>                       -2, // 212<a name="line.444"></a>
-<span class="sourceLineNo">445</span>                       -2, // 213<a name="line.445"></a>
-<span class="sourceLineNo">446</span>                       -2, // 214<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                       -2, // 215<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                       -2, // 216<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                       -2, // 217<a name="line.449"></a>
-<span class="sourceLineNo">450</span>                       -2, // 218<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                       -2, // 219<a name="line.451"></a>
-<span class="sourceLineNo">452</span>                       -2, // 220<a name="line.452"></a>
-<span class="sourceLineNo">453</span>                       -2, // 221<a name="line.453"></a>
-<span class="sourceLineNo">454</span>                       -2, // 222<a name="line.454"></a>
-<span class="sourceLineNo">455</span>                       -2, // 223<a name="line.455"></a>
-<span class="sourceLineNo">456</span>                       -2, // 224<a name="line.456"></a>
-<span class="sourceLineNo">457</span>                       -2, // 225<a name="line.457"></a>
-<span class="sourceLineNo">458</span>                       -2, // 226<a name="line.458"></a>
-<span class="sourceLineNo">459</span>                       -2, // 227<a name="line.459"></a>
-<span class="sourceLineNo">460</span>                       -2, // 228<a name="line.460"></a>
-<span class="sourceLineNo">461</span>                       -2, // 229<a name="line.461"></a>
-<span class="sourceLineNo">462</span>                       -2, // 230<a name="line.462"></a>
-<span class="sourceLineNo">463</span>                       -2, // 231<a name="line.463"></a>
-<span class="sourceLineNo">464</span>                       -2, // 232<a name="line.464"></a>
-<span class="sourceLineNo">465</span>                       -2, // 233<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                       -2, // 234<a name="line.466"></a>
-<span class="sourceLineNo">467</span>                       -2, // 235<a name="line.467"></a>
-<span class="sourceLineNo">468</span>                       -2, // 236<a name="line.468"></a>
-<span class="sourceLineNo">469</span>                       -2, // 237<a name="line.469"></a>
-<span class="sourceLineNo">470</span>                       -2, // 238<a name="line.470"></a>
-<span class="sourceLineNo">471</span>                       -2, // 239<a name="line.471"></a>
-<span class="sourceLineNo">472</span>                       -2, // 240<a name="line.472"></a>
-<span class="sourceLineNo">473</span>                       -2, // 241<a name="line.473"></a>
-<span class="sourceLineNo">474</span>                       -2, // 242<a name="line.474"></a>
-<span class="sourceLineNo">475</span>                       -2, // 243<a name="line.475"></a>
-<span class="sourceLineNo">476</span>                       -2, // 244<a name="line.476"></a>
-<span class="sourceLineNo">477</span>                       -2, // 245<a name="line.477"></a>
-<span class="sourceLineNo">478</span>                       -2, // 246<a name="line.478"></a>
-<span class="sourceLineNo">479</span>                       -2, // 247<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                       -2, // 248<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                       -2, // 249<a name="line.481"></a>
-<span class="sourceLineNo">482</span>                       -2, // 250<a name="line.482"></a>
-<span class="sourceLineNo">483</span>                       -2, // 251<a name="line.483"></a>
-<span class="sourceLineNo">484</span>                       -2, // 252<a name="line.484"></a>
-<span class="sourceLineNo">485</span>                       -2, // 253<a name="line.485"></a>
-<span class="sourceLineNo">486</span>                       -1, // impdep1  254<a name="line.486"></a>
-<span class="sourceLineNo">487</span>                       -2, // 255<a name="line.487"></a>
-<span class="sourceLineNo">488</span>  };<a name="line.488"></a>
-<span class="sourceLineNo">489</span><a name="line.489"></a>
-<span class="sourceLineNo">490</span>  /**<a name="line.490"></a>
-<span class="sourceLineNo">491</span>   * Bytecode names (for debugging/printing)<a name="line.491"></a>
-<span class="sourceLineNo">492</span>   */<a name="line.492"></a>
-<span class="sourceLineNo">493</span>  String[] JBC_name =<a name="line.493"></a>
-<span class="sourceLineNo">494</span>      {"nop",<a name="line.494"></a>
-<span class="sourceLineNo">495</span>       "aconst_null",<a name="line.495"></a>
-<span class="sourceLineNo">496</span>       "iconst_m1",<a name="line.496"></a>
-<span class="sourceLineNo">497</span>       "iconst_0",<a name="line.497"></a>
-<span class="sourceLineNo">498</span>       "iconst_1",<a name="line.498"></a>
-<span class="sourceLineNo">499</span>       "iconst_2",<a name="line.499"></a>
-<span class="sourceLineNo">500</span>       "iconst_3",<a name="line.500"></a>
-<span class="sourceLineNo">501</span>       "iconst_4",<a name="line.501"></a>
-<span class="sourceLineNo">502</span>       "iconst_5",<a name="line.502"></a>
-<span class="sourceLineNo">503</span>       "lconst_0",<a name="line.503"></a>
-<span class="sourceLineNo">504</span>       "lconst_1",<a name="line.504"></a>
-<span class="sourceLineNo">505</span>       "fconst_0",<a name="line.505"></a>
-<span class="sourceLineNo">506</span>       "fconst_1",<a name="line.506"></a>
-<span class="sourceLineNo">507</span>       "fconst_2",<a name="line.507"></a>
-<span class="sourceLineNo">508</span>       "dconst_0",<a name="line.508"></a>
-<span class="sourceLineNo">509</span>       "dconst_1",<a name="line.509"></a>
-<span class="sourceLineNo">510</span>       "bipush",<a name="line.510"></a>
-<span class="sourceLineNo">511</span>       "sipush",<a name="line.511"></a>
-<span class="sourceLineNo">512</span>       "ldc",<a name="line.512"></a>
-<span class="sourceLineNo">513</span>       "ldc_w",<a name="line.513"></a>
-<span class="sourceLineNo">514</span>       "ldc2_w",<a name="line.514"></a>
-<span class="sourceLineNo">515</span>       "iload",<a name="line.515"></a>
-<span class="sourceLineNo">516</span>       "lload",<a name="line.516"></a>
-<span class="sourceLineNo">517</span>       "fload",<a name="line.517"></a>
-<span class="sourceLineNo">518</span>       "dload",<a name="line.518"></a>
-<span class="sourceLineNo">519</span>       "aload",<a name="line.519"></a>
-<span class="sourceLineNo">520</span>       "iload_0",<a name="line.520"></a>
-<span class="sourceLineNo">521</span>       "iload_1",<a name="line.521"></a>
-<span class="sourceLineNo">522</span>       "iload_2",<a name="line.522"></a>
-<span class="sourceLineNo">523</span>       "iload_3",<a name="line.523"></a>
-<span class="sourceLineNo">524</span>       "lload_0",<a name="line.524"></a>
-<span class="sourceLineNo">525</span>       "lload_1",<a name="line.525"></a>
-<span class="sourceLineNo">526</span>       "lload_2",<a name="line.526"></a>
-<span class="sourceLineNo">527</span>       "lload_3",<a name="line.527"></a>
-<span class="sourceLineNo">528</span>       "fload_0",<a name="line.528"></a>
-<span class="sourceLineNo">529</span>       "fload_1",<a name="line.529"></a>
-<span class="sourceLineNo">530</span>       "fload_2",<a name="line.530"></a>
-<span class="sourceLineNo">531</span>       " fload_3",<a name="line.531"></a>
-<span class="sourceLineNo">532</span>       " dload_0",<a name="line.532"></a>
-<span class="sourceLineNo">533</span>       " dload_1",<a name="line.533"></a>
-<span class="sourceLineNo">534</span>       " dload_2",<a name="line.534"></a>
-<span class="sourceLineNo">535</span>       " dload_3",<a name="line.535"></a>
-<span class="sourceLineNo">536</span>       " aload_0",<a name="line.536"></a>
-<span class="sourceLineNo">537</span>       " aload_1",<a name="line.537"></a>
-<span class="sourceLineNo">538</span>       " aload_2",<a name="line.538"></a>
-<span class="sourceLineNo">539</span>       " aload_3",<a name="line.539"></a>
-<span class="sourceLineNo">540</span>       " iaload",<a name="line.540"></a>
-<span class="sourceLineNo">541</span>       " laload",<a name="line.541"></a>
-<span class="sourceLineNo">542</span>       " faload",<a name="line.542"></a>
-<span class="sourceLineNo">543</span>       " daload",<a name="line.543"></a>
-<span class="sourceLineNo">544</span>       " aaload",<a name="line.544"></a>
-<span class="sourceLineNo">545</span>       " baload",<a name="line.545"></a>
-<span class="sourceLineNo">546</span>       " caload",<a name="line.546"></a>
-<span class="sourceLineNo">547</span>       " saload",<a name="line.547"></a>
-<span class="sourceLineNo">548</span>       " istore",<a name="line.548"></a>
-<span class="sourceLineNo">549</span>       " lstore",<a name="line.549"></a>
-<span class="sourceLineNo">550</span>       " fstore",<a name="line.550"></a>
-<span class="sourceLineNo">551</span>       " dstore",<a name="line.551"></a>
-<span class="sourceLineNo">552</span>       " astore",<a name="line.552"></a>
-<span class="sourceLineNo">553</span>       " istore_0",<a name="line.553"></a>
-<span class="sourceLineNo">554</span>       " istore_1",<a name="line.554"></a>
-<span class="sourceLineNo">555</span>       " istore_2",<a name="line.555"></a>
-<span class="sourceLineNo">556</span>       " istore_3",<a name="line.556"></a>
-<span class="sourceLineNo">557</span>       " lstore_0",<a name="line.557"></a>
-<span class="sourceLineNo">558</span>       " lstore_1",<a name="line.558"></a>
-<span class="sourceLineNo">559</span>       " lstore_2",<a name="line.559"></a>
-<span class="sourceLineNo">560</span>       " lstore_3",<a name="line.560"></a>
-<span class="sourceLineNo">561</span>       " fstore_0",<a name="line.561"></a>
-<span class="sourceLineNo">562</span>       " fstore_1",<a name="line.562"></a>
-<span class="sourceLineNo">563</span>       " fstore_2",<a name="line.563"></a>
-<span class="sourceLineNo">564</span>       " fstore_3",<a name="line.564"></a>
-<span class="sourceLineNo">565</span>       " dstore_0",<a name="line.565"></a>
-<span class="sourceLineNo">566</span>       " dstore_1",<a name="line.566"></a>
-<span class="sourceLineNo">567</span>       " dstore_2",<a name="line.567"></a>
-<span class="sourceLineNo">568</span>       " dstore_3",<a name="line.568"></a>
-<span class="sourceLineNo">569</span>       " astore_0",<a name="line.569"></a>
-<span class="sourceLineNo">570</span>       " astore_1",<a name="line.570"></a>
-<span class="sourceLineNo">571</span>       " astore_2",<a name="line.571"></a>
-<span class="sourceLineNo">572</span>       " astore_3",<a name="line.572"></a>
-<span class="sourceLineNo">573</span>       "iastore",<a name="line.573"></a>
-<span class="sourceLineNo">574</span>       "lastore",<a name="line.574"></a>
-<span class="sourceLineNo">575</span>       "fastore",<a name="line.575"></a>
-<span class="sourceLineNo">576</span>       "dastore",<a name="line.576"></a>
-<span class="sourceLineNo">577</span>       "aastore",<a name="line.577"></a>
-<span class="sourceLineNo">578</span>       "bastore",<a name="line.578"></a>
-<span class="sourceLineNo">579</span>       "castore",<a name="line.579"></a>
-<span class="sourceLineNo">580</span>       "sastore",<a name="line.580"></a>
-<span class="sourceLineNo">581</span>       "pop",<a name="line.581"></a>
-<span class="sourceLineNo">582</span>       "pop2",<a name="line.582"></a>
-<span class="sourceLineNo">583</span>       "dup",<a name="line.583"></a>
-<span class="sourceLineNo">584</span>       "dup_x1",<a name="line.584"></a>
-<span class="sourceLineNo">585</span>       "dup_x2",<a name="line.585"></a>
-<span class="sourceLineNo">586</span>       "dup2",<a name="line.586"></a>
-<span class="sourceLineNo">587</span>       "dup2_x1",<a name="line.587"></a>
-<span class="sourceLineNo">588</span>       "dup2_x2",<a name="line.588"></a>
-<span class="sourceLineNo">589</span>       "swap",<a name="line.589"></a>
-<span class="sourceLineNo">590</span>       "iadd",<a name="line.590"></a>
-<span class="sourceLineNo">591</span>       "ladd",<a name="line.591"></a>
-<span class="sourceLineNo">592</span>       "fadd",<a name="line.592"></a>
-<span class="sourceLineNo">593</span>       "dadd",<a name="line.593"></a>
-<span class="sourceLineNo">594</span>       "isub",<a name="line.594"></a>
-<span class="sourceLineNo">595</span>       "lsub",<a name="line.595"></a>
-<span class="sourceLineNo">596</span>       "fsub",<a name="line.596"></a>
-<span class="sourceLineNo">597</span>       "dsub",<a name="line.597"></a>
-<span class="sourceLineNo">598</span>       "imul",<a name="line.598"></a>
-<span class="sourceLineNo">599</span>       "lmul",<a name="line.599"></a>
-<span class="sourceLineNo">600</span>       "fmul",<a name="line.600"></a>
-<span class="sourceLineNo">601</span>       "dmul",<a name="line.601"></a>
-<span class="sourceLineNo">602</span>       "idiv",<a name="line.602"></a>
-<span class="sourceLineNo">603</span>       "ldiv",<a name="line.603"></a>
-<span class="sourceLineNo">604</span>       "fdiv",<a name="line.604"></a>
-<span class="sourceLineNo">605</span>       "ddiv",<a name="line.605"></a>
-<span class="sourceLineNo">606</span>       "irem",<a name="line.606"></a>
-<span class="sourceLineNo">607</span>       "lrem",<a name="line.607"></a>
-<span class="sourceLineNo">608</span>       "frem",<a name="line.608"></a>
-<span class="sourceLineNo">609</span>       "drem",<a name="line.609"></a>
-<span class="sourceLineNo">610</span>       "ineg",<a name="line.610"></a>
-<span class="sourceLineNo">611</span>       "lneg",<a name="line.611"></a>
-<span class="sourceLineNo">612</span>       "fneg",<a name="line.612"></a>
-<span class="sourceLineNo">613</span>       "dneg",<a name="line.613"></a>
-<span class="sourceLineNo">614</span>       "ishl",<a name="line.614"></a>
-<span class="sourceLineNo">615</span>       "lshl",<a name="line.615"></a>
-<span class="sourceLineNo">616</span>       "ishr",<a name="line.616"></a>
-<span class="sourceLineNo">617</span>       "lshr",<a name="line.617"></a>
-<span class="sourceLineNo">618</span>       "iushr",<a name="line.618"></a>
-<span class="sourceLineNo">619</span>       "lushr",<a name="line.619"></a>
-<span class="sourceLineNo">620</span>       "iand",<a name="line.620"></a>
-<span class="sourceLineNo">621</span>       "land",<a name="line.621"></a>
-<span class="sourceLineNo">622</span>       "ior",<a name="line.622"></a>
-<span class="sourceLineNo">623</span>       "lor",<a name="line.623"></a>
-<span class="sourceLineNo">624</span>       "ixor",<a name="line.624"></a>
-<span class="sourceLineNo">625</span>       "lxor",<a name="line.625"></a>
-<span class="sourceLineNo">626</span>       "iinc",<a name="line.626"></a>
-<span class="sourceLineNo">627</span>       "i2l",<a name="line.627"></a>
-<span class="sourceLineNo">628</span>       "i2f",<a name="line.628"></a>
-<span class="sourceLineNo">629</span>       "i2d",<a name="line.629"></a>
-<span class="sourceLineNo">630</span>       "l2i",<a name="line.630"></a>
-<span class="sourceLineNo">631</span>       "l2f",<a name="line.631"></a>
-<span class="sourceLineNo">632</span>       "l2d",<a name="line.632"></a>
-<span class="sourceLineNo">633</span>       "f2i",<a name="line.633"></a>
-<span class="sourceLineNo">634</span>       "f2l",<a name="line.634"></a>
-<span class="sourceLineNo">635</span>       "f2d",<a name="line.635"></a>
-<span class="sourceLineNo">636</span>       "d2i",<a name="line.636"></a>
-<span class="sourceLineNo">637</span>       "d2l",<a name="line.637"></a>
-<span class="sourceLineNo">638</span>       "d2f",<a name="line.638"></a>
-<span class="sourceLineNo">639</span>       "int2byte",<a name="line.639"></a>
-<span class="sourceLineNo">640</span>       "int2char",<a name="line.640"></a>
-<span class="sourceLineNo">641</span>       "int2short",<a name="line.641"></a>
-<span class="sourceLineNo">642</span>       "lcmp",<a name="line.642"></a>
-<span class="sourceLineNo">643</span>       "fcmpl",<a name="line.643"></a>
-<span class="sourceLineNo">644</span>       "fcmpg",<a name="line.644"></a>
-<span class="sourceLineNo">645</span>       "dcmpl",<a name="line.645"></a>
-<span class="sourceLineNo">646</span>       "dcmpg",<a name="line.646"></a>
-<span class="sourceLineNo">647</span>       "ifeq",<a name="line.647"></a>
-<span class="sourceLineNo">648</span>       "ifne",<a name="line.648"></a>
-<span class="sourceLineNo">649</span>       "iflt",<a name="line.649"></a>
-<span class="sourceLineNo">650</span>       "ifge",<a name="line.650"></a>
-<span class="sourceLineNo">651</span>       "ifgt",<a name="line.651"></a>
-<span class="sourceLineNo">652</span>       "ifle",<a name="line.652"></a>
-<span class="sourceLineNo">653</span>       "if_icmpeq",<a name="line.653"></a>
-<span class="sourceLineNo">654</span>       "if_icmpne",<a name="line.654"></a>
-<span class="sourceLineNo">655</span>       "if_icmplt",<a name="line.655"></a>
-<span class="sourceLineNo">656</span>       "if_icmpge",<a name="line.656"></a>
-<span class="sourceLineNo">657</span>       "if_icmpgt",<a name="line.657"></a>
-<span class="sourceLineNo">658</span>       "if_icmple",<a name="line.658"></a>
-<span class="sourceLineNo">659</span>       "if_acmpeq",<a name="line.659"></a>
-<span class="sourceLineNo">660</span>       "if_acmpne",<a name="line.660"></a>
-<span class="sourceLineNo">661</span>       "goto",<a name="line.661"></a>
-<span class="sourceLineNo">662</span>       "jsr",<a name="line.662"></a>
-<span class="sourceLineNo">663</span>       "ret",<a name="line.663"></a>
-<span class="sourceLineNo">664</span>       " tableswitch",<a name="line.664"></a>
-<span class="sourceLineNo">665</span>       " lookupswitch",<a name="line.665"></a>
-<span class="sourceLineNo">666</span>       "ireturn",<a name="line.666"></a>
-<span class="sourceLineNo">667</span>       "lreturn",<a name="line.667"></a>
-<span class="sourceLineNo">668</span>       "freturn",<a name="line.668"></a>
-<span class="sourceLineNo">669</span>       "dreturn",<a name="line.669"></a>
-<span class="sourceLineNo">670</span>       "areturn",<a name="line.670"></a>
-<span class="sourceLineNo">671</span>       "return",<a name="line.671"></a>
-<span class="sourceLineNo">672</span>       "getstatic",<a name="line.672"></a>
-<span class="sourceLineNo">673</span>       "putstatic",<a name="line.673"></a>
-<span class="sourceLineNo">674</span>       "getfield",<a name="line.674"></a>
-<span class="sourceLineNo">675</span>       "putfield",<a name="line.675"></a>
-<span class="sourceLineNo">676</span>       "invokevirtual",<a name="line.676"></a>
-<span class="sourceLineNo">677</span>       "invokenonvirtual",<a name="line.677"></a>
-<span class="sourceLineNo">678</span>       "invokestatic",<a name="line.678"></a>
-<span class="sourceLineNo">679</span>       "invokeinterface",<a name="line.679"></a>
-<span class="sourceLineNo">680</span>       " xxxunusedxxx",<a name="line.680"></a>
-<span class="sourceLineNo">681</span>       "new",<a name="line.681"></a>
-<span class="sourceLineNo">682</span>       "newarray",<a name="line.682"></a>
-<span class="sourceLineNo">683</span>       "anewarray",<a name="line.683"></a>
-<span class="sourceLineNo">684</span>       "arraylength",<a name="line.684"></a>
-<span class="sourceLineNo">685</span>       "athrow",<a name="line.685"></a>
-<span class="sourceLineNo">686</span>       "checkcast",<a name="line.686"></a>
-<span class="sourceLineNo">687</span>       "instanceof",<a name="line.687"></a>
-<span class="sourceLineNo">688</span>       "monitorenter",<a name="line.688"></a>
-<span class="sourceLineNo">689</span>       "monitorexit",<a name="line.689"></a>
-<span class="sourceLineNo">690</span>       " wide",<a name="line.690"></a>
-<span class="sourceLineNo">691</span>       "multianewarray",<a name="line.691"></a>
-<span class="sourceLineNo">692</span>       "ifnull",<a name="line.692"></a>
-<span class="sourceLineNo">693</span>       "ifnonnull",<a name="line.693"></a>
-<span class="sourceLineNo">694</span>       "goto_w",<a name="line.694"></a>
-<span class="sourceLineNo">695</span>       "jsr_w",};<a name="line.695"></a>
-<span class="sourceLineNo">696</span><a name="line.696"></a>
-<span class="sourceLineNo">697</span>}<a name="line.697"></a>
+<span class="sourceLineNo">228</span>  public static final int JBC_impdep1 = 254;<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  public static final int JBC_impdep2 = 255;<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span>  private BytecodeConstants() {<a name="line.231"></a>
+<span class="sourceLineNo">232</span>    // prevent instantiation<a name="line.232"></a>
+<span class="sourceLineNo">233</span>  }<a name="line.233"></a>
+<span class="sourceLineNo">234</span><a name="line.234"></a>
+<span class="sourceLineNo">235</span>  /**<a name="line.235"></a>
+<span class="sourceLineNo">236</span>   * Returns the length of the given bytecode.<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   *<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * @param bc a bytecode<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   *<a name="line.239"></a>
+<span class="sourceLineNo">240</span>   * @return length of the bytecode, -1 indicates a variable length instruction,<a name="line.240"></a>
+<span class="sourceLineNo">241</span>   * -2 indicates an unused instruction<a name="line.241"></a>
+<span class="sourceLineNo">242</span>   */<a name="line.242"></a>
+<span class="sourceLineNo">243</span>  @Pure<a name="line.243"></a>
+<span class="sourceLineNo">244</span>  public static int JBC_length(int bc) {<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    return _JBC_length[bc];<a name="line.245"></a>
+<span class="sourceLineNo">246</span>  }<a name="line.246"></a>
+<span class="sourceLineNo">247</span><a name="line.247"></a>
+<span class="sourceLineNo">248</span>  /**<a name="line.248"></a>
+<span class="sourceLineNo">249</span>   * Length of each instruction introduced by the above bytecodes.<a name="line.249"></a>
+<span class="sourceLineNo">250</span>   * -1 indicates a variable length instruction.<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   * -2 indicates an unused instruction.<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   */<a name="line.252"></a>
+<span class="sourceLineNo">253</span>  private static final byte[] _JBC_length = {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>                       1, // nop<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                       1, // aconst_null<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                       1, // iconst_m1<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                       1, // iconst_0<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                       1, // iconst_1<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                       1, // iconst_2<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                       1, // iconst_3<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                       1, // iconst_4<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                       1, // iconst_5<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                       1, // lconst_0<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                       1, // lconst_1<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                       1, // fconst_0<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                       1, // fconst_1<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                       1, // fconst_2<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                       1, // dconst_0<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                       1, // dconst_1<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                       2, // bipush<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                       3, // sipush<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                       2, // ldc<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                       3, // ldc_w<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                       3, // ldc2_w<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                       2, // iload<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                       2, // lload<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                       2, // fload<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                       2, // dload<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                       2, // aload<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                       1, // iload_0<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                       1, // iload_1<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                       1, // iload_2<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                       1, // iload_3<a name="line.283"></a>
+<span class="sourceLineNo">284</span>                       1, // lload_0<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                       1, // lload_1<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                       1, // lload_2<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                       1, // lload_3<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                       1, // fload_0<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                       1, // fload_1<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                       1, // fload_2<a name="line.290"></a>
+<span class="sourceLineNo">291</span>                       1, // fload_3<a name="line.291"></a>
+<span class="sourceLineNo">292</span>                       1, // dload_0<a name="line.292"></a>
+<span class="sourceLineNo">293</span>                       1, // dload_1<a name="line.293"></a>
+<span class="sourceLineNo">294</span>                       1, // dload_2<a name="line.294"></a>
+<span class="sourceLineNo">295</span>                       1, // dload_3<a name="line.295"></a>
+<span class="sourceLineNo">296</span>                       1, // aload_0<a name="line.296"></a>
+<span class="sourceLineNo">297</span>                       1, // aload_1<a name="line.297"></a>
+<span class="sourceLineNo">298</span>                       1, // aload_2<a name="line.298"></a>
+<span class="sourceLineNo">299</span>                       1, // aload_3<a name="line.299"></a>
+<span class="sourceLineNo">300</span>                       1, // iaload<a name="line.300"></a>
+<span class="sourceLineNo">301</span>                       1, // laload<a name="line.301"></a>
+<span class="sourceLineNo">302</span>                       1, // faload<a name="line.302"></a>
+<span class="sourceLineNo">303</span>                       1, // daload<a name="line.303"></a>
+<span class="sourceLineNo">304</span>                       1, // aaload<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                       1, // baload<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                       1, // caload<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                       1, // saload<a name="line.307"></a>
+<span class="sourceLineNo">308</span>                       2, // istore<a name="line.308"></a>
+<span class="sourceLineNo">309</span>                       2, // lstore<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                       2, // fstore<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                       2, // dstore<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                       2, // astore<a name="line.312"></a>
+<span class="sourceLineNo">313</span>                       1, // istore_0<a name="line.313"></a>
+<span class="sourceLineNo">314</span>                       1, // istore_1<a name="line.314"></a>
+<span class="sourceLineNo">315</span>                       1, // istore_2<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                       1, // istore_3<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                       1, // lstore_0<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                       1, // lstore_1<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                       1, // lstore_2<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                       1, // lstore_3<a name="line.320"></a>
+<span class="sourceLineNo">321</span>                       1, // fstore_0<a name="line.321"></a>
+<span class="sourceLineNo">322</span>                       1, // fstore_1<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                       1, // fstore_2<a name="line.323"></a>
+<span class="sourceLineNo">324</span>                       1, // fstore_3<a name="line.324"></a>
+<span class="sourceLineNo">325</span>                       1, // dstore_0<a name="line.325"></a>
+<span class="sourceLineNo">326</span>                       1, // dstore_1<a name="line.326"></a>
+<span class="sourceLineNo">327</span>                       1, // dstore_2<a name="line.327"></a>
+<span class="sourceLineNo">328</span>                       1, // dstore_3<a name="line.328"></a>
+<span class="sourceLineNo">329</span>                       1, // astore_0<a name="line.329"></a>
+<span class="sourceLineNo">330</span>                       1, // astore_1<a name="line.330"></a>
+<span class="sourceLineNo">331</span>                       1, // astore_2<a name="line.331"></a>
+<span class="sourceLineNo">332</span>                       1, // astore_3<a name="line.332"></a>
+<span class="sourceLineNo">333</span>                       1, // iastore<a name="line.333"></a>
+<span class="sourceLineNo">334</span>                       1, // lastore<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                       1, // fastore<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                       1, // dastore<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                       1, // aastore<a name="line.337"></a>
+<span class="sourceLineNo">338</span>                       1, // bastore<a name="line.338"></a>
+<span class="sourceLineNo">339</span>                       1, // castore<a name="line.339"></a>
+<span class="sourceLineNo">340</span>                       1, // sastore<a name="line.340"></a>
+<span class="sourceLineNo">341</span>                       1, // pop<a name="line.341"></a>
+<span class="sourceLineNo">342</span>                       1, // pop2<a name="line.342"></a>
+<span class="sourceLineNo">343</span>                       1, // dup<a name="line.343"></a>
+<span class="sourceLineNo">344</span>                       1, // dup_x1<a name="line.344"></a>
+<span class="sourceLineNo">345</span>                       1, // dup_x2<a name="line.345"></a>
+<span class="sourceLineNo">346</span>                       1, // dup2<a name="line.346"></a>
+<span class="sourceLineNo">347</span>                       1, // dup2_x1<a name="line.347"></a>
+<span class="sourceLineNo">348</span>                       1, // dup2_x2<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                       1, // swap<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                       1, // iadd<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                       1, // ladd<a name="line.351"></a>
+<span class="sourceLineNo">352</span>                       1, // fadd<a name="line.352"></a>
+<span class="sourceLineNo">353</span>                       1, // dadd<a name="line.353"></a>
+<span class="sourceLineNo">354</span>                       1, // isub<a name="line.354"></a>
+<span class="sourceLineNo">355</span>                       1, // lsub<a name="line.355"></a>
+<span class="sourceLineNo">356</span>                       1, // fsub<a name="line.356"></a>
+<span class="sourceLineNo">357</span>                       1, // dsub<a name="line.357"></a>
+<span class="sourceLineNo">358</span>                       1, // imul<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                       1, // lmul<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                       1, // fmul<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                       1, // dmul<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                       1, // idiv<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                       1, // ldiv<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                       1, // fdiv<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                       1, // ddiv<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                       1, // irem<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                       1, // lrem<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                       1, // frem<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                       1, // drem<a name="line.369"></a>
+<span class="sourceLineNo">370</span>                       1, // ineg<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                       1, // lneg<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                       1, // fneg<a name="line.372"></a>
+<span class="sourceLineNo">373</span>                       1, // dneg<a name="line.373"></a>
+<span class="sourceLineNo">374</span>                       1, // ishl<a name="line.374"></a>
+<span class="sourceLineNo">375</span>                       1, // lshl<a name="line.375"></a>
+<span class="sourceLineNo">376</span>                       1, // ishr<a name="line.376"></a>
+<span class="sourceLineNo">377</span>                       1, // lshr<a name="line.377"></a>
+<span class="sourceLineNo">378</span>                       1, // iushr<a name="line.378"></a>
+<span class="sourceLineNo">379</span>                       1, // lushr<a name="line.379"></a>
+<span class="sourceLineNo">380</span>                       1, // iand<a name="line.380"></a>
+<span class="sourceLineNo">381</span>                       1, // land<a name="line.381"></a>
+<span class="sourceLineNo">382</span>                       1, // ior<a name="line.382"></a>
+<span class="sourceLineNo">383</span>                       1, // lor<a name="line.383"></a>
+<span class="sourceLineNo">384</span>                       1, // ixor<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                       1, // lxor<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                       3, // iinc<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                       1, // i2l<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                       1, // i2f<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                       1, // i2d<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                       1, // l2i<a name="line.390"></a>
+<span class="sourceLineNo">391</span>                       1, // l2f<a name="line.391"></a>
+<span class="sourceLineNo">392</span>                       1, // l2d<a name="line.392"></a>
+<span class="sourceLineNo">393</span>                       1, // f2i<a name="line.393"></a>
+<span class="sourceLineNo">394</span>                       1, // f2l<a name="line.394"></a>
+<span class="sourceLineNo">395</span>                       1, // f2d<a name="line.395"></a>
+<span class="sourceLineNo">396</span>                       1, // d2i<a name="line.396"></a>
+<span class="sourceLineNo">397</span>                       1, // d2l<a name="line.397"></a>
+<span class="sourceLineNo">398</span>                       1, // d2f<a name="line.398"></a>
+<span class="sourceLineNo">399</span>                       1, // int2byte<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                       1, // int2char<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                       1, // int2short<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                       1, // lcmp<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                       1, // fcmpl<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                       1, // fcmpg<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                       1, // dcmpl<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                       1, // dcmpg<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                       3, // ifeq<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                       3, // ifne<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                       3, // iflt<a name="line.409"></a>
+<span class="sourceLineNo">410</span>                       3, // ifge<a name="line.410"></a>
+<span class="sourceLineNo">411</span>                       3, // ifgt<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                       3, // ifle<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                       3, // if_icmpeq<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                       3, // if_icmpne<a name="line.414"></a>
+<span class="sourceLineNo">415</span>                       3, // if_icmplt<a name="line.415"></a>
+<span class="sourceLineNo">416</span>                       3, // if_icmpge<a name="line.416"></a>
+<span class="sourceLineNo">417</span>                       3, // if_icmpgt<a name="line.417"></a>
+<span class="sourceLineNo">418</span>                       3, // if_icmple<a name="line.418"></a>
+<span class="sourceLineNo">419</span>                       3, // if_acmpeq<a name="line.419"></a>
+<span class="sourceLineNo">420</span>                       3, // if_acmpne<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                       3, // goto<a name="line.421"></a>
+<span class="sourceLineNo">422</span>                       3, // jsr<a name="line.422"></a>
+<span class="sourceLineNo">423</span>                       2, // ret<a name="line.423"></a>
+<span class="sourceLineNo">424</span>                       -1, // tableswitch<a name="line.424"></a>
+<span class="sourceLineNo">425</span>                       -1, // lookupswitch<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                       1, // ireturn<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                       1, // lreturn<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                       1, // freturn<a name="line.428"></a>
+<span class="sourceLineNo">429</span>                       1, // dreturn<a name="line.429"></a>
+<span class="sourceLineNo">430</span>                       1, // areturn<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                       1, // return<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                       3, // getstatic<a name="line.432"></a>
+<span class="sourceLineNo">433</span>                       3, // putstatic<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                       3, // getfield<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                       3, // putfield<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                       3, // invokevirtual<a name="line.436"></a>
+<span class="sourceLineNo">437</span>                       3, // invokespecial<a name="line.437"></a>
+<span class="sourceLineNo">438</span>                       3, // invokestatic<a name="line.438"></a>
+<span class="sourceLineNo">439</span>                       5, // invokeinterface<a name="line.439"></a>
+<span class="sourceLineNo">440</span>                       -2, // invokedynamic<a name="line.440"></a>
+<span class="sourceLineNo">441</span>                       3, // new<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                       2, // newarray<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                       3, // anewarray<a name="line.443"></a>
+<span class="sourceLineNo">444</span>                       1, // arraylength<a name="line.444"></a>
+<span class="sourceLineNo">445</span>                       1, // athrow<a name="line.445"></a>
+<span class="sourceLineNo">446</span>                       3, // checkcast<a name="line.446"></a>
+<span class="sourceLineNo">447</span>                       3, // instanceof<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                       1, // monitorenter<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                       1, // monitorexit<a name="line.449"></a>
+<span class="sourceLineNo">450</span>                       -1, // wide<a name="line.450"></a>
+<span class="sourceLineNo">451</span>                       4, // multianewarray<a name="line.451"></a>
+<span class="sourceLineNo">452</span>                       3, // ifnull<a name="line.452"></a>
+<span class="sourceLineNo">453</span>                       3, // ifnonnull<a name="line.453"></a>
+<span class="sourceLineNo">454</span>                       5, // goto_w<a name="line.454"></a>
+<span class="sourceLineNo">455</span>                       5, // jsr_w<a name="line.455"></a>
+<span class="sourceLineNo">456</span>                       -2, // breakpoint<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                       -2, // 203<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                       -2, // 204<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                       -2, // 205<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                       -2, // 206<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                       -2, // 207<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                       -2, // 208<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                       -2, // 209<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                       -2, // 210<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                       -2, // 211<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                       -2, // 212<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                       -2, // 213<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                       -2, // 214<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                       -2, // 215<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                       -2, // 216<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                       -2, // 217<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                       -2, // 218<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                       -2, // 219<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                       -2, // 220<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                       -2, // 221<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                       -2, // 222<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                       -2, // 223<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                       -2, // 224<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                       -2, // 225<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                       -2, // 226<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                       -2, // 227<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                       -2, // 228<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                       -2, // 229<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                       -2, // 230<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                       -2, // 231<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                       -2, // 232<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                       -2, // 233<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                       -2, // 234<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                       -2, // 235<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                       -2, // 236<a name="line.490"></a>
+<span class="sourceLineNo">491</span>                       -2, // 237<a name="line.491"></a>
+<span class="sourceLineNo">492</span>                       -2, // 238<a name="line.492"></a>
+<span class="sourceLineNo">493</span>                       -2, // 239<a name="line.493"></a>
+<span class="sourceLineNo">494</span>                       -2, // 240<a name="line.494"></a>
+<span class="sourceLineNo">495</span>                       -2, // 241<a name="line.495"></a>
+<span class="sourceLineNo">496</span>                       -2, // 242<a name="line.496"></a>
+<span class="sourceLineNo">497</span>                       -2, // 243<a name="line.497"></a>
+<span class="sourceLineNo">498</span>                       -2, // 244<a name="line.498"></a>
+<span class="sourceLineNo">499</span>                       -2, // 245<a name="line.499"></a>
+<span class="sourceLineNo">500</span>                       -2, // 246<a name="line.500"></a>
+<span class="sourceLineNo">501</span>                       -2, // 247<a name="line.501"></a>
+<span class="sourceLineNo">502</span>                       -2, // 248<a name="line.502"></a>
+<span class="sourceLineNo">503</span>                       -2, // 249<a name="line.503"></a>
+<span class="sourceLineNo">504</span>                       -2, // 250<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                       -2, // 251<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                       -2, // 252<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                       -2, // 253<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                       -1, // impdep1  254<a name="line.508"></a>
+<span class="sourceLineNo">509</span>                       -2, // impdep2 255<a name="line.509"></a>
+<span class="sourceLineNo">510</span>  };<a name="line.510"></a>
+<span class="sourceLineNo">511</span><a name="line.511"></a>
+<span class="sourceLineNo">512</span>  /**<a name="line.512"></a>
+<span class="sourceLineNo">513</span>   * Gets the name of a bytecode (for debugging/printing).<a name="line.513"></a>
+<span class="sourceLineNo">514</span>   *<a name="line.514"></a>
+<span class="sourceLineNo">515</span>   * @param bc a bytecode<a name="line.515"></a>
+<span class="sourceLineNo">516</span>   *<a name="line.516"></a>
+<span class="sourceLineNo">517</span>   * @return name of the bytecode for printing. If the bytecode is<a name="line.517"></a>
+<span class="sourceLineNo">518</span>   *  unknown, the returned string will say so. The return value<a name="line.518"></a>
+<span class="sourceLineNo">519</span>   *  of this method is never null.<a name="line.519"></a>
+<span class="sourceLineNo">520</span>   */<a name="line.520"></a>
+<span class="sourceLineNo">521</span>  @Pure<a name="line.521"></a>
+<span class="sourceLineNo">522</span>  public static String JBC_name(int bc) {<a name="line.522"></a>
+<span class="sourceLineNo">523</span>    if (bc &lt; 0 || bc &gt;= _JBC_name.length) {<a name="line.523"></a>
+<span class="sourceLineNo">524</span>      return "unknown bytecode";<a name="line.524"></a>
+<span class="sourceLineNo">525</span>    } else {<a name="line.525"></a>
+<span class="sourceLineNo">526</span>      return _JBC_name[bc];<a name="line.526"></a>
+<span class="sourceLineNo">527</span>    }<a name="line.527"></a>
+<span class="sourceLineNo">528</span>  }<a name="line.528"></a>
+<span class="sourceLineNo">529</span><a name="line.529"></a>
+<span class="sourceLineNo">530</span>  /**<a name="line.530"></a>
+<span class="sourceLineNo">531</span>   * Bytecode names (for debugging/printing)<a name="line.531"></a>
+<span class="sourceLineNo">532</span>   */<a name="line.532"></a>
+<span class="sourceLineNo">533</span>  private static final String[] _JBC_name =<a name="line.533"></a>
+<span class="sourceLineNo">534</span>      {"nop",<a name="line.534"></a>
+<span class="sourceLineNo">535</span>       "aconst_null",<a name="line.535"></a>
+<span class="sourceLineNo">536</span>       "iconst_m1",<a name="line.536"></a>
+<span class="sourceLineNo">537</span>       "iconst_0",<a name="line.537"></a>
+<span class="sourceLineNo">538</span>       "iconst_1",<a name="line.538"></a>
+<span class="sourceLineNo">539</span>       "iconst_2",<a name="line.539"></a>
+<span class="sourceLineNo">540</span>       "iconst_3",<a name="line.540"></a>
+<span class="sourceLineNo">541</span>       "iconst_4",<a name="line.541"></a>
+<span class="sourceLineNo">542</span>       "iconst_5",<a name="line.542"></a>
+<span class="sourceLineNo">543</span>       "lconst_0",<a name="line.543"></a>
+<span class="sourceLineNo">544</span>       "lconst_1",<a name="line.544"></a>
+<span class="sourceLineNo">545</span>       "fconst_0",<a name="line.545"></a>
+<span class="sourceLineNo">546</span>       "fconst_1",<a name="line.546"></a>
+<span class="sourceLineNo">547</span>       "fconst_2",<a name="line.547"></a>
+<span class="sourceLineNo">548</span>       "dconst_0",<a name="line.548"></a>
+<span class="sourceLineNo">549</span>       "dconst_1",<a name="line.549"></a>
+<span class="sourceLineNo">550</span>       "bipush",<a name="line.550"></a>
+<span class="sourceLineNo">551</span>       "sipush",<a name="line.551"></a>
+<span class="sourceLineNo">552</span>       "ldc",<a name="line.552"></a>
+<span class="sourceLineNo">553</span>       "ldc_w",<a name="line.553"></a>
+<span class="sourceLineNo">554</span>       "ldc2_w",<a name="line.554"></a>
+<span class="sourceLineNo">555</span>       "iload",<a name="line.555"></a>
+<span class="sourceLineNo">556</span>       "lload",<a name="line.556"></a>
+<span class="sourceLineNo">557</span>       "fload",<a name="line.557"></a>
+<span class="sourceLineNo">558</span>       "dload",<a name="line.558"></a>
+<span class="sourceLineNo">559</span>       "aload",<a name="line.559"></a>
+<span class="sourceLineNo">560</span>       "iload_0",<a name="line.560"></a>
+<span class="sourceLineNo">561</span>       "iload_1",<a name="line.561"></a>
+<span class="sourceLineNo">562</span>       "iload_2",<a name="line.562"></a>
+<span class="sourceLineNo">563</span>       "iload_3",<a name="line.563"></a>
+<span class="sourceLineNo">564</span>       "lload_0",<a name="line.564"></a>
+<span class="sourceLineNo">565</span>       "lload_1",<a name="line.565"></a>
+<span class="sourceLineNo">566</span>       "lload_2",<a name="line.566"></a>
+<span class="sourceLineNo">567</span>       "lload_3",<a name="line.567"></a>
+<span class="sourceLineNo">568</span>       "fload_0",<a name="line.568"></a>
+<span class="sourceLineNo">569</span>       "fload_1",<a name="line.569"></a>
+<span class="sourceLineNo">570</span>       "fload_2",<a name="line.570"></a>
+<span class="sourceLineNo">571</span>       "fload_3",<a name="line.571"></a>
+<span class="sourceLineNo">572</span>       "dload_0",<a name="line.572"></a>
+<span class="sourceLineNo">573</span>       "dload_1",<a name="line.573"></a>
+<span class="sourceLineNo">574</span>       "dload_2",<a name="line.574"></a>
+<span class="sourceLineNo">575</span>       "dload_3",<a name="line.575"></a>
+<span class="sourceLineNo">576</span>       "aload_0",<a name="line.576"></a>
+<span class="sourceLineNo">577</span>       "aload_1",<a name="line.577"></a>
+<span class="sourceLineNo">578</span>       "aload_2",<a name="line.578"></a>
+<span class="sourceLineNo">579</span>       "aload_3",<a name="line.579"></a>
+<span class="sourceLineNo">580</span>       "iaload",<a name="line.580"></a>
+<span class="sourceLineNo">581</span>       "laload",<a name="line.581"></a>
+<span class="sourceLineNo">582</span>       "faload",<a name="line.582"></a>
+<span class="sourceLineNo">583</span>       "daload",<a name="line.583"></a>
+<span class="sourceLineNo">584</span>       "aaload",<a name="line.584"></a>
+<span class="sourceLineNo">585</span>       "baload",<a name="line.585"></a>
+<span class="sourceLineNo">586</span>       "caload",<a name="line.586"></a>
+<span class="sourceLineNo">587</span>       "saload",<a name="line.587"></a>
+<span class="sourceLineNo">588</span>       "istore",<a name="line.588"></a>
+<span class="sourceLineNo">589</span>       "lstore",<a name="line.589"></a>
+<span class="sourceLineNo">590</span>       "fstore",<a name="line.590"></a>
+<span class="sourceLineNo">591</span>       "dstore",<a name="line.591"></a>
+<span class="sourceLineNo">592</span>       "astore",<a name="line.592"></a>
+<span class="sourceLineNo">593</span>       "istore_0",<a name="line.593"></a>
+<span class="sourceLineNo">594</span>       "istore_1",<a name="line.594"></a>
+<span class="sourceLineNo">595</span>       "istore_2",<a name="line.595"></a>
+<span class="sourceLineNo">596</span>       "istore_3",<a name="line.596"></a>
+<span class="sourceLineNo">597</span>       "lstore_0",<a name="line.597"></a>
+<span class="sourceLineNo">598</span>       "lstore_1",<a name="line.598"></a>
+<span class="sourceLineNo">599</span>       "lstore_2",<a name="line.599"></a>
+<span class="sourceLineNo">600</span>       "lstore_3",<a name="line.600"></a>
+<span class="sourceLineNo">601</span>       "fstore_0",<a name="line.601"></a>
+<span class="sourceLineNo">602</span>       "fstore_1",<a name="line.602"></a>
+<span class="sourceLineNo">603</span>       "fstore_2",<a name="line.603"></a>
+<span class="sourceLineNo">604</span>       "fstore_3",<a name="line.604"></a>
+<span class="sourceLineNo">605</span>       "dstore_0",<a name="line.605"></a>
+<span class="sourceLineNo">606</span>       "dstore_1",<a name="line.606"></a>
+<span class="sourceLineNo">607</span>       "dstore_2",<a name="line.607"></a>
+<span class="sourceLineNo">608</span>       "dstore_3",<a name="line.608"></a>
+<span class="sourceLineNo">609</span>       "astore_0",<a name="line.609"></a>
+<span class="sourceLineNo">610</span>       "astore_1",<a name="line.610"></a>
+<span class="sourceLineNo">611</span>       "astore_2",<a name="line.611"></a>
+<span class="sourceLineNo">612</span>       "astore_3",<a name="line.612"></a>
+<span class="sourceLineNo">613</span>       "iastore",<a name="line.613"></a>
+<span class="sourceLineNo">614</span>       "lastore",<a name="line.614"></a>
+<span class="sourceLineNo">615</span>       "fastore",<a name="line.615"></a>
+<span class="sourceLineNo">616</span>       "dastore",<a name="line.616"></a>
+<span class="sourceLineNo">617</span>       "aastore",<a name="line.617"></a>
+<span class="sourceLineNo">618</span>       "bastore",<a name="line.618"></a>
+<span class="sourceLineNo">619</span>       "castore",<a name="line.619"></a>
+<span class="sourceLineNo">620</span>       "sastore",<a name="line.620"></a>
+<span class="sourceLineNo">621</span>       "pop",<a name="line.621"></a>
+<span class="sourceLineNo">622</span>       "pop2",<a name="line.622"></a>
+<span class="sourceLineNo">623</span>       "dup",<a name="line.623"></a>
+<span class="sourceLineNo">624</span>       "dup_x1",<a name="line.624"></a>
+<span class="sourceLineNo">625</span>       "dup_x2",<a name="line.625"></a>
+<span class="sourceLineNo">626</span>       "dup2",<a name="line.626"></a>
+<span class="sourceLineNo">627</span>       "dup2_x1",<a name="line.627"></a>
+<span class="sourceLineNo">628</span>       "dup2_x2",<a name="line.628"></a>
+<span class="sourceLineNo">629</span>       "swap",<a name="line.629"></a>
+<span class="sourceLineNo">630</span>       "iadd",<a name="line.630"></a>
+<span class="sourceLineNo">631</span>       "ladd",<a name="line.631"></a>
+<span class="sourceLineNo">632</span>       "fadd",<a name="line.632"></a>
+<span class="sourceLineNo">633</span>       "dadd",<a name="line.633"></a>
+<span class="sourceLineNo">634</span>       "isub",<a name="line.634"></a>
+<span class="sourceLineNo">635</span>       "lsub",<a name="line.635"></a>
+<span class="sourceLineNo">636</span>       "fsub",<a name="line.636"></a>
+<span class="sourceLineNo">637</span>       "dsub",<a name="line.637"></a>
+<span class="sourceLineNo">638</span>       "imul",<a name="line.638"></a>
+<span class="sourceLineNo">639</span>       "lmul",<a name="line.639"></a>
+<span class="sourceLineNo">640</span>       "fmul",<a name="line.640"></a>
+<span class="sourceLineNo">641</span>       "dmul",<a name="line.641"></a>
+<span class="sourceLineNo">642</span>       "idiv",<a name="line.642"></a>
+<span class="sourceLineNo">643</span>       "ldiv",<a name="line.643"></a>
+<span class="sourceLineNo">644</span>       "fdiv",<a name="line.644"></a>
+<span class="sourceLineNo">645</span>       "ddiv",<a name="line.645"></a>
+<span class="sourceLineNo">646</span>       "irem",<a name="line.646"></a>
+<span class="sourceLineNo">647</span>       "lrem",<a name="line.647"></a>
+<span class="sourceLineNo">648</span>       "frem",<a name="line.648"></a>
+<span class="sourceLineNo">649</span>       "drem",<a name="line.649"></a>
+<span class="sourceLineNo">650</span>       "ineg",<a name="line.650"></a>
+<span class="sourceLineNo">651</span>       "lneg",<a name="line.651"></a>
+<span class="sourceLineNo">652</span>       "fneg",<a name="line.652"></a>
+<span class="sourceLineNo">653</span>       "dneg",<a name="line.653"></a>
+<span class="sourceLineNo">654</span>       "ishl",<a name="line.654"></a>
+<span class="sourceLineNo">655</span>       "lshl",<a name="line.655"></a>
+<span class="sourceLineNo">656</span>       "ishr",<a name="line.656"></a>
+<span class="sourceLineNo">657</span>       "lshr",<a name="line.657"></a>
+<span class="sourceLineNo">658</span>       "iushr",<a name="line.658"></a>
+<span class="sourceLineNo">659</span>       "lushr",<a name="line.659"></a>
+<span class="sourceLineNo">660</span>       "iand",<a name="line.660"></a>
+<span class="sourceLineNo">661</span>       "land",<a name="line.661"></a>
+<span class="sourceLineNo">662</span>       "ior",<a name="line.662"></a>
+<span class="sourceLineNo">663</span>       "lor",<a name="line.663"></a>
+<span class="sourceLineNo">664</span>       "ixor",<a name="line.664"></a>
+<span class="sourceLineNo">665</span>       "lxor",<a name="line.665"></a>
+<span class="sourceLineNo">666</span>       "iinc",<a name="line.666"></a>
+<span class="sourceLineNo">667</span>       "i2l",<a name="line.667"></a>
+<span class="sourceLineNo">668</span>       "i2f",<a name="line.668"></a>
+<span class="sourceLineNo">669</span>       "i2d",<a name="line.669"></a>
+<span class="sourceLineNo">670</span>       "l2i",<a name="line.670"></a>
+<span class="sourceLineNo">671</span>       "l2f",<a name="line.671"></a>
+<span class="sourceLineNo">672</span>       "l2d",<a name="line.672"></a>
+<span class="sourceLineNo">673</span>       "f2i",<a name="line.673"></a>
+<span class="sourceLineNo">674</span>       "f2l",<a name="line.674"></a>
+<span class="sourceLineNo">675</span>       "f2d",<a name="line.675"></a>
+<span class="sourceLineNo">676</span>       "d2i",<a name="line.676"></a>
+<span class="sourceLineNo">677</span>       "d2l",<a name="line.677"></a>
+<span class="sourceLineNo">678</span>       "d2f",<a name="line.678"></a>
+<span class="sourceLineNo">679</span>       "int2byte",<a name="line.679"></a>
+<span class="sourceLineNo">680</span>       "int2char",<a name="line.680"></a>
+<span class="sourceLineNo">681</span>       "int2short",<a name="line.681"></a>
+<span class="sourceLineNo">682</span>       "lcmp",<a name="line.682"></a>
+<span class="sourceLineNo">683</span>       "fcmpl",<a name="line.683"></a>
+<span class="sourceLineNo">684</span>       "fcmpg",<a name="line.684"></a>
+<span class="sourceLineNo">685</span>       "dcmpl",<a name="line.685"></a>
+<span class="sourceLineNo">686</span>       "dcmpg",<a name="line.686"></a>
+<span class="sourceLineNo">687</span>       "ifeq",<a name="line.687"></a>
+<span class="sourceLineNo">688</span>       "ifne",<a name="line.688"></a>
+<span class="sourceLineNo">689</span>       "iflt",<a name="line.689"></a>
+<span class="sourceLineNo">690</span>       "ifge",<a name="line.690"></a>
+<span class="sourceLineNo">691</span>       "ifgt",<a name="line.691"></a>
+<span class="sourceLineNo">692</span>       "ifle",<a name="line.692"></a>
+<span class="sourceLineNo">693</span>       "if_icmpeq",<a name="line.693"></a>
+<span class="sourceLineNo">694</span>       "if_icmpne",<a name="line.694"></a>
+<span class="sourceLineNo">695</span>       "if_icmplt",<a name="line.695"></a>
+<span class="sourceLineNo">696</span>       "if_icmpge",<a name="line.696"></a>
+<span class="sourceLineNo">697</span>       "if_icmpgt",<a name="line.697"></a>
+<span class="sourceLineNo">698</span>       "if_icmple",<a name="line.698"></a>
+<span class="sourceLineNo">699</span>       "if_acmpeq",<a name="line.699"></a>
+<span class="sourceLineNo">700</span>       "if_acmpne",<a name="line.700"></a>
+<span class="sourceLineNo">701</span>       "goto",<a name="line.701"></a>
+<span class="sourceLineNo">702</span>       "jsr",<a name="line.702"></a>
+<span class="sourceLineNo">703</span>       "ret",<a name="line.703"></a>
+<span class="sourceLineNo">704</span>       "tableswitch",<a name="line.704"></a>
+<span class="sourceLineNo">705</span>       "lookupswitch",<a name="line.705"></a>
+<span class="sourceLineNo">706</span>       "ireturn",<a name="line.706"></a>
+<span class="sourceLineNo">707</span>       "lreturn",<a name="line.707"></a>
+<span class="sourceLineNo">708</span>       "freturn",<a name="line.708"></a>
+<span class="sourceLineNo">709</span>       "dreturn",<a name="line.709"></a>
+<span class="sourceLineNo">710</span>       "areturn",<a name="line.710"></a>
+<span class="sourceLineNo">711</span>       "return",<a name="line.711"></a>
+<span class="sourceLineNo">712</span>       "getstatic",<a name="line.712"></a>
+<span class="sourceLineNo">713</span>       "putstatic",<a name="line.713"></a>
+<span class="sourceLineNo">714</span>       "getfield",<a name="line.714"></a>
+<span class="sourceLineNo">715</span>       "putfield",<a name="line.715"></a>
+<span class="sourceLineNo">716</span>       "invokevirtual",<a name="line.716"></a>
+<span class="sourceLineNo">717</span>       "invokespecial",<a name="line.717"></a>
+<span class="sourceLineNo">718</span>       "invokestatic",<a name="line.718"></a>
+<span class="sourceLineNo">719</span>       "invokeinterface",<a name="line.719"></a>
+<span class="sourceLineNo">720</span>       "invokedynamic",<a name="line.720"></a>
+<span class="sourceLineNo">721</span>       "new",<a name="line.721"></a>
+<span class="sourceLineNo">722</span>       "newarray",<a name="line.722"></a>
+<span class="sourceLineNo">723</span>       "anewarray",<a name="line.723"></a>
+<span class="sourceLineNo">724</span>       "arraylength",<a name="line.724"></a>
+<span class="sourceLineNo">725</span>       "athrow",<a name="line.725"></a>
+<span class="sourceLineNo">726</span>       "checkcast",<a name="line.726"></a>
+<span class="sourceLineNo">727</span>       "instanceof",<a name="line.727"></a>
+<span class="sourceLineNo">728</span>       "monitorenter",<a name="line.728"></a>
+<span class="sourceLineNo">729</span>       "monitorexit",<a name="line.729"></a>
+<span class="sourceLineNo">730</span>       "wide",<a name="line.730"></a>
+<span class="sourceLineNo">731</span>       "multianewarray",<a name="line.731"></a>
+<span class="sourceLineNo">732</span>       "ifnull",<a name="line.732"></a>
+<span class="sourceLineNo">733</span>       "ifnonnull",<a name="line.733"></a>
+<span class="sourceLineNo">734</span>       "goto_w",<a name="line.734"></a>
+<span class="sourceLineNo">735</span>       "jsr_w",<a name="line.735"></a>
+<span class="sourceLineNo">736</span>       "breakpoint"<a name="line.736"></a>
+<span class="sourceLineNo">737</span>      };<a name="line.737"></a>
+<span class="sourceLineNo">738</span>}<a name="line.738"></a>
 
 
 

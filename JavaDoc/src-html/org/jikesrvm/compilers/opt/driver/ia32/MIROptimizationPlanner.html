@@ -37,91 +37,95 @@
 <span class="sourceLineNo">029</span>import org.jikesrvm.compilers.opt.regalloc.RegisterAllocator;<a name="line.29"></a>
 <span class="sourceLineNo">030</span>import org.jikesrvm.compilers.opt.regalloc.ia32.ExpandFPRStackConvention;<a name="line.30"></a>
 <span class="sourceLineNo">031</span>import org.jikesrvm.compilers.opt.regalloc.ia32.MIRSplitRanges;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>/**<a name="line.33"></a>
-<span class="sourceLineNo">034</span> * This class specifies the order in which CompilerPhases are<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * executed in the target-specific backend of the optimizing compiler.<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * The methods LIR2MIR, MIROptimizations, and MIR2MC each specify the<a name="line.36"></a>
-<span class="sourceLineNo">037</span> * elements that make up the main compilation stages.<a name="line.37"></a>
-<span class="sourceLineNo">038</span> */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>public class MIROptimizationPlanner extends OptimizationPlanner {<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>  /**<a name="line.41"></a>
-<span class="sourceLineNo">042</span>   * Initialize the "master plan" for the IA32 backend of the opt compiler.<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>  public static void intializeMasterPlan(ArrayList&lt;OptimizationPlanElement&gt; temp) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>    LIR2MIR(temp);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    MIROptimizations(temp);<a name="line.46"></a>
-<span class="sourceLineNo">047</span>    MIR2MC(temp);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>  /**<a name="line.50"></a>
-<span class="sourceLineNo">051</span>   * This method defines the optimization plan elements that<a name="line.51"></a>
-<span class="sourceLineNo">052</span>   * are to be performed to convert LIR to IA32 MIR.<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   *<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   * @param p the plan under construction<a name="line.54"></a>
-<span class="sourceLineNo">055</span>   */<a name="line.55"></a>
-<span class="sourceLineNo">056</span>  private static void LIR2MIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    composeComponents(p, "Convert LIR to MIR", new Object[]{<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        // Split very large basic blocks into smaller ones.<a name="line.58"></a>
-<span class="sourceLineNo">059</span>        new SplitBasicBlock(),<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        // Optional printing of final LIR<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        new IRPrinter("Final LIR") {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>          @Override<a name="line.62"></a>
-<span class="sourceLineNo">063</span>          public boolean shouldPerform(OptOptions options) {<a name="line.63"></a>
-<span class="sourceLineNo">064</span>            return options.PRINT_FINAL_LIR;<a name="line.64"></a>
-<span class="sourceLineNo">065</span>          }<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        },<a name="line.66"></a>
-<span class="sourceLineNo">067</span>        // Change operations that split live ranges to moves<a name="line.67"></a>
-<span class="sourceLineNo">068</span>        new MutateSplits(),<a name="line.68"></a>
-<span class="sourceLineNo">069</span>        // Instruction Selection<a name="line.69"></a>
-<span class="sourceLineNo">070</span>        new ConvertLIRtoMIR(),<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>        // Optional printing of initial MIR<a name="line.72"></a>
-<span class="sourceLineNo">073</span>        new IRPrinter("Initial MIR") {<a name="line.73"></a>
-<span class="sourceLineNo">074</span>          @Override<a name="line.74"></a>
-<span class="sourceLineNo">075</span>          public boolean shouldPerform(OptOptions options) {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            return options.PRINT_MIR;<a name="line.76"></a>
-<span class="sourceLineNo">077</span>          }<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        }});<a name="line.78"></a>
-<span class="sourceLineNo">079</span>  }<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>  /**<a name="line.81"></a>
-<span class="sourceLineNo">082</span>   * This method defines the optimization plan elements that<a name="line.82"></a>
-<span class="sourceLineNo">083</span>   * are to be performed on IA32 MIR.<a name="line.83"></a>
-<span class="sourceLineNo">084</span>   *<a name="line.84"></a>
-<span class="sourceLineNo">085</span>   * @param p the plan under construction<a name="line.85"></a>
-<span class="sourceLineNo">086</span>   */<a name="line.86"></a>
-<span class="sourceLineNo">087</span>  private static void MIROptimizations(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    // Register Allocation<a name="line.88"></a>
-<span class="sourceLineNo">089</span>    composeComponents(p, "Register Mapping", new Object[]{new MIRSplitRanges(),<a name="line.89"></a>
-<span class="sourceLineNo">090</span>                                                          // MANDATORY: Expand calling convention<a name="line.90"></a>
-<span class="sourceLineNo">091</span>                                                          new ExpandCallingConvention(),<a name="line.91"></a>
-<span class="sourceLineNo">092</span>                                                          // MANDATORY: Insert defs/uses due to floating-point stack<a name="line.92"></a>
-<span class="sourceLineNo">093</span>                                                          new ExpandFPRStackConvention(),<a name="line.93"></a>
-<span class="sourceLineNo">094</span>                                                          // MANDATORY: Perform Live analysis and create GC maps<a name="line.94"></a>
-<span class="sourceLineNo">095</span>                                                          new LiveAnalysis(true, false),<a name="line.95"></a>
-<span class="sourceLineNo">096</span>                                                          // MANDATORY: Perform register allocation<a name="line.96"></a>
-<span class="sourceLineNo">097</span>                                                          new RegisterAllocator(),<a name="line.97"></a>
-<span class="sourceLineNo">098</span>                                                          // MANDATORY: Add prologue and epilogue<a name="line.98"></a>
-<span class="sourceLineNo">099</span>                                                          new PrologueEpilogueCreator(),});<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    // Peephole branch optimizations<a name="line.100"></a>
-<span class="sourceLineNo">101</span>    addComponent(p, new MIRBranchOptimizations(1));<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>  /**<a name="line.104"></a>
-<span class="sourceLineNo">105</span>   * This method defines the optimization plan elements that<a name="line.105"></a>
-<span class="sourceLineNo">106</span>   * are to be performed to convert IA32 MIR into<a name="line.106"></a>
-<span class="sourceLineNo">107</span>   * ready-to-execute machinecode (and associated mapping tables).<a name="line.107"></a>
-<span class="sourceLineNo">108</span>   *<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * @param p the plan under construction<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   */<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  private static void MIR2MC(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    // MANDATORY: Final assembly<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    addComponent(p, new ConvertMIRtoMC());<a name="line.113"></a>
-<span class="sourceLineNo">114</span>  }<a name="line.114"></a>
-<span class="sourceLineNo">115</span><a name="line.115"></a>
-<span class="sourceLineNo">116</span>}<a name="line.116"></a>
+<span class="sourceLineNo">032</span>import org.jikesrvm.compilers.opt.regalloc.ia32.RewriteMemoryOperandsWithOversizedDisplacements;<a name="line.32"></a>
+<span class="sourceLineNo">033</span><a name="line.33"></a>
+<span class="sourceLineNo">034</span>/**<a name="line.34"></a>
+<span class="sourceLineNo">035</span> * This class specifies the order in which CompilerPhases are<a name="line.35"></a>
+<span class="sourceLineNo">036</span> * executed in the target-specific backend of the optimizing compiler.<a name="line.36"></a>
+<span class="sourceLineNo">037</span> * The methods LIR2MIR, MIROptimizations, and MIR2MC each specify the<a name="line.37"></a>
+<span class="sourceLineNo">038</span> * elements that make up the main compilation stages.<a name="line.38"></a>
+<span class="sourceLineNo">039</span> */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class MIROptimizationPlanner extends OptimizationPlanner {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>  /**<a name="line.42"></a>
+<span class="sourceLineNo">043</span>   * Initializes the "master plan" for the IA32 backend of the opt compiler.<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   * @param temp the list that will be used for holding the plan<a name="line.45"></a>
+<span class="sourceLineNo">046</span>   */<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  public static void intializeMasterPlan(ArrayList&lt;OptimizationPlanElement&gt; temp) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>    LIR2MIR(temp);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    MIROptimizations(temp);<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    MIR2MC(temp);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * This method defines the optimization plan elements that<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * are to be performed to convert LIR to IA32 MIR.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   *<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   * @param p the plan under construction<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  private static void LIR2MIR(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    composeComponents(p, "Convert LIR to MIR", new Object[]{<a name="line.60"></a>
+<span class="sourceLineNo">061</span>        // Split very large basic blocks into smaller ones.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>        new SplitBasicBlock(),<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        // Optional printing of final LIR<a name="line.63"></a>
+<span class="sourceLineNo">064</span>        new IRPrinter("Final LIR") {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>          @Override<a name="line.65"></a>
+<span class="sourceLineNo">066</span>          public boolean shouldPerform(OptOptions options) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>            return options.PRINT_FINAL_LIR;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>          }<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        },<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        // Change operations that split live ranges to moves<a name="line.70"></a>
+<span class="sourceLineNo">071</span>        new MutateSplits(),<a name="line.71"></a>
+<span class="sourceLineNo">072</span>        // Instruction Selection<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        new ConvertLIRtoMIR(),<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>        // Optional printing of initial MIR<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        new IRPrinter("Initial MIR") {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>          @Override<a name="line.77"></a>
+<span class="sourceLineNo">078</span>          public boolean shouldPerform(OptOptions options) {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>            return options.PRINT_MIR;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>          }<a name="line.80"></a>
+<span class="sourceLineNo">081</span>        }});<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>  /**<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   * This method defines the optimization plan elements that<a name="line.85"></a>
+<span class="sourceLineNo">086</span>   * are to be performed on IA32 MIR.<a name="line.86"></a>
+<span class="sourceLineNo">087</span>   *<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * @param p the plan under construction<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  private static void MIROptimizations(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    // Register Allocation<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    composeComponents(p, "Register Mapping", new Object[]{<a name="line.92"></a>
+<span class="sourceLineNo">093</span>            new RewriteMemoryOperandsWithOversizedDisplacements(),<a name="line.93"></a>
+<span class="sourceLineNo">094</span>            new MIRSplitRanges(),<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                                                          // MANDATORY: Expand calling convention<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                                                          new ExpandCallingConvention(),<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                                                          // MANDATORY: Insert defs/uses due to floating-point stack<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                                                          new ExpandFPRStackConvention(),<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                                                          // MANDATORY: Perform Live analysis and create GC maps<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                                                          new LiveAnalysis(true, false),<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                                                          // MANDATORY: Perform register allocation<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                                                          new RegisterAllocator(),<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                                                          // MANDATORY: Add prologue and epilogue<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                                                          new PrologueEpilogueCreator(),});<a name="line.104"></a>
+<span class="sourceLineNo">105</span>    // Peephole branch optimizations<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    addComponent(p, new MIRBranchOptimizations(1));<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  }<a name="line.107"></a>
+<span class="sourceLineNo">108</span><a name="line.108"></a>
+<span class="sourceLineNo">109</span>  /**<a name="line.109"></a>
+<span class="sourceLineNo">110</span>   * This method defines the optimization plan elements that<a name="line.110"></a>
+<span class="sourceLineNo">111</span>   * are to be performed to convert IA32 MIR into<a name="line.111"></a>
+<span class="sourceLineNo">112</span>   * ready-to-execute machinecode (and associated mapping tables).<a name="line.112"></a>
+<span class="sourceLineNo">113</span>   *<a name="line.113"></a>
+<span class="sourceLineNo">114</span>   * @param p the plan under construction<a name="line.114"></a>
+<span class="sourceLineNo">115</span>   */<a name="line.115"></a>
+<span class="sourceLineNo">116</span>  private static void MIR2MC(ArrayList&lt;OptimizationPlanElement&gt; p) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    // MANDATORY: Final assembly<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    addComponent(p, new ConvertMIRtoMC());<a name="line.118"></a>
+<span class="sourceLineNo">119</span>  }<a name="line.119"></a>
+<span class="sourceLineNo">120</span>}<a name="line.120"></a>
 
 
 

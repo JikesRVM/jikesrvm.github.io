@@ -35,7 +35,7 @@
 <span class="sourceLineNo">027</span>  private Monitor lock;<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
 <span class="sourceLineNo">029</span>  /** The set of worker threads to use */<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  private ParallelCollectorGroup workers;<a name="line.30"></a>
+<span class="sourceLineNo">030</span>  private final ParallelCollectorGroup workers;<a name="line.30"></a>
 <span class="sourceLineNo">031</span><a name="line.31"></a>
 <span class="sourceLineNo">032</span>  /** Flag used to control the 'race to request' */<a name="line.32"></a>
 <span class="sourceLineNo">033</span>  private boolean requestFlag;<a name="line.33"></a>
@@ -71,7 +71,7 @@
 <span class="sourceLineNo">063</span>  @Override<a name="line.63"></a>
 <span class="sourceLineNo">064</span>  @Unpreemptible<a name="line.64"></a>
 <span class="sourceLineNo">065</span>  public void run() {<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    while(true) {<a name="line.66"></a>
+<span class="sourceLineNo">066</span>    while (true) {<a name="line.66"></a>
 <span class="sourceLineNo">067</span>      // Wait for a collection request.<a name="line.67"></a>
 <span class="sourceLineNo">068</span>      if (Options.verbose.getValue() &gt;= 5) Log.writeln("[STWController: Waiting for request...]");<a name="line.68"></a>
 <span class="sourceLineNo">069</span>      waitForRequest();<a name="line.69"></a>

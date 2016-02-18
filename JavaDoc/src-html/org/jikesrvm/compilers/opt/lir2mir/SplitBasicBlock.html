@@ -22,59 +22,81 @@
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import java.util.Enumeration;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.driver.CompilerPhase;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.20"></a>
-<span class="sourceLineNo">021</span><a name="line.21"></a>
-<span class="sourceLineNo">022</span>/**<a name="line.22"></a>
-<span class="sourceLineNo">023</span> * Splits a large basic block into smaller ones with size &lt;=<a name="line.23"></a>
-<span class="sourceLineNo">024</span> * OptOptions.L2M_MAX_BLOCK_SIZE<a name="line.24"></a>
-<span class="sourceLineNo">025</span> */<a name="line.25"></a>
-<span class="sourceLineNo">026</span>public final class SplitBasicBlock extends CompilerPhase {<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>  @Override<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  public String getName() { return "SplitBasicBlock"; }<a name="line.29"></a>
-<span class="sourceLineNo">030</span><a name="line.30"></a>
-<span class="sourceLineNo">031</span>  @Override<a name="line.31"></a>
-<span class="sourceLineNo">032</span>  public CompilerPhase newExecution(IR ir) { return this; }<a name="line.32"></a>
+<span class="sourceLineNo">017</span>import org.jikesrvm.compilers.opt.OptimizingCompilerException;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.jikesrvm.compilers.opt.driver.CompilerPhase;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.jikesrvm.compilers.opt.ir.BasicBlock;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.jikesrvm.compilers.opt.ir.IR;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.jikesrvm.compilers.opt.ir.Instruction;<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>/**<a name="line.23"></a>
+<span class="sourceLineNo">024</span> * Splits a large basic block into smaller ones with {@code size &lt;=<a name="line.24"></a>
+<span class="sourceLineNo">025</span> * OptOptions.L2M_MAX_BLOCK_SIZE}<a name="line.25"></a>
+<span class="sourceLineNo">026</span> */<a name="line.26"></a>
+<span class="sourceLineNo">027</span>public final class SplitBasicBlock extends CompilerPhase {<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>  @Override<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public String getName() {<a name="line.30"></a>
+<span class="sourceLineNo">031</span>    return "SplitBasicBlock";<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  }<a name="line.32"></a>
 <span class="sourceLineNo">033</span><a name="line.33"></a>
 <span class="sourceLineNo">034</span>  @Override<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  public void perform(IR ir) {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>    for (Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks(); e.hasMoreElements();) {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>      BasicBlock bb = e.nextElement();<a name="line.37"></a>
+<span class="sourceLineNo">035</span>  public CompilerPhase newExecution(IR ir) {<a name="line.35"></a>
+<span class="sourceLineNo">036</span>    return this;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  }<a name="line.37"></a>
 <span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>      if (!bb.isEmpty()) {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        while (bb != null) {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>          bb = splitEachBlock(bb, ir);<a name="line.41"></a>
-<span class="sourceLineNo">042</span>        }<a name="line.42"></a>
-<span class="sourceLineNo">043</span>      }<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    }<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  }<a name="line.45"></a>
-<span class="sourceLineNo">046</span><a name="line.46"></a>
-<span class="sourceLineNo">047</span>  /**<a name="line.47"></a>
-<span class="sourceLineNo">048</span>   * Splits basic block<a name="line.48"></a>
-<span class="sourceLineNo">049</span>   *<a name="line.49"></a>
-<span class="sourceLineNo">050</span>   * @return {@code null} if no splitting is done, returns the second block if splitting is done.<a name="line.50"></a>
-<span class="sourceLineNo">051</span>   */<a name="line.51"></a>
-<span class="sourceLineNo">052</span>  BasicBlock splitEachBlock(BasicBlock bb, IR ir) {<a name="line.52"></a>
-<span class="sourceLineNo">053</span><a name="line.53"></a>
-<span class="sourceLineNo">054</span>    int instCount = ir.options.L2M_MAX_BLOCK_SIZE;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>    for (Instruction inst = bb.firstInstruction(); inst != bb.lastInstruction(); inst =<a name="line.55"></a>
-<span class="sourceLineNo">056</span>        inst.nextInstructionInCodeOrder()) {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>      if ((--instCount) &lt;= 0) {<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        if (inst.isBranch()) {<a name="line.58"></a>
-<span class="sourceLineNo">059</span>          return null; // no need to split because all the rests are just branches<a name="line.59"></a>
-<span class="sourceLineNo">060</span>        }<a name="line.60"></a>
-<span class="sourceLineNo">061</span>        // Now, split!<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        return bb.splitNodeWithLinksAt(inst, ir);<a name="line.62"></a>
-<span class="sourceLineNo">063</span>      }<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    }<a name="line.64"></a>
-<span class="sourceLineNo">065</span><a name="line.65"></a>
-<span class="sourceLineNo">066</span>    return null; // no splitting happened<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  }<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>}<a name="line.69"></a>
+<span class="sourceLineNo">039</span>  @Override<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public void perform(IR ir) {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    for (Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks(); e.hasMoreElements();) {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>      BasicBlock bb = e.nextElement();<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>      if (!bb.isEmpty()) {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>        while (bb != null) {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>          bb = splitEachBlock(bb, ir);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        }<a name="line.47"></a>
+<span class="sourceLineNo">048</span>      }<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  }<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
+<span class="sourceLineNo">053</span>   * Splits a basic block.<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   *<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   * @param bb the block to process<a name="line.55"></a>
+<span class="sourceLineNo">056</span>   * @param ir the IR that contains the block<a name="line.56"></a>
+<span class="sourceLineNo">057</span>   *<a name="line.57"></a>
+<span class="sourceLineNo">058</span>   * @return {@code null} if no splitting is done, returns the second block<a name="line.58"></a>
+<span class="sourceLineNo">059</span>   *  if splitting is done.<a name="line.59"></a>
+<span class="sourceLineNo">060</span>   */<a name="line.60"></a>
+<span class="sourceLineNo">061</span>  BasicBlock splitEachBlock(BasicBlock bb, IR ir) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    if (ir.options.L2M_MAX_BLOCK_SIZE &lt;= 0) {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>      throw new OptimizingCompilerException("Maximum block size must be a" +<a name="line.63"></a>
+<span class="sourceLineNo">064</span>          " positive number but was " +<a name="line.64"></a>
+<span class="sourceLineNo">065</span>          ir.options.L2M_MAX_BLOCK_SIZE + "!", true);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    int remainingInstCount = ir.options.L2M_MAX_BLOCK_SIZE;<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    Enumeration&lt;Instruction&gt; instructions = bb.forwardRealInstrEnumerator();<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    while (instructions.hasMoreElements()) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>      Instruction inst = instructions.nextElement();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>      remainingInstCount--;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>      if (remainingInstCount &lt;= 0) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        // no need to split because all the rests are just branches<a name="line.75"></a>
+<span class="sourceLineNo">076</span>        if (inst.isBranch()) {<a name="line.76"></a>
+<span class="sourceLineNo">077</span>          return null;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>        }<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        // no need to split because the basic block does not contain any more instructions<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        if (!instructions.hasMoreElements()) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>          return null;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>        }<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>        return bb.splitNodeWithLinksAt(inst, ir);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>      }<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    }<a name="line.86"></a>
+<span class="sourceLineNo">087</span><a name="line.87"></a>
+<span class="sourceLineNo">088</span>    return null;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>}<a name="line.91"></a>
 
 
 

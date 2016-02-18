@@ -52,7 +52,7 @@
 <span class="sourceLineNo">044</span> *   &lt;li&gt;optimized executables;<a name="line.44"></a>
 <span class="sourceLineNo">045</span> *   &lt;li&gt;static information about a method; or<a name="line.45"></a>
 <span class="sourceLineNo">046</span> *   &lt;li&gt;all of the above.<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * &lt;ul&gt;<a name="line.47"></a>
+<span class="sourceLineNo">047</span> * &lt;/ul&gt;<a name="line.47"></a>
 <span class="sourceLineNo">048</span> */<a name="line.48"></a>
 <span class="sourceLineNo">049</span>@NonMoving<a name="line.49"></a>
 <span class="sourceLineNo">050</span>public final class ControllerThread extends SystemThread {<a name="line.50"></a>
@@ -207,84 +207,88 @@
 <span class="sourceLineNo">199</span>   * some initial data in the call graph to work with.  The goal of this<a name="line.199"></a>
 <span class="sourceLineNo">200</span>   * restriction is to avoid making early bad decisions that we don't get<a name="line.200"></a>
 <span class="sourceLineNo">201</span>   * a chance to revisit because methods get to maxOptLevel too quickly.<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   */<a name="line.202"></a>
-<span class="sourceLineNo">203</span>  public boolean earlyRestrictOptLevels() {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>    return dcgOrg != null &amp;&amp; !dcgOrg.someDataAvailable();<a name="line.204"></a>
-<span class="sourceLineNo">205</span>  }<a name="line.205"></a>
-<span class="sourceLineNo">206</span><a name="line.206"></a>
-<span class="sourceLineNo">207</span>  ///////////////////////<a name="line.207"></a>
-<span class="sourceLineNo">208</span>  // Initialization.<a name="line.208"></a>
-<span class="sourceLineNo">209</span>  //  Create AOS threads.<a name="line.209"></a>
-<span class="sourceLineNo">210</span>  //  Initialize AOS data structures that depend on command line arguments.<a name="line.210"></a>
+<span class="sourceLineNo">202</span>   *<a name="line.202"></a>
+<span class="sourceLineNo">203</span>   * @return {@code true} if we need to restrict the optimization levels<a name="line.203"></a>
+<span class="sourceLineNo">204</span>   *  to ensure that we don't make bad optimization decisions, {@code false}<a name="line.204"></a>
+<span class="sourceLineNo">205</span>   *  if no restriction is necessary<a name="line.205"></a>
+<span class="sourceLineNo">206</span>   */<a name="line.206"></a>
+<span class="sourceLineNo">207</span>  public boolean earlyRestrictOptLevels() {<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    return dcgOrg != null &amp;&amp; !dcgOrg.someDataAvailable();<a name="line.208"></a>
+<span class="sourceLineNo">209</span>  }<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
 <span class="sourceLineNo">211</span>  ///////////////////////<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>  /**<a name="line.213"></a>
-<span class="sourceLineNo">214</span>   *  Create the compilationThread and schedule it<a name="line.214"></a>
-<span class="sourceLineNo">215</span>   */<a name="line.215"></a>
-<span class="sourceLineNo">216</span>  private void createCompilationThread() {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>    CompilationThread ct = new CompilationThread();<a name="line.217"></a>
-<span class="sourceLineNo">218</span>    Controller.compilationThread = ct;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>    ct.start();<a name="line.219"></a>
-<span class="sourceLineNo">220</span>  }<a name="line.220"></a>
-<span class="sourceLineNo">221</span><a name="line.221"></a>
-<span class="sourceLineNo">222</span>  /**<a name="line.222"></a>
-<span class="sourceLineNo">223</span>   * Create a dynamic call graph organizer of one doesn't already exist<a name="line.223"></a>
-<span class="sourceLineNo">224</span>   */<a name="line.224"></a>
-<span class="sourceLineNo">225</span>  private void createDynamicCallGraphOrganizer() {<a name="line.225"></a>
-<span class="sourceLineNo">226</span>    if (dcgOrg == null) {<a name="line.226"></a>
-<span class="sourceLineNo">227</span>      dcgOrg = new DynamicCallGraphOrganizer(new EdgeListener());<a name="line.227"></a>
-<span class="sourceLineNo">228</span>      Controller.organizers.addElement(dcgOrg);<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    }<a name="line.229"></a>
-<span class="sourceLineNo">230</span>  }<a name="line.230"></a>
-<span class="sourceLineNo">231</span><a name="line.231"></a>
-<span class="sourceLineNo">232</span>  /**<a name="line.232"></a>
-<span class="sourceLineNo">233</span>   * Create profiling entities that are independent of whether or not<a name="line.233"></a>
-<span class="sourceLineNo">234</span>   * adaptive recompilation is actually enabled.<a name="line.234"></a>
-<span class="sourceLineNo">235</span>   */<a name="line.235"></a>
-<span class="sourceLineNo">236</span>  private void createProfilers() {<a name="line.236"></a>
-<span class="sourceLineNo">237</span>    AOSOptions opts = Controller.options;<a name="line.237"></a>
-<span class="sourceLineNo">238</span><a name="line.238"></a>
-<span class="sourceLineNo">239</span>    if (opts.GATHER_PROFILE_DATA) {<a name="line.239"></a>
-<span class="sourceLineNo">240</span>      Controller.organizers.addElement(new AccumulatingMethodSampleOrganizer());<a name="line.240"></a>
-<span class="sourceLineNo">241</span><a name="line.241"></a>
-<span class="sourceLineNo">242</span>      createDynamicCallGraphOrganizer();<a name="line.242"></a>
-<span class="sourceLineNo">243</span>    }<a name="line.243"></a>
-<span class="sourceLineNo">244</span>  }<a name="line.244"></a>
+<span class="sourceLineNo">212</span>  // Initialization.<a name="line.212"></a>
+<span class="sourceLineNo">213</span>  //  Create AOS threads.<a name="line.213"></a>
+<span class="sourceLineNo">214</span>  //  Initialize AOS data structures that depend on command line arguments.<a name="line.214"></a>
+<span class="sourceLineNo">215</span>  ///////////////////////<a name="line.215"></a>
+<span class="sourceLineNo">216</span><a name="line.216"></a>
+<span class="sourceLineNo">217</span>  /**<a name="line.217"></a>
+<span class="sourceLineNo">218</span>   *  Creates and schedules the compilationThread.<a name="line.218"></a>
+<span class="sourceLineNo">219</span>   */<a name="line.219"></a>
+<span class="sourceLineNo">220</span>  private void createCompilationThread() {<a name="line.220"></a>
+<span class="sourceLineNo">221</span>    CompilationThread ct = new CompilationThread();<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    Controller.compilationThread = ct;<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    ct.start();<a name="line.223"></a>
+<span class="sourceLineNo">224</span>  }<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>  /**<a name="line.226"></a>
+<span class="sourceLineNo">227</span>   * Create a dynamic call graph organizer of one doesn't already exist<a name="line.227"></a>
+<span class="sourceLineNo">228</span>   */<a name="line.228"></a>
+<span class="sourceLineNo">229</span>  private void createDynamicCallGraphOrganizer() {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>    if (dcgOrg == null) {<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      dcgOrg = new DynamicCallGraphOrganizer(new EdgeListener());<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      Controller.organizers.add(dcgOrg);<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    }<a name="line.233"></a>
+<span class="sourceLineNo">234</span>  }<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>  /**<a name="line.236"></a>
+<span class="sourceLineNo">237</span>   * Create profiling entities that are independent of whether or not<a name="line.237"></a>
+<span class="sourceLineNo">238</span>   * adaptive recompilation is actually enabled.<a name="line.238"></a>
+<span class="sourceLineNo">239</span>   */<a name="line.239"></a>
+<span class="sourceLineNo">240</span>  private void createProfilers() {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    AOSOptions opts = Controller.options;<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>    if (opts.GATHER_PROFILE_DATA) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      Controller.organizers.add(new AccumulatingMethodSampleOrganizer());<a name="line.244"></a>
 <span class="sourceLineNo">245</span><a name="line.245"></a>
-<span class="sourceLineNo">246</span>  /**<a name="line.246"></a>
-<span class="sourceLineNo">247</span>   *  Create the organizerThreads and schedule them<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   */<a name="line.248"></a>
-<span class="sourceLineNo">249</span>  private void createOrganizerThreads() {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    AOSOptions opts = Controller.options;<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>    if (opts.sampling()) {<a name="line.252"></a>
-<span class="sourceLineNo">253</span>      // Primary backing store for method sample data<a name="line.253"></a>
-<span class="sourceLineNo">254</span>      Controller.methodSamples = new MethodCountData();<a name="line.254"></a>
+<span class="sourceLineNo">246</span>      createDynamicCallGraphOrganizer();<a name="line.246"></a>
+<span class="sourceLineNo">247</span>    }<a name="line.247"></a>
+<span class="sourceLineNo">248</span>  }<a name="line.248"></a>
+<span class="sourceLineNo">249</span><a name="line.249"></a>
+<span class="sourceLineNo">250</span>  /**<a name="line.250"></a>
+<span class="sourceLineNo">251</span>   *  Create the organizerThreads and schedule them<a name="line.251"></a>
+<span class="sourceLineNo">252</span>   */<a name="line.252"></a>
+<span class="sourceLineNo">253</span>  private void createOrganizerThreads() {<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    AOSOptions opts = Controller.options;<a name="line.254"></a>
 <span class="sourceLineNo">255</span><a name="line.255"></a>
-<span class="sourceLineNo">256</span>      // Install organizer to drive method recompilation<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      Controller.organizers.addElement(new MethodSampleOrganizer(opts.DERIVED_FILTER_OPT_LEVEL));<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      // Additional set up for feedback directed inlining<a name="line.258"></a>
-<span class="sourceLineNo">259</span>      if (opts.ADAPTIVE_INLINING) {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>        Organizer decayOrganizer = new DecayOrganizer(new YieldCounterListener(opts.DECAY_FREQUENCY));<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        Controller.organizers.addElement(decayOrganizer);<a name="line.261"></a>
-<span class="sourceLineNo">262</span>        createDynamicCallGraphOrganizer();<a name="line.262"></a>
-<span class="sourceLineNo">263</span>      }<a name="line.263"></a>
-<span class="sourceLineNo">264</span>    }<a name="line.264"></a>
-<span class="sourceLineNo">265</span><a name="line.265"></a>
-<span class="sourceLineNo">266</span>    if ((!Controller.options.ENABLE_PRECOMPILE) &amp;&amp; (!Controller.options.ENABLE_BULK_COMPILE)) {<a name="line.266"></a>
-<span class="sourceLineNo">267</span>      Controller.osrOrganizer = new OSROrganizerThread();<a name="line.267"></a>
-<span class="sourceLineNo">268</span>      Controller.osrOrganizer.start();<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    }<a name="line.269"></a>
-<span class="sourceLineNo">270</span>  }<a name="line.270"></a>
-<span class="sourceLineNo">271</span><a name="line.271"></a>
-<span class="sourceLineNo">272</span>  /**<a name="line.272"></a>
-<span class="sourceLineNo">273</span>   * Final report<a name="line.273"></a>
-<span class="sourceLineNo">274</span>   */<a name="line.274"></a>
-<span class="sourceLineNo">275</span>  public static void report() {<a name="line.275"></a>
-<span class="sourceLineNo">276</span>    AOSLogging.logger.printControllerStats();<a name="line.276"></a>
-<span class="sourceLineNo">277</span>  }<a name="line.277"></a>
-<span class="sourceLineNo">278</span><a name="line.278"></a>
-<span class="sourceLineNo">279</span>}<a name="line.279"></a>
+<span class="sourceLineNo">256</span>    if (opts.sampling()) {<a name="line.256"></a>
+<span class="sourceLineNo">257</span>      // Primary backing store for method sample data<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      Controller.methodSamples = new MethodCountData();<a name="line.258"></a>
+<span class="sourceLineNo">259</span><a name="line.259"></a>
+<span class="sourceLineNo">260</span>      // Install organizer to drive method recompilation<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      Controller.organizers.add(new MethodSampleOrganizer(opts.DERIVED_FILTER_OPT_LEVEL));<a name="line.261"></a>
+<span class="sourceLineNo">262</span>      // Additional set up for feedback directed inlining<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      if (opts.ADAPTIVE_INLINING) {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        Organizer decayOrganizer = new DecayOrganizer(new YieldCounterListener(opts.DECAY_FREQUENCY));<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        Controller.organizers.add(decayOrganizer);<a name="line.265"></a>
+<span class="sourceLineNo">266</span>        createDynamicCallGraphOrganizer();<a name="line.266"></a>
+<span class="sourceLineNo">267</span>      }<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    }<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>    if ((!Controller.options.ENABLE_PRECOMPILE) &amp;&amp; (!Controller.options.ENABLE_BULK_COMPILE)) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      Controller.osrOrganizer = new OSROrganizerThread();<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      Controller.osrOrganizer.start();<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    }<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  }<a name="line.274"></a>
+<span class="sourceLineNo">275</span><a name="line.275"></a>
+<span class="sourceLineNo">276</span>  /**<a name="line.276"></a>
+<span class="sourceLineNo">277</span>   * Final report<a name="line.277"></a>
+<span class="sourceLineNo">278</span>   */<a name="line.278"></a>
+<span class="sourceLineNo">279</span>  public static void report() {<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    AOSLogging.logger.printControllerStats();<a name="line.280"></a>
+<span class="sourceLineNo">281</span>  }<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>}<a name="line.283"></a>
 
 
 

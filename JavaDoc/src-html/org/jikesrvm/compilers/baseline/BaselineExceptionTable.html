@@ -20,8 +20,8 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.compilers.baseline;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.ArchitectureSpecific;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.jikesrvm.VM;<a name="line.16"></a>
+<span class="sourceLineNo">015</span>import org.jikesrvm.VM;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.jikesrvm.architecture.ArchConstants;<a name="line.16"></a>
 <span class="sourceLineNo">017</span>import org.jikesrvm.classloader.ExceptionHandlerMap;<a name="line.17"></a>
 <span class="sourceLineNo">018</span>import org.jikesrvm.classloader.TypeReference;<a name="line.18"></a>
 <span class="sourceLineNo">019</span>import org.jikesrvm.compilers.common.ExceptionTable;<a name="line.19"></a>
@@ -48,11 +48,11 @@
 <span class="sourceLineNo">040</span><a name="line.40"></a>
 <span class="sourceLineNo">041</span>    for (int i = 0; i &lt; tableSize; i++) {<a name="line.41"></a>
 <span class="sourceLineNo">042</span>      eTable[i * 4 + TRY_START] =<a name="line.42"></a>
-<span class="sourceLineNo">043</span>          bytecodeMap[startPCs[i]] &lt;&lt; ArchitectureSpecific.RegisterConstants.LG_INSTRUCTION_WIDTH;<a name="line.43"></a>
+<span class="sourceLineNo">043</span>          bytecodeMap[startPCs[i]] &lt;&lt; ArchConstants.getLogInstructionWidth();<a name="line.43"></a>
 <span class="sourceLineNo">044</span>      eTable[i * 4 + TRY_END] =<a name="line.44"></a>
-<span class="sourceLineNo">045</span>          bytecodeMap[endPCs[i]] &lt;&lt; ArchitectureSpecific.RegisterConstants.LG_INSTRUCTION_WIDTH;<a name="line.45"></a>
+<span class="sourceLineNo">045</span>          bytecodeMap[endPCs[i]] &lt;&lt; ArchConstants.getLogInstructionWidth();<a name="line.45"></a>
 <span class="sourceLineNo">046</span>      eTable[i * 4 + CATCH_START] =<a name="line.46"></a>
-<span class="sourceLineNo">047</span>          bytecodeMap[handlerPCs[i]] &lt;&lt; ArchitectureSpecific.RegisterConstants.LG_INSTRUCTION_WIDTH;<a name="line.47"></a>
+<span class="sourceLineNo">047</span>          bytecodeMap[handlerPCs[i]] &lt;&lt; ArchConstants.getLogInstructionWidth();<a name="line.47"></a>
 <span class="sourceLineNo">048</span>      try {<a name="line.48"></a>
 <span class="sourceLineNo">049</span>        eTable[i * 4 + EX_TYPE] = exceptionTypes[i].resolve().getId();<a name="line.49"></a>
 <span class="sourceLineNo">050</span>      } catch (NoClassDefFoundError except) {<a name="line.50"></a>

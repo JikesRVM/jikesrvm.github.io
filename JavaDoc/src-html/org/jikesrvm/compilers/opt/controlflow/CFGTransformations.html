@@ -62,357 +62,339 @@
 <span class="sourceLineNo">054</span>    staticPerform(ir);<a name="line.54"></a>
 <span class="sourceLineNo">055</span>  }<a name="line.55"></a>
 <span class="sourceLineNo">056</span><a name="line.56"></a>
-<span class="sourceLineNo">057</span>  /**<a name="line.57"></a>
-<span class="sourceLineNo">058</span>   * static version of perform<a name="line.58"></a>
-<span class="sourceLineNo">059</span>   * @param ir<a name="line.59"></a>
-<span class="sourceLineNo">060</span>   */<a name="line.60"></a>
-<span class="sourceLineNo">061</span>  static void staticPerform(IR ir) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>    if (ir.hasReachableExceptionHandlers()) return;<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>    // Note: the following unfactors the CFG.<a name="line.64"></a>
-<span class="sourceLineNo">065</span>    DominatorsPhase dom = new DominatorsPhase(true);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    boolean moreToCome = true;<a name="line.66"></a>
-<span class="sourceLineNo">067</span>    while (moreToCome) {<a name="line.67"></a>
-<span class="sourceLineNo">068</span>      dom.perform(ir);<a name="line.68"></a>
-<span class="sourceLineNo">069</span>      moreToCome = turnWhilesIntoUntils(ir);<a name="line.69"></a>
-<span class="sourceLineNo">070</span>    }<a name="line.70"></a>
-<span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    ensureLandingPads(ir);<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>    dom.perform(ir);<a name="line.74"></a>
-<span class="sourceLineNo">075</span>    ir.cfg.compactNodeNumbering();<a name="line.75"></a>
-<span class="sourceLineNo">076</span>    ir.HIRInfo.dominatorsAreComputed = false; // compacting the node numbering destroys the dominator info<a name="line.76"></a>
-<span class="sourceLineNo">077</span>  }<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>   * Should this phase be performed?<a name="line.80"></a>
-<span class="sourceLineNo">081</span>   * @return &lt;code&gt;true&lt;/code&gt; if the opt level is at least 2 and whiles should be turned into untils<a name="line.81"></a>
-<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  @Override<a name="line.83"></a>
-<span class="sourceLineNo">084</span>  public boolean shouldPerform(OptOptions options) {<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    if (options.getOptLevel() &lt; 2) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>      return false;<a name="line.86"></a>
-<span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    return options.CONTROL_TURN_WHILES_INTO_UNTILS;<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>  /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>   * Returns the name of the phase.<a name="line.92"></a>
-<span class="sourceLineNo">093</span>   */<a name="line.93"></a>
-<span class="sourceLineNo">094</span>  @Override<a name="line.94"></a>
-<span class="sourceLineNo">095</span>  public String getName() {<a name="line.95"></a>
-<span class="sourceLineNo">096</span>    return "Loop Normalization";<a name="line.96"></a>
-<span class="sourceLineNo">097</span>  }<a name="line.97"></a>
-<span class="sourceLineNo">098</span><a name="line.98"></a>
-<span class="sourceLineNo">099</span>  /**<a name="line.99"></a>
-<span class="sourceLineNo">100</span>   * Returns {@code true} if the phase wants the IR dumped before and/or after it runs.<a name="line.100"></a>
-<span class="sourceLineNo">101</span>   */<a name="line.101"></a>
-<span class="sourceLineNo">102</span>  @Override<a name="line.102"></a>
-<span class="sourceLineNo">103</span>  public boolean printingEnabled(OptOptions options, boolean before) {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>    return false;<a name="line.104"></a>
-<span class="sourceLineNo">105</span>  }<a name="line.105"></a>
-<span class="sourceLineNo">106</span><a name="line.106"></a>
-<span class="sourceLineNo">107</span>  //Implementation<a name="line.107"></a>
-<span class="sourceLineNo">108</span>  /**<a name="line.108"></a>
-<span class="sourceLineNo">109</span>   * treat all loops of the ir<a name="line.109"></a>
-<span class="sourceLineNo">110</span>   */<a name="line.110"></a>
-<span class="sourceLineNo">111</span>  private static boolean turnWhilesIntoUntils(IR ir) {<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    LSTGraph lstg = ir.HIRInfo.loopStructureTree;<a name="line.112"></a>
-<span class="sourceLineNo">113</span>    if (lstg != null) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>      return turnLoopTreeIntoUntils((LSTNode) lstg.firstNode(), ir);<a name="line.114"></a>
-<span class="sourceLineNo">115</span>    }<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    return false;<a name="line.116"></a>
-<span class="sourceLineNo">117</span>  }<a name="line.117"></a>
-<span class="sourceLineNo">118</span><a name="line.118"></a>
-<span class="sourceLineNo">119</span>  /**<a name="line.119"></a>
-<span class="sourceLineNo">120</span>   * deal with a sub tree of the loop structure tree<a name="line.120"></a>
-<span class="sourceLineNo">121</span>   */<a name="line.121"></a>
-<span class="sourceLineNo">122</span>  private static boolean turnLoopTreeIntoUntils(LSTNode t, IR ir) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>    Enumeration&lt;GraphNode&gt; e = t.outNodes();<a name="line.123"></a>
-<span class="sourceLineNo">124</span>    while (e.hasMoreElements()) {<a name="line.124"></a>
-<span class="sourceLineNo">125</span>      LSTNode n = (LSTNode) e.nextElement();<a name="line.125"></a>
-<span class="sourceLineNo">126</span>      if (turnLoopTreeIntoUntils(n, ir)) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>        return true;<a name="line.127"></a>
-<span class="sourceLineNo">128</span>      }<a name="line.128"></a>
-<span class="sourceLineNo">129</span>      if (turnLoopIntoUntil(n, ir)) {<a name="line.129"></a>
-<span class="sourceLineNo">130</span>        return true;<a name="line.130"></a>
-<span class="sourceLineNo">131</span>      }<a name="line.131"></a>
-<span class="sourceLineNo">132</span>    }<a name="line.132"></a>
-<span class="sourceLineNo">133</span>    return false;<a name="line.133"></a>
-<span class="sourceLineNo">134</span>  }<a name="line.134"></a>
-<span class="sourceLineNo">135</span><a name="line.135"></a>
-<span class="sourceLineNo">136</span>  /**<a name="line.136"></a>
-<span class="sourceLineNo">137</span>   * treat all loops of the ir<a name="line.137"></a>
-<span class="sourceLineNo">138</span>   */<a name="line.138"></a>
-<span class="sourceLineNo">139</span>  private static void ensureLandingPads(IR ir) {<a name="line.139"></a>
-<span class="sourceLineNo">140</span>    LSTGraph lstg = ir.HIRInfo.loopStructureTree;<a name="line.140"></a>
-<span class="sourceLineNo">141</span>    if (lstg != null) {<a name="line.141"></a>
-<span class="sourceLineNo">142</span>      ensureLandingPads((LSTNode) lstg.firstNode(), ir);<a name="line.142"></a>
-<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
-<span class="sourceLineNo">144</span>  }<a name="line.144"></a>
-<span class="sourceLineNo">145</span><a name="line.145"></a>
-<span class="sourceLineNo">146</span>  /**<a name="line.146"></a>
-<span class="sourceLineNo">147</span>   * deal with a sub tree of the loop structure tree<a name="line.147"></a>
-<span class="sourceLineNo">148</span>   */<a name="line.148"></a>
-<span class="sourceLineNo">149</span>  private static void ensureLandingPads(LSTNode t, IR ir) {<a name="line.149"></a>
-<span class="sourceLineNo">150</span>    Enumeration&lt;GraphNode&gt; e = t.outNodes();<a name="line.150"></a>
-<span class="sourceLineNo">151</span>    while (e.hasMoreElements()) {<a name="line.151"></a>
-<span class="sourceLineNo">152</span>      LSTNode n = (LSTNode) e.nextElement();<a name="line.152"></a>
-<span class="sourceLineNo">153</span>      ensureLandingPads(n, ir);<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      ensureLandingPad(n, ir);<a name="line.154"></a>
-<span class="sourceLineNo">155</span>    }<a name="line.155"></a>
-<span class="sourceLineNo">156</span>  }<a name="line.156"></a>
-<span class="sourceLineNo">157</span><a name="line.157"></a>
-<span class="sourceLineNo">158</span>  private static float edgeFrequency(BasicBlock a, BasicBlock b) {<a name="line.158"></a>
-<span class="sourceLineNo">159</span>    float prop = 0f;<a name="line.159"></a>
-<span class="sourceLineNo">160</span>    WeightedBranchTargets ws = new WeightedBranchTargets(a);<a name="line.160"></a>
-<span class="sourceLineNo">161</span>    while (ws.hasMoreElements()) {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>      if (ws.curBlock() == b) prop += ws.curWeight();<a name="line.162"></a>
-<span class="sourceLineNo">163</span>      ws.advance();<a name="line.163"></a>
-<span class="sourceLineNo">164</span>    }<a name="line.164"></a>
-<span class="sourceLineNo">165</span>    return a.getExecutionFrequency() * prop;<a name="line.165"></a>
-<span class="sourceLineNo">166</span>  }<a name="line.166"></a>
-<span class="sourceLineNo">167</span><a name="line.167"></a>
-<span class="sourceLineNo">168</span>  private static void ensureLandingPad(LSTNode n, IR ir) {<a name="line.168"></a>
-<span class="sourceLineNo">169</span>    BasicBlock[] ps = loopPredecessors(n);<a name="line.169"></a>
-<span class="sourceLineNo">170</span>    if (ps.length == 1 &amp;&amp; ps[0].getNumberOfOut() == 1) return;<a name="line.170"></a>
-<span class="sourceLineNo">171</span><a name="line.171"></a>
-<span class="sourceLineNo">172</span>    float frequency = 0f;<a name="line.172"></a>
-<span class="sourceLineNo">173</span>    for (BasicBlock bb : ps) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>      frequency += edgeFrequency(bb, n.header);<a name="line.174"></a>
-<span class="sourceLineNo">175</span>    }<a name="line.175"></a>
-<span class="sourceLineNo">176</span>    BasicBlock newPred;<a name="line.176"></a>
-<span class="sourceLineNo">177</span>    newPred = n.header.createSubBlock(n.header.firstInstruction().bcIndex, ir, 1f);<a name="line.177"></a>
-<span class="sourceLineNo">178</span>    newPred.setLandingPad();<a name="line.178"></a>
-<span class="sourceLineNo">179</span>    newPred.setExecutionFrequency(frequency);<a name="line.179"></a>
+<span class="sourceLineNo">057</span>  static void staticPerform(IR ir) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    if (ir.hasReachableExceptionHandlers()) return;<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>    // Note: the following unfactors the CFG.<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    DominatorsPhase dom = new DominatorsPhase(true);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    boolean moreToCome = true;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>    while (moreToCome) {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>      dom.perform(ir);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>      moreToCome = turnWhilesIntoUntils(ir);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
+<span class="sourceLineNo">067</span><a name="line.67"></a>
+<span class="sourceLineNo">068</span>    ensureLandingPads(ir);<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    dom.perform(ir);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    ir.cfg.compactNodeNumbering();<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    ir.HIRInfo.dominatorsAreComputed = false; // compacting the node numbering destroys the dominator info<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  }<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>  /**<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   * Should this phase be performed?<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * @return &lt;code&gt;true&lt;/code&gt; if the opt level is at least 2 and whiles should be turned into untils<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  @Override<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  public boolean shouldPerform(OptOptions options) {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    if (options.getOptLevel() &lt; 2) {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>      return false;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    }<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    return options.CONTROL_TURN_WHILES_INTO_UNTILS;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>  /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>   * Returns the name of the phase.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>   */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  @Override<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  public String getName() {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>    return "Loop Normalization";<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  }<a name="line.93"></a>
+<span class="sourceLineNo">094</span><a name="line.94"></a>
+<span class="sourceLineNo">095</span>  /**<a name="line.95"></a>
+<span class="sourceLineNo">096</span>   * Returns {@code true} if the phase wants the IR dumped before and/or after it runs.<a name="line.96"></a>
+<span class="sourceLineNo">097</span>   */<a name="line.97"></a>
+<span class="sourceLineNo">098</span>  @Override<a name="line.98"></a>
+<span class="sourceLineNo">099</span>  public boolean printingEnabled(OptOptions options, boolean before) {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    return false;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>  }<a name="line.101"></a>
+<span class="sourceLineNo">102</span><a name="line.102"></a>
+<span class="sourceLineNo">103</span>  //Implementation<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>  private static boolean turnWhilesIntoUntils(IR ir) {<a name="line.105"></a>
+<span class="sourceLineNo">106</span>    LSTGraph lstg = ir.HIRInfo.loopStructureTree;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>    if (lstg != null) {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      return turnLoopTreeIntoUntils((LSTNode) lstg.firstNode(), ir);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    }<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    return false;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>  }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>  private static boolean turnLoopTreeIntoUntils(LSTNode t, IR ir) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    Enumeration&lt;GraphNode&gt; e = t.outNodes();<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    while (e.hasMoreElements()) {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      LSTNode n = (LSTNode) e.nextElement();<a name="line.116"></a>
+<span class="sourceLineNo">117</span>      if (turnLoopTreeIntoUntils(n, ir)) {<a name="line.117"></a>
+<span class="sourceLineNo">118</span>        return true;<a name="line.118"></a>
+<span class="sourceLineNo">119</span>      }<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      if (turnLoopIntoUntil(n, ir)) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>        return true;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      }<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    }<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    return false;<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>  private static void ensureLandingPads(IR ir) {<a name="line.127"></a>
+<span class="sourceLineNo">128</span>    LSTGraph lstg = ir.HIRInfo.loopStructureTree;<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    if (lstg != null) {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      ensureLandingPads((LSTNode) lstg.firstNode(), ir);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    }<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>  private static void ensureLandingPads(LSTNode t, IR ir) {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>    Enumeration&lt;GraphNode&gt; e = t.outNodes();<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    while (e.hasMoreElements()) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>      LSTNode n = (LSTNode) e.nextElement();<a name="line.137"></a>
+<span class="sourceLineNo">138</span>      ensureLandingPads(n, ir);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>      ensureLandingPad(n, ir);<a name="line.139"></a>
+<span class="sourceLineNo">140</span>    }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  }<a name="line.141"></a>
+<span class="sourceLineNo">142</span><a name="line.142"></a>
+<span class="sourceLineNo">143</span>  private static float edgeFrequency(BasicBlock a, BasicBlock b) {<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    float prop = 0f;<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    WeightedBranchTargets ws = new WeightedBranchTargets(a);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    while (ws.hasMoreElements()) {<a name="line.146"></a>
+<span class="sourceLineNo">147</span>      if (ws.curBlock() == b) prop += ws.curWeight();<a name="line.147"></a>
+<span class="sourceLineNo">148</span>      ws.advance();<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    return a.getExecutionFrequency() * prop;<a name="line.150"></a>
+<span class="sourceLineNo">151</span>  }<a name="line.151"></a>
+<span class="sourceLineNo">152</span><a name="line.152"></a>
+<span class="sourceLineNo">153</span>  private static void ensureLandingPad(LSTNode n, IR ir) {<a name="line.153"></a>
+<span class="sourceLineNo">154</span>    BasicBlock[] ps = loopPredecessors(n);<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    if (ps.length == 1 &amp;&amp; ps[0].getNumberOfOut() == 1) return;<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>    float frequency = 0f;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    for (BasicBlock bb : ps) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>      frequency += edgeFrequency(bb, n.header);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>    }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>    BasicBlock newPred;<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    newPred = n.header.createSubBlock(n.header.firstInstruction().bcIndex, ir, 1f);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    newPred.setLandingPad();<a name="line.163"></a>
+<span class="sourceLineNo">164</span>    newPred.setExecutionFrequency(frequency);<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>    BasicBlock p = n.header.prevBasicBlockInCodeOrder();<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    if (VM.VerifyAssertions) VM._assert(p != null);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    p.killFallThrough();<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    ir.cfg.breakCodeOrder(p, n.header);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    ir.cfg.linkInCodeOrder(p, newPred);<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    ir.cfg.linkInCodeOrder(newPred, n.header);<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    newPred.lastInstruction().insertBefore(Goto.create(GOTO, n.header.makeJumpTarget()));<a name="line.173"></a>
+<span class="sourceLineNo">174</span>    newPred.recomputeNormalOut(ir);<a name="line.174"></a>
+<span class="sourceLineNo">175</span><a name="line.175"></a>
+<span class="sourceLineNo">176</span>    for (BasicBlock bb : ps) {<a name="line.176"></a>
+<span class="sourceLineNo">177</span>      bb.redirectOuts(n.header, newPred, ir);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    }<a name="line.178"></a>
+<span class="sourceLineNo">179</span>  }<a name="line.179"></a>
 <span class="sourceLineNo">180</span><a name="line.180"></a>
-<span class="sourceLineNo">181</span>    BasicBlock p = n.header.prevBasicBlockInCodeOrder();<a name="line.181"></a>
-<span class="sourceLineNo">182</span>    if (VM.VerifyAssertions) VM._assert(p != null);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>    p.killFallThrough();<a name="line.183"></a>
-<span class="sourceLineNo">184</span>    ir.cfg.breakCodeOrder(p, n.header);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>    ir.cfg.linkInCodeOrder(p, newPred);<a name="line.185"></a>
-<span class="sourceLineNo">186</span>    ir.cfg.linkInCodeOrder(newPred, n.header);<a name="line.186"></a>
-<span class="sourceLineNo">187</span><a name="line.187"></a>
-<span class="sourceLineNo">188</span>    newPred.lastInstruction().insertBefore(Goto.create(GOTO, n.header.makeJumpTarget()));<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    newPred.recomputeNormalOut(ir);<a name="line.189"></a>
-<span class="sourceLineNo">190</span><a name="line.190"></a>
-<span class="sourceLineNo">191</span>    for (BasicBlock bb : ps) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>      bb.redirectOuts(n.header, newPred, ir);<a name="line.192"></a>
-<span class="sourceLineNo">193</span>    }<a name="line.193"></a>
-<span class="sourceLineNo">194</span>  }<a name="line.194"></a>
-<span class="sourceLineNo">195</span><a name="line.195"></a>
-<span class="sourceLineNo">196</span>  /**<a name="line.196"></a>
-<span class="sourceLineNo">197</span>   * Transform a given loop<a name="line.197"></a>
-<span class="sourceLineNo">198</span>   *<a name="line.198"></a>
-<span class="sourceLineNo">199</span>   * &lt;p&gt; Look for the set S of in-loop predecessors of the loop header h.<a name="line.199"></a>
-<span class="sourceLineNo">200</span>   * Make a copy h' of the loop header and redirect all edges going from<a name="line.200"></a>
-<span class="sourceLineNo">201</span>   * nodes in S to h. Make them point to h' instead.<a name="line.201"></a>
-<span class="sourceLineNo">202</span>   *<a name="line.202"></a>
-<span class="sourceLineNo">203</span>   * &lt;p&gt; As an effect of this transformation, the old header is now not anymore<a name="line.203"></a>
-<span class="sourceLineNo">204</span>   * part of the loop, but guards it.<a name="line.204"></a>
-<span class="sourceLineNo">205</span>   */<a name="line.205"></a>
-<span class="sourceLineNo">206</span>  private static boolean turnLoopIntoUntil(LSTNode n, IR ir) {<a name="line.206"></a>
-<span class="sourceLineNo">207</span>    BasicBlock header = n.header;<a name="line.207"></a>
-<span class="sourceLineNo">208</span>    BasicBlock newLoopTest = null;<a name="line.208"></a>
-<span class="sourceLineNo">209</span><a name="line.209"></a>
-<span class="sourceLineNo">210</span>    int i = 0;<a name="line.210"></a>
-<span class="sourceLineNo">211</span>    int exiters = 0;<a name="line.211"></a>
-<span class="sourceLineNo">212</span><a name="line.212"></a>
-<span class="sourceLineNo">213</span>    Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks(n.loop);<a name="line.213"></a>
-<span class="sourceLineNo">214</span>    while (e.hasMoreElements()) {<a name="line.214"></a>
-<span class="sourceLineNo">215</span>      BasicBlock b = e.nextElement();<a name="line.215"></a>
-<span class="sourceLineNo">216</span>      if (!exitsLoop(b, n.loop)) {<a name="line.216"></a>
-<span class="sourceLineNo">217</span>        // header doesn't exit: nothing to do<a name="line.217"></a>
-<span class="sourceLineNo">218</span>        if (b == n.header) return false;<a name="line.218"></a>
-<span class="sourceLineNo">219</span>      } else {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>        exiters++;<a name="line.220"></a>
-<span class="sourceLineNo">221</span>      }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>      i++;<a name="line.222"></a>
-<span class="sourceLineNo">223</span>    }<a name="line.223"></a>
-<span class="sourceLineNo">224</span>    // all blocks exit: can't improve<a name="line.224"></a>
-<span class="sourceLineNo">225</span>    if (i == exiters) return false;<a name="line.225"></a>
+<span class="sourceLineNo">181</span>  /**<a name="line.181"></a>
+<span class="sourceLineNo">182</span>   * Transforms a given loop.<a name="line.182"></a>
+<span class="sourceLineNo">183</span>   *<a name="line.183"></a>
+<span class="sourceLineNo">184</span>   * &lt;p&gt; Look for the set S of in-loop predecessors of the loop header h.<a name="line.184"></a>
+<span class="sourceLineNo">185</span>   * Make a copy h' of the loop header and redirect all edges going from<a name="line.185"></a>
+<span class="sourceLineNo">186</span>   * nodes in S to h. Make them point to h' instead.<a name="line.186"></a>
+<span class="sourceLineNo">187</span>   *<a name="line.187"></a>
+<span class="sourceLineNo">188</span>   * &lt;p&gt; As an effect of this transformation, the old header is now not anymore<a name="line.188"></a>
+<span class="sourceLineNo">189</span>   * part of the loop, but guards it.<a name="line.189"></a>
+<span class="sourceLineNo">190</span>   *<a name="line.190"></a>
+<span class="sourceLineNo">191</span>   * @param n anode<a name="line.191"></a>
+<span class="sourceLineNo">192</span>   * @param ir the governing IR<a name="line.192"></a>
+<span class="sourceLineNo">193</span>   * @return whether anything was changed<a name="line.193"></a>
+<span class="sourceLineNo">194</span>   */<a name="line.194"></a>
+<span class="sourceLineNo">195</span>  private static boolean turnLoopIntoUntil(LSTNode n, IR ir) {<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    BasicBlock header = n.header;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    BasicBlock newLoopTest = null;<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    int i = 0;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    int exiters = 0;<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>    Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks(n.loop);<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    while (e.hasMoreElements()) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>      BasicBlock b = e.nextElement();<a name="line.204"></a>
+<span class="sourceLineNo">205</span>      if (!exitsLoop(b, n.loop)) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>        // header doesn't exit: nothing to do<a name="line.206"></a>
+<span class="sourceLineNo">207</span>        if (b == n.header) return false;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>      } else {<a name="line.208"></a>
+<span class="sourceLineNo">209</span>        exiters++;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>      }<a name="line.210"></a>
+<span class="sourceLineNo">211</span>      i++;<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    // all blocks exit: can't improve<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    if (i == exiters) return false;<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>    // rewriting loops where the header has more than one in-loop<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    // successor will lead to irreducible control flow.<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    BasicBlock[] succ = inLoopSuccessors(n);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    if (succ.length &gt; 1) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>      if (DEBUG) VM.sysWrite("unwhiling would lead to irreducible CFG\n");<a name="line.220"></a>
+<span class="sourceLineNo">221</span>      return false;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>    }<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>    BasicBlock[] pred = inLoopPredecessors(n);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>    float frequency = 0f;<a name="line.225"></a>
 <span class="sourceLineNo">226</span><a name="line.226"></a>
-<span class="sourceLineNo">227</span>    // rewriting loops where the header has more than one in-loop<a name="line.227"></a>
-<span class="sourceLineNo">228</span>    // successor will lead to irreducible control flow.<a name="line.228"></a>
-<span class="sourceLineNo">229</span>    BasicBlock[] succ = inLoopSuccessors(n);<a name="line.229"></a>
-<span class="sourceLineNo">230</span>    if (succ.length &gt; 1) {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>      if (DEBUG) VM.sysWrite("unwhiling would lead to irreducible CFG\n");<a name="line.231"></a>
-<span class="sourceLineNo">232</span>      return false;<a name="line.232"></a>
+<span class="sourceLineNo">227</span>    if (pred.length &gt; 0) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>      frequency += edgeFrequency(pred[0], header);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>      // replicate the header as successor of pred[0]<a name="line.229"></a>
+<span class="sourceLineNo">230</span>      BasicBlock p = header.prevBasicBlockInCodeOrder();<a name="line.230"></a>
+<span class="sourceLineNo">231</span>      p.killFallThrough();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>      newLoopTest = pred[0].replicateThisOut(ir, header, p);<a name="line.232"></a>
 <span class="sourceLineNo">233</span>    }<a name="line.233"></a>
-<span class="sourceLineNo">234</span><a name="line.234"></a>
-<span class="sourceLineNo">235</span>    BasicBlock[] pred = inLoopPredecessors(n);<a name="line.235"></a>
-<span class="sourceLineNo">236</span>    float frequency = 0f;<a name="line.236"></a>
-<span class="sourceLineNo">237</span><a name="line.237"></a>
-<span class="sourceLineNo">238</span>    if (pred.length &gt; 0) {<a name="line.238"></a>
-<span class="sourceLineNo">239</span>      frequency += edgeFrequency(pred[0], header);<a name="line.239"></a>
-<span class="sourceLineNo">240</span>      // replicate the header as successor of pred[0]<a name="line.240"></a>
-<span class="sourceLineNo">241</span>      BasicBlock p = header.prevBasicBlockInCodeOrder();<a name="line.241"></a>
-<span class="sourceLineNo">242</span>      p.killFallThrough();<a name="line.242"></a>
-<span class="sourceLineNo">243</span>      newLoopTest = pred[0].replicateThisOut(ir, header, p);<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    }<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    for (i = 1; i &lt; pred.length; ++i) { // check for aditional back edges<a name="line.245"></a>
-<span class="sourceLineNo">246</span>      frequency += edgeFrequency(pred[i], header);<a name="line.246"></a>
-<span class="sourceLineNo">247</span>      pred[i].redirectOuts(header, newLoopTest, ir);<a name="line.247"></a>
-<span class="sourceLineNo">248</span>    }<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    newLoopTest.setExecutionFrequency(frequency);<a name="line.249"></a>
-<span class="sourceLineNo">250</span>    header.setExecutionFrequency(header.getExecutionFrequency() - frequency);<a name="line.250"></a>
-<span class="sourceLineNo">251</span>    return true;<a name="line.251"></a>
-<span class="sourceLineNo">252</span>  }<a name="line.252"></a>
-<span class="sourceLineNo">253</span><a name="line.253"></a>
-<span class="sourceLineNo">254</span>  /**<a name="line.254"></a>
-<span class="sourceLineNo">255</span>   * the predecessors of the loop header that are not part of the loop<a name="line.255"></a>
-<span class="sourceLineNo">256</span>   */<a name="line.256"></a>
-<span class="sourceLineNo">257</span>  private static BasicBlock[] loopPredecessors(LSTNode n) {<a name="line.257"></a>
-<span class="sourceLineNo">258</span>    BasicBlock header = n.header;<a name="line.258"></a>
-<span class="sourceLineNo">259</span>    BitVector loop = n.loop;<a name="line.259"></a>
-<span class="sourceLineNo">260</span><a name="line.260"></a>
-<span class="sourceLineNo">261</span>    int i = 0;<a name="line.261"></a>
-<span class="sourceLineNo">262</span>    Enumeration&lt;BasicBlock&gt; be = header.getIn();<a name="line.262"></a>
-<span class="sourceLineNo">263</span>    while (be.hasMoreElements()) if (!inLoop(be.nextElement(), loop)) i++;<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.265"></a>
-<span class="sourceLineNo">266</span><a name="line.266"></a>
-<span class="sourceLineNo">267</span>    i = 0;<a name="line.267"></a>
-<span class="sourceLineNo">268</span>    be = header.getIn();<a name="line.268"></a>
-<span class="sourceLineNo">269</span>    while (be.hasMoreElements()) {<a name="line.269"></a>
-<span class="sourceLineNo">270</span>      BasicBlock in = be.nextElement();<a name="line.270"></a>
-<span class="sourceLineNo">271</span>      if (!inLoop(in, loop)) res[i++] = in;<a name="line.271"></a>
-<span class="sourceLineNo">272</span>    }<a name="line.272"></a>
-<span class="sourceLineNo">273</span>    return res;<a name="line.273"></a>
-<span class="sourceLineNo">274</span>  }<a name="line.274"></a>
-<span class="sourceLineNo">275</span><a name="line.275"></a>
-<span class="sourceLineNo">276</span>  /**<a name="line.276"></a>
-<span class="sourceLineNo">277</span>   * the predecessors of the loop header that are part of the loop.<a name="line.277"></a>
-<span class="sourceLineNo">278</span>   */<a name="line.278"></a>
-<span class="sourceLineNo">279</span>  private static BasicBlock[] inLoopPredecessors(LSTNode n) {<a name="line.279"></a>
-<span class="sourceLineNo">280</span>    BasicBlock header = n.header;<a name="line.280"></a>
-<span class="sourceLineNo">281</span>    BitVector loop = n.loop;<a name="line.281"></a>
-<span class="sourceLineNo">282</span><a name="line.282"></a>
-<span class="sourceLineNo">283</span>    int i = 0;<a name="line.283"></a>
-<span class="sourceLineNo">284</span>    Enumeration&lt;BasicBlock&gt; be = header.getIn();<a name="line.284"></a>
-<span class="sourceLineNo">285</span>    while (be.hasMoreElements()) if (inLoop(be.nextElement(), loop)) i++;<a name="line.285"></a>
-<span class="sourceLineNo">286</span><a name="line.286"></a>
-<span class="sourceLineNo">287</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.287"></a>
+<span class="sourceLineNo">234</span>    for (i = 1; i &lt; pred.length; ++i) { // check for aditional back edges<a name="line.234"></a>
+<span class="sourceLineNo">235</span>      frequency += edgeFrequency(pred[i], header);<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      pred[i].redirectOuts(header, newLoopTest, ir);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    }<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    newLoopTest.setExecutionFrequency(frequency);<a name="line.238"></a>
+<span class="sourceLineNo">239</span>    header.setExecutionFrequency(header.getExecutionFrequency() - frequency);<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    return true;<a name="line.240"></a>
+<span class="sourceLineNo">241</span>  }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>  private static BasicBlock[] loopPredecessors(LSTNode n) {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    BasicBlock header = n.header;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    BitVector loop = n.loop;<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>    int i = 0;<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    Enumeration&lt;BasicBlock&gt; be = header.getIn();<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    while (be.hasMoreElements()) if (!inLoop(be.nextElement(), loop)) i++;<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.251"></a>
+<span class="sourceLineNo">252</span><a name="line.252"></a>
+<span class="sourceLineNo">253</span>    i = 0;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>    be = header.getIn();<a name="line.254"></a>
+<span class="sourceLineNo">255</span>    while (be.hasMoreElements()) {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>      BasicBlock in = be.nextElement();<a name="line.256"></a>
+<span class="sourceLineNo">257</span>      if (!inLoop(in, loop)) res[i++] = in;<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    }<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    return res;<a name="line.259"></a>
+<span class="sourceLineNo">260</span>  }<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>  private static BasicBlock[] inLoopPredecessors(LSTNode n) {<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    BasicBlock header = n.header;<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    BitVector loop = n.loop;<a name="line.264"></a>
+<span class="sourceLineNo">265</span><a name="line.265"></a>
+<span class="sourceLineNo">266</span>    int i = 0;<a name="line.266"></a>
+<span class="sourceLineNo">267</span>    Enumeration&lt;BasicBlock&gt; be = header.getIn();<a name="line.267"></a>
+<span class="sourceLineNo">268</span>    while (be.hasMoreElements()) if (inLoop(be.nextElement(), loop)) i++;<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.270"></a>
+<span class="sourceLineNo">271</span><a name="line.271"></a>
+<span class="sourceLineNo">272</span>    i = 0;<a name="line.272"></a>
+<span class="sourceLineNo">273</span>    be = header.getIn();<a name="line.273"></a>
+<span class="sourceLineNo">274</span>    while (be.hasMoreElements()) {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      BasicBlock in = be.nextElement();<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      if (inLoop(in, loop)) res[i++] = in;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>    return res;<a name="line.278"></a>
+<span class="sourceLineNo">279</span>  }<a name="line.279"></a>
+<span class="sourceLineNo">280</span><a name="line.280"></a>
+<span class="sourceLineNo">281</span>  private static BasicBlock[] inLoopSuccessors(LSTNode n) {<a name="line.281"></a>
+<span class="sourceLineNo">282</span>    BasicBlock header = n.header;<a name="line.282"></a>
+<span class="sourceLineNo">283</span>    BitVector loop = n.loop;<a name="line.283"></a>
+<span class="sourceLineNo">284</span><a name="line.284"></a>
+<span class="sourceLineNo">285</span>    int i = 0;<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    Enumeration&lt;BasicBlock&gt; be = header.getOut();<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    while (be.hasMoreElements()) if (inLoop(be.nextElement(), loop)) i++;<a name="line.287"></a>
 <span class="sourceLineNo">288</span><a name="line.288"></a>
-<span class="sourceLineNo">289</span>    i = 0;<a name="line.289"></a>
-<span class="sourceLineNo">290</span>    be = header.getIn();<a name="line.290"></a>
-<span class="sourceLineNo">291</span>    while (be.hasMoreElements()) {<a name="line.291"></a>
-<span class="sourceLineNo">292</span>      BasicBlock in = be.nextElement();<a name="line.292"></a>
-<span class="sourceLineNo">293</span>      if (inLoop(in, loop)) res[i++] = in;<a name="line.293"></a>
-<span class="sourceLineNo">294</span>    }<a name="line.294"></a>
-<span class="sourceLineNo">295</span>    return res;<a name="line.295"></a>
-<span class="sourceLineNo">296</span>  }<a name="line.296"></a>
-<span class="sourceLineNo">297</span><a name="line.297"></a>
-<span class="sourceLineNo">298</span>  /**<a name="line.298"></a>
-<span class="sourceLineNo">299</span>   * the successors of the loop header that are part of the loop.<a name="line.299"></a>
-<span class="sourceLineNo">300</span>   */<a name="line.300"></a>
-<span class="sourceLineNo">301</span>  private static BasicBlock[] inLoopSuccessors(LSTNode n) {<a name="line.301"></a>
-<span class="sourceLineNo">302</span>    BasicBlock header = n.header;<a name="line.302"></a>
-<span class="sourceLineNo">303</span>    BitVector loop = n.loop;<a name="line.303"></a>
-<span class="sourceLineNo">304</span><a name="line.304"></a>
-<span class="sourceLineNo">305</span>    int i = 0;<a name="line.305"></a>
-<span class="sourceLineNo">306</span>    Enumeration&lt;BasicBlock&gt; be = header.getOut();<a name="line.306"></a>
-<span class="sourceLineNo">307</span>    while (be.hasMoreElements()) if (inLoop(be.nextElement(), loop)) i++;<a name="line.307"></a>
-<span class="sourceLineNo">308</span><a name="line.308"></a>
-<span class="sourceLineNo">309</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.309"></a>
-<span class="sourceLineNo">310</span><a name="line.310"></a>
-<span class="sourceLineNo">311</span>    i = 0;<a name="line.311"></a>
-<span class="sourceLineNo">312</span>    be = header.getOut();<a name="line.312"></a>
-<span class="sourceLineNo">313</span>    while (be.hasMoreElements()) {<a name="line.313"></a>
-<span class="sourceLineNo">314</span>      BasicBlock in = be.nextElement();<a name="line.314"></a>
-<span class="sourceLineNo">315</span>      if (inLoop(in, loop)) res[i++] = in;<a name="line.315"></a>
-<span class="sourceLineNo">316</span>    }<a name="line.316"></a>
-<span class="sourceLineNo">317</span>    return res;<a name="line.317"></a>
+<span class="sourceLineNo">289</span>    BasicBlock[] res = new BasicBlock[i];<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>    i = 0;<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    be = header.getOut();<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    while (be.hasMoreElements()) {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      BasicBlock in = be.nextElement();<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      if (inLoop(in, loop)) res[i++] = in;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
+<span class="sourceLineNo">297</span>    return res;<a name="line.297"></a>
+<span class="sourceLineNo">298</span>  }<a name="line.298"></a>
+<span class="sourceLineNo">299</span><a name="line.299"></a>
+<span class="sourceLineNo">300</span>  static void killFallThroughs(IR ir, BitVector nloop) {<a name="line.300"></a>
+<span class="sourceLineNo">301</span>    Enumeration&lt;BasicBlock&gt; bs = ir.getBasicBlocks(nloop);<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    while (bs.hasMoreElements()) {<a name="line.302"></a>
+<span class="sourceLineNo">303</span>      BasicBlock block = bs.nextElement();<a name="line.303"></a>
+<span class="sourceLineNo">304</span>      Enumeration&lt;BasicBlock&gt; bi = block.getIn();<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      while (bi.hasMoreElements()) {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>        BasicBlock in = bi.nextElement();<a name="line.306"></a>
+<span class="sourceLineNo">307</span>        if (inLoop(in, nloop)) continue;<a name="line.307"></a>
+<span class="sourceLineNo">308</span>        in.killFallThrough();<a name="line.308"></a>
+<span class="sourceLineNo">309</span>      }<a name="line.309"></a>
+<span class="sourceLineNo">310</span>      block.killFallThrough();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    }<a name="line.311"></a>
+<span class="sourceLineNo">312</span>  }<a name="line.312"></a>
+<span class="sourceLineNo">313</span><a name="line.313"></a>
+<span class="sourceLineNo">314</span>  static boolean inLoop(BasicBlock b, BitVector nloop) {<a name="line.314"></a>
+<span class="sourceLineNo">315</span>    int idx = b.getNumber();<a name="line.315"></a>
+<span class="sourceLineNo">316</span>    if (idx &gt;= nloop.length()) return false;<a name="line.316"></a>
+<span class="sourceLineNo">317</span>    return nloop.get(idx);<a name="line.317"></a>
 <span class="sourceLineNo">318</span>  }<a name="line.318"></a>
 <span class="sourceLineNo">319</span><a name="line.319"></a>
-<span class="sourceLineNo">320</span>  static void killFallThroughs(IR ir, BitVector nloop) {<a name="line.320"></a>
-<span class="sourceLineNo">321</span>    Enumeration&lt;BasicBlock&gt; bs = ir.getBasicBlocks(nloop);<a name="line.321"></a>
-<span class="sourceLineNo">322</span>    while (bs.hasMoreElements()) {<a name="line.322"></a>
-<span class="sourceLineNo">323</span>      BasicBlock block = bs.nextElement();<a name="line.323"></a>
-<span class="sourceLineNo">324</span>      Enumeration&lt;BasicBlock&gt; bi = block.getIn();<a name="line.324"></a>
-<span class="sourceLineNo">325</span>      while (bi.hasMoreElements()) {<a name="line.325"></a>
-<span class="sourceLineNo">326</span>        BasicBlock in = bi.nextElement();<a name="line.326"></a>
-<span class="sourceLineNo">327</span>        if (inLoop(in, nloop)) continue;<a name="line.327"></a>
-<span class="sourceLineNo">328</span>        in.killFallThrough();<a name="line.328"></a>
-<span class="sourceLineNo">329</span>      }<a name="line.329"></a>
-<span class="sourceLineNo">330</span>      block.killFallThrough();<a name="line.330"></a>
-<span class="sourceLineNo">331</span>    }<a name="line.331"></a>
-<span class="sourceLineNo">332</span>  }<a name="line.332"></a>
-<span class="sourceLineNo">333</span><a name="line.333"></a>
-<span class="sourceLineNo">334</span>  static boolean inLoop(BasicBlock b, BitVector nloop) {<a name="line.334"></a>
-<span class="sourceLineNo">335</span>    int idx = b.getNumber();<a name="line.335"></a>
-<span class="sourceLineNo">336</span>    if (idx &gt;= nloop.length()) return false;<a name="line.336"></a>
-<span class="sourceLineNo">337</span>    return nloop.get(idx);<a name="line.337"></a>
-<span class="sourceLineNo">338</span>  }<a name="line.338"></a>
-<span class="sourceLineNo">339</span><a name="line.339"></a>
-<span class="sourceLineNo">340</span>  private static boolean exitsLoop(BasicBlock b, BitVector loop) {<a name="line.340"></a>
-<span class="sourceLineNo">341</span>    Enumeration&lt;BasicBlock&gt; be = b.getOut();<a name="line.341"></a>
-<span class="sourceLineNo">342</span>    while (be.hasMoreElements()) {<a name="line.342"></a>
-<span class="sourceLineNo">343</span>      if (!inLoop(be.nextElement(), loop)) return true;<a name="line.343"></a>
-<span class="sourceLineNo">344</span>    }<a name="line.344"></a>
-<span class="sourceLineNo">345</span>    return false;<a name="line.345"></a>
-<span class="sourceLineNo">346</span>  }<a name="line.346"></a>
-<span class="sourceLineNo">347</span><a name="line.347"></a>
-<span class="sourceLineNo">348</span>  /**<a name="line.348"></a>
-<span class="sourceLineNo">349</span>   * Critical edge removal: if (a,b) is an edge in the cfg where `a' has more<a name="line.349"></a>
-<span class="sourceLineNo">350</span>   * than one out-going edge and `b' has more than one in-coming edge,<a name="line.350"></a>
-<span class="sourceLineNo">351</span>   * insert a new empty block `c' on the edge between `a' and `b'.<a name="line.351"></a>
-<span class="sourceLineNo">352</span>   *<a name="line.352"></a>
-<span class="sourceLineNo">353</span>   * &lt;p&gt; We do this to provide landing pads for loop-invariant code motion.<a name="line.353"></a>
-<span class="sourceLineNo">354</span>   * So we split only edges, where `a' has a lower loop nesting depth than `b'.<a name="line.354"></a>
-<span class="sourceLineNo">355</span>   */<a name="line.355"></a>
-<span class="sourceLineNo">356</span>  public static void splitCriticalEdges(IR ir) {<a name="line.356"></a>
-<span class="sourceLineNo">357</span>    Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks();<a name="line.357"></a>
-<span class="sourceLineNo">358</span>    while (e.hasMoreElements()) {<a name="line.358"></a>
-<span class="sourceLineNo">359</span>      BasicBlock b = e.nextElement();<a name="line.359"></a>
-<span class="sourceLineNo">360</span>      int numberOfIns = b.getNumberOfIn();<a name="line.360"></a>
-<span class="sourceLineNo">361</span>      //Exception handlers and blocks with less than two inputs<a name="line.361"></a>
-<span class="sourceLineNo">362</span>      // are no candidates for `b'.<a name="line.362"></a>
-<span class="sourceLineNo">363</span>      if (b.isExceptionHandlerBasicBlock() || numberOfIns &lt;= 1) {<a name="line.363"></a>
-<span class="sourceLineNo">364</span>        continue;<a name="line.364"></a>
-<span class="sourceLineNo">365</span>      }<a name="line.365"></a>
-<span class="sourceLineNo">366</span>      // copy the predecessors, since we will alter the incoming edges.<a name="line.366"></a>
-<span class="sourceLineNo">367</span>      BasicBlock[] ins = new BasicBlock[numberOfIns];<a name="line.367"></a>
-<span class="sourceLineNo">368</span>      Enumeration&lt;BasicBlock&gt; ie = b.getIn();<a name="line.368"></a>
-<span class="sourceLineNo">369</span>      for (int i = 0; i &lt; numberOfIns; ++i) {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>        ins[i] = ie.nextElement();<a name="line.370"></a>
-<span class="sourceLineNo">371</span>      }<a name="line.371"></a>
-<span class="sourceLineNo">372</span>      // skip blocks, that do not fulfill our requirements for `a'<a name="line.372"></a>
-<span class="sourceLineNo">373</span>      for (int i = 0; i &lt; numberOfIns; ++i) {<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        BasicBlock a = ins[i];<a name="line.374"></a>
-<span class="sourceLineNo">375</span>        if (a.getNumberOfOut() &lt;= 1) {<a name="line.375"></a>
-<span class="sourceLineNo">376</span>          continue;<a name="line.376"></a>
-<span class="sourceLineNo">377</span>        }<a name="line.377"></a>
-<span class="sourceLineNo">378</span>        // insert pads only for moving code up to the start of the method<a name="line.378"></a>
-<span class="sourceLineNo">379</span>        //if (a.getExecutionFrequency() &gt;= b.getExecutionFrequency()) continue;<a name="line.379"></a>
-<span class="sourceLineNo">380</span><a name="line.380"></a>
-<span class="sourceLineNo">381</span>        // create a new block as landing pad<a name="line.381"></a>
-<span class="sourceLineNo">382</span>        BasicBlock landingPad;<a name="line.382"></a>
-<span class="sourceLineNo">383</span>        Instruction firstInB = b.firstInstruction();<a name="line.383"></a>
-<span class="sourceLineNo">384</span>        int bcIndex = firstInB != null ? firstInB.bcIndex : -1;<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        landingPad = b.createSubBlock(bcIndex, ir);<a name="line.385"></a>
-<span class="sourceLineNo">386</span>        landingPad.setLandingPad();<a name="line.386"></a>
-<span class="sourceLineNo">387</span>        landingPad.setExecutionFrequency(edgeFrequency(a, b));<a name="line.387"></a>
-<span class="sourceLineNo">388</span><a name="line.388"></a>
-<span class="sourceLineNo">389</span>        // make the landing pad jump to `b'<a name="line.389"></a>
-<span class="sourceLineNo">390</span>        Instruction g;<a name="line.390"></a>
-<span class="sourceLineNo">391</span>        g = Goto.create(GOTO, b.makeJumpTarget());<a name="line.391"></a>
-<span class="sourceLineNo">392</span>        landingPad.appendInstruction(g);<a name="line.392"></a>
-<span class="sourceLineNo">393</span>        landingPad.recomputeNormalOut(ir);<a name="line.393"></a>
-<span class="sourceLineNo">394</span>        // redirect a's outputs from b to the landing pad<a name="line.394"></a>
-<span class="sourceLineNo">395</span>        a.redirectOuts(b, landingPad, ir);<a name="line.395"></a>
-<span class="sourceLineNo">396</span><a name="line.396"></a>
-<span class="sourceLineNo">397</span>        a.killFallThrough();<a name="line.397"></a>
-<span class="sourceLineNo">398</span>        BasicBlock aNext = a.nextBasicBlockInCodeOrder();<a name="line.398"></a>
-<span class="sourceLineNo">399</span>        if (aNext != null) {<a name="line.399"></a>
-<span class="sourceLineNo">400</span>          ir.cfg.breakCodeOrder(a, aNext);<a name="line.400"></a>
-<span class="sourceLineNo">401</span>          ir.cfg.linkInCodeOrder(landingPad, aNext);<a name="line.401"></a>
-<span class="sourceLineNo">402</span>        }<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        ir.cfg.linkInCodeOrder(a, landingPad);<a name="line.403"></a>
-<span class="sourceLineNo">404</span>      }<a name="line.404"></a>
-<span class="sourceLineNo">405</span>    }<a name="line.405"></a>
-<span class="sourceLineNo">406</span>  }<a name="line.406"></a>
-<span class="sourceLineNo">407</span>}<a name="line.407"></a>
+<span class="sourceLineNo">320</span>  private static boolean exitsLoop(BasicBlock b, BitVector loop) {<a name="line.320"></a>
+<span class="sourceLineNo">321</span>    Enumeration&lt;BasicBlock&gt; be = b.getOut();<a name="line.321"></a>
+<span class="sourceLineNo">322</span>    while (be.hasMoreElements()) {<a name="line.322"></a>
+<span class="sourceLineNo">323</span>      if (!inLoop(be.nextElement(), loop)) return true;<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    }<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    return false;<a name="line.325"></a>
+<span class="sourceLineNo">326</span>  }<a name="line.326"></a>
+<span class="sourceLineNo">327</span><a name="line.327"></a>
+<span class="sourceLineNo">328</span>  /**<a name="line.328"></a>
+<span class="sourceLineNo">329</span>   * Critical edge removal: if (a,b) is an edge in the cfg where `a' has more<a name="line.329"></a>
+<span class="sourceLineNo">330</span>   * than one out-going edge and `b' has more than one in-coming edge,<a name="line.330"></a>
+<span class="sourceLineNo">331</span>   * insert a new empty block `c' on the edge between `a' and `b'.<a name="line.331"></a>
+<span class="sourceLineNo">332</span>   *<a name="line.332"></a>
+<span class="sourceLineNo">333</span>   * &lt;p&gt; We do this to provide landing pads for loop-invariant code motion.<a name="line.333"></a>
+<span class="sourceLineNo">334</span>   * So we split only edges, where `a' has a lower loop nesting depth than `b'.<a name="line.334"></a>
+<span class="sourceLineNo">335</span>   *<a name="line.335"></a>
+<span class="sourceLineNo">336</span>   * @param ir the IR to process<a name="line.336"></a>
+<span class="sourceLineNo">337</span>   */<a name="line.337"></a>
+<span class="sourceLineNo">338</span>  public static void splitCriticalEdges(IR ir) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>    Enumeration&lt;BasicBlock&gt; e = ir.getBasicBlocks();<a name="line.339"></a>
+<span class="sourceLineNo">340</span>    while (e.hasMoreElements()) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>      BasicBlock b = e.nextElement();<a name="line.341"></a>
+<span class="sourceLineNo">342</span>      int numberOfIns = b.getNumberOfIn();<a name="line.342"></a>
+<span class="sourceLineNo">343</span>      //Exception handlers and blocks with less than two inputs<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      // are no candidates for `b'.<a name="line.344"></a>
+<span class="sourceLineNo">345</span>      if (b.isExceptionHandlerBasicBlock() || numberOfIns &lt;= 1) {<a name="line.345"></a>
+<span class="sourceLineNo">346</span>        continue;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>      }<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      // copy the predecessors, since we will alter the incoming edges.<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      BasicBlock[] ins = new BasicBlock[numberOfIns];<a name="line.349"></a>
+<span class="sourceLineNo">350</span>      Enumeration&lt;BasicBlock&gt; ie = b.getIn();<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      for (int i = 0; i &lt; numberOfIns; ++i) {<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        ins[i] = ie.nextElement();<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      }<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      // skip blocks, that do not fulfill our requirements for `a'<a name="line.354"></a>
+<span class="sourceLineNo">355</span>      for (int i = 0; i &lt; numberOfIns; ++i) {<a name="line.355"></a>
+<span class="sourceLineNo">356</span>        BasicBlock a = ins[i];<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        if (a.getNumberOfOut() &lt;= 1) {<a name="line.357"></a>
+<span class="sourceLineNo">358</span>          continue;<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        }<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        // insert pads only for moving code up to the start of the method<a name="line.360"></a>
+<span class="sourceLineNo">361</span>        //if (a.getExecutionFrequency() &gt;= b.getExecutionFrequency()) continue;<a name="line.361"></a>
+<span class="sourceLineNo">362</span><a name="line.362"></a>
+<span class="sourceLineNo">363</span>        // create a new block as landing pad<a name="line.363"></a>
+<span class="sourceLineNo">364</span>        BasicBlock landingPad;<a name="line.364"></a>
+<span class="sourceLineNo">365</span>        Instruction firstInB = b.firstInstruction();<a name="line.365"></a>
+<span class="sourceLineNo">366</span>        int bcIndex = firstInB != null ? firstInB.bcIndex : -1;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>        landingPad = b.createSubBlock(bcIndex, ir);<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        landingPad.setLandingPad();<a name="line.368"></a>
+<span class="sourceLineNo">369</span>        landingPad.setExecutionFrequency(edgeFrequency(a, b));<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>        // make the landing pad jump to `b'<a name="line.371"></a>
+<span class="sourceLineNo">372</span>        Instruction g;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>        g = Goto.create(GOTO, b.makeJumpTarget());<a name="line.373"></a>
+<span class="sourceLineNo">374</span>        landingPad.appendInstruction(g);<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        landingPad.recomputeNormalOut(ir);<a name="line.375"></a>
+<span class="sourceLineNo">376</span>        // redirect a's outputs from b to the landing pad<a name="line.376"></a>
+<span class="sourceLineNo">377</span>        a.redirectOuts(b, landingPad, ir);<a name="line.377"></a>
+<span class="sourceLineNo">378</span><a name="line.378"></a>
+<span class="sourceLineNo">379</span>        a.killFallThrough();<a name="line.379"></a>
+<span class="sourceLineNo">380</span>        BasicBlock aNext = a.nextBasicBlockInCodeOrder();<a name="line.380"></a>
+<span class="sourceLineNo">381</span>        if (aNext != null) {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>          ir.cfg.breakCodeOrder(a, aNext);<a name="line.382"></a>
+<span class="sourceLineNo">383</span>          ir.cfg.linkInCodeOrder(landingPad, aNext);<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        }<a name="line.384"></a>
+<span class="sourceLineNo">385</span>        ir.cfg.linkInCodeOrder(a, landingPad);<a name="line.385"></a>
+<span class="sourceLineNo">386</span>      }<a name="line.386"></a>
+<span class="sourceLineNo">387</span>    }<a name="line.387"></a>
+<span class="sourceLineNo">388</span>  }<a name="line.388"></a>
+<span class="sourceLineNo">389</span>}<a name="line.389"></a>
 
 
 

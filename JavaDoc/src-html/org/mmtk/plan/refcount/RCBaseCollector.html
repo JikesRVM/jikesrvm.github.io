@@ -21,195 +21,195 @@
 <span class="sourceLineNo">013</span>package org.mmtk.plan.refcount;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import org.mmtk.plan.Phase;<a name="line.15"></a>
-<span class="sourceLineNo">016</span>import org.mmtk.plan.StopTheWorldCollector;<a name="line.16"></a>
-<span class="sourceLineNo">017</span>import org.mmtk.plan.TraceLocal;<a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.mmtk.plan.TransitiveClosure;<a name="line.18"></a>
-<span class="sourceLineNo">019</span>import org.mmtk.plan.refcount.backuptrace.BTTraceLocal;<a name="line.19"></a>
-<span class="sourceLineNo">020</span>import org.mmtk.policy.Space;<a name="line.20"></a>
-<span class="sourceLineNo">021</span>import org.mmtk.policy.ExplicitFreeListSpace;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>import org.mmtk.utility.deque.ObjectReferenceDeque;<a name="line.22"></a>
-<span class="sourceLineNo">023</span>import org.mmtk.vm.VM;<a name="line.23"></a>
-<span class="sourceLineNo">024</span>import org.vmmagic.pragma.Inline;<a name="line.24"></a>
-<span class="sourceLineNo">025</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import org.vmmagic.unboxed.ObjectReference;<a name="line.26"></a>
-<span class="sourceLineNo">027</span><a name="line.27"></a>
-<span class="sourceLineNo">028</span>/**<a name="line.28"></a>
-<span class="sourceLineNo">029</span> * This class implements the collector context for a reference counting collector.<a name="line.29"></a>
-<span class="sourceLineNo">030</span> * See Shahriyar et al for details of and rationale for the optimizations used<a name="line.30"></a>
-<span class="sourceLineNo">031</span> * here (http://dx.doi.org/10.1145/2258996.2259008).  See Chapter 4 of<a name="line.31"></a>
-<span class="sourceLineNo">032</span> * Daniel Frampton's PhD thesis for details of and rationale for the cycle<a name="line.32"></a>
-<span class="sourceLineNo">033</span> * collection strategy used by this collector.<a name="line.33"></a>
-<span class="sourceLineNo">034</span> */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>@Uninterruptible<a name="line.35"></a>
-<span class="sourceLineNo">036</span>public abstract class RCBaseCollector extends StopTheWorldCollector {<a name="line.36"></a>
-<span class="sourceLineNo">037</span><a name="line.37"></a>
-<span class="sourceLineNo">038</span>  /************************************************************************<a name="line.38"></a>
-<span class="sourceLineNo">039</span>   * Initialization<a name="line.39"></a>
-<span class="sourceLineNo">040</span>   */<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>  /**<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   *<a name="line.43"></a>
-<span class="sourceLineNo">044</span>   */<a name="line.44"></a>
-<span class="sourceLineNo">045</span>  protected final ObjectReferenceDeque newRootBuffer;<a name="line.45"></a>
-<span class="sourceLineNo">046</span>  private final BTTraceLocal backupTrace;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>  private final ObjectReferenceDeque modBuffer;<a name="line.47"></a>
-<span class="sourceLineNo">048</span>  private final ObjectReferenceDeque oldRootBuffer;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>  private final RCDecBuffer decBuffer;<a name="line.49"></a>
-<span class="sourceLineNo">050</span>  private final RCZero zero;<a name="line.50"></a>
-<span class="sourceLineNo">051</span><a name="line.51"></a>
-<span class="sourceLineNo">052</span>  /**<a name="line.52"></a>
-<span class="sourceLineNo">053</span>   * Constructor.<a name="line.53"></a>
-<span class="sourceLineNo">054</span>   */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>  public RCBaseCollector() {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    newRootBuffer = new ObjectReferenceDeque("new-root", global().newRootPool);<a name="line.56"></a>
-<span class="sourceLineNo">057</span>    oldRootBuffer = new ObjectReferenceDeque("old-root", global().oldRootPool);<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    modBuffer = new ObjectReferenceDeque("mod buf", global().modPool);<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    decBuffer = new RCDecBuffer(global().decPool);<a name="line.59"></a>
-<span class="sourceLineNo">060</span>    backupTrace = new BTTraceLocal(global().backupTrace);<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    zero = new RCZero();<a name="line.61"></a>
-<span class="sourceLineNo">062</span>  }<a name="line.62"></a>
-<span class="sourceLineNo">063</span><a name="line.63"></a>
-<span class="sourceLineNo">064</span>  /**<a name="line.64"></a>
-<span class="sourceLineNo">065</span>   * Get the modified processor to use.<a name="line.65"></a>
-<span class="sourceLineNo">066</span>   */<a name="line.66"></a>
-<span class="sourceLineNo">067</span>  protected abstract TransitiveClosure getModifiedProcessor();<a name="line.67"></a>
-<span class="sourceLineNo">068</span><a name="line.68"></a>
-<span class="sourceLineNo">069</span>  /**<a name="line.69"></a>
-<span class="sourceLineNo">070</span>   * Get the root trace to use.<a name="line.70"></a>
-<span class="sourceLineNo">071</span>   */<a name="line.71"></a>
-<span class="sourceLineNo">072</span>  protected abstract TraceLocal getRootTrace();<a name="line.72"></a>
-<span class="sourceLineNo">073</span><a name="line.73"></a>
-<span class="sourceLineNo">074</span>  /****************************************************************************<a name="line.74"></a>
-<span class="sourceLineNo">075</span>   *<a name="line.75"></a>
-<span class="sourceLineNo">076</span>   * Collection<a name="line.76"></a>
-<span class="sourceLineNo">077</span>   */<a name="line.77"></a>
-<span class="sourceLineNo">078</span><a name="line.78"></a>
-<span class="sourceLineNo">079</span>  /**<a name="line.79"></a>
-<span class="sourceLineNo">080</span>   * {@inheritDoc}<a name="line.80"></a>
-<span class="sourceLineNo">081</span>   */<a name="line.81"></a>
-<span class="sourceLineNo">082</span>  @Override<a name="line.82"></a>
-<span class="sourceLineNo">083</span>  public void collect() {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>    if (RCBase.BUILD_FOR_GENRC) Phase.beginNewPhaseStack(Phase.scheduleComplex(global().genRCCollection));<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    else Phase.beginNewPhaseStack(Phase.scheduleComplex(global().refCountCollection));<a name="line.85"></a>
-<span class="sourceLineNo">086</span>  }<a name="line.86"></a>
-<span class="sourceLineNo">087</span><a name="line.87"></a>
-<span class="sourceLineNo">088</span>  @Override<a name="line.88"></a>
-<span class="sourceLineNo">089</span>  public void collectionPhase(short phaseId, boolean primary) {<a name="line.89"></a>
-<span class="sourceLineNo">090</span>    if (phaseId == RCBase.PREPARE) {<a name="line.90"></a>
-<span class="sourceLineNo">091</span>      getRootTrace().prepare();<a name="line.91"></a>
-<span class="sourceLineNo">092</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) backupTrace.prepare();<a name="line.92"></a>
-<span class="sourceLineNo">093</span>      return;<a name="line.93"></a>
-<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
-<span class="sourceLineNo">095</span><a name="line.95"></a>
-<span class="sourceLineNo">096</span>    if (phaseId == RCBase.CLOSURE) {<a name="line.96"></a>
-<span class="sourceLineNo">097</span>      getRootTrace().completeTrace();<a name="line.97"></a>
-<span class="sourceLineNo">098</span>      newRootBuffer.flushLocal();<a name="line.98"></a>
-<span class="sourceLineNo">099</span>      return;<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
-<span class="sourceLineNo">101</span><a name="line.101"></a>
-<span class="sourceLineNo">102</span>    if (phaseId == RCBase.BT_CLOSURE) {<a name="line.102"></a>
-<span class="sourceLineNo">103</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        backupTrace.completeTrace();<a name="line.104"></a>
-<span class="sourceLineNo">105</span>      }<a name="line.105"></a>
-<span class="sourceLineNo">106</span>      return;<a name="line.106"></a>
-<span class="sourceLineNo">107</span>    }<a name="line.107"></a>
-<span class="sourceLineNo">108</span><a name="line.108"></a>
-<span class="sourceLineNo">109</span>    if (phaseId == RCBase.PROCESS_OLDROOTBUFFER) {<a name="line.109"></a>
-<span class="sourceLineNo">110</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) return;<a name="line.110"></a>
-<span class="sourceLineNo">111</span>      ObjectReference current;<a name="line.111"></a>
-<span class="sourceLineNo">112</span>      while(!(current = oldRootBuffer.pop()).isNull()) {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        decBuffer.push(current);<a name="line.113"></a>
-<span class="sourceLineNo">114</span>      }<a name="line.114"></a>
-<span class="sourceLineNo">115</span>      return;<a name="line.115"></a>
-<span class="sourceLineNo">116</span>    }<a name="line.116"></a>
-<span class="sourceLineNo">117</span><a name="line.117"></a>
-<span class="sourceLineNo">118</span>    if (phaseId == RCBase.PROCESS_NEWROOTBUFFER) {<a name="line.118"></a>
-<span class="sourceLineNo">119</span>      ObjectReference current;<a name="line.119"></a>
-<span class="sourceLineNo">120</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.120"></a>
-<span class="sourceLineNo">121</span>        while(!(current = newRootBuffer.pop()).isNull()) {<a name="line.121"></a>
-<span class="sourceLineNo">122</span>          if (RCHeader.testAndMark(current)) {<a name="line.122"></a>
-<span class="sourceLineNo">123</span>            if (RCBase.BUILD_FOR_GENRC) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>              RCHeader.initRC(current);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>            } else {<a name="line.125"></a>
-<span class="sourceLineNo">126</span>              if (RCHeader.initRC(current) == RCHeader.INC_NEW) {<a name="line.126"></a>
-<span class="sourceLineNo">127</span>                modBuffer.push(current);<a name="line.127"></a>
-<span class="sourceLineNo">128</span>              }<a name="line.128"></a>
-<span class="sourceLineNo">129</span>            }<a name="line.129"></a>
-<span class="sourceLineNo">130</span>            backupTrace.processNode(current);<a name="line.130"></a>
-<span class="sourceLineNo">131</span>          } else {<a name="line.131"></a>
-<span class="sourceLineNo">132</span>            if (RCBase.BUILD_FOR_GENRC) {<a name="line.132"></a>
-<span class="sourceLineNo">133</span>              RCHeader.incRC(current);<a name="line.133"></a>
-<span class="sourceLineNo">134</span>            } else {<a name="line.134"></a>
-<span class="sourceLineNo">135</span>              if (RCHeader.incRC(current) == RCHeader.INC_NEW) {<a name="line.135"></a>
-<span class="sourceLineNo">136</span>                modBuffer.push(current);<a name="line.136"></a>
-<span class="sourceLineNo">137</span>              }<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            }<a name="line.138"></a>
-<span class="sourceLineNo">139</span>          }<a name="line.139"></a>
-<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
-<span class="sourceLineNo">141</span>        if (!RCBase.BUILD_FOR_GENRC) modBuffer.flushLocal();<a name="line.141"></a>
-<span class="sourceLineNo">142</span>        return;<a name="line.142"></a>
-<span class="sourceLineNo">143</span>      }<a name="line.143"></a>
-<span class="sourceLineNo">144</span>      while(!(current = newRootBuffer.pop()).isNull()) {<a name="line.144"></a>
-<span class="sourceLineNo">145</span>        if (RCBase.BUILD_FOR_GENRC) {<a name="line.145"></a>
-<span class="sourceLineNo">146</span>          RCHeader.incRC(current);<a name="line.146"></a>
-<span class="sourceLineNo">147</span>        } else {<a name="line.147"></a>
-<span class="sourceLineNo">148</span>          if (RCHeader.incRC(current) == RCHeader.INC_NEW) {<a name="line.148"></a>
-<span class="sourceLineNo">149</span>            modBuffer.push(current);<a name="line.149"></a>
-<span class="sourceLineNo">150</span>          }<a name="line.150"></a>
-<span class="sourceLineNo">151</span>        }<a name="line.151"></a>
-<span class="sourceLineNo">152</span>        oldRootBuffer.push(current);<a name="line.152"></a>
+<span class="sourceLineNo">016</span>import org.mmtk.plan.Plan;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.mmtk.plan.StopTheWorldCollector;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.mmtk.plan.TraceLocal;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.mmtk.plan.TransitiveClosure;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.mmtk.plan.refcount.backuptrace.BTTraceLocal;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.mmtk.policy.Space;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.mmtk.policy.ExplicitFreeListSpace;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.mmtk.utility.deque.ObjectReferenceDeque;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.mmtk.vm.VM;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.vmmagic.pragma.Inline;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.vmmagic.pragma.Uninterruptible;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.vmmagic.unboxed.ObjectReference;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>/**<a name="line.29"></a>
+<span class="sourceLineNo">030</span> * This class implements the collector context for a reference counting collector.<a name="line.30"></a>
+<span class="sourceLineNo">031</span> * See Shahriyar et al for details of and rationale for the optimizations used<a name="line.31"></a>
+<span class="sourceLineNo">032</span> * here (http://dx.doi.org/10.1145/2258996.2259008).  See Chapter 4 of<a name="line.32"></a>
+<span class="sourceLineNo">033</span> * Daniel Frampton's PhD thesis for details of and rationale for the cycle<a name="line.33"></a>
+<span class="sourceLineNo">034</span> * collection strategy used by this collector.<a name="line.34"></a>
+<span class="sourceLineNo">035</span> */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>@Uninterruptible<a name="line.36"></a>
+<span class="sourceLineNo">037</span>public abstract class RCBaseCollector extends StopTheWorldCollector {<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>  /************************************************************************<a name="line.39"></a>
+<span class="sourceLineNo">040</span>   * Initialization<a name="line.40"></a>
+<span class="sourceLineNo">041</span>   */<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>  /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>   *<a name="line.44"></a>
+<span class="sourceLineNo">045</span>   */<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  protected final ObjectReferenceDeque newRootBuffer;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>  private final BTTraceLocal backupTrace;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>  private final ObjectReferenceDeque modBuffer;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  private final ObjectReferenceDeque oldRootBuffer;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>  private final RCDecBuffer decBuffer;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>  private final RCZero zero;<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>  /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>   * Constructor.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>   */<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public RCBaseCollector() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    newRootBuffer = new ObjectReferenceDeque("new-root", global().newRootPool);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    oldRootBuffer = new ObjectReferenceDeque("old-root", global().oldRootPool);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    modBuffer = new ObjectReferenceDeque("mod buf", global().modPool);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    decBuffer = new RCDecBuffer(global().decPool);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    backupTrace = new BTTraceLocal(global().backupTrace);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    zero = new RCZero();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>  /**<a name="line.65"></a>
+<span class="sourceLineNo">066</span>   * @return the modified processor to use.<a name="line.66"></a>
+<span class="sourceLineNo">067</span>   */<a name="line.67"></a>
+<span class="sourceLineNo">068</span>  protected abstract TransitiveClosure getModifiedProcessor();<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>  /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>   * @return the root trace to use.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>   */<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  protected abstract TraceLocal getRootTrace();<a name="line.73"></a>
+<span class="sourceLineNo">074</span><a name="line.74"></a>
+<span class="sourceLineNo">075</span>  /****************************************************************************<a name="line.75"></a>
+<span class="sourceLineNo">076</span>   *<a name="line.76"></a>
+<span class="sourceLineNo">077</span>   * Collection<a name="line.77"></a>
+<span class="sourceLineNo">078</span>   */<a name="line.78"></a>
+<span class="sourceLineNo">079</span><a name="line.79"></a>
+<span class="sourceLineNo">080</span>  /**<a name="line.80"></a>
+<span class="sourceLineNo">081</span>   * {@inheritDoc}<a name="line.81"></a>
+<span class="sourceLineNo">082</span>   */<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  @Override<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  public void collect() {<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    if (RCBase.BUILD_FOR_GENRC) Phase.beginNewPhaseStack(Phase.scheduleComplex(global().genRCCollection));<a name="line.85"></a>
+<span class="sourceLineNo">086</span>    else Phase.beginNewPhaseStack(Phase.scheduleComplex(global().refCountCollection));<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  }<a name="line.87"></a>
+<span class="sourceLineNo">088</span><a name="line.88"></a>
+<span class="sourceLineNo">089</span>  @Override<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  public void collectionPhase(short phaseId, boolean primary) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>    if (phaseId == RCBase.PREPARE) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>      getRootTrace().prepare();<a name="line.92"></a>
+<span class="sourceLineNo">093</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) backupTrace.prepare();<a name="line.93"></a>
+<span class="sourceLineNo">094</span>      return;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    }<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span>    if (phaseId == RCBase.ROOTS) {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>      VM.scanning.computeGlobalRoots(getCurrentTrace());<a name="line.98"></a>
+<span class="sourceLineNo">099</span>      VM.scanning.computeStaticRoots(getCurrentTrace());<a name="line.99"></a>
+<span class="sourceLineNo">100</span>      if (Plan.SCAN_BOOT_IMAGE &amp;&amp; RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>        VM.scanning.computeBootImageRoots(getCurrentTrace());<a name="line.101"></a>
+<span class="sourceLineNo">102</span>      }<a name="line.102"></a>
+<span class="sourceLineNo">103</span>      return;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>    }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>    if (phaseId == RCBase.CLOSURE) {<a name="line.106"></a>
+<span class="sourceLineNo">107</span>      getRootTrace().completeTrace();<a name="line.107"></a>
+<span class="sourceLineNo">108</span>      newRootBuffer.flushLocal();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>      return;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    }<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    if (phaseId == RCBase.BT_CLOSURE) {<a name="line.112"></a>
+<span class="sourceLineNo">113</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        backupTrace.completeTrace();<a name="line.114"></a>
+<span class="sourceLineNo">115</span>      }<a name="line.115"></a>
+<span class="sourceLineNo">116</span>      return;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    }<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>    if (phaseId == RCBase.PROCESS_OLDROOTBUFFER) {<a name="line.119"></a>
+<span class="sourceLineNo">120</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) return;<a name="line.120"></a>
+<span class="sourceLineNo">121</span>      ObjectReference current;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>      while ((!(current = oldRootBuffer.pop()).isNull())) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        decBuffer.push(current);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>      }<a name="line.124"></a>
+<span class="sourceLineNo">125</span>      return;<a name="line.125"></a>
+<span class="sourceLineNo">126</span>    }<a name="line.126"></a>
+<span class="sourceLineNo">127</span><a name="line.127"></a>
+<span class="sourceLineNo">128</span>    if (phaseId == RCBase.PROCESS_NEWROOTBUFFER) {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>      ObjectReference current;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        while (!(current = newRootBuffer.pop()).isNull()) {<a name="line.131"></a>
+<span class="sourceLineNo">132</span>          if (RCHeader.testAndMark(current)) {<a name="line.132"></a>
+<span class="sourceLineNo">133</span>            if (RCBase.BUILD_FOR_GENRC) {<a name="line.133"></a>
+<span class="sourceLineNo">134</span>              RCHeader.initRC(current);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>            } else {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>              if (RCHeader.initRC(current) == RCHeader.INC_NEW) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                modBuffer.push(current);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>              }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>            backupTrace.processNode(current);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>          } else {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>            if (RCBase.BUILD_FOR_GENRC) {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>              RCHeader.incRC(current);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>            } else {<a name="line.144"></a>
+<span class="sourceLineNo">145</span>              if (RCHeader.incRC(current) == RCHeader.INC_NEW) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                modBuffer.push(current);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>              }<a name="line.147"></a>
+<span class="sourceLineNo">148</span>            }<a name="line.148"></a>
+<span class="sourceLineNo">149</span>          }<a name="line.149"></a>
+<span class="sourceLineNo">150</span>        }<a name="line.150"></a>
+<span class="sourceLineNo">151</span>        if (!RCBase.BUILD_FOR_GENRC) modBuffer.flushLocal();<a name="line.151"></a>
+<span class="sourceLineNo">152</span>        return;<a name="line.152"></a>
 <span class="sourceLineNo">153</span>      }<a name="line.153"></a>
-<span class="sourceLineNo">154</span>      oldRootBuffer.flushLocal();<a name="line.154"></a>
-<span class="sourceLineNo">155</span>      if (!RCBase.BUILD_FOR_GENRC) modBuffer.flushLocal();<a name="line.155"></a>
-<span class="sourceLineNo">156</span>      return;<a name="line.156"></a>
-<span class="sourceLineNo">157</span>    }<a name="line.157"></a>
-<span class="sourceLineNo">158</span><a name="line.158"></a>
-<span class="sourceLineNo">159</span>    if (phaseId == RCBase.PROCESS_MODBUFFER) {<a name="line.159"></a>
-<span class="sourceLineNo">160</span>      ObjectReference current;<a name="line.160"></a>
-<span class="sourceLineNo">161</span>      while(!(current = modBuffer.pop()).isNull()) {<a name="line.161"></a>
-<span class="sourceLineNo">162</span>        RCHeader.makeUnlogged(current);<a name="line.162"></a>
-<span class="sourceLineNo">163</span>        if (!RCBase.BUILD_FOR_GENRC) {<a name="line.163"></a>
-<span class="sourceLineNo">164</span>          if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.164"></a>
-<span class="sourceLineNo">165</span>            ExplicitFreeListSpace.testAndSetLiveBit(current);<a name="line.165"></a>
-<span class="sourceLineNo">166</span>          }<a name="line.166"></a>
-<span class="sourceLineNo">167</span>        }<a name="line.167"></a>
-<span class="sourceLineNo">168</span>        VM.scanning.scanObject(getModifiedProcessor(), current);<a name="line.168"></a>
-<span class="sourceLineNo">169</span>      }<a name="line.169"></a>
-<span class="sourceLineNo">170</span>      return;<a name="line.170"></a>
-<span class="sourceLineNo">171</span>    }<a name="line.171"></a>
-<span class="sourceLineNo">172</span><a name="line.172"></a>
-<span class="sourceLineNo">173</span>    if (phaseId == RCBase.PROCESS_DECBUFFER) {<a name="line.173"></a>
-<span class="sourceLineNo">174</span>      ObjectReference current;<a name="line.174"></a>
-<span class="sourceLineNo">175</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.175"></a>
-<span class="sourceLineNo">176</span>        if (!RCBase.BUILD_FOR_GENRC) {<a name="line.176"></a>
-<span class="sourceLineNo">177</span>          while(!(current = decBuffer.pop()).isNull()) {<a name="line.177"></a>
-<span class="sourceLineNo">178</span>            if (RCHeader.isNew(current)) {<a name="line.178"></a>
-<span class="sourceLineNo">179</span>              if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.179"></a>
-<span class="sourceLineNo">180</span>                RCBase.rcSpace.free(current);<a name="line.180"></a>
-<span class="sourceLineNo">181</span>              } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.181"></a>
-<span class="sourceLineNo">182</span>                RCBase.rcloSpace.free(current);<a name="line.182"></a>
-<span class="sourceLineNo">183</span>              } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.183"></a>
-<span class="sourceLineNo">184</span>                VM.scanning.scanObject(zero, current);<a name="line.184"></a>
-<span class="sourceLineNo">185</span>              }<a name="line.185"></a>
-<span class="sourceLineNo">186</span>            }<a name="line.186"></a>
-<span class="sourceLineNo">187</span>          }<a name="line.187"></a>
-<span class="sourceLineNo">188</span>        }<a name="line.188"></a>
-<span class="sourceLineNo">189</span>        return;<a name="line.189"></a>
-<span class="sourceLineNo">190</span>      }<a name="line.190"></a>
-<span class="sourceLineNo">191</span>      while(!(current = decBuffer.pop()).isNull()) {<a name="line.191"></a>
-<span class="sourceLineNo">192</span>        if (RCBase.BUILD_FOR_GENRC) {<a name="line.192"></a>
-<span class="sourceLineNo">193</span>          if (RCHeader.decRC(current) == RCHeader.DEC_KILL) {<a name="line.193"></a>
-<span class="sourceLineNo">194</span>            decBuffer.processChildren(current);<a name="line.194"></a>
-<span class="sourceLineNo">195</span>            if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.195"></a>
-<span class="sourceLineNo">196</span>              RCBase.rcSpace.free(current);<a name="line.196"></a>
-<span class="sourceLineNo">197</span>            } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.197"></a>
-<span class="sourceLineNo">198</span>              RCBase.rcloSpace.free(current);<a name="line.198"></a>
-<span class="sourceLineNo">199</span>            } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.199"></a>
-<span class="sourceLineNo">200</span>              VM.scanning.scanObject(zero, current);<a name="line.200"></a>
-<span class="sourceLineNo">201</span>            }<a name="line.201"></a>
-<span class="sourceLineNo">202</span>          }<a name="line.202"></a>
-<span class="sourceLineNo">203</span>        } else {<a name="line.203"></a>
-<span class="sourceLineNo">204</span>          if (RCHeader.isNew(current)) {<a name="line.204"></a>
+<span class="sourceLineNo">154</span>      while (!(current = newRootBuffer.pop()).isNull()) {<a name="line.154"></a>
+<span class="sourceLineNo">155</span>        if (RCBase.BUILD_FOR_GENRC) {<a name="line.155"></a>
+<span class="sourceLineNo">156</span>          RCHeader.incRC(current);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>        } else {<a name="line.157"></a>
+<span class="sourceLineNo">158</span>          if (RCHeader.incRC(current) == RCHeader.INC_NEW) {<a name="line.158"></a>
+<span class="sourceLineNo">159</span>            modBuffer.push(current);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>          }<a name="line.160"></a>
+<span class="sourceLineNo">161</span>        }<a name="line.161"></a>
+<span class="sourceLineNo">162</span>        oldRootBuffer.push(current);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>      }<a name="line.163"></a>
+<span class="sourceLineNo">164</span>      oldRootBuffer.flushLocal();<a name="line.164"></a>
+<span class="sourceLineNo">165</span>      if (!RCBase.BUILD_FOR_GENRC) modBuffer.flushLocal();<a name="line.165"></a>
+<span class="sourceLineNo">166</span>      return;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    }<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    if (phaseId == RCBase.PROCESS_MODBUFFER) {<a name="line.169"></a>
+<span class="sourceLineNo">170</span>      ObjectReference current;<a name="line.170"></a>
+<span class="sourceLineNo">171</span>      while (!(current = modBuffer.pop()).isNull()) {<a name="line.171"></a>
+<span class="sourceLineNo">172</span>        RCHeader.makeUnlogged(current);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>        if (!RCBase.BUILD_FOR_GENRC) {<a name="line.173"></a>
+<span class="sourceLineNo">174</span>          if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.174"></a>
+<span class="sourceLineNo">175</span>            ExplicitFreeListSpace.testAndSetLiveBit(current);<a name="line.175"></a>
+<span class="sourceLineNo">176</span>          }<a name="line.176"></a>
+<span class="sourceLineNo">177</span>        }<a name="line.177"></a>
+<span class="sourceLineNo">178</span>        VM.scanning.scanObject(getModifiedProcessor(), current);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>      }<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      return;<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    }<a name="line.181"></a>
+<span class="sourceLineNo">182</span><a name="line.182"></a>
+<span class="sourceLineNo">183</span>    if (phaseId == RCBase.PROCESS_DECBUFFER) {<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      ObjectReference current;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.185"></a>
+<span class="sourceLineNo">186</span>        if (!RCBase.BUILD_FOR_GENRC) {<a name="line.186"></a>
+<span class="sourceLineNo">187</span>          while (!(current = decBuffer.pop()).isNull()) {<a name="line.187"></a>
+<span class="sourceLineNo">188</span>            if (RCHeader.isNew(current)) {<a name="line.188"></a>
+<span class="sourceLineNo">189</span>              if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                RCBase.rcSpace.free(current);<a name="line.190"></a>
+<span class="sourceLineNo">191</span>              } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                RCBase.rcloSpace.free(current);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>              } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                VM.scanning.scanObject(zero, current);<a name="line.194"></a>
+<span class="sourceLineNo">195</span>              }<a name="line.195"></a>
+<span class="sourceLineNo">196</span>            }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>          }<a name="line.197"></a>
+<span class="sourceLineNo">198</span>        }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>        return;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>      }<a name="line.200"></a>
+<span class="sourceLineNo">201</span>      while (!(current = decBuffer.pop()).isNull()) {<a name="line.201"></a>
+<span class="sourceLineNo">202</span>        if (RCBase.BUILD_FOR_GENRC) {<a name="line.202"></a>
+<span class="sourceLineNo">203</span>          if (RCHeader.decRC(current) == RCHeader.DEC_KILL) {<a name="line.203"></a>
+<span class="sourceLineNo">204</span>            decBuffer.processChildren(current);<a name="line.204"></a>
 <span class="sourceLineNo">205</span>            if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.205"></a>
 <span class="sourceLineNo">206</span>              RCBase.rcSpace.free(current);<a name="line.206"></a>
 <span class="sourceLineNo">207</span>            } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.207"></a>
@@ -217,63 +217,73 @@
 <span class="sourceLineNo">209</span>            } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.209"></a>
 <span class="sourceLineNo">210</span>              VM.scanning.scanObject(zero, current);<a name="line.210"></a>
 <span class="sourceLineNo">211</span>            }<a name="line.211"></a>
-<span class="sourceLineNo">212</span>          } else {<a name="line.212"></a>
-<span class="sourceLineNo">213</span>            if (RCHeader.decRC(current) == RCHeader.DEC_KILL) {<a name="line.213"></a>
-<span class="sourceLineNo">214</span>              decBuffer.processChildren(current);<a name="line.214"></a>
-<span class="sourceLineNo">215</span>              if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.215"></a>
-<span class="sourceLineNo">216</span>                RCBase.rcSpace.free(current);<a name="line.216"></a>
-<span class="sourceLineNo">217</span>              } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.217"></a>
-<span class="sourceLineNo">218</span>                RCBase.rcloSpace.free(current);<a name="line.218"></a>
-<span class="sourceLineNo">219</span>              } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.219"></a>
-<span class="sourceLineNo">220</span>                VM.scanning.scanObject(zero, current);<a name="line.220"></a>
-<span class="sourceLineNo">221</span>              }<a name="line.221"></a>
-<span class="sourceLineNo">222</span>            }<a name="line.222"></a>
-<span class="sourceLineNo">223</span>          }<a name="line.223"></a>
-<span class="sourceLineNo">224</span>        }<a name="line.224"></a>
-<span class="sourceLineNo">225</span>      }<a name="line.225"></a>
-<span class="sourceLineNo">226</span>      return;<a name="line.226"></a>
-<span class="sourceLineNo">227</span>    }<a name="line.227"></a>
-<span class="sourceLineNo">228</span><a name="line.228"></a>
-<span class="sourceLineNo">229</span>    if (phaseId == RCBase.RELEASE) {<a name="line.229"></a>
-<span class="sourceLineNo">230</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.230"></a>
-<span class="sourceLineNo">231</span>        backupTrace.release();<a name="line.231"></a>
-<span class="sourceLineNo">232</span>        global().oldRootPool.clearDeque(1);<a name="line.232"></a>
-<span class="sourceLineNo">233</span>        if (RCBase.BUILD_FOR_GENRC) global().decPool.clearDeque(1);<a name="line.233"></a>
-<span class="sourceLineNo">234</span>      }<a name="line.234"></a>
-<span class="sourceLineNo">235</span>      getRootTrace().release();<a name="line.235"></a>
-<span class="sourceLineNo">236</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.236"></a>
-<span class="sourceLineNo">237</span>        VM.assertions._assert(newRootBuffer.isEmpty());<a name="line.237"></a>
-<span class="sourceLineNo">238</span>        VM.assertions._assert(modBuffer.isEmpty());<a name="line.238"></a>
-<span class="sourceLineNo">239</span>        VM.assertions._assert(decBuffer.isEmpty());<a name="line.239"></a>
-<span class="sourceLineNo">240</span>      }<a name="line.240"></a>
-<span class="sourceLineNo">241</span>      return;<a name="line.241"></a>
-<span class="sourceLineNo">242</span>    }<a name="line.242"></a>
-<span class="sourceLineNo">243</span><a name="line.243"></a>
-<span class="sourceLineNo">244</span>    super.collectionPhase(phaseId, primary);<a name="line.244"></a>
-<span class="sourceLineNo">245</span>  }<a name="line.245"></a>
-<span class="sourceLineNo">246</span><a name="line.246"></a>
-<span class="sourceLineNo">247</span>  /****************************************************************************<a name="line.247"></a>
-<span class="sourceLineNo">248</span>   *<a name="line.248"></a>
-<span class="sourceLineNo">249</span>   * Miscellaneous<a name="line.249"></a>
-<span class="sourceLineNo">250</span>   */<a name="line.250"></a>
-<span class="sourceLineNo">251</span><a name="line.251"></a>
-<span class="sourceLineNo">252</span>  /** @return The active global plan as an &lt;code&gt;RC&lt;/code&gt; instance. */<a name="line.252"></a>
-<span class="sourceLineNo">253</span>  @Inline<a name="line.253"></a>
-<span class="sourceLineNo">254</span>  protected static RCBase global() {<a name="line.254"></a>
-<span class="sourceLineNo">255</span>    return (RCBase) VM.activePlan.global();<a name="line.255"></a>
-<span class="sourceLineNo">256</span>  }<a name="line.256"></a>
-<span class="sourceLineNo">257</span><a name="line.257"></a>
-<span class="sourceLineNo">258</span>  @Override<a name="line.258"></a>
-<span class="sourceLineNo">259</span>  public final TraceLocal getCurrentTrace() {<a name="line.259"></a>
-<span class="sourceLineNo">260</span>    return getRootTrace();<a name="line.260"></a>
-<span class="sourceLineNo">261</span>  }<a name="line.261"></a>
-<span class="sourceLineNo">262</span><a name="line.262"></a>
-<span class="sourceLineNo">263</span>  /** @return The current modBuffer instance. */<a name="line.263"></a>
-<span class="sourceLineNo">264</span>  @Inline<a name="line.264"></a>
-<span class="sourceLineNo">265</span>  public final ObjectReferenceDeque getModBuffer() {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>    return modBuffer;<a name="line.266"></a>
-<span class="sourceLineNo">267</span>  }<a name="line.267"></a>
-<span class="sourceLineNo">268</span>}<a name="line.268"></a>
+<span class="sourceLineNo">212</span>          }<a name="line.212"></a>
+<span class="sourceLineNo">213</span>        } else {<a name="line.213"></a>
+<span class="sourceLineNo">214</span>          if (RCHeader.isNew(current)) {<a name="line.214"></a>
+<span class="sourceLineNo">215</span>            if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>              RCBase.rcSpace.free(current);<a name="line.216"></a>
+<span class="sourceLineNo">217</span>            } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.217"></a>
+<span class="sourceLineNo">218</span>              RCBase.rcloSpace.free(current);<a name="line.218"></a>
+<span class="sourceLineNo">219</span>            } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.219"></a>
+<span class="sourceLineNo">220</span>              VM.scanning.scanObject(zero, current);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>            }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>          } else {<a name="line.222"></a>
+<span class="sourceLineNo">223</span>            if (RCHeader.decRC(current) == RCHeader.DEC_KILL) {<a name="line.223"></a>
+<span class="sourceLineNo">224</span>              decBuffer.processChildren(current);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>              if (Space.isInSpace(RCBase.REF_COUNT, current)) {<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                RCBase.rcSpace.free(current);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>              } else if (Space.isInSpace(RCBase.REF_COUNT_LOS, current)) {<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                RCBase.rcloSpace.free(current);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>              } else if (Space.isInSpace(RCBase.IMMORTAL, current)) {<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                VM.scanning.scanObject(zero, current);<a name="line.230"></a>
+<span class="sourceLineNo">231</span>              }<a name="line.231"></a>
+<span class="sourceLineNo">232</span>            }<a name="line.232"></a>
+<span class="sourceLineNo">233</span>          }<a name="line.233"></a>
+<span class="sourceLineNo">234</span>        }<a name="line.234"></a>
+<span class="sourceLineNo">235</span>      }<a name="line.235"></a>
+<span class="sourceLineNo">236</span>      return;<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    }<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>    if (phaseId == RCBase.RELEASE) {<a name="line.239"></a>
+<span class="sourceLineNo">240</span>      if (RCBase.CC_BACKUP_TRACE &amp;&amp; RCBase.performCycleCollection) {<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        backupTrace.release();<a name="line.241"></a>
+<span class="sourceLineNo">242</span>        global().oldRootPool.clearDeque(1);<a name="line.242"></a>
+<span class="sourceLineNo">243</span>        if (RCBase.BUILD_FOR_GENRC) global().decPool.clearDeque(1);<a name="line.243"></a>
+<span class="sourceLineNo">244</span>      }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>      getRootTrace().release();<a name="line.245"></a>
+<span class="sourceLineNo">246</span>      if (VM.VERIFY_ASSERTIONS) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>        VM.assertions._assert(newRootBuffer.isEmpty());<a name="line.247"></a>
+<span class="sourceLineNo">248</span>        VM.assertions._assert(modBuffer.isEmpty());<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        VM.assertions._assert(decBuffer.isEmpty());<a name="line.249"></a>
+<span class="sourceLineNo">250</span>      }<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      return;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    }<a name="line.252"></a>
+<span class="sourceLineNo">253</span><a name="line.253"></a>
+<span class="sourceLineNo">254</span>    super.collectionPhase(phaseId, primary);<a name="line.254"></a>
+<span class="sourceLineNo">255</span>  }<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>  /****************************************************************************<a name="line.257"></a>
+<span class="sourceLineNo">258</span>   *<a name="line.258"></a>
+<span class="sourceLineNo">259</span>   * Miscellaneous<a name="line.259"></a>
+<span class="sourceLineNo">260</span>   */<a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>  /** @return The active global plan as an &lt;code&gt;RC&lt;/code&gt; instance. */<a name="line.262"></a>
+<span class="sourceLineNo">263</span>  @Inline<a name="line.263"></a>
+<span class="sourceLineNo">264</span>  protected static RCBase global() {<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    return (RCBase) VM.activePlan.global();<a name="line.265"></a>
+<span class="sourceLineNo">266</span>  }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>  @Override<a name="line.268"></a>
+<span class="sourceLineNo">269</span>  public final TraceLocal getCurrentTrace() {<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    return getRootTrace();<a name="line.270"></a>
+<span class="sourceLineNo">271</span>  }<a name="line.271"></a>
+<span class="sourceLineNo">272</span><a name="line.272"></a>
+<span class="sourceLineNo">273</span>  /** @return The current modBuffer instance. */<a name="line.273"></a>
+<span class="sourceLineNo">274</span>  @Inline<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  public final ObjectReferenceDeque getModBuffer() {<a name="line.275"></a>
+<span class="sourceLineNo">276</span>    return modBuffer;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>  }<a name="line.277"></a>
+<span class="sourceLineNo">278</span>}<a name="line.278"></a>
 
 
 

@@ -22,8 +22,8 @@
 <span class="sourceLineNo">014</span><a name="line.14"></a>
 <span class="sourceLineNo">015</span>import static org.mmtk.policy.Space.BYTES_IN_CHUNK;<a name="line.15"></a>
 <span class="sourceLineNo">016</span>import static org.mmtk.policy.immix.ImmixConstants.*;<a name="line.16"></a>
-<span class="sourceLineNo">017</span><a name="line.17"></a>
-<span class="sourceLineNo">018</span>import org.mmtk.utility.Constants;<a name="line.18"></a>
+<span class="sourceLineNo">017</span>import static org.mmtk.utility.Constants.*;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
 <span class="sourceLineNo">019</span>import org.mmtk.utility.Conversions;<a name="line.19"></a>
 <span class="sourceLineNo">020</span>import org.mmtk.utility.heap.Mmapper;<a name="line.20"></a>
 <span class="sourceLineNo">021</span>import org.mmtk.vm.VM;<a name="line.21"></a>
@@ -33,7 +33,7 @@
 <span class="sourceLineNo">025</span>import org.vmmagic.unboxed.Extent;<a name="line.25"></a>
 <span class="sourceLineNo">026</span><a name="line.26"></a>
 <span class="sourceLineNo">027</span>@Uninterruptible<a name="line.27"></a>
-<span class="sourceLineNo">028</span>public class Chunk implements Constants {<a name="line.28"></a>
+<span class="sourceLineNo">028</span>public class Chunk {<a name="line.28"></a>
 <span class="sourceLineNo">029</span><a name="line.29"></a>
 <span class="sourceLineNo">030</span>  public static Address align(Address ptr) {<a name="line.30"></a>
 <span class="sourceLineNo">031</span>    return ptr.toWord().and(CHUNK_MASK.not()).toAddress();<a name="line.31"></a>
@@ -48,7 +48,7 @@
 <span class="sourceLineNo">040</span>  }<a name="line.40"></a>
 <span class="sourceLineNo">041</span><a name="line.41"></a>
 <span class="sourceLineNo">042</span>  /**<a name="line.42"></a>
-<span class="sourceLineNo">043</span>   * Return the number of pages of metadata required per chunk.<a name="line.43"></a>
+<span class="sourceLineNo">043</span>   * @return the number of pages of metadata required per chunk<a name="line.43"></a>
 <span class="sourceLineNo">044</span>   */<a name="line.44"></a>
 <span class="sourceLineNo">045</span>  static int getRequiredMetaDataPages() {<a name="line.45"></a>
 <span class="sourceLineNo">046</span>    Extent bytes = Extent.fromIntZeroExtend(ROUNDED_METADATA_BYTES_PER_CHUNK);<a name="line.46"></a>
@@ -60,7 +60,7 @@
 <span class="sourceLineNo">052</span>    Address start = getFirstUsableBlock(chunk);<a name="line.52"></a>
 <span class="sourceLineNo">053</span>    Address cursor = Block.getBlockMarkStateAddress(start);<a name="line.53"></a>
 <span class="sourceLineNo">054</span>    for (int index = FIRST_USABLE_BLOCK_INDEX; index &lt; BLOCKS_IN_CHUNK; index++) {<a name="line.54"></a>
-<span class="sourceLineNo">055</span>      Address block = chunk.plus(index&lt;&lt;LOG_BYTES_IN_BLOCK);<a name="line.55"></a>
+<span class="sourceLineNo">055</span>      Address block = chunk.plus(index &lt;&lt; LOG_BYTES_IN_BLOCK);<a name="line.55"></a>
 <span class="sourceLineNo">056</span>      if (block.GT(end)) break;<a name="line.56"></a>
 <span class="sourceLineNo">057</span>      final boolean defragSource = space.inImmixDefragCollection() &amp;&amp; Block.isDefragSource(block);<a name="line.57"></a>
 <span class="sourceLineNo">058</span>      short marked = Block.sweepOneBlock(block, markHistogram, markValue, resetMarks);<a name="line.58"></a>
@@ -154,9 +154,9 @@
 <span class="sourceLineNo">146</span>  }<a name="line.146"></a>
 <span class="sourceLineNo">147</span><a name="line.147"></a>
 <span class="sourceLineNo">148</span>  private static final int LOG_BYTES_IN_HIGHWATER_ENTRY = LOG_BYTES_IN_ADDRESS;<a name="line.148"></a>
-<span class="sourceLineNo">149</span>  private static final int HIGHWATER_BYTES = 1&lt;&lt;LOG_BYTES_IN_HIGHWATER_ENTRY;<a name="line.149"></a>
+<span class="sourceLineNo">149</span>  private static final int HIGHWATER_BYTES = 1 &lt;&lt; LOG_BYTES_IN_HIGHWATER_ENTRY;<a name="line.149"></a>
 <span class="sourceLineNo">150</span>  private static final int LOG_BYTES_IN_MAP_ENTRY = LOG_BYTES_IN_INT;<a name="line.150"></a>
-<span class="sourceLineNo">151</span>  private static final int MAP_BYTES = 1&lt;&lt;LOG_BYTES_IN_MAP_ENTRY;<a name="line.151"></a>
+<span class="sourceLineNo">151</span>  private static final int MAP_BYTES = 1 &lt;&lt; LOG_BYTES_IN_MAP_ENTRY;<a name="line.151"></a>
 <span class="sourceLineNo">152</span><a name="line.152"></a>
 <span class="sourceLineNo">153</span>  /* byte offsets for each type of metadata */<a name="line.153"></a>
 <span class="sourceLineNo">154</span>  static final int LINE_MARK_TABLE_OFFSET = 0;<a name="line.154"></a>
@@ -167,10 +167,10 @@
 <span class="sourceLineNo">159</span>  static final int METADATA_BYTES_PER_CHUNK = MAP_OFFSET + MAP_BYTES;<a name="line.159"></a>
 <span class="sourceLineNo">160</span><a name="line.160"></a>
 <span class="sourceLineNo">161</span>  /* FIXME we round the metadata up to block sizes just to ensure the underlying allocator gives us aligned requests */<a name="line.161"></a>
-<span class="sourceLineNo">162</span>  private static final int BLOCK_MASK = (1&lt;&lt;LOG_BYTES_IN_BLOCK) - 1;<a name="line.162"></a>
+<span class="sourceLineNo">162</span>  private static final int BLOCK_MASK = (1 &lt;&lt; LOG_BYTES_IN_BLOCK) - 1;<a name="line.162"></a>
 <span class="sourceLineNo">163</span>  static final int ROUNDED_METADATA_BYTES_PER_CHUNK = (METADATA_BYTES_PER_CHUNK + BLOCK_MASK) &amp; ~BLOCK_MASK;<a name="line.163"></a>
-<span class="sourceLineNo">164</span>  static final int ROUNDED_METADATA_PAGES_PER_CHUNK = ROUNDED_METADATA_BYTES_PER_CHUNK&gt;&gt;LOG_BYTES_IN_PAGE;<a name="line.164"></a>
-<span class="sourceLineNo">165</span>  public static final int FIRST_USABLE_BLOCK_INDEX = ROUNDED_METADATA_BYTES_PER_CHUNK&gt;&gt;LOG_BYTES_IN_BLOCK;<a name="line.165"></a>
+<span class="sourceLineNo">164</span>  static final int ROUNDED_METADATA_PAGES_PER_CHUNK = ROUNDED_METADATA_BYTES_PER_CHUNK &gt;&gt; LOG_BYTES_IN_PAGE;<a name="line.164"></a>
+<span class="sourceLineNo">165</span>  public static final int FIRST_USABLE_BLOCK_INDEX = ROUNDED_METADATA_BYTES_PER_CHUNK &gt;&gt; LOG_BYTES_IN_BLOCK;<a name="line.165"></a>
 <span class="sourceLineNo">166</span>}<a name="line.166"></a>
 
 

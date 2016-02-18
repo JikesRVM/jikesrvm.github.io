@@ -20,33 +20,34 @@
 <span class="sourceLineNo">012</span> */<a name="line.12"></a>
 <span class="sourceLineNo">013</span>package org.jikesrvm.mm.mminterface;<a name="line.13"></a>
 <span class="sourceLineNo">014</span><a name="line.14"></a>
-<span class="sourceLineNo">015</span>import org.jikesrvm.SizeConstants;<a name="line.15"></a>
+<span class="sourceLineNo">015</span>import static org.jikesrvm.runtime.UnboxedSizeConstants.LOG_BYTES_IN_WORD;<a name="line.15"></a>
 <span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>/**<a name="line.17"></a>
-<span class="sourceLineNo">018</span> * This class merely exposes the MMTk constants into the Jikes RVM<a name="line.18"></a>
-<span class="sourceLineNo">019</span> * package space so that they can be accessed by the VM in an<a name="line.19"></a>
-<span class="sourceLineNo">020</span> * MM-neutral way.  It is separate from MemoryManager to break<a name="line.20"></a>
-<span class="sourceLineNo">021</span> * cyclic class-loading dependencies.<a name="line.21"></a>
-<span class="sourceLineNo">022</span> */<a name="line.22"></a>
-<span class="sourceLineNo">023</span>public class MemoryManagerConstants implements SizeConstants {<a name="line.23"></a>
-<span class="sourceLineNo">024</span>  /** {@code true} if the selected plan needs support for linearly scanning the heap */<a name="line.24"></a>
-<span class="sourceLineNo">025</span>  public static final boolean NEEDS_LINEAR_SCAN = Selected.Constraints.get().needsLinearScan();<a name="line.25"></a>
-<span class="sourceLineNo">026</span>  /** Number of bits in the GC header required by the selected plan */<a name="line.26"></a>
-<span class="sourceLineNo">027</span>  public static final int GC_HEADER_BITS = Selected.Constraints.get().gcHeaderBits();<a name="line.27"></a>
-<span class="sourceLineNo">028</span>  /** Number of additional bytes required in the header by the selected plan */<a name="line.28"></a>
-<span class="sourceLineNo">029</span>  public static final int GC_HEADER_BYTES = Selected.Constraints.get().gcHeaderWords() &lt;&lt; LOG_BYTES_IN_WORD;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>  /** {@code true} if the selected plan requires concurrent worker threads */<a name="line.30"></a>
-<span class="sourceLineNo">031</span>  public static final boolean NEEDS_CONCURRENT_WORKERS = Selected.Constraints.get().needsConcurrentWorkers();<a name="line.31"></a>
-<span class="sourceLineNo">032</span>  /** {@code true} if the selected plan needs support for generating a GC trace */<a name="line.32"></a>
-<span class="sourceLineNo">033</span>  public static final boolean GENERATE_GC_TRACE = Selected.Constraints.get().generateGCTrace();<a name="line.33"></a>
-<span class="sourceLineNo">034</span>  /** {@code true} if the selected plan may move objects */<a name="line.34"></a>
-<span class="sourceLineNo">035</span>  public static final boolean MOVES_OBJECTS = Selected.Constraints.get().movesObjects();<a name="line.35"></a>
-<span class="sourceLineNo">036</span>  /** {@code true} if the selected plan moves TIB objects */<a name="line.36"></a>
-<span class="sourceLineNo">037</span>  public static final boolean MOVES_TIBS = false;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>  /** {@code true} if the selected plan moves code */<a name="line.38"></a>
-<span class="sourceLineNo">039</span>  public static final boolean MOVES_CODE = false;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>}<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>/**<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * This class merely exposes the MMTk constants into the Jikes RVM<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * package space so that they can be accessed by the VM in an<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * MM-neutral way.  It is separate from MemoryManager to break<a name="line.21"></a>
+<span class="sourceLineNo">022</span> * cyclic class-loading dependencies.<a name="line.22"></a>
+<span class="sourceLineNo">023</span> */<a name="line.23"></a>
+<span class="sourceLineNo">024</span>public class MemoryManagerConstants {<a name="line.24"></a>
+<span class="sourceLineNo">025</span>  /** {@code true} if the selected plan needs support for linearly scanning the heap */<a name="line.25"></a>
+<span class="sourceLineNo">026</span>  public static final boolean NEEDS_LINEAR_SCAN = Selected.Constraints.get().needsLinearScan();<a name="line.26"></a>
+<span class="sourceLineNo">027</span>  /** Number of bits in the GC header required by the selected plan */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>  public static final int GC_HEADER_BITS = Selected.Constraints.get().gcHeaderBits();<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  /** Number of additional bytes required in the header by the selected plan */<a name="line.29"></a>
+<span class="sourceLineNo">030</span>  public static final int GC_HEADER_BYTES = Selected.Constraints.get().gcHeaderWords() &lt;&lt; LOG_BYTES_IN_WORD;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>  /** {@code true} if the selected plan requires concurrent worker threads */<a name="line.31"></a>
+<span class="sourceLineNo">032</span>  public static final boolean NEEDS_CONCURRENT_WORKERS = Selected.Constraints.get().needsConcurrentWorkers();<a name="line.32"></a>
+<span class="sourceLineNo">033</span>  /** {@code true} if the selected plan needs support for generating a GC trace */<a name="line.33"></a>
+<span class="sourceLineNo">034</span>  public static final boolean GENERATE_GC_TRACE = Selected.Constraints.get().generateGCTrace();<a name="line.34"></a>
+<span class="sourceLineNo">035</span>  /** {@code true} if the selected plan may move objects */<a name="line.35"></a>
+<span class="sourceLineNo">036</span>  public static final boolean MOVES_OBJECTS = Selected.Constraints.get().movesObjects();<a name="line.36"></a>
+<span class="sourceLineNo">037</span>  /** {@code true} if the selected plan moves TIB objects */<a name="line.37"></a>
+<span class="sourceLineNo">038</span>  public static final boolean MOVES_TIBS = false;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>  /** {@code true} if the selected plan moves code */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>  public static final boolean MOVES_CODE = false;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>}<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
 
 
 
