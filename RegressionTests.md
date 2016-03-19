@@ -15,13 +15,12 @@ All PPC machines that are available at the moment are 64-bit:
 
 | Machine | OS | Notes |
 | --- | --- | --- |
-| gcc110 | Fedora 18 | IcedTea 7 with PPC64 JIT available in /opt/cfarm/ |
-| gcc111 | AIX 7.1 | IBM Java 6 JDK and IBM Java 7 JRE available |
-| gcc112 | Fedora 21 | PPC64 little endian (which we don't support right now), IcedTea 8 with PPC64 JIT preinstalled as standard JDK  |
+| gcc110 | Fedora 20 | IcedTea 7 with PPC64 JIT |
+| gcc112 | Fedora 21 | PPC64 little endian (which we [don't support right now](https://xtenlang.atlassian.net/browse/RVM-1140)), IcedTea 8 with PPC64 JIT preinstalled as standard JDK  |
 
 Depending on the machine you want to use, you may have to reconfigure the JDK that Ant uses. This can be done by creating an .antrc file (e.g. in your home directory).
 
-**Example .antrc for gcc110**
+**Example .antrc **
 
 JAVACMD=/opt/cfarm/icedtea-2.5.3-java7-ppc64-jit/bin/java
 

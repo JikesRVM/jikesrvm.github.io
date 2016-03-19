@@ -30,7 +30,7 @@ We are happy to take patches to support more platforms. However, we can't guaran
 
 - Work on x64 support has been [started](http://xtenlang.atlassian.net/browse/RVM-977). The x64 baseline compiler generally works. However, there are still (intermittent) failures so it is likely not reliable enough for research. The x64 opt compiler port is not usable yet.
 - ARM architectures are not supported at all but we would really like to have support for them. There's code for a work-in-progress ARM port at [GitHub](https://github.com/dmitry-brizhinev/JikesRVM).
-- PPC little endian is currently not supported. We have access to a POWER8 machine via the GCC compile farm so we can test and review patches. However, we don't have the resources to start a port ourselves right now.
+- PPC little endian is [currently not supported](https://xtenlang.atlassian.net/browse/RVM-1140). We have access to a POWER8 machine via the GCC compile farm so we can test and review patches.
 - There are no plans to support other architectures at this time. If you want to have support for another architecture in the mainline Jikes RVM so that it ends up in an official release, we urge you to contact the team via the core mailing list before starting your work. This will make integration of the port much easier. If you have questions about private ports (i.e. ports that you cannot or do not want to contribute to the mainline), please use the researchers list instead of the core list.
 
 ## Operating Systems
