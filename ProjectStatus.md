@@ -21,7 +21,7 @@ _Note: If you want to help, please see [How to Help](/HowToHelp/) or inquire via
 
 ## Near-term goals
 
-- Add Intel 64-bit support
+- Add Intel 64-bit support (see below for detailed status)
 - [Merge relevant changes from MRP](/MergeStatusOfMRPChangesets/)
 
 ## Preliminary long-term goals (still need further discussion)
@@ -58,6 +58,13 @@ This section provides more detailed project status information for the component
 - Notable omissions in the collector choices include Baker-style collectors, the Compressor and on-the-fly collectors. **Note: There is an implementation of the [Sapphire](http://xtenlang.atlassian.net/browse/RVM-893) garbage collector for Jikes RVM but as far as we know there's currently nobody working on getting the code into the mainline.**
 - MMTk currently doesn't [deal correctly](https://xtenlang.atlassian.net/browse/RVM-816) with page sizes
 
+## x64 support
+
+- x64 prototype works well
+- other x64 BaseBase* configurations have intermittent failures
+- x64 prototype-opt is partly working
+- x64 development doesn't build due to image bloat issues
+
 ## Runtime
 
 - The runtime is reasonably modular but it doesn't make very good use of interfaces
@@ -81,7 +88,7 @@ This section provides more detailed project status information for the component
 
 ## Infrastructure
 
-- Regression tests are run regulary and reports are sent to the regressions mailing list
+- Regression tests are run regulary for ia32, x64 and ppc64 and reports are sent to the regressions mailing list
 - Core team members have access to a Jenkins server to view test results in detail
 - More regression machines would be useful, in particular PowerPC machines that can be accessed by all team members
 - Currently no code review tools in use
