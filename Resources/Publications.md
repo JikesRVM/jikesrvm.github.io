@@ -9,6 +9,20 @@ Information of dissertations relating to the Jikes RVM is [available here](/Reso
 
 If you would like to see a paper listed then please send details to the [RVM researchers mailing list](/MailingLists).
 
+## 2016
+
+### [Adaptive Correction of Sampling Bias in Dynamic Call Graphs](https://dl.acm.org/citation.cfm?id=2840806)
+
+- Byeongcheol Lee
+- ACM Transactions on Architecture and Code Optimization (TACO), Volume 12 Issue 4, Article No. 45, January 2016
+
+## 2015
+
+### [Stop and go: understanding yieldpoint behavior](http://users.cecs.anu.edu.au/~steveb/downloads/pdf/yieldpoint-ismm-2015.pdf)
+
+- Yi Lin, Kunshan Wang, Stephen M. Blackurn, Antony L. Hosking and Michael Norrish
+- ACM SIGPLAN International Symposium on Memory Management, ISMM'15, Portland, OR, USA, June 14, 2015,
+
 ## 2014
 
 ### &nbsp;Fast Conservative Garbage Collection
