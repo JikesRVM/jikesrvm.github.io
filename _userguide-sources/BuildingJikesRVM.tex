@@ -152,6 +152,8 @@ pkg-get will greatly simplify installing GNU packages on Solaris. Our patches re
 
 There are a number of ant properties that are used to control the build process of Jikes RVM. These properties may either be specified on the command line by \spverb+-Dproperty=variable+ or they may be specified in a file named \spverb+.ant.properties+ in the base directory of the jikesrvm source tree. The \spverb+.ant.properties+ file is a standard Java property file with each line containing a \spverb+property=variable+ and comments starting with a \spverb+#+ and finishing at the end of the line.
 
+The available properties can be grouped into properties that resolve to values and properties that resolve to directories. For properties that resolve to directories, you must make sure that the value of the property resolves to an absolute path. Relative paths aren't supported by our build system. The path must not contain any whitespace.
+
 \begin{table}
 \centering
 \begin{tabular}{p{0.15\linewidth}p{0.6\linewidth}p{0.15\linewidth}}
@@ -160,17 +162,26 @@ host.name & The name of the host environment used for building Jikes RVM. The ho
 target.name & The name of the target environment for Jikes RVM. The name should match one of the files located in the \spverb+build/targets/+ directory minus the '.properties' extension. This should only be specified when cross compiling the Jikes RVM. See \hyperref[sec:crossplatformbuilding]{Cross-Platform Building} for a detailed description of cross compilation. & \$\{host.name\} \\
 config.name & The name of the configuration used when building Jikes RVM. The name should match one of the files located in the \spverb+build/configs/+ directory minus the '.properties' extension. This setting is further described in the section \hyperref[cha:configuringjikesrvm]{Configuring Jikes RVM}. & None \\
 patch.name & An identifier for the current patch applied to the source tree. See \hyperref[sec:buildingpatchedversions]{Building Patched Versions} for a description of how this fits into the standard usage patterns of Jikes RVM. & ``\,'' \\
-com\-po\-nents.dir & The directory where Ant looks for external components when building Jikes RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
-dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jikesrvm.\newline dir\}/dist \\
-build.dir & The directory where Ant stores the intermediate artifacts generated when building the Jikes RVM. & \$\{jikesrvm.\newline dir\}/tar\-get \\
-com\-po\-nents.\-cache.\-dir & The directory where Ant caches downloaded components.  If you explicitly download a component, place it in this directory. & (Undefined, forcing download) \\
 require.rvm-unit-tests & If set to \spverb+true+, run \hyperref[cha:testingjikesrvm]{unit tests} on the built Jikes RVM image. Use with care as it will significantly increase build times for configurations that are compiled using a non-optimizing compiler (see below). & (Undefined, tests are not run) \\
 require.\newline checkstyle & Only useful if you want to \href{http://www.jikesrvm.org/Contributions/}{contribute} changes to the Jikes RVM. If set to true, run checkstyle during the build to check for violations of the Jikes RVM \hyperref[sec:codingstyle]{Coding Style} and \hyperref[sec:codingconventions]{Coding Conventions} for assertions. & (Undefined, no checks run) \\
 rvm.debug-symbols & If set to true, build the Jikes RVM with debug symbols for the bootloader code and the code in the bootimage. Note: this is not enabled by default because it causes build failures for configurations that build the bootimage with the optimizing compiler (see \href{https://xtenlang.atlassian.net/browse/RVM-1084}{RVM-1084}). & (Undefined, no symbols built) \\
 protect.config-files & Define this property if you do not want the build process to update configuration files when auto downloading components. & (Undefined) \\
 \end{tabular}
-\caption{Commonly used Ant properties for Jikes RVM}
+\caption{Ant value properties for Jikes RVM}
 \end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{p{0.15\linewidth}p{0.6\linewidth}p{0.15\linewidth}}
+Property & Description & Default \\
+com\-po\-nents.dir & The directory where Ant looks for external components when building Jikes RVM. & \$\{jikesrvm.\newline dir\}/com\-po\-nents \\
+dist.dir & The directory where Ant stores the final Jikes RVM runtime. & \$\{jikesrvm.\newline dir\}/dist \\
+build.dir & The directory where Ant stores the intermediate artifacts generated when building the Jikes RVM. & \$\{jikesrvm.\newline dir\}/tar\-get \\
+com\-po\-nents.\-cache.\-dir & The directory where Ant caches downloaded components.  If you explicitly download a component, place it in this directory. & (Undefined, forcing download) \\
+\end{tabular}
+\caption{Ant directory properties for Jikes RVM}
+\end{table}
+
 
 At a minimum it is recommended that the user specify the \spverb+host.name+ property in the \spverb+.ant.properties+ file.
 
