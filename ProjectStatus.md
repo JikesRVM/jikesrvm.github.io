@@ -62,8 +62,8 @@ This section provides more detailed project status information for the component
 
 - x64 prototype works well
 - other x64 BaseBase* configurations have intermittent failures
-- x64 prototype-opt is partly working
-- x64 development doesn't build due to image bloat issues
+- x64 prototype-opt and development builds have intermittent failures
+- other x64 builds with the optimizing compiler are untested
 
 ## Runtime
 
