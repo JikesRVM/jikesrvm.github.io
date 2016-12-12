@@ -47,6 +47,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - Greg Borota
 - Erik Brangs
 - [Shane Brewer](http://www.cs.ualberta.ca/~brewer)
+- Dmitry Brizhinev
 - [Brian D. Carlstrom](http://carlstrom.com/)
 - Peter Donald
 - Philippe Faes
