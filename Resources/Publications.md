@@ -11,6 +11,16 @@ If you would like to see a paper listed then please send details to the [RVM res
 
 ## 2016
 
+## [Legato: End-to-End Bounded Region Serializability Using Commodity Hardware Transactional Memory](http://web.cse.ohio-state.edu/~mikebond/legato-cgo-2017.pdf)
+- Aritra Sengupta, Man Cao, Michael D. Bond and Milind Kulkarni
+
+## [A deployable sampling strategy for data race detection](https://dl.acm.org/citation.cfm?doid=2950290.2950310)
+- Yan Cai, Jian Zhang, Lingwei Cao and Jian Liu
+- more information available at http://lcs.ios.ac.cn/~yancai/cr/cr.html
+
+## [Prioritized  Garbage  Collection: Explicit  GC  Support  for  Software  Caches](https://arxiv.org/pdf/1610.04790.pdf)
+- Diogenes Nunez, Samuel Z. Guyer and Emery D. Berger
+
 ### [Adaptive Correction of Sampling Bias in Dynamic Call Graphs](https://dl.acm.org/citation.cfm?id=2840806)
 
 - Byeongcheol Lee
