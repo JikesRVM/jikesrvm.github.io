@@ -3,13 +3,15 @@ layout: default
 title: Regression Tests
 ---
 
-Regression tests are run every day with Jenkins for IA32 and reports are sent out to the regression [mailing list](/MailingLists). Both Jenkins and the machines are currently only accessible by the core development team. Jenkins tests on PPC will be added at a later date.
+Regression tests are run every day with Jenkins and reports are sent out to the regression [mailing list](/MailingLists). Both Jenkins and the machines are currently only accessible by the core development team.
 
-[Look here](/UserGuide/TestingJikesRVM/index.html#x12-10400010) if you are looking for how to run our automated tests on your machines.
+[Look here](/UserGuide/TestingJikesRVM/index.html#x12-10400010) if you are looking for how to run the provided automated tests on your machines.
+
+Feel free to ask on the mailing lists if you're curious about our Jenkins setup.
 
 # PowerPC machines for development
 
-If you need access to a PowerPC machine for development (as opposed to regular regression testing), consider contacting the [GCC Compile Farm](http://gcc.gnu.org/wiki/CompileFarm). The GCC compile farm is an independent project that provides access to shared hardware for free software developers.
+If you need access to a PowerPC machine for development, consider contacting the [GCC Compile Farm](http://gcc.gnu.org/wiki/CompileFarm). The GCC compile farm is an independent project that provides access to shared hardware for free software developers.
 
 All PPC machines that are available at the moment are 64-bit:
 
@@ -20,7 +22,7 @@ All PPC machines that are available at the moment are 64-bit:
 
 Depending on the machine you want to use, you may have to reconfigure the JDK that Ant uses. This can be done by creating an .antrc file (e.g. in your home directory).
 
-**Example .antrc **
+**Example .antrc**
 
 JAVACMD=/opt/cfarm/icedtea-2.5.3-java7-ppc64-jit/bin/java
 
