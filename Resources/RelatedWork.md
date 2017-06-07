@@ -19,17 +19,13 @@ The [OpenJDK](http://openjdk.dev.java.net/) is the open source JVM and class lib
 
 The [Apache Harmony](http://harmony.apache.org/) project was trying to create a world class, certified implementation of the Java Platform Standard Edition. The Apache Harmony project has reached its end of life and has been moved to the [Apache Attic](http://attic.apache.org/). The Apache Harmony project released most code under the [Apache License](http://harmony.apache.org/license.html). Due to its non-copyleft license, the implementation was suitable for use in both closed and open source JVMs.
 
-# JVMs
+# JVMs (actively developed)
 
 Note that almost all JVMs mentioned here are licensed under the GPL. Because the GPL and the EPL are not compatible, code generally cannot be shared between these projects and the Jikes RVM.
 
 ## Maxine Research VM
 
-[Maxine](http://kenai.com/projects/maxine) is a meta-circular JVM with a strong focus an modularity. It was developed at Oracle Labs. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the Maxine Inspector.
-
-## Metacircular Research Platform
-
-The [Metacircular Research Platform](https://github.com/codehaus/mrp) is fork of the Jikes RVM and licensed under the EPL.
+[Maxine](https://github.com/beehive-lab/Maxine-VM) is a meta-circular JVM with a strong focus an modularity. It was initially developed at Oracle Labs and is now developed at the University of Manchester. Maxine uses an unmodified standard JDK as its class library and provides its own development tool, the Maxine Inspector.
 
 ## JamVM
 
@@ -39,13 +35,19 @@ The [Metacircular Research Platform](https://github.com/codehaus/mrp) is fork of
 
 The [CACAO JVM](http://www.complang.tuwien.ac.at/cacaojvm/) is a JVM from the [Computer Languages group](http://www.complang.tuwien.ac.at/) at the [Vienna University of Technology](http://www.tuwien.ac.at/).
 
+# JVMs (no longer developed)
+
+## Metacircular Research Platform
+
+The [Metacircular Research Platform](https://github.com/codehaus/mrp) is fork of the Jikes RVM and licensed under the EPL.
+
 ## Jato VM
 
 [Jato](http://www.jatovm.org/) is a JIT-only JVM.
 
 ## GCJ
 
-[The GNU Compiler for Java](http://gcc.gnu.org/java/) is an open source Java compiler that statically compiles Java code into native code.
+[The GNU Compiler for Java](http://gcc.gnu.org/java/) is an open source Java compiler that statically compiles Java code into native code. GCJ was available in GCC 6 and is no longer available in GCC 7.
 
 ## Kaffe
 
