@@ -60,10 +60,7 @@ This section provides more detailed project status information for the component
 
 ## x64 support
 
-- x64 prototype works well
-- other x64 BaseBase* configurations have intermittent failures
-- x64 prototype-opt and development builds are mostly working but have some failures
-- other x64 builds with the optimizing compiler are untested
+- regression tests on x64 configurations run reasonably well with the notable exception of SPECjbb2005
 
 ## Runtime
 

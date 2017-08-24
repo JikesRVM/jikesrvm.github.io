@@ -28,10 +28,10 @@ We are happy to take patches to support more platforms. However, we can't guaran
 
 ## Architectures
 
-- Work on x64 support has been [started](http://xtenlang.atlassian.net/browse/RVM-977). The x64 baseline compiler works for the most part. However, there are still (intermittent) failures. Depending on the configurations that you want to use, it might not be reliable enough for research. The x64 opt compiler port is partly working but has seen little testing.
-- ARM architectures are not supported at all but we would really like to have support for them. There's code for a work-in-progress ARM port at [GitHub](https://github.com/dmitry-brizhinev/JikesRVM).
-- [Martin Maas](https://people.eecs.berkeley.edu/~maas/) has been working on a [RISC-V](https://en.wikipedia.org/wiki/RISC-V) port. It doesn't seem to be public at the moment.
-- PPC little endian is [currently not supported](https://xtenlang.atlassian.net/browse/RVM-1140). We have access to a POWER8 machine via the GCC compile farm so we can test and review patches.
+- Work on x64 support has been [started](http://xtenlang.atlassian.net/browse/RVM-977). The x64 baseline compiler is working. The x64 opt compiler port seems to be working but has seen comparatively little testing.
+- ARM architectures are currently not supported. There's code for a baseline compiler ARM port at [GitHub](https://github.com/dmitry-brizhinev/JikesRVM). There's also a [pull request](https://github.com/JikesRVM/JikesRVM/pull/11) that mentions some outstanding issues.
+- PPC little endian is [currently not supported](https://xtenlang.atlassian.net/browse/RVM-1140). It's currently unlikely that this will be developed without community contributions. We have access to a POWER8 machine via the GCC compile farm so we can test and review patches.
+- [Martin Maas](https://people.eecs.berkeley.edu/~maas/) has been working on a [RISC-V](https://en.wikipedia.org/wiki/RISC-V) port. It doesn't seem to be public at the moment. Additionally, RISC-V isn't fully supported in all required upstream projects yet. For example, RISC-V Linux kernel support missed the merge window for Linux 4.13.
 - There are no plans to support other architectures at this time. If you want to have support for another architecture in the mainline Jikes RVM so that it ends up in an official release, we urge you to contact the team via the core mailing list before starting your work. This will make integration of the port much easier. If you have questions about private ports (i.e. ports that you cannot or do not want to contribute to the mainline), please use the researchers list instead of the core list.
 
 ## Operating Systems
