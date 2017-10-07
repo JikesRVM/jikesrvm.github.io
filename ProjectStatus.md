@@ -5,31 +5,23 @@ title: Project Status
 
 # General project status
 
-Jikes RVM is currently the most popular platform for virtual machine research. This popularity is reflected in the particpation on the [mailing lists](/MailingLists/) where most questions can be answered.
-
-Memory management research is a particular strength of the Jikes RVM. The Memory Management Toolkit (MMtk) provides a well-rounded selection of garbage collectors and the [compiler replay](/UserGuide/ExperimentalGuidelines/index.html#x8-620006) feature enables researchers to control mutator variation. The [MMTk test harness](/UserGuide/TheMMTkTestHarness/index.html#x13-13100011) can be used to test collectors.
-
-In contrast to this, the compilers are currently a weak spot in the Jikes RVM. For example, the Static Single Assignment (SSA) form in the compilers is currently disabled because of bugs.
-
-The Jikes RVM is not state-of-the-art in some areas. In particular, Jikes RVM currently does not provide 64-bit Intel Support. Another big limitation is the lack of support for the OpenJDK class library. The project has received community contributions to improve those shortcomings but the code is not yet in the mainline. The Jikes RVM would also profit from efforts directed to stability improvements and bugfixes. For example, Jikes RVM currently cannot run all of the [Dacapo](http://www.dacapobench.org/) 9.12 benchmarks.
-
-The Jikes RVM team aims to provide at least one release every year.
+Jikes RVM lacks support for anything later than Java 1.6 and the project sees little development at the moment.
 
 _Note: The information on this page refers to the status in the code repository and not to the status in the current release._
 
 _Note: If you want to help, please see [How to Help](/HowToHelp/) or inquire via the mailing lists._
 
-## Near-term goals
+## Important project goals
 
-- Add Intel 64-bit support (see below for detailed status)
+- Add support for the OpenJDK class libraries (a prerequisite for adding support for newer Java versions)
+- Improve compliance with JVM spec, particularly with the Java Memory Model
+
+## Additional project goals in no particular order
+
+- Improve Intel 64-bit support (see below for detailed status)
 - [Merge relevant changes from MRP](/MergeStatusOfMRPChangesets/)
-
-## Preliminary long-term goals (still need further discussion)
-
-- Add support for the OpenJDK class libraries
 - Improve and extend test suites
 - Improve stability
-- Improve compliance with JVM spec
 - Write unit tests for all classes
 - Add support for relevant new platforms (ARM?)
 
@@ -46,7 +38,6 @@ This section provides more detailed project status information for the component
 
 ## Community
 
-- Jikes RVM has a large community in its intended audience (researchers)
 - Core team consists wholly of volunteers: no paid developers
 - Jikes RVM is currently not packaged for any major distribution
 
