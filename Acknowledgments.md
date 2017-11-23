@@ -48,6 +48,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - Erik Brangs
 - [Shane Brewer](http://www.cs.ualberta.ca/~brewer)
 - Dmitry Brizhinev
+- Zixian Cai
 - [Brian D. Carlstrom](http://carlstrom.com/)
 - Peter Donald
 - Philippe Faes
@@ -105,6 +106,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - [Lingli Zhang](http://www.cs.ucsb.edu/~lingli_z)
 - [Jisheng Zhao](http://www.cs.manchester.ac.uk/apt/people/jzhao/)
 - Lei Zhao
+- Lingyu Zhu
 
 ### Software Used by Jikes RVM
 
