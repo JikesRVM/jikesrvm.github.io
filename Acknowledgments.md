@@ -99,6 +99,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - [Suryia Subramanian](http://www.cs.utexas.edu/~suriya/)
 - [Tomoharu Ugawa](http://spa.cs.uec.ac.jp/~ugawa/index-e.html)
 - [Tom VanDrunen](http://www.cs.purdue.edu/people/vandrutj)
+- Brenda Wang
 - Ian Warrington
 - [Mark Wielaard](http://klomp.org/mark)
 - Xi Yang
