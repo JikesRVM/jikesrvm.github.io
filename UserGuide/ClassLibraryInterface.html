@@ -1,0 +1,77 @@
+---
+layout: default 
+---
+<?xml version="1.0" encoding="utf8" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>17 Interface to the Class Library</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
+<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<!-- xhtml,charset=utf8,2,html --> 
+<meta name="src" content="index.tex" /> 
+<link rel="stylesheet" type="text/css" href="index.css" /> 
+</head><body 
+>
+<!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter 17</span><br /><a 
+ id="x20-24900017"></a>Interface to the Class Library</h2>
+<!--l. 5--><p class="noindent" >The Jikes RVM currently only supports GNU Classpath. A long time ago, the Jikes
+RVM also supported Apache Harmonoy. Support for OpenJDK/IcedTea is planned
+but still far from usable.
+</p><!--l. 7--><p class="noindent" >The description here focusses on the current state for GNU Classpath which deﬁnes
+an explicit interface to the virtual machine implementation. Supporting OpenJDK
+will require signiﬁcant changes to the interface to the class library. Those changes are
+not described here.
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.1   </span> <a 
+ id="x20-25000017.1"></a>Overview</h3>
+<!--l. 11--><p class="noindent" >The current library interface is found in the directory <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface</span></span></span>. It is
+divided in the common parts that are necessary for all class libraryies and the
+parts that diﬀer for each class library. The parts speciﬁc to the class library
+are further grouped according to the licenses that apply to the respective
+parts.
+</p><!--l. 13--><p class="noindent" >The common parts include <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">sun.misc.Unsafe</span></span></span> which is implemented via Jikes RVM
+<a 
+href="/UserGuide/Magic/index.html#x18-21100015">Magic</a>.
+</p><!--l. 17--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.2   </span> <a 
+ id="x20-25100017.2"></a>GNU Classpath VM interface</h3>
+<!--l. 19--><p class="noindent" >GNU Classpath deﬁnes certain classes that have to provided by the VM vendor.
+Those classes are generally named VM*, e.g. <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">VMString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">VMSystem</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">VMThrowable</span></span></span>.
+Implementations for those classes can be found at <br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface/GNUClasspath/EPL/src</span></span></span>. GMU Classpath also provides
+default versions for those classes. In some cases, the default versions are
+used.
+</p><!--l. 21--><p class="noindent" >Jikes RVM also directly replaces some classes from GNU Classpath with modiﬁed
+versions. Those classes are found at <br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface/GNUClasspath/LGPL/src</span></span></span>.
+</p><!--l. 25--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.3   </span> <a 
+ id="x20-25200017.3"></a>Build organisation</h3>
+<!--l. 27--><p class="noindent" >The class library interface and the class library itself are compiled into a single jar
+ﬁle, <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">rvmrt.jar</span></span></span>.
+</p><!--l. 29--><p class="noindent" >The build also has a step to add annotations to classes from the class library using ASM.
+This is implemented by the class <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">org.jikesrvm.tools.asm.AnnotationAdder</span></span></span>.
+                                                                  
+
+                                                                  
+</p>
+<!--l. 124--><div class="crosslinks"><p class="noindent"></p></div>
+<!--l. 124--><p class="noindent" ><a 
+ id="tailClassLibraryInterface.html"></a></p> 
+</body></html> 

@@ -31,13 +31,13 @@ report.
 of Java threads: several organizer threads in the runtime measurements component,
 the controller thread, and the compilation thread. The various threads are loosely
 coupled, communicating with each other through shared queues and/or the
+                                                                  
+
+                                                                  
 other in memory data structures. All queues in the system are blocking
 priority queues; if a consumer thread performs a dequeue operation when the
 queue is empty, it suspends until a producer thread performs an enqueue
 operation.
-                                                                  
-
-                                                                  
 </p><!--l. 9--><p class="noindent" >The adaptive optimization system performs two primary tasks: selective optimization
 and proﬁle-directed inlining.
 </p>
@@ -88,13 +88,13 @@ computation.
 removes it and performs the compilation activity speciﬁed by the event. It invokes
 the optimizing compiler at the speciﬁed optimization level and installs the resulting
 compiled method into the VM.
+                                                                  
+
+                                                                  
 </p><!--l. 23--><p class="noindent" >Although the overall structure of selective optimization in Jikes RVM is similar to
 that originally described in Arnold et al&#x2019;s OOPSLA 2000 paper, we have made
 several changes and improvements based on further experience with the system. The
 most signiﬁcant change is that in the previous system, the method sample organizer
-                                                                  
-
-                                                                  
 attempted to ﬁlter the set of methods it presented to the controller. The
 organizer passed along to the controller only methods considered ”hot”. The
 organizer deemed a method ”hot” if the percentage of samples attributed
@@ -139,13 +139,13 @@ decisions.
 </p><!--l. 40--><p class="noindent" >The system currently used is based on Arnold &#x0026; Grove&#x2019;s CGO 2005 paper. More
 details of the sampling scheme and the inlining oracle can be found there, or in the
 source code.
+                                                                  
+
+                                                                  
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">12.1   </span> <a 
  id="x15-15000012.1"></a>AOS Controller</h3>
-                                                                  
-
-                                                                  
 <!--l. 5--><p class="noindent" >A primary design goal for the adaptive optimization system is to enable research in
 online feedback-directed optimization. Therefore, we require the controller
 implementation to be ﬂexible and extensible. As we gained experience with the
@@ -192,12 +192,12 @@ online.
 </p><!--l. 5--><p class="noindent" >A key advantage of this approach is that it allows a designer to extend the simple
 ”break-even” cost-beneﬁt model to account for more sophisticated adaptive policies,
 such as selective compilation with multiple optimization levels, on-stack-replacement,
-and long-running analyses.
-</p><!--l. 7--><p class="noindent" >In general, each potential action will incur some cost and may confer some beneﬁt.
-For example, recompiling a method will certainly consume some CPU cycles, but
                                                                   
 
                                                                   
+and long-running analyses.
+</p><!--l. 7--><p class="noindent" >In general, each potential action will incur some cost and may confer some beneﬁt.
+For example, recompiling a method will certainly consume some CPU cycles, but
 could speed up the program execution by generating better code. In this
 discussion we focus on costs and beneﬁts deﬁned in terms of time (CPU
 cycles). However, in general, the controller could consider other measures of
@@ -390,6 +390,9 @@ class="cmex-10">∑</span>
   <span 
 class="cmmi-10">m </span>times. Let <span 
 class="cmmi-10">δ </span>be the sampling
+                                                                  
+
+                                                                  
 interval, measured in seconds. The controller estimates that method <span 
 class="cmmi-10">m </span>has executed
 <span 
@@ -402,9 +405,6 @@ class="cmex-10">∑</span>
   <span 
 class="cmmi-10">m </span>seconds in the
 future.
-                                                                  
-
-                                                                  
 </p><!--l. 33--><p class="noindent" >When driving recompilation based on sampling, the controller can limit its attention
 to the set of methods that were sampled in the previous sampling interval. This
 optimization does not lose precision; if the number of samples associated with a
@@ -473,12 +473,12 @@ class="cmti-10">baseline  </span>compiler  is  to  generate  correct  code  quic
      For  example,  the  IA32  baseline  compiler  translates  bytecodes  directly
      into native code by simulating Java&#x2019;s operand stack. It does not build
      an intermediate representation and does not perform register allocation,
-     resulting in native code that executes only somewhat faster than bytecode
-     interpretation. However, it does achieve its goal of producing this code
-     quickly, which signiﬁcantly reduces the initial overhead associated with
                                                                   
 
                                                                   
+     resulting in native code that executes only somewhat faster than bytecode
+     interpretation. However, it does achieve its goal of producing this code
+     quickly, which signiﬁcantly reduces the initial overhead associated with
      dynamic compilation.
      </li>
      <li class="itemize">The <span 
@@ -529,12 +529,12 @@ class="cmti-10">without </span>requiring
          </li>
          <li class="itemize"><span 
 class="cmbx-10">Level   2   </span>augments   level   1   with   loop   optimizations   such
-         as  normalization  and  unrolling;  scalar  SSA-based  ﬂow-sensitive
-         optimizations  based  on  dataﬂow,  global  value  numbering,  global
-         common  subexpression  elimination,  redundant  and  conditional
                                                                   
 
                                                                   
+         as  normalization  and  unrolling;  scalar  SSA-based  ﬂow-sensitive
+         optimizations  based  on  dataﬂow,  global  value  numbering,  global
+         common  subexpression  elimination,  redundant  and  conditional
          branch elimination; and heap array SSA-based optimizations, such as
          load/store elimination, and global code placement. <span 
 class="cmbx-10">NOTE: many</span>
@@ -584,6 +584,9 @@ method. A method may transition from either compiling or installed to obsolete
 due to a classloading-induced invalidation. A method can also transition
 from installed to obsolete when the adaptive system selects a method for
 optimizing recompilation and a new compiled method is installed to replace
+                                                                  
+
+                                                                  
 it.
 </p>
 <hr class="figure" /><div class="figure" 
