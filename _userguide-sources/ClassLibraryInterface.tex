@@ -1,0 +1,34 @@
+\setNextFileName{ClassLibraryInterface.html}
+\begin{chapter}{Interface to the Class Library}
+\label{cha:classlibraryinterface}
+
+The Jikes RVM currently only supports GNU Classpath. A long time ago, the Jikes RVM also supported Apache Harmonoy. Support for OpenJDK/IcedTea is planned but still far from usable.
+
+The description here focusses on the current state for GNU Classpath which defines an explicit interface to the virtual machine implementation. Supporting OpenJDK will require significant changes to the interface to the class library. Those changes are not described here.
+
+\begin{section}{Overview}
+
+The current library interface is found in the directory \spverb+libraryInterface+. It is divided in the common parts that are necessary for all class libraryies and the parts that differ for each class library. The parts specific to the class library are further grouped according to the licenses that apply to the respective parts.
+
+The common parts include \spverb+sun.misc.Unsafe+ which is implemented via Jikes RVM \hyperref[cha:magic]{Magic}.
+
+\end{section}
+
+\begin{section}{GNU Classpath VM interface}
+
+GNU Classpath defines certain classes that have to provided by the VM vendor. Those classes are generally named VM*, e.g. \spverb+VMString+, \spverb+VMSystem+, \spverb+VMThrowable+. Implementations for those classes can be found at \newline \spverb+libraryInterface/GNUClasspath/EPL/src+. GMU Classpath also provides default versions for those classes. In some cases, the default versions are used.
+
+Jikes RVM also directly replaces some classes from GNU Classpath with modified versions. Those classes are found at \newline \spverb+libraryInterface/GNUClasspath/LGPL/src+.
+
+\end{section}
+
+\begin{section}{Build organisation}
+
+The class library interface and the class library itself are compiled into a single jar file, \spverb+rvmrt.jar+.
+
+The build also has a step to add annotations to classes from the class library using ASM. This is implemented by the class \spverb+org.jikesrvm.tools.asm.AnnotationAdder+.
+
+\end{section}
+
+
+\end{chapter}
