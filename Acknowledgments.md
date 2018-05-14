@@ -50,6 +50,7 @@ The Jikes RVM project sincerely thanks the following people who have made contri
 - Dmitry Brizhinev
 - Zixian Cai
 - [Brian D. Carlstrom](http://carlstrom.com/)
+- Karl Cronburg
 - Peter Donald
 - Philippe Faes
 - Da Feng
