@@ -49,6 +49,11 @@ This section provides more detailed project status information for the component
 - Notable omissions in the collector choices include Baker-style collectors, the Compressor and on-the-fly collectors. **Note: There is an implementation of the [Sapphire](http://xtenlang.atlassian.net/browse/RVM-893) garbage collector for Jikes RVM but as far as we know there's currently nobody working on getting the code into the mainline.**
 - MMTk currently doesn't [deal correctly](https://xtenlang.atlassian.net/browse/RVM-816) with page sizes
 
+## OpenJDK
+- work happens on the RVM-549-OpenJDK branch
+- bootimage builds
+- HelloWorld does not run yet
+
 ## x64 support
 
 - regression tests on x64 configurations run reasonably well with the notable exception of SPECjbb2005
