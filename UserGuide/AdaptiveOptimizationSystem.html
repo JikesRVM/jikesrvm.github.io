@@ -30,10 +30,10 @@ report.
 </p><!--l. 7--><p class="noindent" >The implementation of the Jikes RVM adaptive optimization system uses a number
 of Java threads: several organizer threads in the runtime measurements component,
 the controller thread, and the compilation thread. The various threads are loosely
-coupled, communicating with each other through shared queues and/or the
                                                                   
 
                                                                   
+coupled, communicating with each other through shared queues and/or the
 other in memory data structures. All queues in the system are blocking
 priority queues; if a consumer thread performs a dequeue operation when the
 queue is empty, it suspends until a producer thread performs an enqueue
@@ -87,10 +87,10 @@ computation.
 </p><!--l. 21--><p class="noindent" >When an event is available on the recompilation queue, the recompilation thread
 removes it and performs the compilation activity speciﬁed by the event. It invokes
 the optimizing compiler at the speciﬁed optimization level and installs the resulting
-compiled method into the VM.
                                                                   
 
                                                                   
+compiled method into the VM.
 </p><!--l. 23--><p class="noindent" >Although the overall structure of selective optimization in Jikes RVM is similar to
 that originally described in Arnold et al&#x2019;s OOPSLA 2000 paper, we have made
 several changes and improvements based on further experience with the system. The
@@ -189,12 +189,12 @@ point for each action using an online competitive algorithm. It relies on an ana
 model to estimate the costs and beneﬁts of each selective recompilation
 action, and evaluates the best actions according to the model predictions
 online.
-</p><!--l. 5--><p class="noindent" >A key advantage of this approach is that it allows a designer to extend the simple
-”break-even” cost-beneﬁt model to account for more sophisticated adaptive policies,
-such as selective compilation with multiple optimization levels, on-stack-replacement,
                                                                   
 
                                                                   
+</p><!--l. 5--><p class="noindent" >A key advantage of this approach is that it allows a designer to extend the simple
+”break-even” cost-beneﬁt model to account for more sophisticated adaptive policies,
+such as selective compilation with multiple optimization levels, on-stack-replacement,
 and long-running analyses.
 </p><!--l. 7--><p class="noindent" >In general, each potential action will incur some cost and may confer some beneﬁt.
 For example, recompiling a method will certainly consume some CPU cycles, but
@@ -374,6 +374,9 @@ estimate that if no optimization action is performed <span
 class="cmmi-10">T</span>(<span 
 class="cmmi-10">A</span><sub><span 
 class="cmmi-7">jm</span></sub>) is equal to the time
+                                                                  
+
+                                                                  
 spent executing method <span 
 class="cmmi-10">m </span>so far.
 </p><!--l. 31--><p class="noindent" >Let <span 
@@ -390,9 +393,6 @@ class="cmex-10">∑</span>
   <span 
 class="cmmi-10">m </span>times. Let <span 
 class="cmmi-10">δ </span>be the sampling
-                                                                  
-
-                                                                  
 interval, measured in seconds. The controller estimates that method <span 
 class="cmmi-10">m </span>has executed
 <span 
@@ -470,12 +470,12 @@ overhead and code quality. </p>
      <ul class="itemize1">
      <li class="itemize">The  goal  of  the  <span 
 class="cmti-10">baseline  </span>compiler  is  to  generate  correct  code  quickly.
-     For  example,  the  IA32  baseline  compiler  translates  bytecodes  directly
-     into native code by simulating Java&#x2019;s operand stack. It does not build
-     an intermediate representation and does not perform register allocation,
                                                                   
 
                                                                   
+     For  example,  the  IA32  baseline  compiler  translates  bytecodes  directly
+     into native code by simulating Java&#x2019;s operand stack. It does not build
+     an intermediate representation and does not perform register allocation,
      resulting in native code that executes only somewhat faster than bytecode
      interpretation. However, it does achieve its goal of producing this code
      quickly, which signiﬁcantly reduces the initial overhead associated with
@@ -525,13 +525,13 @@ class="cmbx-10">Level   1  </span>resembles   Level   0,   but   signiﬁcantly 
 class="cmti-10">without </span>requiring
          stack frame rewriting on invalidation. It also runs multiple passes of
          some of the Level 0 optimizations and uses a more sophisticated code
+                                                                  
+
+                                                                  
          reordering algorithm due to Pettis and Hansen.
          </li>
          <li class="itemize"><span 
 class="cmbx-10">Level   2   </span>augments   level   1   with   loop   optimizations   such
-                                                                  
-
-                                                                  
          as  normalization  and  unrolling;  scalar  SSA-based  ﬂow-sensitive
          optimizations  based  on  dataﬂow,  global  value  numbering,  global
          common  subexpression  elimination,  redundant  and  conditional
@@ -581,12 +581,12 @@ code.
 to identify the set of compiled methods to mark as obsolete, because this
 classloading action invalidates speculative optimizations previously applied to that
 method. A method may transition from either compiling or installed to obsolete
-due to a classloading-induced invalidation. A method can also transition
-from installed to obsolete when the adaptive system selects a method for
-optimizing recompilation and a new compiled method is installed to replace
                                                                   
 
                                                                   
+due to a classloading-induced invalidation. A method can also transition
+from installed to obsolete when the adaptive system selects a method for
+optimizing recompilation and a new compiled method is installed to replace
 it.
 </p>
 <hr class="figure" /><div class="figure" 
