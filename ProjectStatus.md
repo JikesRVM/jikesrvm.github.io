@@ -51,12 +51,13 @@ This section provides more detailed project status information for the component
 
 ## OpenJDK
 - work happens on the RVM-549-OpenJDK branch
-- bootimage builds
+- bootimage builds, VM completes boot sequence and exits normally when no class is provided
 - HelloWorld does not run yet
 
 ## x64 support
 
 - regression tests on x64 configurations run reasonably well with the notable exception of SPECjbb2005
+- x64 is the default (the latest release still has 32-bit as default)
 
 ## Runtime
 
