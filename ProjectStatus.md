@@ -52,7 +52,8 @@ This section provides more detailed project status information for the component
 ## OpenJDK
 - work happens on the RVM-549-OpenJDK branch
 - bootimage builds, VM completes boot sequence and exits normally when no class is provided
-- HelloWorld does not run yet
+- HelloWorld runs
+- TODOs: make unit tests run, fix opt builds, make pre-commit test run pass
 
 ## x64 support
 
