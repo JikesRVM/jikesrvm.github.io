@@ -77,7 +77,7 @@ href="https://xtenlang.atlassian.net/browse/RVM-555" >RVM-555</a>)
  id="x7-530005.1.5"></a>Tests</h4>
 <!--l. 50--><p class="noindent" >The test coverage is poor at the moment. Nevertheless, if you&#x2019;re very lucky, one of
 the smaller test cases will fail. See <a 
-href="/UserGuide/TestingJikesRVM/index.html#x12-10800010">Testing Jikes RVM</a> for details on how to run the
+href="/UserGuide/TestingJikesRVM/index.html#x12-10900010">Testing Jikes RVM</a> for details on how to run the
 tests and deﬁne your own.
 </p><!--l. 56--><p class="noindent" >
 </p>
@@ -110,7 +110,7 @@ build with debug symbols, you&#x2019;ll need to set the appropriate property as 
 <a 
 href="/UserGuide/BuildingJikesRVM/index.html#x5-60003">Building Jikes RVM</a>.
 </p><!--l. 70--><p class="noindent" >Details of how to manually walk the stack in GDB can be found <a 
-href="#x7-610005.4">here</a>.
+href="#x7-620005.5">here</a>.
 </p><!--l. 73--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">5.2.2   </span> <a 
@@ -173,7 +173,7 @@ compiler for certain kinds of errors.
 
                                                                   
 </p><!--l. 108--><p class="noindent" >It is strongly recommended to run with advice ﬁle generation (see <a 
-href="/UserGuide/ExperimentalGuidelines/index.html#x8-620006">Experimental
+href="/UserGuide/ExperimentalGuidelines/index.html#x8-630006">Experimental
 Guidelines</a>). The produced advice ﬁles can then be used to try to reproduce the bug.
 If this step is successful, the advice ﬁles should be minimized to determine the set of
 methods that cause the failures. This can be done automatically (e.g. via delta
@@ -201,10 +201,27 @@ itself, it is likely not a garbage collection problem. You can exclude problems
 related to garbage collection by building with other collectors. For example,
 you can choose a collector that doesn&#x2019;t move objects (e.g. MarkSweep) or a
 collector that doesn&#x2019;t require write barriers (e.g. Immix instead of GenImmix).
-</p><!--l. 2--><p class="noindent" >
+</p><!--l. 124--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">5.4   </span> <a 
- id="x7-610005.4"></a>GDB Stack Walking</h3>
+ id="x7-610005.4"></a>Debugging problems related to the class library</h3>
+<!--l. 126--><p class="noindent" >The classes in the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface</span></span></span> directory overwrite those in the class library. This
+allows replacement of classes for debugging purposes. For example, if you wanted to
+debug a problem with the class <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">java.example.Foo</span></span></span> from the class library, you could
+simply copy its source ﬁle to the appropriate path of the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface</span></span></span> (e.g.
+<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">libraryInterface/GNUClasspath/LGPL/src/java/example/Foo.java</span></span></span>). You can
+then adapt the source in the library interface to your needs.
+</p><!--l. 2--><p class="noindent" >
+                                                                  
+
+                                                                  
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.5   </span> <a 
+ id="x7-620005.5"></a>GDB Stack Walking</h3>
 <!--l. 7--><p class="noindent" >Sometimes it is desirable to examine the state of the Java stack whilst using GDB to
 step instructions, break on addresses or watch particular variables. These instructions
 are based on an email sent by Martin Hirzel to the rvm-devel list around 15th
@@ -214,14 +231,11 @@ with native threading and renamed RVM classes.
 rvm/src/org/jikesrvm/ia32/StackframeLayoutConstants.java
 </p><!--l. 11--><p class="noindent" >Currently (2009/10/23) the layout is: </p><!--l. 12-->
 <div class="lstlisting" id="listing-33"><span class="label"><a 
- id="x7-61001r1"></a></span>+4: return address <br /><span class="label"><a 
- id="x7-61002r2"></a></span>fp -<span 
+ id="x7-62001r1"></a></span>+4: return address <br /><span class="label"><a 
+ id="x7-62002r2"></a></span>fp -<span 
 class="cmmi-10">&#x003E;</span> 0: caller&#x2019;s fp <br /><span class="label"><a 
- id="x7-61003r3"></a></span>-4: method id <br /><span class="label"><a 
- id="x7-61004r4"></a></span>(remember stack grows from high to low)
-                                                                  
-
-                                                                  
+ id="x7-62003r3"></a></span>-4: method id <br /><span class="label"><a 
+ id="x7-62004r4"></a></span>(remember stack grows from high to low)
 </div>
 <!--l. 19--><p class="noindent" >2) To learn how to get the current frame pointer and other
 context information, look at the genPrologue() method in
@@ -233,7 +247,7 @@ end of BootImageWriter.main(String[]):
 </p>
 <!--l. 23-->
 <div class="lstlisting" id="listing-34"><span class="label"><a 
- id="x7-61005r1"></a></span><span 
+ id="x7-62005r1"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -265,7 +279,7 @@ class="cmti-10"> </span><span
 class="cmti-10">in</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">GDB</span> <br /><span class="label"><a 
- id="x7-61006r2"></a></span>    say(”offset_of_RVMThread.framePointer==_” + ArchEntrypoints.framePointerField.getOffset());
+ id="x7-62006r2"></a></span>    say(”offset_of_RVMThread.framePointer==_” + ArchEntrypoints.framePointerField.getOffset());
 </div>
 <!--l. 28--><p class="noindent" >Do a build to print this info. On my conﬁg I got +148, but this can change between
 versions
@@ -277,39 +291,42 @@ org.jikesrvm.mm.mmtk.ReferenceProcessor.growReferenceTable();
 </p>
 <!--l. 34-->
 <div class="lstlisting" id="listing-35"><span class="label"><a 
- id="x7-61007r1"></a></span>(gdb) break <span 
+ id="x7-62007r1"></a></span>(gdb) break <span 
 class="tcrm-1000">∗</span>0x351eae9c <br /><span class="label"><a 
- id="x7-61008r2"></a></span>Breakpoint 2 at 0x351eae9c
+ id="x7-62008r2"></a></span>Breakpoint 2 at 0x351eae9c
 </div>
 <!--l. 39--><p class="noindent" >And run the program to the break point
 </p>
 <!--l. 41-->
 <div class="lstlisting" id="listing-36"><span class="label"><a 
- id="x7-61009r1"></a></span>Breakpoint 2, 0x351eae9c in ?? ()
+ id="x7-62009r1"></a></span>Breakpoint 2, 0x351eae9c in ?? ()
 </div>
 <!--l. 45--><p class="noindent" >Step some instructions into the method and then dump the registers
 </p>
 <!--l. 47-->
+                                                                  
+
+                                                                  
 <div class="lstlisting" id="listing-37"><span class="label"><a 
- id="x7-61010r1"></a></span>(gdb) stepi 30 <br /><span class="label"><a 
- id="x7-61011r2"></a></span>0x351eaf03 in ?? () <br /><span class="label"><a 
- id="x7-61012r3"></a></span>(gdb) info registers <br /><span class="label"><a 
- id="x7-61013r4"></a></span>eax            0x200  512 <br /><span class="label"><a 
- id="x7-61014r5"></a></span>ecx            0x0    0 <br /><span class="label"><a 
- id="x7-61015r6"></a></span>edx            0x0    0 <br /><span class="label"><a 
- id="x7-61016r7"></a></span>ebx            0x7431  29745 <br /><span class="label"><a 
- id="x7-61017r8"></a></span>esp            0x420e1934      0x420e1934 <br /><span class="label"><a 
- id="x7-61018r9"></a></span>ebp            0xb0206ed0      0xb0206ed0 <br /><span class="label"><a 
- id="x7-61019r10"></a></span>esi            0x4100758c      1090549132 <br /><span class="label"><a 
- id="x7-61020r11"></a></span>edi            0x19c54105556 <br /><span class="label"><a 
- id="x7-61021r12"></a></span>eip            0x351eaf03      0x351eaf03 <br /><span class="label"><a 
- id="x7-61022r13"></a></span>eflags         0x202  514 <br /><span class="label"><a 
- id="x7-61023r14"></a></span>cs             0x17    23 <br /><span class="label"><a 
- id="x7-61024r15"></a></span>ss             0x1f    31 <br /><span class="label"><a 
- id="x7-61025r16"></a></span>ds             0x1f    31 <br /><span class="label"><a 
- id="x7-61026r17"></a></span>es             0x1f    31 <br /><span class="label"><a 
- id="x7-61027r18"></a></span>fs             0x1f    31 <br /><span class="label"><a 
- id="x7-61028r19"></a></span>gs             0x37    55
+ id="x7-62010r1"></a></span>(gdb) stepi 30 <br /><span class="label"><a 
+ id="x7-62011r2"></a></span>0x351eaf03 in ?? () <br /><span class="label"><a 
+ id="x7-62012r3"></a></span>(gdb) info registers <br /><span class="label"><a 
+ id="x7-62013r4"></a></span>eax            0x200  512 <br /><span class="label"><a 
+ id="x7-62014r5"></a></span>ecx            0x0    0 <br /><span class="label"><a 
+ id="x7-62015r6"></a></span>edx            0x0    0 <br /><span class="label"><a 
+ id="x7-62016r7"></a></span>ebx            0x7431  29745 <br /><span class="label"><a 
+ id="x7-62017r8"></a></span>esp            0x420e1934      0x420e1934 <br /><span class="label"><a 
+ id="x7-62018r9"></a></span>ebp            0xb0206ed0      0xb0206ed0 <br /><span class="label"><a 
+ id="x7-62019r10"></a></span>esi            0x4100758c      1090549132 <br /><span class="label"><a 
+ id="x7-62020r11"></a></span>edi            0x19c54105556 <br /><span class="label"><a 
+ id="x7-62021r12"></a></span>eip            0x351eaf03      0x351eaf03 <br /><span class="label"><a 
+ id="x7-62022r13"></a></span>eflags         0x202  514 <br /><span class="label"><a 
+ id="x7-62023r14"></a></span>cs             0x17    23 <br /><span class="label"><a 
+ id="x7-62024r15"></a></span>ss             0x1f    31 <br /><span class="label"><a 
+ id="x7-62025r16"></a></span>ds             0x1f    31 <br /><span class="label"><a 
+ id="x7-62026r17"></a></span>es             0x1f    31 <br /><span class="label"><a 
+ id="x7-62027r18"></a></span>fs             0x1f    31 <br /><span class="label"><a 
+ id="x7-62028r19"></a></span>gs             0x37    55
 </div>
 <!--l. 69--><p class="noindent" >The current FP is stored in RVMThread.framePointer which we found out in 3) is at
 oﬀset +148. ESI points to the current RVMThread object so we can access the FP
@@ -317,12 +334,9 @@ value like so:
 </p>
 <!--l. 71-->
 <div class="lstlisting" id="listing-38"><span class="label"><a 
- id="x7-61029r1"></a></span>(gdb) x (<span 
+ id="x7-62029r1"></a></span>(gdb) x (<span 
 class="tcrm-1000">$</span>esi+148) <br /><span class="label"><a 
- id="x7-61030r2"></a></span>0x41007620:    0x420e1954
-                                                                  
-
-                                                                  
+ id="x7-62030r2"></a></span>0x41007620:    0x420e1954
 </div>
 <!--l. 76--><p class="noindent" >Note that the FP is at a higher address than ESP which is what we would
 expect
@@ -330,10 +344,10 @@ expect
 </p>
 <!--l. 80-->
 <div class="lstlisting" id="listing-39"><span class="label"><a 
- id="x7-61031r1"></a></span>(gdb) x (<span 
+ id="x7-62031r1"></a></span>(gdb) x (<span 
 class="tcrm-1000">∗</span>(<span 
 class="tcrm-1000">$</span>esi+148))+4 <br /><span class="label"><a 
- id="x7-61032r2"></a></span>0x420e1958:    0x351eadde
+ id="x7-62032r2"></a></span>0x420e1958:    0x351eadde
 </div>
 <!--l. 85--><p class="noindent" >We can look in RVM.map for the largest method address smaller than 0x351eadde which
 is org.jikesrvm.mm.mmtk.ReferenceProcessor.addCandidate(java.lang.ref.Reference,
@@ -344,11 +358,11 @@ correct
 </p>
 <!--l. 89-->
 <div class="lstlisting" id="listing-40"><span class="label"><a 
- id="x7-61033r1"></a></span>(gdb) x <span 
+ id="x7-62033r1"></a></span>(gdb) x <span 
 class="tcrm-1000">∗</span>(<span 
 class="tcrm-1000">∗</span>(<span 
 class="tcrm-1000">$</span>esi+148))+4 <br /><span class="label"><a 
- id="x7-61034r2"></a></span>0x420e1980:    0x352ebd1e
+ id="x7-62034r2"></a></span>0x420e1980:    0x352ebd1e
 </div>
 <!--l. 94--><p class="noindent" >Which corresponds to org.jikesrvm.mm.mmtk.ReferenceProcessor.addSoftCandidate(java.lang.ref.SoftReference,
 org.vmmagic.unboxed.ObjectReference) which is a caller of addCandidate.

@@ -18,7 +18,7 @@ layout: default
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 15</span><br /><a 
- id="x18-21100015"></a>Magic</h2>
+ id="x18-21200015"></a>Magic</h2>
 <!--l. 5--><p class="noindent" >Most Java runtimes rely upon the foreign language APIs of the underlying
 platform operating system to implement runtime behaviour which involves
 interaction with the underlying platform. Runtimes also occasionally employ small
@@ -63,10 +63,10 @@ class="msam-10">⋆</span></span> is implemented:
 <!--l. 16--><p class="noindent" >The mechanisms are used to implement the following functionality: </p>
      <ul class="itemize1">
      <li class="itemize"><a 
-href="#x18-21600015.3">RawMemoryAccess</a>: Unfetted access to memory.
+href="#x18-21700015.3">RawMemoryAccess</a>: Unfetted access to memory.
      </li>
      <li class="itemize"><a 
-href="#x18-21700015.4">Uninterruptible Code</a>: Declaring code to be uninterruptible.
+href="#x18-21800015.4">Uninterruptible Code</a>: Declaring code to be uninterruptible.
      </li>
      <li class="itemize">Alternative Calling Conventions: Declaring diﬀerent calling conventions
      and  activation  frame  layout.  This  is  done  via  annotations,  see  the
@@ -76,14 +76,14 @@ class="cmtt-10">org.vmmagic.pragma </span>package.</li></ul>
 
                                                                   
 <h3 class="sectionHead"><span class="titlemark">15.1   </span> <a 
- id="x18-21200015.1"></a>Compiler Intrinsics</h3>
+ id="x18-21300015.1"></a>Compiler Intrinsics</h3>
 <!--l. 5--><p class="noindent" >A compiler intrinsic will usually generate a speciﬁc code sequence. The code sequence
 will usually be inlined and optimized as part of compilation phase of the optimizing
 compiler.
 </p><!--l. 7--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x18-21300015.1"></a>Magic</h5>
+ id="x18-21400015.1"></a>Magic</h5>
 <!--l. 9--><p class="noindent" >All the methods in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Magic</span></span></span> are compiler intrinsics. Because these methods access raw
 memory or other machine state, perform unsafe casts, or are operating system calls,
@@ -117,7 +117,7 @@ method.
 </p><!--l. 17--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x18-21400015.1"></a>sun.misc.Unsafe</h5>
+ id="x18-21500015.1"></a>sun.misc.Unsafe</h5>
 <!--l. 19--><p class="noindent" >The methods of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">sun.misc.Unsafe</span></span></span> are not treated specially by the compilers. The
 Jikes RVM ships a custom <span class="obeylines-h"><span class="verb"><span 
@@ -126,7 +126,7 @@ operations with Jikes RVM magics and internal helper routines.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">15.2   </span> <a 
- id="x18-21500015.2"></a>Unboxed Types</h3>
+ id="x18-21600015.2"></a>Unboxed Types</h3>
 <!--l. 5--><p class="noindent" >If a type is boxed then it means that values of that type are represented by a pointer
 to a heap object. An unboxed type is represented by the value itself such as <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">int</span></span></span>,
@@ -198,12 +198,12 @@ class="cmtt-10">org.vmmagic.unboxed.AddressArray[] </span>is ﬁne.</li></ul>
 <!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">15.3   </span> <a 
- id="x18-21600015.3"></a>Raw Memory Access</h3>
+ id="x18-21700015.3"></a>Raw Memory Access</h3>
 <!--l. 5--><p class="noindent" >The type <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.vmmagic.Address</span></span></span> is used to represent a machine-dependent address
 type. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.vmmagic.Address</span></span></span> is an <a 
-href="#x18-21500015.2">unboxed type</a>. In the past, the base type <span class="obeylines-h"><span class="verb"><span 
+href="#x18-21600015.2">unboxed type</a>. In the past, the base type <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">int</span></span></span> was
 used to represent addresses but this approach had several shortcomings. First, the
 lack of abstraction makes porting nightmarish. Equally important is that Java type
@@ -228,11 +228,11 @@ of an address object, it will return the primitive value that represents an addr
 that platform. Currently, the address type maps to either a 32-bit or 64-bit unsigned
 integer. Since an address is an unboxed type it must obey the rules outlined in
 <a 
-href="#x18-21500015.2">Unboxed Types</a>.
+href="#x18-21600015.2">Unboxed Types</a>.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">15.4   </span> <a 
- id="x18-21700015.4"></a>Uninterruptible Code</h3>
+ id="x18-21800015.4"></a>Uninterruptible Code</h3>
 <!--l. 5--><p class="noindent" >Declaring a method uninterruptible enables a Jikes RVM developer to prevent the
 Jikes RVM compilers from inserting ”hidden” thread switch points in the compiled
 code for the method. As a result, the code can be written assuming that it cannot

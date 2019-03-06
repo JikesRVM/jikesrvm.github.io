@@ -18,7 +18,7 @@ layout: default
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 8</span><br /><a 
- id="x10-970008"></a>Proﬁling Applications with Jikes RVM</h2>
+ id="x10-980008"></a>Proﬁling Applications with Jikes RVM</h2>
 <!--l. 5--><p class="noindent" >The Jikes RVM adaptive system can also be used as a tool for gathering proﬁle data
 to ﬁnd application/VM hotspots. In particular, the same low-overhead time-based
 sampling mechanism that is used to drive recompilation decisions can also be used
@@ -26,16 +26,16 @@ to produce an aggregate proﬁle of the execution of an application. Here&#x2019
 how.
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x10-97002x1">Build an adaptive conﬁguration of Jikes RVM. For the most accurate
+  class="enumerate" id="x10-98002x1">Build an adaptive conﬁguration of Jikes RVM. For the most accurate
      proﬁle, use the production conﬁguration.
      </li>
      <li 
-  class="enumerate" id="x10-97004x2">Run  the  application  normally,  but  with  the  additional  command  line
+  class="enumerate" id="x10-98004x2">Run  the  application  normally,  but  with  the  additional  command  line
      argument <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-X:aos:gather_profile_data=true</span></span></span>
      </li>
      <li 
-  class="enumerate" id="x10-97006x3">When the application terminates, data on which methods and call graph
+  class="enumerate" id="x10-98006x3">When the application terminates, data on which methods and call graph
      edges were sampled during execution will be printed to stdout (you may
      want to redirect execution to a ﬁle for analysis).</li></ol>
 <!--l. 13--><p class="noindent" >The sampled methods represent compiled versions of methods, so as methods are
@@ -64,7 +64,7 @@ code are not proﬁled). Note that unless the bootimage is (a) baseline compiled
 be gathered for bootimage code.
 </p>
 <h3 class="sectionHead"><span class="titlemark">8.1   </span> <a 
- id="x10-980008.1"></a>Instrumented Event Counters</h3>
+ id="x10-990008.1"></a>Instrumented Event Counters</h3>
 <!--l. 19--><p class="noindent" >This section describes how the Jikes RVM optimizing compiler can be used to insert
 counters in the optimized code to count the frequency of speciﬁc events.
 Infrastructure for counting events is in place that hides many of the implementation
@@ -84,7 +84,7 @@ class="cmtt-10">_compiler=opt</span>
 </p><!--l. 23--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">8.1.1   </span> <a 
- id="x10-990008.1.1"></a>Existing Instrumentation Phases</h4>
+ id="x10-1000008.1.1"></a>Existing Instrumentation Phases</h4>
 <!--l. 25--><p class="noindent" >There are several existing instrumentation phases that can be enabled by giving the
 adaptive optimization system command line arguments. These counters
 are not synchronized (as discussed later), so they should not be considered
@@ -108,15 +108,15 @@ class="cmbx-10">Instruction Counters </span>Inserts a counters on each instructi
      count is maintained for each opcode, and results are dumped to stderr at end of
      run. The results look something like: <!--l. 31-->
      <div class="lstlisting" id="listing-69"><span class="label"><a 
- id="x10-99001r1"></a></span>Printing Instruction Counters: <br /><span class="label"><a 
- id="x10-99002r2"></a></span>------------------------------ <br /><span class="label"><a 
- id="x10-99003r3"></a></span>109.0 call <br /><span class="label"><a 
- id="x10-99004r4"></a></span>0.0 int_ifcmp <br /><span class="label"><a 
- id="x10-99005r5"></a></span>30415.0 getfield <br /><span class="label"><a 
- id="x10-99006r6"></a></span>20039.0 getstatic <br /><span class="label"><a 
- id="x10-99007r7"></a></span>63.0 putfield <br /><span class="label"><a 
- id="x10-99008r8"></a></span>20013.0 putstatic <br /><span class="label"><a 
- id="x10-99009r9"></a></span>Total: 302933
+ id="x10-100001r1"></a></span>Printing Instruction Counters: <br /><span class="label"><a 
+ id="x10-100002r2"></a></span>------------------------------ <br /><span class="label"><a 
+ id="x10-100003r3"></a></span>109.0 call <br /><span class="label"><a 
+ id="x10-100004r4"></a></span>0.0 int_ifcmp <br /><span class="label"><a 
+ id="x10-100005r5"></a></span>30415.0 getfield <br /><span class="label"><a 
+ id="x10-100006r6"></a></span>20039.0 getstatic <br /><span class="label"><a 
+ id="x10-100007r7"></a></span>63.0 putfield <br /><span class="label"><a 
+ id="x10-100008r8"></a></span>20013.0 putstatic <br /><span class="label"><a 
+ id="x10-100009r9"></a></span>Total: 302933
      
      </div>
      <!--l. 42--><p class="noindent" >This is useful for debugging or assessing the eﬀectiveness of an optimization
@@ -153,7 +153,7 @@ class="cmtt-10">_counters=true</span>
 </p><!--l. 52--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">8.1.2   </span> <a 
- id="x10-1000008.1.2"></a>Writing new instrumentation phases</h4>
+ id="x10-1010008.1.2"></a>Writing new instrumentation phases</h4>
 <!--l. 54--><p class="noindent" >This section describes the event counting infrastructure. It is not a step-by-step
 for writing new phases, but instead is a description of the main ideas of
 the counter infrastructure. This description, in combination with the above

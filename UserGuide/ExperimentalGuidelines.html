@@ -18,12 +18,12 @@ layout: default
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 6</span><br /><a 
- id="x8-620006"></a>Experimental Guidelines</h2>
+ id="x8-630006"></a>Experimental Guidelines</h2>
 <!--l. 5--><p class="noindent" >This section provides some tips on collecting performance numbers with Jikes
 RVM.
 </p>
 <h3 class="sectionHead"><span class="titlemark">6.1   </span> <a 
- id="x8-630006.1"></a>Which boot image should I use?</h3>
+ id="x8-640006.1"></a>Which boot image should I use?</h3>
 <!--l. 9--><p class="noindent" >To make a long story short the best performing conﬁguration of Jikes RVM will
 almost always be <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">production</span></span></span>. Unless you really know what you are doing,
@@ -47,7 +47,7 @@ class="cmtt-10">config.bootimage.compiler=opt</span></span></span>. Unless this 
 <!--l. 19--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">6.2   </span> <a 
- id="x8-640006.2"></a>Compiler Replay</h3>
+ id="x8-650006.2"></a>Compiler Replay</h3>
 <!--l. 21--><p class="noindent" >The compiler-replay methodology is deterministic and eliminates memory allocation
 and mutator variations due to non-deterministic application of the adaptive compiler.
 We need this latter methodology because the non-determinism of the adaptive
@@ -65,7 +65,7 @@ class="cmti-10">below apply to the post December 2011 version of replay.</span>
 </p><!--l. 27--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">6.2.1   </span> <a 
- id="x8-650006.2.1"></a>Generate Advice</h4>
+ id="x8-660006.2.1"></a>Generate Advice</h4>
                                                                   
 
                                                                   
@@ -107,18 +107,18 @@ at each invocation):
 <!--l. 41-->
 <br />
     <div class="caption" 
-><span class="id">6cAp1x8-650006.2.1:
+><span class="id">6cAp1x8-660006.2.1:
     </span><span  
 class="content">For
     adaptive
     compilation
-    proﬁle</span></div><!--tex4ht:label?: x8-650006.2 --><div class="lstlisting" id="listing-41"><span class="label"><a 
- id="x8-65001r1"></a></span>-X:aos:enable_advice_generation=true -X:aos:cafo=my_compiler_advice_file.ca
+    proﬁle</span></div><!--tex4ht:label?: x8-660006.2 --><div class="lstlisting" id="listing-41"><span class="label"><a 
+ id="x8-66001r1"></a></span>-X:aos:enable_advice_generation=true -X:aos:cafo=my_compiler_advice_file.ca
 </div>
 <!--l. 45-->
 <br />
     <div class="caption" 
-><span class="id">6cAp2x8-650006.2.1:
+><span class="id">6cAp2x8-660006.2.1:
     </span><span  
 class="content">For
     edge
@@ -126,25 +126,25 @@ class="content">For
 
                                                                   
     count
-    proﬁle</span></div><!--tex4ht:label?: x8-650006.2 --><div class="lstlisting" id="listing-42"><span class="label"><a 
- id="x8-65002r1"></a></span>-X:base:profile_edge_counters=true -X:base:profile_edge_counter_file=my_edge_counter_file.ec
+    proﬁle</span></div><!--tex4ht:label?: x8-660006.2 --><div class="lstlisting" id="listing-42"><span class="label"><a 
+ id="x8-66002r1"></a></span>-X:base:profile_edge_counters=true -X:base:profile_edge_counter_file=my_edge_counter_file.ec
 </div>
 <!--l. 49-->
 <br />
     <div class="caption" 
-><span class="id">6cAp3x8-650006.2.1:
+><span class="id">6cAp3x8-660006.2.1:
     </span><span  
 class="content">For
     dynamic
     call
     graph
-    proﬁle</span></div><!--tex4ht:label?: x8-650006.2 --><div class="lstlisting" id="listing-43"><span class="label"><a 
- id="x8-65003r1"></a></span>-X:aos:dcfo=my_dynamic_call_graph_file.dc -X:aos:final_report_level=2
+    proﬁle</span></div><!--tex4ht:label?: x8-660006.2 --><div class="lstlisting" id="listing-43"><span class="label"><a 
+ id="x8-66003r1"></a></span>-X:aos:dcfo=my_dynamic_call_graph_file.dc -X:aos:final_report_level=2
 </div>
 <!--l. 55--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">6.2.2   </span> <a 
- id="x8-660006.2.2"></a>Executing with advice</h4>
+ id="x8-670006.2.2"></a>Executing with advice</h4>
 <!--l. 57--><p class="noindent" >The basic model is simple. At a nominated time in the execution of a program,
 all methods speciﬁed in the .ca advice ﬁle will be (re)compiled with the
 compiler and optimization level nominated in the advice ﬁle. Broadly, there
@@ -170,14 +170,14 @@ is called at the end of the ﬁrst iteration):
 </p>
 <!--l. 61-->
 <div class="lstlisting" id="listing-44"><span class="label"><a 
- id="x8-66001r1"></a></span>-X:aos:initial_compiler=base -X:aos:enable_bulk_compile=true -X:aos:enable_recompilation=false -X:aos:cafi=benchmark.ca -X:vm:edgeCounterFile=benchmark.ec -X:aos:dcfi=benchmark.dc
+ id="x8-67001r1"></a></span>-X:aos:initial_compiler=base -X:aos:enable_bulk_compile=true -X:aos:enable_recompilation=false -X:aos:cafi=benchmark.ca -X:vm:edgeCounterFile=benchmark.ec -X:aos:dcfi=benchmark.dc
 </div>
 <!--l. 65--><p class="noindent" >For <span 
 class="cmbx-10">precompile replay </span>(where bulk compilation occurs at boot time):
 </p>
 <!--l. 67-->
 <div class="lstlisting" id="listing-45"><span class="label"><a 
- id="x8-66002r1"></a></span>-X:aos:initial_compiler=base -X:aos:enable_precompile=true -X:aos:enable_recompilation=false -X:aos:cafi=benchmark.ca -X:vm:edgeCounterFile=benchmark.ec -X:aos:dcfi=benchmark.dc
+ id="x8-67002r1"></a></span>-X:aos:initial_compiler=base -X:aos:enable_precompile=true -X:aos:enable_recompilation=false -X:aos:cafi=benchmark.ca -X:vm:edgeCounterFile=benchmark.ec -X:aos:dcfi=benchmark.dc
 </div>
                                                                   
 
@@ -185,7 +185,7 @@ class="cmbx-10">precompile replay </span>(where bulk compilation occurs at boot 
 <!--l. 73--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">6.2.3   </span> <a 
- id="x8-670006.2.3"></a>Verbosity</h4>
+ id="x8-680006.2.3"></a>Verbosity</h4>
 <!--l. 75--><p class="noindent" >You can alter the verbosity of the replay behavior with the ﬂag
 <span 
 class="cmtt-10">-X:aos:bulk</span><span 
@@ -196,7 +196,7 @@ will produce more information about the recompilation with values of 1 or
 </p><!--l. 81--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">6.3   </span> <a 
- id="x8-680006.3"></a>Measuring GC performance</h3>
+ id="x8-690006.3"></a>Measuring GC performance</h3>
 <!--l. 83--><p class="noindent" >MMTk includes a statistics subsystem and a harness mechanism for measuring its
 performance. If you are using the DaCapo benchmarks, the MMTk harness
 can be invoked using the &#x2019;-c MMTkCallback&#x2019; command line option, but for
@@ -205,8 +205,8 @@ methods
 </p>
 <!--l. 85-->
 <div class="lstlisting" id="listing-46"><span class="label"><a 
- id="x8-68001r1"></a></span>org.mmtk.plan.Plan.harnessBegin() <br /><span class="label"><a 
- id="x8-68002r2"></a></span>org.mmtk.plan.Plan.harnessEnd()
+ id="x8-69001r1"></a></span>org.mmtk.plan.Plan.harnessBegin() <br /><span class="label"><a 
+ id="x8-69002r2"></a></span>org.mmtk.plan.Plan.harnessEnd()
 </div>
 <!--l. 90--><p class="noindent" >at the appropriate places. Other command line switches that aﬀect the collection of
 statistics are
@@ -266,7 +266,7 @@ dictate or advocate any particular position, simply to describe one particular
 methodology.
 </p>
 <h3 class="sectionHead"><span class="titlemark">6.4   </span> <a 
- id="x8-690006.4"></a>Jikes RVM is really slow! What am I doing wrong?</h3>
+ id="x8-700006.4"></a>Jikes RVM is really slow! What am I doing wrong?</h3>
 <!--l. 113--><p class="noindent" >Perhaps you are not seeing stellar Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM performance. If Jikes RVM as
 described above is not competitive product JVMs, we recommend you test your
@@ -277,10 +277,10 @@ well.
 </p><!--l. 115--><p class="noindent" >Some kinds of code will not run fast on Jikes RVM. Known issues include:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x8-69002x1">Jikes RVM start-up may be slow compared to the some product JVMs.
+  class="enumerate" id="x8-70002x1">Jikes RVM start-up may be slow compared to the some product JVMs.
      </li>
      <li 
-  class="enumerate" id="x8-69004x2">Remember                                                                            that
+  class="enumerate" id="x8-70004x2">Remember                                                                            that
      the non-adaptive conﬁgurations (<span 
 class="cmtt-10">-X:aos:enable</span><span 
 class="cmtt-10">_recompilation=false</span>
@@ -298,7 +298,7 @@ class="cmti-10">every  </span>method  the  ﬁrst
      the product on short-running codes of a few seconds.
      </li>
      <li 
-  class="enumerate" id="x8-69006x3">Performance on tight loops may suﬀer. The Jikes RVM mechanism for safe
+  class="enumerate" id="x8-70006x3">Performance on tight loops may suﬀer. The Jikes RVM mechanism for safe
      points (thread preemption for garbage collection, on-stack-replacement,
      proﬁling, etc) relies on the insertion of a yield test on every back edge.
      This will hurt tight loops, including many simple microbenchmarks. We
@@ -307,7 +307,7 @@ class="cmti-10">every  </span>method  the  ﬁrst
      does not require an explicit check.
      </li>
      <li 
-  class="enumerate" id="x8-69008x4">The load balancing in the system is naive and unfair. This can hurt some
+  class="enumerate" id="x8-70008x4">The load balancing in the system is naive and unfair. This can hurt some
      styles of codes, including bulk-synchronous parallel programs.</li></ol>
                                                                   
 
@@ -318,7 +318,7 @@ know.
 </p><!--l. 127--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">6.5   </span> <a 
- id="x8-700006.5"></a>Stability of Jikes RVM</h3>
+ id="x8-710006.5"></a>Stability of Jikes RVM</h3>
 <!--l. 129--><p class="noindent" >Jikes RVM is not as stable as commercial JVMs such as HotSpot or J9.
 Design your evaluation systems (e.g. scripts) so that they can deal with
 crashes and deadlocks/livelocks. The latter can be dealt with by running Jikes

@@ -18,22 +18,22 @@ layout: default
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 16</span><br /><a 
- id="x19-21800016"></a>MMTk</h2>
+ id="x19-21900016"></a>MMTk</h2>
 <!--l. 5--><p class="noindent" >The garbage collectors for Jikes RVM are provided by MMTk. The document
 <a 
 href="http://cs.anu.edu.au/~Robin.Garner/mmtk-guide.pdf" >MMTk: The Memory Manager Toolkit</a> describes MMTk and gives a tutorial on how
 to use and edit it and is the best place to start. An updated version of the tutorial is
 available in this <a 
-href="/UserGuide/indexpa3/index.html#x21-254000III">guide</a>. A detailed description of the call chain from the compilers
+href="/UserGuide/indexpa3/index.html#x21-255000III">guide</a>. A detailed description of the call chain from the compilers
 through to MMTk <a 
-href="#x19-22800016.2">here</a> is another good place to start understanding how MMTk
+href="#x19-22900016.2">here</a> is another good place to start understanding how MMTk
 integrates with Jikes RVM. <a 
-href="#x19-21900016.1">Anatomy of a Garbage Collector</a> describes the major
+href="#x19-22000016.1">Anatomy of a Garbage Collector</a> describes the major
 building blocks of an MMTk collector and <a 
-href="#x19-23300016.3">Scanning Objects in Jikes RV</a>M describes
+href="#x19-23400016.3">Scanning Objects in Jikes RV</a>M describes
 how objects are scanned for their pointer ﬁelds during GC. MMTk also has a pure
 Java <a 
-href="/UserGuide/TheMMTkTestHarness/index.html#x13-13600011">test harness</a> that allows development of garbage collectors in an IDE like
+href="/UserGuide/TheMMTkTestHarness/index.html#x13-13700011">test harness</a> that allows development of garbage collectors in an IDE like
 eclipse.
 </p><!--l. 7--><p class="noindent" >Jikes RVM can be conﬁgured to employ various diﬀerent allocation managers taken
 from the MMTk memory management toolkit. Managers divide the available space
@@ -82,11 +82,11 @@ class="cmtt-10">Generational</span></span></span>. Inter
 alia, this class ensures that a write barrier is employed so that updates from old to
 new spaces are detected.
 </p><!--l. 22--><p class="noindent" >Jikes RVM may also use the <a 
-href="#x19-23700016.4">GCSpy</a> visualization framework. GCSpy allows
+href="#x19-23800016.4">GCSpy</a> visualization framework. GCSpy allows
 developers to observe the behavior of the heap and related data structures.
 </p>
 <h3 class="sectionHead"><span class="titlemark">16.1   </span> <a 
- id="x19-21900016.1"></a>Anatomy of a Garbage Collector</h3>
+ id="x19-22000016.1"></a>Anatomy of a Garbage Collector</h3>
 <!--l. 5--><p class="noindent" ><span 
 class="cmbx-10">** Work in progress, contributions appreciated ** </span><br 
 class="newline" />
@@ -100,7 +100,7 @@ Handbook</a>.
 </p><!--l. 12--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.1.1   </span> <a 
- id="x19-22000016.1.1"></a>Structure of a Plan</h4>
+ id="x19-22100016.1.1"></a>Structure of a Plan</h4>
 <!--l. 14--><p class="noindent" >An MMTk Plan is required to provide 5 classes. They are required to have consistent
 names which start with the same name and have a suﬃx that indicates which
 class it inherits from. in the case of the MarkSweep plan, the name is ”MS”.
@@ -163,7 +163,7 @@ policy.
 </p><!--l. 28--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.1.2   </span> <a 
- id="x19-22100016.1.2"></a>Policies</h4>
+ id="x19-22200016.1.2"></a>Policies</h4>
 <!--l. 29--><p class="noindent" >A policy describes how a range of virtual address space is managed. The base class of
 all policies is <span 
 class="cmtt-10">org.mmtk.policy.Space</span>, and a particular instance of a policy is known
@@ -174,15 +174,15 @@ spaces that make up an MMTk plan.
 <!--l. 31-->
 <br />
     <div class="caption" 
-><span class="id">23cAp0x19-22100016.1.2:
+><span class="id">23cAp0x19-22200016.1.2:
     </span><span  
-class="content">MS.java</span></div><!--tex4ht:label?: x19-22100016.1 --><div class="lstlisting" id="listing-124"><span class="label"><a 
- id="x19-221001r1"></a></span><span 
+class="content">MS.java</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-124"><span class="label"><a 
+ id="x19-222001r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> MarkSweepSpace msSpace = <span 
 class="cmbx-10">new</span> MarkSweepSpace(”ms”, VMRequest.discontiguous()); <br /><span class="label"><a 
- id="x19-221002r2"></a></span><span 
+ id="x19-222002r2"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
@@ -209,10 +209,10 @@ created as part of a mutator context, like this
 
                                                                   
     <div class="caption" 
-><span class="id">23cAp1x19-22100016.1.2:
+><span class="id">23cAp1x19-22200016.1.2:
     </span><span  
-class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22100016.1 --><div class="lstlisting" id="listing-125"><span class="label"><a 
- id="x19-221003r1"></a></span><span 
+class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-125"><span class="label"><a 
+ id="x19-222003r1"></a></span><span 
 class="cmbx-10">protected</span> MarkSweepLocal ms = <span 
 class="cmbx-10">new</span> MarkSweepLocal(MS.msSpace);
 </div>
@@ -226,7 +226,7 @@ memory.
 </p><!--l. 48--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.1.3   </span> <a 
- id="x19-22200016.1.3"></a>Allocation</h4>
+ id="x19-22300016.1.3"></a>Allocation</h4>
 <!--l. 50--><p class="noindent" >MMTk provides two methods for allocating an object. These are provided by the
 <span 
 class="cmtt-10">MSMutator </span>class, to give each plan the opportunity to use fast, unsynchronized
@@ -236,10 +236,10 @@ thread-local allocation before falling back to a slower synchronized slow-path.
 <!--l. 54-->
 <br />
     <div class="caption" 
-><span class="id">23cAp2x19-22200016.1.3:
+><span class="id">23cAp2x19-22300016.1.3:
     </span><span  
-class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-126"><span class="label"><a 
- id="x19-222001r1"></a></span><span 
+class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-126"><span class="label"><a 
+ id="x19-223001r1"></a></span><span 
 class="cmbx-10">public</span> Address alloc(<span 
 class="cmbx-10">int</span> bytes, <span 
 class="cmbx-10">int</span> align, <span 
@@ -247,17 +247,17 @@ class="cmbx-10">int</span> offset, <span
 class="cmbx-10">int</span> allocator, <span 
 class="cmbx-10">int</span> site) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222002r2"></a></span>  <span 
+ id="x19-223002r2"></a></span>  <span 
 class="cmbx-10">if</span> (allocator == MS.ALLOC_DEFAULT) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222003r3"></a></span>    <span 
+ id="x19-223003r3"></a></span>    <span 
 class="cmbx-10">return</span> ms.alloc(bytes, align, offset); <br /><span class="label"><a 
- id="x19-222004r4"></a></span>  <span 
+ id="x19-223004r4"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222005r5"></a></span>  <span 
+ id="x19-223005r5"></a></span>  <span 
 class="cmbx-10">return</span> <span 
 class="cmbx-10">super</span>.alloc(bytes, align, offset, allocator, site); <br /><span class="label"><a 
- id="x19-222006r6"></a></span><span 
+ id="x19-223006r6"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 63--><p class="noindent" >The basic structure of this method is common to all MMTk plans. First
@@ -279,25 +279,25 @@ this
 <!--l. 67-->
 <br />
     <div class="caption" 
-><span class="id">23cAp3x19-22200016.1.3:
+><span class="id">23cAp3x19-22300016.1.3:
     </span><span  
 class="content">SegregatedFreeListLocal.java
-    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-127"><span class="label"><a 
- id="x19-222007r1"></a></span><span 
+    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-127"><span class="label"><a 
+ id="x19-223007r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">final</span> Address alloc(<span 
 class="cmbx-10">int</span> bytes, <span 
 class="cmbx-10">int</span> align, <span 
 class="cmbx-10">int</span> offset) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222008r2"></a></span>  <span 
+ id="x19-223008r2"></a></span>  <span 
 class="cmbx-10">int</span> sizeClass = getSizeClass(bytes); <br /><span class="label"><a 
- id="x19-222009r3"></a></span>  Address cell = freeList.get(sizeClass); <br /><span class="label"><a 
- id="x19-222010r4"></a></span>  <span 
+ id="x19-223009r3"></a></span>  Address cell = freeList.get(sizeClass); <br /><span class="label"><a 
+ id="x19-223010r4"></a></span>  <span 
 class="cmbx-10">if</span> (!cell.isZero()) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222011r5"></a></span>    freeList.set(sizeClass, cell.loadAddress()); <br /><span class="label"><a 
- id="x19-222012r6"></a></span><span 
+ id="x19-223011r5"></a></span>    freeList.set(sizeClass, cell.loadAddress()); <br /><span class="label"><a 
+ id="x19-223012r6"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
@@ -317,14 +317,14 @@ class="cmti-10">link</span><span
 class="cmti-10"> </span><span 
 class="tcti-1000">∗</span><span 
 class="cmti-10">/</span> <br /><span class="label"><a 
- id="x19-222013r7"></a></span>    cell.store(Address.zero()); <br /><span class="label"><a 
- id="x19-222014r8"></a></span>    <span 
+ id="x19-223013r7"></a></span>    cell.store(Address.zero()); <br /><span class="label"><a 
+ id="x19-223014r8"></a></span>    <span 
 class="cmbx-10">return</span> cell; <br /><span class="label"><a 
- id="x19-222015r9"></a></span>  <span 
+ id="x19-223015r9"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222016r10"></a></span>  <span 
+ id="x19-223016r10"></a></span>  <span 
 class="cmbx-10">return</span> allocSlow(bytes, align, offset); <br /><span class="label"><a 
- id="x19-222017r11"></a></span><span 
+ id="x19-223017r11"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 81--><p class="noindent" >This is a standard pattern for thread-local allocation: ﬁrst we look in the thread-local
@@ -349,17 +349,17 @@ for its own use.
 <!--l. 86-->
 <br />
     <div class="caption" 
-><span class="id">23cAp4x19-22200016.1.3:
+><span class="id">23cAp4x19-22300016.1.3:
     </span><span  
 class="content">Space.java
-    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-128"><span class="label"><a 
- id="x19-222018r1"></a></span><span 
+    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-128"><span class="label"><a 
+ id="x19-223018r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">final</span> Address acquire(<span 
 class="cmbx-10">int</span> pages) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222019r2"></a></span>  pr.reservePages(pages); <br /><span class="label"><a 
- id="x19-222020r3"></a></span><span 
+ id="x19-223019r2"></a></span>  pr.reservePages(pages); <br /><span class="label"><a 
+ id="x19-223020r3"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">//</span><span 
@@ -378,13 +378,13 @@ class="cmti-10"> </span><span
 class="cmti-10">requiring</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">GC</span> <br /><span class="label"><a 
- id="x19-222021r4"></a></span>  <span 
+ id="x19-223021r4"></a></span>  <span 
 class="cmbx-10">if</span> (VM.activePlan.global().poll(<span 
 class="cmbx-10">false</span>, <span 
 class="cmbx-10">this</span>)) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222022r5"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
- id="x19-222023r6"></a></span>    <span 
+ id="x19-223022r5"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
+ id="x19-223023r6"></a></span>    <span 
 class="cmbx-10">return</span> Address.zero(); <span 
 class="cmti-10">//</span><span 
 class="cmti-10"> </span><span 
@@ -396,9 +396,9 @@ class="cmti-10"> </span><span
 class="cmti-10">return</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">failure</span> <br /><span class="label"><a 
- id="x19-222024r7"></a></span>  <span 
+ id="x19-223024r7"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222025r8"></a></span><span 
+ id="x19-223025r8"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">//</span><span 
@@ -421,8 +421,8 @@ class="cmti-10"> </span><span
 class="cmti-10">virtual</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">memory</span> <br /><span class="label"><a 
- id="x19-222026r9"></a></span>  Address rtn = pr.getNewPages(pagesReserved, pages, zeroed); <br /><span class="label"><a 
- id="x19-222027r10"></a></span>  <span 
+ id="x19-223026r9"></a></span>  Address rtn = pr.getNewPages(pagesReserved, pages, zeroed); <br /><span class="label"><a 
+ id="x19-223027r10"></a></span>  <span 
 class="cmbx-10">if</span> (rtn.isZero()) <span 
 class="cmsy-10">{</span> <span 
 class="cmti-10"> </span><span 
@@ -438,18 +438,18 @@ class="cmti-10"> </span><span
 class="cmti-10">a</span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">GC</span> <br /><span class="label"><a 
- id="x19-222028r11"></a></span>    <span 
+ id="x19-223028r11"></a></span>    <span 
 class="cmbx-10">boolean</span> gcPerformed = VM.activePlan.global().poll(<span 
 class="cmbx-10">true</span>, <span 
 class="cmbx-10">this</span>); <br /><span class="label"><a 
- id="x19-222029r12"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
- id="x19-222030r13"></a></span>    <span 
+ id="x19-223029r12"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
+ id="x19-223030r13"></a></span>    <span 
 class="cmbx-10">return</span> Address.zero(); <br /><span class="label"><a 
- id="x19-222031r14"></a></span>  <span 
+ id="x19-223031r14"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222032r15"></a></span>  <span 
+ id="x19-223032r15"></a></span>  <span 
 class="cmbx-10">return</span> rtn; <br /><span class="label"><a 
- id="x19-222033r16"></a></span><span 
+ id="x19-223033r16"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 105--><p class="noindent" >The logic of <span class="obeylines-h"><span class="verb"><span 
@@ -484,42 +484,42 @@ class="cmtt-10">Allocator.allocSlowInline</span></span></span>.</li></ul>
 <!--l. 114-->
 <br />
     <div class="caption" 
-><span class="id">23cAp5x19-22200016.1.3:
+><span class="id">23cAp5x19-22300016.1.3:
     </span><span  
 class="content">Allocator.java
-    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22200016.1 --><div class="lstlisting" id="listing-129"><span class="label"><a 
- id="x19-222034r1"></a></span><span 
+    (simpliﬁed)</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-129"><span class="label"><a 
+ id="x19-223034r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">final</span> Address allocSlowInline(<span 
 class="cmbx-10">int</span> bytes, <span 
 class="cmbx-10">int</span> alignment, <span 
 class="cmbx-10">int</span> offset) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222035r2"></a></span>  <span 
+ id="x19-223035r2"></a></span>  <span 
 class="cmbx-10">boolean</span> emergencyCollection = <span 
 class="cmbx-10">false</span>; <br /><span class="label"><a 
- id="x19-222036r3"></a></span>  <span 
+ id="x19-223036r3"></a></span>  <span 
 class="cmbx-10">while</span> (<span 
 class="cmbx-10">true</span>) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222037r4"></a></span>    Address result = allocSlowOnce(bytes, alignment, offset); <br /><span class="label"><a 
- id="x19-222038r5"></a></span>    <span 
+ id="x19-223037r4"></a></span>    Address result = allocSlowOnce(bytes, alignment, offset); <br /><span class="label"><a 
+ id="x19-223038r5"></a></span>    <span 
 class="cmbx-10">if</span> (!result.isZero()) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222039r6"></a></span>      <span 
+ id="x19-223039r6"></a></span>      <span 
 class="cmbx-10">return</span> result; <br /><span class="label"><a 
- id="x19-222040r7"></a></span>    <span 
+ id="x19-223040r7"></a></span>    <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222041r8"></a></span>    <span 
+ id="x19-223041r8"></a></span>    <span 
 class="cmbx-10">if</span> (emergencyCollection) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-222042r9"></a></span>      VM.collection.outOfMemory(); <br /><span class="label"><a 
- id="x19-222043r10"></a></span>    <span 
+ id="x19-223042r9"></a></span>      VM.collection.outOfMemory(); <br /><span class="label"><a 
+ id="x19-223043r10"></a></span>    <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222044r11"></a></span>    emergencyCollection = Plan.isEmergencyCollection(); <br /><span class="label"><a 
- id="x19-222045r12"></a></span>  <span 
+ id="x19-223044r11"></a></span>    emergencyCollection = Plan.isEmergencyCollection(); <br /><span class="label"><a 
+ id="x19-223045r12"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-222046r13"></a></span><span 
+ id="x19-223046r13"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 130--><p class="noindent" >This code fragment shows the retry logic in the allocator. We try allocating using
@@ -536,11 +536,11 @@ class="cmtt-10">OutOfMemoryError</span></span></span>.
 </p><!--l. 134--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.1.4   </span> <a 
- id="x19-22300016.1.4"></a>Collection</h4>
+ id="x19-22400016.1.4"></a>Collection</h4>
 <!--l. 136--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-22400016.1.4"></a>Scheduling</h5>
+ id="x19-22500016.1.4"></a>Scheduling</h5>
 <!--l. 138--><p class="noindent" >In a stop-the-world garbage collector like MarkSweep, the mutator threads run
 until memory is exhausted, then all mutator threads are suspended, the
 collector threads are activated, and they perform a garbage collection. After
@@ -558,7 +558,7 @@ by calling methods on this object.
 </p><!--l. 144--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-22500016.1.4"></a>Initiating</h5>
+ id="x19-22600016.1.4"></a>Initiating</h5>
 <!--l. 146--><p class="noindent" >As mentioned above, every attempt to allocate fresh virtual memory calls
 the current plan&#x2019;s <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">poll(...)</span></span></span> method. This initiates a GC by calling
@@ -573,22 +573,22 @@ class="cmtt-10">ParallelCollector</span>, shown below.
 <!--l. 148-->
 <br />
     <div class="caption" 
-><span class="id">23cAp6x19-22500016.1.4:
+><span class="id">23cAp6x19-22600016.1.4:
     </span><span  
-class="content">ParallelCollector</span></div><!--tex4ht:label?: x19-22500016.1 --><div class="lstlisting" id="listing-130"><span class="label"><a 
- id="x19-225001r1"></a></span><span 
+class="content">ParallelCollector</span></div><!--tex4ht:label?: x19-22600016.1 --><div class="lstlisting" id="listing-130"><span class="label"><a 
+ id="x19-226001r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">void</span> run() <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-225002r2"></a></span>  <span 
+ id="x19-226002r2"></a></span>  <span 
 class="cmbx-10">while</span>(<span 
 class="cmbx-10">true</span>) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-225003r3"></a></span>    park(); <br /><span class="label"><a 
- id="x19-225004r4"></a></span>    collect(); <br /><span class="label"><a 
- id="x19-225005r5"></a></span>  <span 
+ id="x19-226003r3"></a></span>    park(); <br /><span class="label"><a 
+ id="x19-226004r4"></a></span>    collect(); <br /><span class="label"><a 
+ id="x19-226005r5"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-225006r6"></a></span><span 
+ id="x19-226006r6"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 157--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
@@ -597,15 +597,15 @@ class="cmtt-10">StopTheWorldCollector</span>
 it looks like this </p><!--l. 158-->
 <br />
     <div class="caption" 
-><span class="id">23cAp7x19-22500016.1.4:
+><span class="id">23cAp7x19-22600016.1.4:
     </span><span  
-class="content">StopTheWorldCollector</span></div><!--tex4ht:label?: x19-22500016.1 --><div class="lstlisting" id="listing-131"><span class="label"><a 
- id="x19-225007r1"></a></span><span 
+class="content">StopTheWorldCollector</span></div><!--tex4ht:label?: x19-22600016.1 --><div class="lstlisting" id="listing-131"><span class="label"><a 
+ id="x19-226007r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">void</span> collect() <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-225008r2"></a></span>  Phase.beginNewPhaseStack(Phase.scheduleComplex(global().collection)); <br /><span class="label"><a 
- id="x19-225009r3"></a></span><span 
+ id="x19-226008r2"></a></span>  Phase.beginNewPhaseStack(Phase.scheduleComplex(global().collection)); <br /><span class="label"><a 
+ id="x19-226009r3"></a></span><span 
 class="cmsy-10">}</span>
 </div>
                                                                   
@@ -614,7 +614,7 @@ class="cmsy-10">}</span>
 <!--l. 166--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-22600016.1.4"></a>Collector Phases</h5>
+ id="x19-22700016.1.4"></a>Collector Phases</h5>
 <!--l. 168--><p class="noindent" >Every garbage collection consists of a series of steps. Each step is either executed
 once (e.g. updating the mark state before marking the heap), or in parallel on all
 available collector threads (e.g. the parallel mark phase). The actual work of a step is
@@ -631,27 +631,27 @@ garbage collectors. First it deﬁnes the phases themselves,
 <!--l. 174-->
 <br />
     <div class="caption" 
-><span class="id">23cAp8x19-22600016.1.4:
+><span class="id">23cAp8x19-22700016.1.4:
     </span><span  
-class="content">Simple.java</span></div><!--tex4ht:label?: x19-22600016.1 --><div class="lstlisting" id="listing-132"><span class="label"><a 
- id="x19-226001r1"></a></span><span 
+class="content">Simple.java</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-132"><span class="label"><a 
+ id="x19-227001r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
 class="cmbx-10">short</span> SET_COLLECTION_KIND = Phase.createSimple(”set-collection-kind”, <span 
 class="cmbx-10">null</span>); <br /><span class="label"><a 
- id="x19-226002r2"></a></span><span 
+ id="x19-227002r2"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
 class="cmbx-10">short</span> INITIATE            = Phase.createSimple(”initiate”, <span 
 class="cmbx-10">null</span>); <br /><span class="label"><a 
- id="x19-226003r3"></a></span><span 
+ id="x19-227003r3"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
 class="cmbx-10">short</span> PREPARE             = Phase.createSimple(”prepare”); <br /><span class="label"><a 
- id="x19-226004r4"></a></span>...
+ id="x19-227004r4"></a></span>...
 </div>
 <!--l. 181--><p class="noindent" >Each phase of the collection is represented by a 16-bit integer, an index into a table
 of <span class="obeylines-h"><span class="verb"><span 
@@ -661,10 +661,10 @@ complex phases.
 <!--l. 183-->
 <br />
         <div class="caption" 
-><span class="id">23cAp9x19-22600016.1.4:
+><span class="id">23cAp9x19-22700016.1.4:
         </span><span  
-class="content">Simple.java</span></div><!--tex4ht:label?: x19-22600016.1 --><div class="lstlisting" id="listing-133"><span class="label"><a 
- id="x19-226005r1"></a></span><span 
+class="content">Simple.java</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-133"><span class="label"><a 
+ id="x19-227005r1"></a></span><span 
 class="cmti-10">/</span><span 
 class="tcti-1000">∗</span><span 
 class="tcti-1000">∗</span><span 
@@ -685,14 +685,14 @@ class="cmti-10">scanned</span><span
 class="cmti-10"> </span><span 
 class="tcti-1000">∗</span><span 
 class="cmti-10">/</span> <br /><span class="label"><a 
- id="x19-226006r2"></a></span><span 
+ id="x19-227006r2"></a></span><span 
 class="cmbx-10">protected</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
 class="cmbx-10">short</span> prepareStacks = Phase.createComplex(”prepare-stacks”, <span 
 class="cmbx-10">null</span>, <br /><span class="label"><a 
- id="x19-226007r3"></a></span>    Phase.scheduleMutator    (PREPARE_STACKS), <br /><span class="label"><a 
- id="x19-226008r4"></a></span>    Phase.scheduleGlobal     (PREPARE_STACKS));
+ id="x19-227007r3"></a></span>    Phase.scheduleMutator    (PREPARE_STACKS), <br /><span class="label"><a 
+ id="x19-227008r4"></a></span>    Phase.scheduleGlobal     (PREPARE_STACKS));
 </div>
 <!--l. 190--><p class="noindent" >A simple phase can be scheduled in one of 4 ways: </p>
      <ul class="itemize1">
@@ -732,50 +732,50 @@ class="cmtt-10">Plan </span>classes.
 <!--l. 202-->
 <br />
     <div class="caption" 
-><span class="id">23cAp10x19-22600016.1.4:
+><span class="id">23cAp10x19-22700016.1.4:
     </span><span  
-class="content">MS.java</span></div><!--tex4ht:label?: x19-22600016.1 --><div class="lstlisting" id="listing-134"><span class="label"><a 
- id="x19-226009r1"></a></span>@Inline <br /><span class="label"><a 
- id="x19-226010r2"></a></span>@Override <br /><span class="label"><a 
- id="x19-226011r3"></a></span><span 
+class="content">MS.java</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-134"><span class="label"><a 
+ id="x19-227009r1"></a></span>@Inline <br /><span class="label"><a 
+ id="x19-227010r2"></a></span>@Override <br /><span class="label"><a 
+ id="x19-227011r3"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">void</span> collectionPhase(<span 
 class="cmbx-10">short</span> phaseId) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-226012r4"></a></span>  <span 
+ id="x19-227012r4"></a></span>  <span 
 class="cmbx-10">if</span> (phaseId == PREPARE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-226013r5"></a></span>    <span 
+ id="x19-227013r5"></a></span>    <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x19-226014r6"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
- id="x19-226015r7"></a></span>    msSpace.prepare(<span 
+ id="x19-227014r6"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
+ id="x19-227015r7"></a></span>    msSpace.prepare(<span 
 class="cmbx-10">true</span>); <br /><span class="label"><a 
- id="x19-226016r8"></a></span>    <span 
+ id="x19-227016r8"></a></span>    <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-226017r9"></a></span>  <span 
+ id="x19-227017r9"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-226018r10"></a></span>  <span 
+ id="x19-227018r10"></a></span>  <span 
 class="cmbx-10">if</span> (phaseId == CLOSURE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-226019r11"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
- id="x19-226020r12"></a></span>    <span 
+ id="x19-227019r11"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
+ id="x19-227020r12"></a></span>    <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-226021r13"></a></span>  <span 
+ id="x19-227021r13"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-226022r14"></a></span>  <span 
+ id="x19-227022r14"></a></span>  <span 
 class="cmbx-10">if</span> (phaseId == RELEASE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-226023r15"></a></span>    msTrace.release(); <br /><span class="label"><a 
- id="x19-226024r16"></a></span>    msSpace.release(); <br /><span class="label"><a 
- id="x19-226025r17"></a></span>    <span 
+ id="x19-227023r15"></a></span>    msTrace.release(); <br /><span class="label"><a 
+ id="x19-227024r16"></a></span>    msSpace.release(); <br /><span class="label"><a 
+ id="x19-227025r17"></a></span>    <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x19-226026r18"></a></span>    <span 
+ id="x19-227026r18"></a></span>    <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-226027r19"></a></span>  <span 
+ id="x19-227027r19"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-226028r20"></a></span>  <span 
+ id="x19-227028r20"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x19-226029r21"></a></span><span 
+ id="x19-227029r21"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 226--><p class="noindent" >This excerpt shows how the global MS plan implements <span 
@@ -795,7 +795,7 @@ super-class second).
 </p><!--l. 230--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-22700016.1.4"></a>Tracing the heap</h5>
+ id="x19-22800016.1.4"></a>Tracing the heap</h5>
 <!--l. 232--><p class="noindent" >The main operation of a tracing collector is the transitive closure operation where all
 (or a subset) of the object graph is visited. Some collectors such as generational
 collectors perform these operations in more than one way, e.g. a nursery collection in
@@ -832,26 +832,26 @@ class="cmti-10">CollectorContext </span>class
 <!--l. 243-->
 <br />
     <div class="caption" 
-><span class="id">23cAp11x19-22700016.1.4:
+><span class="id">23cAp11x19-22800016.1.4:
     </span><span  
-class="content">MSCollector.java</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-135"><span class="label"><a 
- id="x19-227001r1"></a></span><span 
+class="content">MSCollector.java</span></div><!--tex4ht:label?: x19-22800016.1 --><div class="lstlisting" id="listing-135"><span class="label"><a 
+ id="x19-228001r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">void</span> collectionPhase(<span 
 class="cmbx-10">short</span> phaseId, <span 
 class="cmbx-10">boolean</span> primary) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-227002r2"></a></span>  ... <br /><span class="label"><a 
- id="x19-227003r3"></a></span>  <span 
+ id="x19-228002r2"></a></span>  ... <br /><span class="label"><a 
+ id="x19-228003r3"></a></span>  <span 
 class="cmbx-10">if</span> (phaseId == MS.CLOSURE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-227004r4"></a></span>    fullTrace.completeTrace(); <br /><span class="label"><a 
- id="x19-227005r5"></a></span>    <span 
+ id="x19-228004r4"></a></span>    fullTrace.completeTrace(); <br /><span class="label"><a 
+ id="x19-228005r5"></a></span>    <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-227006r6"></a></span>  <span 
+ id="x19-228006r6"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-227007r7"></a></span>  ... <br /><span class="label"><a 
- id="x19-227008r8"></a></span><span 
+ id="x19-228007r7"></a></span>  ... <br /><span class="label"><a 
+ id="x19-228008r8"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 254--><p class="noindent" >The initial starting point for the closure is computed by the <span class="obeylines-h"><span class="verb"><span 
@@ -871,7 +871,7 @@ types.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">16.2   </span> <a 
- id="x19-22800016.2"></a>Memory Allocation in Jikes RVM</h3>
+ id="x19-22900016.2"></a>Memory Allocation in Jikes RVM</h3>
 <!--l. 5--><p class="noindent" >The way that objects are allocated in Jikes RVM can be diﬃcult to grasp for
 someone new to the code base. This document provides a detailed look at some of
 the paths through the JikesRVM - MMTk interface code to help bootstrap
@@ -881,7 +881,7 @@ current as of March 2011, svn revision 16052 (between JikesRVM 3.1.1 and
 </p><!--l. 7--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.2.1   </span> <a 
- id="x19-22900016.2.1"></a>Memory Manager Interface</h4>
+ id="x19-23000016.2.1"></a>Memory Manager Interface</h4>
 <!--l. 9--><p class="noindent" >The best starting place to understand the allocation sequence is in the class
 <span 
 class="cmtt-10">org.jikesrvm.mm.mminterface.MemoryManager</span>, which is a facade class for the
@@ -903,7 +903,7 @@ of the method,
 </p>
 <!--l. 13-->
 <div class="lstlisting" id="listing-136"><span class="label"><a 
- id="x19-229001r1"></a></span>Selected.Mutator mutator = Selected.Mutator.get();
+ id="x19-230001r1"></a></span>Selected.Mutator mutator = Selected.Mutator.get();
 </div>
 <!--l. 17--><p class="noindent" >As mentioned above, MMTk provides many diﬀerent memory management
 plans, one of which is selected at build time. This call acquires a pointer
@@ -915,7 +915,7 @@ threads.
 </p>
 <!--l. 19-->
 <div class="lstlisting" id="listing-137"><span class="label"><a 
- id="x19-229002r1"></a></span>allocator = mutator.checkAllocator(org.jikesrvm.runtime.Memory.alignUp(size, MIN_ALIGNMENT), align, allocator);
+ id="x19-230002r1"></a></span>allocator = mutator.checkAllocator(org.jikesrvm.runtime.Memory.alignUp(size, MIN_ALIGNMENT), align, allocator);
 </div>
 <!--l. 23--><p class="noindent" >An MMTk plan in general provides several spaces where objects can be allocated,
 each with their own characteristics. Jikes RVM is free to request allocation in any of
@@ -931,7 +931,7 @@ instructions.
 </p>
 <!--l. 25-->
 <div class="lstlisting" id="listing-138"><span class="label"><a 
- id="x19-229003r1"></a></span>Address region = allocateSpace(mutator, size, align, offset, allocator, site);
+ id="x19-230003r1"></a></span>Address region = allocateSpace(mutator, size, align, offset, allocator, site);
 </div>
 <!--l. 29--><p class="noindent" >This calls a method of <span 
 class="cmtt-10">MemoryManager</span>, common to all allocation methods (for
@@ -939,13 +939,13 @@ Arrays and other special objects), that calls
 </p>
 <!--l. 31-->
 <div class="lstlisting" id="listing-139"><span class="label"><a 
- id="x19-229004r1"></a></span>Address region = mutator.alloc(bytes, align, offset, allocator, site);
+ id="x19-230004r1"></a></span>Address region = mutator.alloc(bytes, align, offset, allocator, site);
 </div>
 <!--l. 35--><p class="noindent" >to actually allocate memory from the current MMTk plan.
 </p>
 <!--l. 37-->
 <div class="lstlisting" id="listing-140"><span class="label"><a 
- id="x19-229005r1"></a></span>Object result = ObjectModel.initializeScalar(region, tib, size);
+ id="x19-230005r1"></a></span>Object result = ObjectModel.initializeScalar(region, tib, size);
                                                                   
 
                                                                   
@@ -955,7 +955,7 @@ object, and then
 </p>
 <!--l. 43-->
 <div class="lstlisting" id="listing-141"><span class="label"><a 
- id="x19-229006r1"></a></span>mutator.postAlloc(ObjectReference.fromObject(result), ObjectReference.fromObject(tib), size, allocator);
+ id="x19-230006r1"></a></span>mutator.postAlloc(ObjectReference.fromObject(result), ObjectReference.fromObject(tib), size, allocator);
 </div>
 <!--l. 47--><p class="noindent" >we call MMTk&#x2019;s <span 
 class="cmtt-10">postAlloc </span>method to perform initialization that can only be
@@ -963,7 +963,7 @@ performed after an object has been initialized by the virtual machine.
 </p><!--l. 51--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.2.2   </span> <a 
- id="x19-23000016.2.2"></a>Compiler integration</h4>
+ id="x19-23100016.2.2"></a>Compiler integration</h4>
 <!--l. 53--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">allocateScalar</span></span></span> method discussed above is only actually called
 from one place, the method <span 
@@ -988,7 +988,7 @@ class="cmtt-10">resolvedNewScalar(int...)</span>.
 </p><!--l. 59--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-23100016.2.2"></a>Baseline Compiler</h5>
+ id="x19-23200016.2.2"></a>Baseline Compiler</h5>
 <!--l. 61--><p class="noindent" >There is a diﬀerent baseline compiler for each architecture. The relevant
 code in the baseline compiler for the ia32 architecture is in the class
 <span 
@@ -1014,7 +1014,7 @@ time.
 </p><!--l. 67--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-23200016.2.2"></a>Optimizing Compiler</h5>
+ id="x19-23300016.2.2"></a>Optimizing Compiler</h5>
 <!--l. 69--><p class="noindent" >The optimizing compiler is paradoxically somewhat simpler than the baseline
 compiler, in that injection of the call to the entrypoint is done in an architecture
 independent level of compiler IR. (An overview of the Jikes RVM optimizing compiler
@@ -1043,12 +1043,12 @@ code so that the allocation sequence can be optimized down to a handful of
 instructions.
 </p><!--l. 75--><p class="noindent" >It can be instructive to look at the various levels of IR generated for object allocation
 using a simple test program and the <a 
-href="/UserGuide/Compilers/index.html#x16-16700013.2.4">OptTestHarness</a> utility described elsewhere in
+href="/UserGuide/Compilers/index.html#x16-16800013.2.4">OptTestHarness</a> utility described elsewhere in
 the user guide.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">16.3   </span> <a 
- id="x19-23300016.3"></a>Scanning Objects in Jikes RVM</h3>
+ id="x19-23400016.3"></a>Scanning Objects in Jikes RVM</h3>
 <!--l. 5--><p class="noindent" >One of the services that MMTk expects a virtual machine to perform on its behalf is
 the scanning of objects, i.e. identifying and processing the pointer ﬁelds of the live
 objects it encounters during collection. In principle the implementation of this
@@ -1065,7 +1065,7 @@ paper</a>.
 </p><!--l. 9--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.3.1   </span> <a 
- id="x19-23400016.3.1"></a>JikesRVM to MMTk Interface</h4>
+ id="x19-23500016.3.1"></a>JikesRVM to MMTk Interface</h4>
 <!--l. 11--><p class="noindent" >MMTk requires its host virtual machine to provide an implementation of
 the class <span 
 class="cmtt-10">org.mmtk.vm.Scanning </span>as its interface to scanning objects.
@@ -1101,8 +1101,8 @@ understanding in detail.
 </p>
 <!--l. 17-->
 <div class="lstlisting" id="listing-142"><span class="label"><a 
- id="x19-234001r1"></a></span>RVMType type = ObjectModel.getObjectType(objectRef.toObject()); <br /><span class="label"><a 
- id="x19-234002r2"></a></span>    <span 
+ id="x19-235001r1"></a></span>RVMType type = ObjectModel.getObjectType(objectRef.toObject()); <br /><span class="label"><a 
+ id="x19-235002r2"></a></span>    <span 
 class="cmbx-10">int</span>[] offsets = type.getReferenceOffsets();
 </div>
 <!--l. 22--><p class="noindent" >This code fetches the array of oﬀsets that Jikes RVM uses to identify the pointer
@@ -1111,16 +1111,16 @@ resolved.
 </p>
 <!--l. 24-->
 <div class="lstlisting" id="listing-143"><span class="label"><a 
- id="x19-234003r1"></a></span><span 
+ id="x19-235003r1"></a></span><span 
 class="cmbx-10">if</span> (offsets != REFARRAY_OFFSET_ARRAY) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-234004r2"></a></span>  <span 
+ id="x19-235004r2"></a></span>  <span 
 class="cmbx-10">for</span>(<span 
 class="cmbx-10">int</span> i=0; i <span 
 class="cmmi-10">&#x003C;</span> offsets.length; i++) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-234005r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(offsets[i])); <br /><span class="label"><a 
- id="x19-234006r4"></a></span>  <span 
+ id="x19-235005r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(offsets[i])); <br /><span class="label"><a 
+ id="x19-235006r4"></a></span>  <span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 31--><p class="noindent" >One distinguished value (actually <span class="obeylines-h"><span class="verb"><span 
@@ -1128,20 +1128,20 @@ class="cmtt-10">null</span></span></span>) is used to identify arrays of referen
 and this block of code scans scalar objects by tracing each of the ﬁelds at the oﬀsets
 given by the oﬀset array. </p><!--l. 32-->
 <div class="lstlisting" id="listing-144"><span class="label"><a 
- id="x19-234007r1"></a></span><span 
+ id="x19-235007r1"></a></span><span 
 class="cmsy-10">}</span> <span 
 class="cmbx-10">else</span> <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-234008r2"></a></span>   <span 
+ id="x19-235008r2"></a></span>   <span 
 class="cmbx-10">for</span>(<span 
 class="cmbx-10">int</span> i=0; i <span 
 class="cmmi-10">&#x003C;</span> ObjectModel.getArrayLength(objectRef.toObject()); i++) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-234009r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(i <span 
+ id="x19-235009r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(i <span 
 class="cmmi-10">&#x003C;&#x003C;</span> LOG_BYTES_IN_ADDRESS)); <br /><span class="label"><a 
- id="x19-234010r4"></a></span>  <span 
+ id="x19-235010r4"></a></span>  <span 
 class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-234011r5"></a></span><span 
+ id="x19-235011r5"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 40--><p class="noindent" >The other case is reference arrays, for which we fetch the array length and scan each
@@ -1153,7 +1153,7 @@ here.
 </p><!--l. 46--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.3.2   </span> <a 
- id="x19-23500016.3.2"></a>Hand Inlining</h4>
+ id="x19-23600016.3.2"></a>Hand Inlining</h4>
 <!--l. 48--><p class="noindent" >Hand inlining was introduced in February 2011, and uses a cute technique to encode
 3 bits of metadata into the TIB pointer in an object&#x2019;s header. The 7 most frequent
                                                                   
@@ -1167,7 +1167,7 @@ specialization.
 </p><!--l. 54--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.3.3   </span> <a 
- id="x19-23600016.3.3"></a>Specialized Scanning</h4>
+ id="x19-23700016.3.3"></a>Specialized Scanning</h4>
 <!--l. 56--><p class="noindent" >Specialized Scanning was introduced in September 2007. It speeds up GC by
 removing the process of fetching and interpreting the oﬀset array that describes each
 object, by jumping directly to a hard-coded method for scanning objects with a
@@ -1177,15 +1177,15 @@ method is <span
 class="cmtt-10">SpecializedScanMethod.invoke(...)</span>, which looks like this
 </p><!--l. 59-->
 <div class="lstlisting" id="listing-145"><span class="label"><a 
- id="x19-236001r1"></a></span>@SpecializedMethodInvoke <br /><span class="label"><a 
- id="x19-236002r2"></a></span>@NoInline <br /><span class="label"><a 
- id="x19-236003r3"></a></span><span 
+ id="x19-237001r1"></a></span>@SpecializedMethodInvoke <br /><span class="label"><a 
+ id="x19-237002r2"></a></span>@NoInline <br /><span class="label"><a 
+ id="x19-237003r3"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">void</span> invoke(<span 
 class="cmbx-10">int</span> id, Object object, TransitiveClosure trace) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-236004r4"></a></span><span 
+ id="x19-237004r4"></a></span><span 
 class="cmti-10"> </span><span 
 class="cmti-10"> </span><span 
 class="cmti-10">/</span><span 
@@ -1209,8 +1209,8 @@ class="cmti-10">fallback</span><span
 class="cmti-10"> </span><span 
 class="tcti-1000">∗</span><span 
 class="cmti-10">/</span> <br /><span class="label"><a 
- id="x19-236005r5"></a></span>  fallback(object, trace); <br /><span class="label"><a 
- id="x19-236006r6"></a></span><span 
+ id="x19-237005r5"></a></span>  fallback(object, trace); <br /><span class="label"><a 
+ id="x19-237006r6"></a></span><span 
 class="cmsy-10">}</span>
 </div>
 <!--l. 68--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
@@ -1222,11 +1222,11 @@ class="cmtt-10">org.jikesrvm.classloader.SpecializedMethodManager</span>.
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">16.4   </span> <a 
- id="x19-23700016.4"></a>Using GCSpy</h3>
+ id="x19-23800016.4"></a>Using GCSpy</h3>
 <!--l. 5--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.4.1   </span> <a 
- id="x19-23800016.4.1"></a>The GCspy Heap Visualisation Framework</h4>
+ id="x19-23900016.4.1"></a>The GCspy Heap Visualisation Framework</h4>
 <!--l. 7--><p class="noindent" >GCspy is a visualisation framework that allows developers to observe the behaviour
 of the heap and related data structures. For details of the GCspy model, see <a 
 href="http://www.cs.kent.ac.uk/pubs/2002/1426/" >GCspy:
@@ -1262,34 +1262,34 @@ on.
 </p><!--l. 13--><p class="noindent" >In order to instrument a Jikes RVM collector with GCspy:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x19-238002x1">Provide  a  <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x19-239002x1">Provide  a  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">startGCspyServer</span></span></span> method  in  that  collector&#x2019;s  plan.  That
      method  initialises  the  GCspy  server  with  the  port  on  which  to
      communicate and a list of event names, instantiates drivers for each space,
      and then starts the server.
      </li>
      <li 
-  class="enumerate" id="x19-238004x2">Gather data from each space for the tiles of each stream (e.g. before,
+  class="enumerate" id="x19-239004x2">Gather data from each space for the tiles of each stream (e.g. before,
      during and after each collection).
      </li>
      <li 
-  class="enumerate" id="x19-238006x3">Provide a driver for each space.</li></ol>
+  class="enumerate" id="x19-239006x3">Provide a driver for each space.</li></ol>
 <!--l. 20--><p class="noindent" ><span 
 class="cmti-10">Space drivers </span>handle communication between collectors and the GCspy infrastructure
 by mapping information collected by the memory manager to the space&#x2019;s streams. A
 typical space driver will:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x19-238008x1">Create a GCspy space.
+  class="enumerate" id="x19-239008x1">Create a GCspy space.
      </li>
      <li 
-  class="enumerate" id="x19-238010x2">Create a stream for each attribute of the space.
+  class="enumerate" id="x19-239010x2">Create a stream for each attribute of the space.
      </li>
      <li 
-  class="enumerate" id="x19-238012x3">Update the tile statistics as the memory manager passes it information.
+  class="enumerate" id="x19-239012x3">Update the tile statistics as the memory manager passes it information.
      </li>
      <li 
-  class="enumerate" id="x19-238014x4">Send the tile data along with any summary or control information to the
+  class="enumerate" id="x19-239014x4">Send the tile data along with any summary or control information to the
      visualiser.</li></ol>
 <!--l. 28--><p class="noindent" >The Jikes RVM <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">SSGCspy</span></span></span> plan gives an example of how to instrument a collector. It
@@ -1299,14 +1299,14 @@ the gathering of more detailed information.
 </p><!--l. 32--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.4.2   </span> <a 
- id="x19-23900016.4.2"></a>Installation of GCspy with Jikes RVM</h4>
+ id="x19-24000016.4.2"></a>Installation of GCspy with Jikes RVM</h4>
                                                                   
 
                                                                   
 <!--l. 34--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24000016.4.2"></a>Building GCSpy</h5>
+ id="x19-24100016.4.2"></a>Building GCSpy</h5>
 <!--l. 36--><p class="noindent" >The GCspy client code makes use of the Java Advanced Imaging (JAI) API. The
 build system will attempt to download and install the JAI component when
 required but this is only supported on the ia32-linux platform. The build
@@ -1315,7 +1315,7 @@ required.
 </p><!--l. 40--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24100016.4.2"></a>Building Jikes RVM to use GCspy</h5>
+ id="x19-24200016.4.2"></a>Building Jikes RVM to use GCspy</h5>
 <!--l. 42--><p class="noindent" >To build the Jikes RVM with GCSpy support the conﬁguration parameter
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">config.include.gcspy</span></span></span> must be set to <span class="obeylines-h"><span class="verb"><span 
@@ -1330,10 +1330,10 @@ class="cmtt-10">true</span></span></span>.
 </p><!--l. 44--><p class="noindent" >The following steps build the Jikes RVM with support for GCSpy on linux-ia32
 platform. </p><!--l. 45-->
 <div class="lstlisting" id="listing-146"><span class="label"><a 
- id="x19-241001r1"></a></span><span 
+ id="x19-242001r1"></a></span><span 
 class="tcrm-1000">$</span> cd <span 
 class="tcrm-1000">$</span>RVM_ROOT <br /><span class="label"><a 
- id="x19-241002r2"></a></span><span 
+ id="x19-242002r2"></a></span><span 
 class="tcrm-1000">$</span> ant -Dhost.name=ia32-linux -Dconfig.name=BaseBaseSemiSpaceGCspy -Dconfig.include.gcspy-client=1
 </div>
 <!--l. 50--><p class="noindent" >It is also possible to build the Jikes RVM with GCSpy support but link it against a
@@ -1345,22 +1345,22 @@ class="cmtt-10">true</span></span></span>. This is used in the nightly testing p
 </p><!--l. 54--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24200016.4.2"></a>Running Jikes RVM with GCspy</h5>
+ id="x19-24300016.4.2"></a>Running Jikes RVM with GCspy</h5>
 <!--l. 56--><p class="noindent" >To start Jikes RVM with GCSpy enabled you need to specify the port the GCSpy
 server will listen on. </p><!--l. 57-->
 <div class="lstlisting" id="listing-147"><span class="label"><a 
- id="x19-242001r1"></a></span><span 
+ id="x19-243001r1"></a></span><span 
 class="tcrm-1000">$</span> cd <span 
 class="tcrm-1000">$</span>RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux <br /><span class="label"><a 
- id="x19-242002r2"></a></span><span 
+ id="x19-243002r2"></a></span><span 
 class="tcrm-1000">$</span> ./rvm -Xms20m -X:gc:gcspyPort=3000 -X:gc:gcspyWait=true &#x0026;
 </div>
 <!--l. 62--><p class="noindent" >Then you need to start the GCspy visualiser client. </p><!--l. 63-->
 <div class="lstlisting" id="listing-148"><span class="label"><a 
- id="x19-242003r1"></a></span><span 
+ id="x19-243003r1"></a></span><span 
 class="tcrm-1000">$</span> cd <span 
 class="tcrm-1000">$</span>RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux <br /><span class="label"><a 
- id="x19-242004r2"></a></span><span 
+ id="x19-243004r2"></a></span><span 
 class="tcrm-1000">$</span> ./tools/gcspy/gcspy
 </div>
 <!--l. 68--><p class="noindent" >After this you can specify the port and host to connect to (i.e. localhost:3000) and
@@ -1371,7 +1371,7 @@ click the ”Connect” button in the bottom right-hand corner of the visualiser
 </p><!--l. 74--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.4.3   </span> <a 
- id="x19-24300016.4.3"></a>Command line arguments</h4>
+ id="x19-24400016.4.3"></a>Command line arguments</h4>
 <!--l. 76--><p class="noindent" >Additional GCspy-related arguments to the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">rvm</span></span></span> command: </p>
      <ul class="itemize1">
@@ -1390,7 +1390,7 @@ class="newline" />How many KB are represented by one tile. The default value is 
 <!--l. 88--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">16.4.4   </span> <a 
- id="x19-24400016.4.4"></a>Writing GCspy drivers</h4>
+ id="x19-24500016.4.4"></a>Writing GCspy drivers</h4>
 <!--l. 90--><p class="noindent" >To instrument a new collector with GCspy, you will probably want to subclass your
 collector and to write new drivers for it. The following sections explain the
 modiﬁcations you need to make and how to write a driver. You may use
@@ -1455,7 +1455,7 @@ space.
 </p><!--l. 111--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24500016.4.4"></a>The Plan</h5>
+ id="x19-24600016.4.4"></a>The Plan</h5>
 <!--l. 113--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">SSGCspy.startGCspyServer</span></span></span> is called immediately before the ”main” method is
 loaded and run. It initialises the GCspy server with the port on which to
@@ -1489,7 +1489,7 @@ visualiser.
 </p><!--l. 125--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24600016.4.4"></a>The Collector and Mutator</h5>
+ id="x19-24700016.4.4"></a>The Collector and Mutator</h5>
 <!--l. 127--><p class="noindent" >Instrumenters will typically want to add data collection points before, during and
 after a collection by overriding <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase</span></span></span> in <span class="obeylines-h"><span class="verb"><span 
@@ -1512,18 +1512,18 @@ the immortal and large object spaces.
                                                                   
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x19-246002x1">Return if the GCspy port number is 0 (as no client can be connected).
+  class="enumerate" id="x19-247002x1">Return if the GCspy port number is 0 (as no client can be connected).
      </li>
      <li 
-  class="enumerate" id="x19-246004x2">Check  whether  the  server  is  connected  at  this  event.  If  so,  the
+  class="enumerate" id="x19-247004x2">Check  whether  the  server  is  connected  at  this  event.  If  so,  the
      compensation timer (which discounts the time taken by GCspy to ather
      the data) should be started before gathering data and stopped after it.
      </li>
      <li 
-  class="enumerate" id="x19-246006x3">After gathering the data, have each driver call its transmit method.
+  class="enumerate" id="x19-247006x3">After gathering the data, have each driver call its transmit method.
      </li>
      <li 
-  class="enumerate" id="x19-246008x4"><span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x19-247008x4"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">SSGCspyCollector</span></span></span> does not call the GCspy server&#x2019;s <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">serverSafepoint</span></span></span>
      method, as the collector phase is usually followed by a mutator phase.
@@ -1545,7 +1545,7 @@ resize a space before gathering data. For a space, </p>
 <!--l. 149--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24700016.4.4"></a>The Driver</h5>
+ id="x19-24800016.4.4"></a>The Driver</h5>
 <!--l. 151--><p class="noindent" >GCspy space drivers extend <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">AbstractDriver</span></span></span>. This class creates a new GCspy
 <span class="obeylines-h"><span class="verb"><span 
@@ -1559,10 +1559,10 @@ class="cmti-10">link</span>. The
 constructor for a typical space driver will:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x19-247002x1">Create a GCspy Stream for each attribute of a space.
+  class="enumerate" id="x19-248002x1">Create a GCspy Stream for each attribute of a space.
      </li>
      <li 
-  class="enumerate" id="x19-247004x2">Initialise the tile statistics in each stream.</li></ol>
+  class="enumerate" id="x19-248004x2">Initialise the tile statistics in each stream.</li></ol>
 <!--l. 157--><p class="noindent" >Some drivers may also create a <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">LinearScan</span></span></span> object to handle call-backs from the VM
 as it sweeps the heap (see above).
@@ -1586,29 +1586,29 @@ class="cmtt-10">IntStream</span></span></span>. A driver&#x2019;s transmit metho
 typically:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x19-247006x1">Determine whether a GCspy client is connected and interested in this
+  class="enumerate" id="x19-248006x1">Determine whether a GCspy client is connected and interested in this
      event, e.g. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">server.isConnected(event)</span></span></span>
      </li>
      <li 
-  class="enumerate" id="x19-247008x2">Setup        the        summaries        for        each        stream,        e.g.
+  class="enumerate" id="x19-248008x2">Setup        the        summaries        for        each        stream,        e.g.
      <span 
 class="cmtt-10">stream.setSummary(values...);</span>
      </li>
      <li 
-  class="enumerate" id="x19-247010x3">Setup the control information for each tile. e.g. <!--l. 166-->
+  class="enumerate" id="x19-248010x3">Setup the control information for each tile. e.g. <!--l. 166-->
      <div class="lstlisting" id="listing-149"><span class="label"><a 
- id="x19-247011r1"></a></span>controlValues(CONTROL_USED, start, numBlocks); <br /><span class="label"><a 
- id="x19-247012r2"></a></span>controlValues(CONTROL_UNUSED, end, remainingBlocks);
+ id="x19-248011r1"></a></span>controlValues(CONTROL_USED, start, numBlocks); <br /><span class="label"><a 
+ id="x19-248012r2"></a></span>controlValues(CONTROL_UNUSED, end, remainingBlocks);
      
      </div>
      </li>
      <li 
-  class="enumerate" id="x19-247014x4">Set up the space information, e.g. <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x19-248014x4">Set up the space information, e.g. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">setSpace(info);</span></span></span>
      </li>
      <li 
-  class="enumerate" id="x19-247016x5">Send the data for all streams, e.g. <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x19-248016x5">Send the data for all streams, e.g. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">send(event, numTiles);</span></span></span></li></ol>
 <!--l. 174--><p class="noindent" >Note that <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">AbstractDriver.send</span></span></span> takes care of sending the information for all
@@ -1616,7 +1616,7 @@ streams (including control data).
 </p><!--l. 178--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
- id="x19-24800016.4.4"></a>Subspaces</h5>
+ id="x19-24900016.4.4"></a>Subspaces</h5>
 <!--l. 180--><p class="noindent" >Subspace provides a useful abstraction of a contiguous region of a heap, recording its
 start and end address, the index of its ﬁrst block, the size of blocks in this space and
 the number of blocks in the region. In particular, <span class="obeylines-h"><span class="verb"><span 
