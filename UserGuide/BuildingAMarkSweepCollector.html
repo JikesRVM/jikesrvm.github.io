@@ -18,7 +18,7 @@ layout: default
 >
 <!--l. 2--><div class="crosslinks"><p class="noindent"></p></div>
 <h2 class="chapterHead"><span class="titlemark">Chapter 19</span><br /><a 
- id="x23-25900019"></a>Building a Mark-sweep Collector</h2>
+ id="x23-26000019"></a>Building a Mark-sweep Collector</h2>
 <!--l. 5--><p class="noindent" >We will now modify the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> collector to perform allocation and collection
 according to a mark-sweep policy. First we will change the allocation from
@@ -27,13 +27,13 @@ will add a mark-sweep collection policy, yielding a complete mark-sweep
 collector.
 </p>
 <h3 class="sectionHead"><span class="titlemark">19.1   </span> <a 
- id="x23-26000019.1"></a>Free-list Allocation</h3>
+ id="x23-26100019.1"></a>Free-list Allocation</h3>
 <!--l. 9--><p class="noindent" >This step will change your simple collector from using a bump pointer to a free list
 (but still without any garbage collection).
 </p><!--l. 11--><p class="noindent" >
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x23-260002x1">Update the constraints for this collector to reﬂect the constraints of a
+  class="enumerate" id="x23-261002x1">Update the constraints for this collector to reﬂect the constraints of a
      mark-sweep system, by updating <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialConstraints</span></span></span> as follows:
          <ul class="itemize1">
@@ -65,87 +65,87 @@ class="cmtt-10">_BYTES </span>(because
          list allocator).</li></ul>
      </li>
      <li 
-  class="enumerate" id="x23-260004x2">In <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261004x2">In <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span>, replace the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ImmortalSpace</span></span></span> with a <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">MarkSweepSpace</span></span></span>:
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-260006x1">rename  the  variable  <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261006x1">rename  the  variable  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">noGCSpace</span></span></span> to  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msSpace</span></span></span> (right-click,  Refactor
          <span 
 class="tcrm-1000">→</span> Rename...)
          </li>
          <li 
-  class="enumerate" id="x23-260008x2">rename  the  variable  <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261008x2">rename  the  variable  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">NOGC</span></span></span> to  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">MARK_SWEEP</span></span></span> (right-click,  Refactor
          <span 
 class="tcrm-1000">→</span> Rename...)
          </li>
          <li 
-  class="enumerate" id="x23-260010x3">change the type and static initialization of <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261010x3">change the type and static initialization of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msSpace</span></span></span> to <!--l. 23-->
          <div class="lstlisting" id="listing-154"><span class="label"><a 
- id="x23-260011r1"></a></span>public static final MarkSweepSpace msSpace = new MarkSweepSpace(”ms”, VMRequest.discontiguous());
+ id="x23-261011r1"></a></span>public static final MarkSweepSpace msSpace = new MarkSweepSpace(”ms”, VMRequest.discontiguous());
          
          </div>
          </li>
          <li 
-  class="enumerate" id="x23-260013x4">add an import for MarkSweepSpace and remove the redundant import for
+  class="enumerate" id="x23-261013x4">add an import for MarkSweepSpace and remove the redundant import for
          ImmortalSpace.</li></ol>
                                                                   
 
                                                                   
      </li>
      <li 
-  class="enumerate" id="x23-260015x3">In <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261015x3">In <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialMutator</span></span></span>, replace the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ImmortalLocal</span></span></span> (a bump pointer) with a
      <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">MarkSweepLocal</span></span></span> (a free-list allocator)
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-260017x1">change   the   type   of   <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261017x1">change   the   type   of   <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">nogc</span></span></span>  and   change   the   static   initializer
          appropriately.
          </li>
          <li 
-  class="enumerate" id="x23-260019x2">change the appropriate import statement from <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261019x2">change the appropriate import statement from <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ImmortalLocal</span></span></span> to
          <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">MarkSweepLocal</span></span></span>.
          </li>
          <li 
-  class="enumerate" id="x23-260021x3">rename the variable <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261021x3">rename the variable <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">nogc</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ms</span></span></span> (right-click, Refactor <span 
 class="tcrm-1000">→</span> Rename...)</li></ol>
      </li>
      <li 
-  class="enumerate" id="x23-260023x4">Also in <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261023x4">Also in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialMutator</span></span></span>, ﬁx <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">postAlloc()</span></span></span> to initialize the mark-sweep header:
      <!--l. 35-->
      <div class="lstlisting" id="listing-155"><span class="label"><a 
- id="x23-260024r1"></a></span><span 
+ id="x23-261024r1"></a></span><span 
 class="cmbx-10">if</span> (allocator == Tutorial.ALLOC_DEFAULT) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-260025r2"></a></span>  Tutorial.msSpace.postAlloc(ref); <br /><span class="label"><a 
- id="x23-260026r3"></a></span><span 
+ id="x23-261025r2"></a></span>  Tutorial.msSpace.postAlloc(ref); <br /><span class="label"><a 
+ id="x23-261026r3"></a></span><span 
 class="cmsy-10">}</span> <span 
 class="cmbx-10">else</span> <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-260027r4"></a></span>  <span 
+ id="x23-261027r4"></a></span>  <span 
 class="cmbx-10">super</span>.postAlloc(ref, typeRef, bytes, allocator); <br /><span class="label"><a 
- id="x23-260028r5"></a></span><span 
+ id="x23-261028r5"></a></span><span 
 class="cmsy-10">}</span>
      
      </div>
      </li>
      <li 
-  class="enumerate" id="x23-260030x5">In <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-261030x5">In <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">PlanSpecificConfig</span></span></span>, ﬁnd the line for <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span>, and change <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">&#x0022;default&#x0022;</span></span></span> to
@@ -162,7 +162,7 @@ pointer allocator.
 </p><!--l. 49--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">19.2   </span> <a 
- id="x23-26100019.2"></a>Mark-Sweep Collection</h3>
+ id="x23-26200019.2"></a>Mark-Sweep Collection</h3>
 <!--l. 51--><p class="noindent" >The next change required is to perform mark-and-sweep collection whenever the
 heap is exhausted. The <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">poll()</span></span></span> method of a plan is called at appropriate
@@ -170,11 +170,11 @@ intervals by other MMTk components to ask the plan whether a collection is
 required.
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x23-261002x1">Change <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262002x1">Change <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialConstraints</span></span></span> so that it inherits constraints from a collecting
      plan: <!--l. 54-->
      <div class="lstlisting" id="listing-156"><span class="label"><a 
- id="x23-261003r1"></a></span><span 
+ id="x23-262003r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">class</span> TutorialConstraints <span 
 class="cmbx-10">extends</span> StopTheWorldConstraints
@@ -185,7 +185,7 @@ class="cmbx-10">extends</span> StopTheWorldConstraints
                                                                   
      </li>
      <li 
-  class="enumerate" id="x23-261005x2">The plan needs to know how to perform a garbage collection. Collections are
+  class="enumerate" id="x23-262005x2">The plan needs to know how to perform a garbage collection. Collections are
      performed in phases, coordinated by data structures deﬁned in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorld</span></span></span>,
      and have global and thread-local components. First ensure the global
@@ -195,7 +195,7 @@ class="cmtt-10">Tutorial</span></span></span> (which is
 class="cmti-10">global</span>).
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-261007x1">Make <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262007x1">Make <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> extend <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorld</span></span></span> (for stop-the-world garbage
          collection) rather than <span class="obeylines-h"><span class="verb"><span 
@@ -203,7 +203,7 @@ class="cmtt-10">Plan</span></span></span> (the superclass of <span class="obeyli
 class="cmtt-10">StopTheWorld</span></span></span>):
          <!--l. 60-->
          <div class="lstlisting" id="listing-157"><span class="label"><a 
- id="x23-261008r1"></a></span><span 
+ id="x23-262008r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">class</span> Tutorial <span 
 class="cmbx-10">extends</span> StopTheWorld
@@ -211,18 +211,18 @@ class="cmbx-10">extends</span> StopTheWorld
          </div>
          </li>
          <li 
-  class="enumerate" id="x23-261010x2">Rename the trace variable to <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262010x2">Rename the trace variable to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msTrace</span></span></span> (right-click, Refactor <span 
 class="tcrm-1000">→</span> Rename...)
          </li>
          <li 
-  class="enumerate" id="x23-261012x3">Add code to ensure that <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262012x3">Add code to ensure that <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> performs the correct global collection
          phases in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase()</span></span></span>:
              <ol  class="enumerate3" >
              <li 
-  class="enumerate" id="x23-261014x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262014x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">if</span>
              <span 
 class="cmtt-10">(VM.VERIFY_ASSERTIONS)</span>
@@ -230,7 +230,7 @@ class="cmtt-10">(VM.VERIFY_ASSERTIONS)</span>
 class="cmtt-10">VM.assertions._assert(false);</span></span></span>).
              </li>
              <li 
-  class="enumerate" id="x23-261016x2">Add the prepare phase, preparing both the global tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262016x2">Add the prepare phase, preparing both the global tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msTrace</span></span></span>)
              and the space (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msSpace</span></span></span>), after ﬁrst performing the preparation phases
@@ -240,54 +240,54 @@ class="cmtt-10">Tutorial.collectionPhase()</span>, set the following within the 
              <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">phaseId == PREPARE</span></span></span>: <!--l. 68-->
              <div class="lstlisting" id="listing-158"><span class="label"><a 
- id="x23-261017r1"></a></span><span 
+ id="x23-262017r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == PREPARE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261018r2"></a></span>  <span 
+ id="x23-262018r2"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x23-261019r3"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
- id="x23-261020r4"></a></span>  msSpace.prepare(<span 
+ id="x23-262019r3"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
+ id="x23-262020r4"></a></span>  msSpace.prepare(<span 
 class="cmbx-10">true</span>); <br /><span class="label"><a 
- id="x23-261021r5"></a></span>  <span 
+ id="x23-262021r5"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261022r6"></a></span><span 
+ id="x23-262022r6"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261024x3">Add the closure phase, again preparing the global tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262024x3">Add the closure phase, again preparing the global tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msTrace</span></span></span>):
              <!--l. 77-->
              <div class="lstlisting" id="listing-159"><span class="label"><a 
- id="x23-261025r1"></a></span><span 
+ id="x23-262025r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == CLOSURE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261026r2"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
- id="x23-261027r3"></a></span>  <span 
+ id="x23-262026r2"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
+ id="x23-262027r3"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261028r4"></a></span><span 
+ id="x23-262028r4"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261030x4">Add the release phase, releasing the global tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262030x4">Add the release phase, releasing the global tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msTrace</span></span></span>) and the
              space (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msSpace</span></span></span>) before performing the release phases associated with
              the superclass: <!--l. 84-->
              <div class="lstlisting" id="listing-160"><span class="label"><a 
- id="x23-261031r1"></a></span><span 
+ id="x23-262031r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == RELEASE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261032r2"></a></span>  msTrace.release(); <br /><span class="label"><a 
- id="x23-261033r3"></a></span>  msSpace.release(); <br /><span class="label"><a 
- id="x23-261034r4"></a></span>  <span 
+ id="x23-262032r2"></a></span>  msTrace.release(); <br /><span class="label"><a 
+ id="x23-262033r3"></a></span>  msSpace.release(); <br /><span class="label"><a 
+ id="x23-262034r4"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x23-261035r5"></a></span>  <span 
+ id="x23-262035r5"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261036r6"></a></span><span 
+ id="x23-262036r6"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
@@ -296,82 +296,82 @@ class="cmsy-10">}</span>
                                                                   
              </li>
              <li 
-  class="enumerate" id="x23-261038x5">Finally ensure that for all other cases, the phases are delegated to the
+  class="enumerate" id="x23-262038x5">Finally ensure that for all other cases, the phases are delegated to the
              superclass, uncommenting the following after all of the above
              conditionals: <!--l. 93-->
              <div class="lstlisting" id="listing-161"><span class="label"><a 
- id="x23-261039r1"></a></span><span 
+ id="x23-262039r1"></a></span><span 
 class="cmbx-10">super</span>.collectionPhase(phaseId);
              
              </div>
              </li></ol>
          </li>
          <li 
-  class="enumerate" id="x23-261041x4">Add a new accounting method that determines how much space a
+  class="enumerate" id="x23-262041x4">Add a new accounting method that determines how much space a
          collection needs to yield to the mutator. The method, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">getPagesUsed</span></span></span>,
          overrides the one provided in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorld</span></span></span> superclass: <!--l. 98-->
          <div class="lstlisting" id="listing-162"><span class="label"><a 
- id="x23-261042r1"></a></span>@Override <br /><span class="label"><a 
- id="x23-261043r2"></a></span><span 
+ id="x23-262042r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-262043r2"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">int</span> getPagesUsed() <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261044r3"></a></span>  <span 
+ id="x23-262044r3"></a></span>  <span 
 class="cmbx-10">return</span> <span 
 class="cmbx-10">super</span>.getPagesUsed() + msSpace.reservedPages(); <br /><span class="label"><a 
- id="x23-261045r4"></a></span><span 
+ id="x23-262045r4"></a></span><span 
 class="cmsy-10">}</span>
          
          </div>
          </li>
          <li 
-  class="enumerate" id="x23-261047x5">Add a new method that determines whether an object will move during
+  class="enumerate" id="x23-262047x5">Add a new method that determines whether an object will move during
          collection: <!--l. 105-->
          <div class="lstlisting" id="listing-163"><span class="label"><a 
- id="x23-261048r1"></a></span>@Override <br /><span class="label"><a 
- id="x23-261049r2"></a></span><span 
+ id="x23-262048r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-262049r2"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">boolean</span> willNeverMove(ObjectReference object) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261050r3"></a></span>  <span 
+ id="x23-262050r3"></a></span>  <span 
 class="cmbx-10">if</span> (Space.isInSpace(MARK_SWEEP, object)) <br /><span class="label"><a 
- id="x23-261051r4"></a></span>    <span 
+ id="x23-262051r4"></a></span>    <span 
 class="cmbx-10">return</span> <span 
 class="cmbx-10">true</span>; <br /><span class="label"><a 
- id="x23-261052r5"></a></span>  <span 
+ id="x23-262052r5"></a></span>  <span 
 class="cmbx-10">return</span> <span 
 class="cmbx-10">super</span>.willNeverMove(object); <br /><span class="label"><a 
- id="x23-261053r6"></a></span><span 
+ id="x23-262053r6"></a></span><span 
 class="cmsy-10">}</span>
          
          </div>
          </li></ol>
      </li>
      <li 
-  class="enumerate" id="x23-261055x3">Next ensure that Tutorial correctly performs <span 
+  class="enumerate" id="x23-262055x3">Next ensure that Tutorial correctly performs <span 
 class="cmti-10">local </span>collection phases. These are
      deﬁned in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialCollector</span></span></span>.
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-261057x1">Make <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262057x1">Make <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialCollector</span></span></span> extend <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorldCollector</span></span></span>:
              <ol  class="enumerate3" >
              <li 
-  class="enumerate" id="x23-261059x1">Extend the class (<span 
+  class="enumerate" id="x23-262059x1">Extend the class (<span 
 class="cmtt-10">public class TutorialCollector extends</span>
              <span 
 class="cmtt-10">StopTheWorldCollector</span>).
              </li>
              <li 
-  class="enumerate" id="x23-261061x2">Import <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262061x2">Import <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorldCollector</span></span></span>.
              </li>
              <li 
-  class="enumerate" id="x23-261063x3">Remove                            some                            methods
+  class="enumerate" id="x23-262063x3">Remove                            some                            methods
              now implemented by <span 
 class="cmtt-10">StopTheWorldCollector</span>: <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collect()</span></span></span> and
@@ -381,13 +381,13 @@ class="newline" /><span class="obeylines-h"><span class="verb"><span
 class="cmtt-10">concurrentCollectionPhase()</span></span></span>.</li></ol>
          </li>
          <li 
-  class="enumerate" id="x23-261065x2">Add code to ensure that <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262065x2">Add code to ensure that <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> performs the correct global collection
          phases in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase()</span></span></span>:
              <ol  class="enumerate3" >
              <li 
-  class="enumerate" id="x23-261067x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262067x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">if</span>
              <span 
 class="cmtt-10">(VM.VERIFY_ASSERTIONS)</span>
@@ -398,7 +398,7 @@ class="cmtt-10">VM.assertions._assert(false);</span></span></span>).
                                                                   
              </li>
              <li 
-  class="enumerate" id="x23-261069x2">Add the prepare phase, preparing both the local tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262069x2">Add the prepare phase, preparing both the local tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">trace</span></span></span>)
              after ﬁrst performing the preparation phases associated
              with the superclasses. Using the commented template in
@@ -407,60 +407,60 @@ class="cmtt-10">TutorialCollector.collectionPhase()</span>, set the following wi
              the clause for <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">phaseId == PREPARE</span></span></span>: <!--l. 126-->
              <div class="lstlisting" id="listing-164"><span class="label"><a 
- id="x23-261070r1"></a></span><span 
+ id="x23-262070r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == Tutorial.PREPARE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261071r2"></a></span>  <span 
+ id="x23-262071r2"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-261072r3"></a></span>  trace.prepare(); <br /><span class="label"><a 
- id="x23-261073r4"></a></span>  <span 
+ id="x23-262072r3"></a></span>  trace.prepare(); <br /><span class="label"><a 
+ id="x23-262073r4"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261074r5"></a></span><span 
+ id="x23-262074r5"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261076x3">Add the closure phase, completing the local tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262076x3">Add the closure phase, completing the local tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">trace</span></span></span>):
              <!--l. 134-->
              <div class="lstlisting" id="listing-165"><span class="label"><a 
- id="x23-261077r1"></a></span><span 
+ id="x23-262077r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == Tutorial.CLOSURE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261078r2"></a></span>  trace.completeTrace(); <br /><span class="label"><a 
- id="x23-261079r3"></a></span>  <span 
+ id="x23-262078r2"></a></span>  trace.completeTrace(); <br /><span class="label"><a 
+ id="x23-262079r3"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261080r4"></a></span><span 
+ id="x23-262080r4"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261082x4">Add the release phase, releasing the local tracer (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262082x4">Add the release phase, releasing the local tracer (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">trace</span></span></span>) before
              performing the release phases associated with the superclass:
              <!--l. 141-->
              <div class="lstlisting" id="listing-166"><span class="label"><a 
- id="x23-261083r1"></a></span><span 
+ id="x23-262083r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == Tutorial.RELEASE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261084r2"></a></span>  trace.release(); <br /><span class="label"><a 
- id="x23-261085r3"></a></span>  <span 
+ id="x23-262084r2"></a></span>  trace.release(); <br /><span class="label"><a 
+ id="x23-262085r3"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-261086r4"></a></span>  <span 
+ id="x23-262086r4"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261087r5"></a></span><span 
+ id="x23-262087r5"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261089x5">Finally ensure that for all other cases, the phases are delegated to the
+  class="enumerate" id="x23-262089x5">Finally ensure that for all other cases, the phases are delegated to the
              superclass, uncommenting the following after all of the above
              conditionals: <!--l. 149-->
              <div class="lstlisting" id="listing-167"><span class="label"><a 
- id="x23-261090r1"></a></span><span 
+ id="x23-262090r1"></a></span><span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary);
              
              </div>
@@ -468,33 +468,33 @@ class="cmbx-10">super</span>.collectionPhase(phaseId, primary);
          </li></ol>
      </li>
      <li 
-  class="enumerate" id="x23-261092x4">Finally ensure that <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262092x4">Finally ensure that <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> correctly performs local mutator-related
      collection activities:
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-261094x1">Make <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262094x1">Make <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialMutator</span></span></span> extend <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorldMutator</span></span></span>:
              <ol  class="enumerate3" >
              <li 
-  class="enumerate" id="x23-261096x1">Extend  the  class:  <span 
+  class="enumerate" id="x23-262096x1">Extend  the  class:  <span 
 class="cmtt-10">public class TutorialMutator extends</span>
              <span 
 class="cmtt-10">StopTheWorldMutator</span>.
              </li>
              <li 
-  class="enumerate" id="x23-261098x2">Import <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262098x2">Import <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorldMutator</span></span></span>.</li></ol>
          </li>
          <li 
-  class="enumerate" id="x23-261100x2">Update the mutator-side collection phases:
+  class="enumerate" id="x23-262100x2">Update the mutator-side collection phases:
                                                                   
 
                                                                   
              <ol  class="enumerate3" >
              <li 
-  class="enumerate" id="x23-261102x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262102x1">First  remove  the  assertion  that  the  code  is  never  called  (<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">if</span>
              <span 
 class="cmtt-10">(VM.VERIFY_ASSERTIONS)</span>
@@ -502,47 +502,47 @@ class="cmtt-10">(VM.VERIFY_ASSERTIONS)</span>
 class="cmtt-10">VM.assertions._assert(false);</span></span></span>).
              </li>
              <li 
-  class="enumerate" id="x23-261104x2">Add the prepare phase to <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262104x2">Add the prepare phase to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase()</span></span></span> which prepares
              mutator-side data structures (namely the per-thread free lists) for the
              startof a collection: <!--l. 165-->
              <div class="lstlisting" id="listing-168"><span class="label"><a 
- id="x23-261105r1"></a></span><span 
+ id="x23-262105r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == Tutorial.PREPARE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261106r2"></a></span>  <span 
+ id="x23-262106r2"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-261107r3"></a></span>  ms.prepare(); <br /><span class="label"><a 
- id="x23-261108r4"></a></span>  <span 
+ id="x23-262107r3"></a></span>  ms.prepare(); <br /><span class="label"><a 
+ id="x23-262108r4"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261109r5"></a></span><span 
+ id="x23-262109r5"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261111x3">Add the release phase to <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-262111x3">Add the release phase to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase()</span></span></span> which re-initializes
              mutator-side data structures (namely the per-thread free lists) after
              the end of a collection: <!--l. 173-->
              <div class="lstlisting" id="listing-169"><span class="label"><a 
- id="x23-261112r1"></a></span><span 
+ id="x23-262112r1"></a></span><span 
 class="cmbx-10">if</span> (phaseId == Tutorial.RELEASE) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261113r2"></a></span>  ms.release(); <br /><span class="label"><a 
- id="x23-261114r3"></a></span>  <span 
+ id="x23-262113r2"></a></span>  ms.release(); <br /><span class="label"><a 
+ id="x23-262114r3"></a></span>  <span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-261115r4"></a></span>  <span 
+ id="x23-262115r4"></a></span>  <span 
 class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x23-261116r5"></a></span><span 
+ id="x23-262116r5"></a></span><span 
 class="cmsy-10">}</span>
              
              </div>
              </li>
              <li 
-  class="enumerate" id="x23-261118x4">Finally, delegate all other phases to the superclass: <!--l. 181-->
+  class="enumerate" id="x23-262118x4">Finally, delegate all other phases to the superclass: <!--l. 181-->
              <div class="lstlisting" id="listing-170"><span class="label"><a 
- id="x23-261119r1"></a></span><span 
+ id="x23-262119r1"></a></span><span 
 class="cmbx-10">super</span>.collectionPhase(phaseId, primary);
              
              </div>
@@ -576,7 +576,7 @@ class="cmtt-10">-Xmx20M</span></span></span>.
 </p><!--l. 192--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">19.3   </span> <a 
- id="x23-26200019.3"></a>Optimized Mark-sweep Collection</h3>
+ id="x23-26300019.3"></a>Optimized Mark-sweep Collection</h3>
                                                                   
 
                                                                   
@@ -588,18 +588,18 @@ the tracing loop at the core of the collector. Enabling this involves just two s
 steps:
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x23-262002x1">Indicate the number of specialized scanning loops and give each a
+  class="enumerate" id="x23-263002x1">Indicate the number of specialized scanning loops and give each a
      symbolic name, which at this stage is just one since we have a very simple
      collector:
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-262004x1">Override the <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-263004x1">Override the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">numSpecializedScans()</span></span></span> getter method in
          <span 
 class="cmtt-10">TutorialConstraints</span>: <!--l. 199-->
          <div class="lstlisting" id="listing-171"><span class="label"><a 
- id="x23-262005r1"></a></span>@Override <br /><span class="label"><a 
- id="x23-262006r2"></a></span><span 
+ id="x23-263005r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-263006r2"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">int</span> numSpecializedScans() <span 
 class="cmsy-10">{</span> <span 
@@ -609,11 +609,11 @@ class="cmsy-10">}</span>
          </div>
          </li>
          <li 
-  class="enumerate" id="x23-262008x2">Deﬁne a constant to represent our (only) specialized scan in <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-263008x2">Deﬁne a constant to represent our (only) specialized scan in <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span> (we
          will call this scan ”mark”): <!--l. 204-->
          <div class="lstlisting" id="listing-172"><span class="label"><a 
- id="x23-262009r1"></a></span><span 
+ id="x23-263009r1"></a></span><span 
 class="cmbx-10">public</span> <span 
 class="cmbx-10">static</span> <span 
 class="cmbx-10">final</span> <span 
@@ -623,31 +623,31 @@ class="cmbx-10">int</span> SCAN_MARK = 0;
          </li></ol>
      </li>
      <li 
-  class="enumerate" id="x23-262011x2">Register the specialized method:
+  class="enumerate" id="x23-263011x2">Register the specialized method:
          <ol  class="enumerate2" >
          <li 
-  class="enumerate" id="x23-262013x1">Add the following line to <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-263013x1">Add the following line to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">registerSpecializedMethods()</span></span></span> method in
          <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span>: <!--l. 211-->
          <div class="lstlisting" id="listing-173"><span class="label"><a 
- id="x23-262014r1"></a></span>TransitiveClosure.registerSpecializedScan(SCAN_MARK, TutorialTraceLocal.<span 
+ id="x23-263014r1"></a></span>TransitiveClosure.registerSpecializedScan(SCAN_MARK, TutorialTraceLocal.<span 
 class="cmbx-10">class</span>);
          
          </div>
          </li>
          <li 
-  class="enumerate" id="x23-262016x2">Add <span class="obeylines-h"><span class="verb"><span 
+  class="enumerate" id="x23-263016x2">Add <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial.SCAN_MARK</span></span></span> as the ﬁrst argument to the superclass
          constructor for <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">TutorialTraceLocal</span></span></span>: <!--l. 215-->
          <div class="lstlisting" id="listing-174"><span class="label"><a 
- id="x23-262017r1"></a></span><span 
+ id="x23-263017r1"></a></span><span 
 class="cmbx-10">public</span> TutorialTraceLocal(Trace trace) <span 
 class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262018r2"></a></span>  <span 
+ id="x23-263018r2"></a></span>  <span 
 class="cmbx-10">super</span>(Tutorial.SCAN_MARK, trace); <br /><span class="label"><a 
- id="x23-262019r3"></a></span><span 
+ id="x23-263019r3"></a></span><span 
 class="cmsy-10">}</span>
          
          </div>
