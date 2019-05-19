@@ -50,9 +50,9 @@ This section provides more detailed project status information for the component
 - MMTk currently doesn't [deal correctly](https://xtenlang.atlassian.net/browse/RVM-816) with page sizes
 
 ## OpenJDK
-- work happens on the RVM-549-OpenJDK branch
-- bootimage builds, VM completes boot sequence and exits normally when no class is provided
-- HelloWorld runs
+- work happens on the master branch
+- bootimage builds
+- prototype can run some tests from the basic test run
 - TODOs: make unit tests run, fix opt builds, make pre-commit test run pass
 
 ## x64 support
