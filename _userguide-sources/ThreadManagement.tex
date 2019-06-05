@@ -4,7 +4,7 @@
 
 This section provides some explanation of how Java\textsuperscript{TM} threads are scheduled and synchronized by Jikes\textsuperscript{TM} RVM.
 
-All Java threads (application threads, garbage collector threads, etc.) derive from \spverb+RVMThread+. Each \spverb+RVMThread+ maps directly to one native thread, which may be implemented using whichever C/C++ threading library is in use (currently either pthreads or Harmony threads). Unless \spverb+-X:availableProcessors+ or \spverb+-X:gc:threads+ is used, native threads are allowed to be arbitrarily scheduled by the OS using whatever processor resources are available; Jikes\textsuperscript{TM} RVM does not attempt to control the thread-processor mapping at all.
+All Java threads (application threads, garbage collector threads, etc.) derive from \spverb+RVMThread+. Each \spverb+RVMThread+ maps directly to one native thread, which may be implemented using whichever C/C++ threading library is in use (currently pthreads). Unless \spverb+-X:availableProcessors+ or \spverb+-X:gc:threads+ is used, native threads are allowed to be arbitrarily scheduled by the OS using whatever processor resources are available; Jikes\textsuperscript{TM} RVM does not attempt to control the thread-processor mapping at all.
 
 Using native threading gives Jikes\textsuperscript{TM} RVM better compatibility for existing JNI code, as well as improved performance, and greater infrastructure simplicity. Scheduling is offloaded entirely to the operating system; this is both what native code would expect and what maximizes the OS scheduler's ability to optimally schedule Java\textsuperscript{TM} threads. As well, the resulting VM infrastructure is both simpler and more robust, since instead of focusing on scheduling decisions it can take a "hands-off" approach except when Java threads have to be preempted for sampling, on-stack-replacement, garbage collection, \spverb+Thread.suspend()+, or locking. The main task of \spverb+RVMThread+ and other code in \spverb+org.jikesrvm.scheduler+ is thus to override OS scheduling decisions when the VM demands it.
 
@@ -113,7 +113,7 @@ Four types of thread blocking and handshaking are supported:
 
 \begin{subsection}{The Monitor API}
 
-The VM internally uses an OS-based locking implementation, augmented with support for safe lock recursion and awareness of handshakes. The Monitor API provides locking and notification, similar to a Java lock, and may be implemented using either a \spverb+pthread_mutex+ and a \spverb+pthread_cond+, or using Harmony's monitor API.
+The VM internally uses an OS-based locking implementation, augmented with support for safe lock recursion and awareness of handshakes. The Monitor API provides locking and notification, similar to a Java lock, and is implemented using a \spverb+pthread_mutex+ and a \spverb+pthread_cond+.
 
 Acquiring a Monitor lock, or awaiting notification, may cause the calling \texttt{RVM\-Thread} to block. This prevents the calling thread from acknowledging handshakes until the blocking call returns. In some cases, this is desirable. For example:
 \begin{itemize}
