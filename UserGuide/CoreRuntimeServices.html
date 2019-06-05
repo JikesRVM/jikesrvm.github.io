@@ -414,14 +414,14 @@ class="cmr-9">TM</span></sup> RVM.
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RVMThread</span></span></span>. Each <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RVMThread</span></span></span> maps directly to one native thread, which may be
-implemented using whichever C/C++ threading library is in use (currently either
-pthreads or Harmony threads). Unless <span class="obeylines-h"><span class="verb"><span 
+implemented using whichever C/C++ threading library is in use (currently
+pthreads). Unless <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">-X:availableProcessors</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">-X:gc:threads</span></span></span>
-is used, native threads are allowed to be arbitrarily scheduled by the OS using
-whatever processor resources are available; Jikes<sup class="textsuperscript"><span 
-class="cmr-9">TM</span></sup> RVM does not attempt to
-control the thread-processor mapping at all.
+class="cmtt-10">-X:gc:threads</span></span></span> is used, native
+threads are allowed to be arbitrarily scheduled by the OS using whatever
+processor resources are available; Jikes<sup class="textsuperscript"><span 
+class="cmr-9">TM</span></sup> RVM does not attempt to control the
+thread-processor mapping at all.
 </p><!--l. 9--><p class="noindent" >Using native threading gives Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM better compatibility for existing JNI
 code, as well as improved performance, and greater infrastructure simplicity.
@@ -1119,11 +1119,10 @@ class="cmtt-10">hardHandshakeSuspend()</span>, but it will only aﬀect the one
  id="x17-18800014.3.3"></a>The Monitor API</h4>
 <!--l. 116--><p class="noindent" >The VM internally uses an OS-based locking implementation, augmented with
 support for safe lock recursion and awareness of handshakes. The Monitor API
-provides locking and notiﬁcation, similar to a Java lock, and may be implemented
-using either a <span class="obeylines-h"><span class="verb"><span 
+provides locking and notiﬁcation, similar to a Java lock, and is implemented using a
+<span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">pthread_mutex</span></span></span> and a <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">pthread_cond</span></span></span>, or using Harmony&#x2019;s monitor
-API.
+class="cmtt-10">pthread_cond</span></span></span>.
 </p><!--l. 118--><p class="noindent" >Acquiring a Monitor lock, or awaiting notiﬁcation, may cause the calling <span 
 class="cmtt-10">RVMThread</span>
 to block. This prevents the calling thread from acknowledging handshakes
@@ -1209,10 +1208,10 @@ lock.
 class="cmtt-10">Monitor</span></span></span> is provided with each thread. This monitor is of the type
 <span 
 class="cmtt-10">NoYieldpointsMonitor </span>and will also ensure that yieldpoints (safe points) are
+disabled while the lock is held. This is necessary because any safe point may release
                                                                   
 
                                                                   
-disabled while the lock is held. This is necessary because any safe point may release
 the <span 
 class="cmtt-10">Monitor </span>lock by waiting on it, thereby breaking atomicity of the critical section.
 The <span 
@@ -1263,12 +1262,12 @@ thread to which the lock was biased to resume execution, while the thread
 requesting the lock may now contend on it using normal thin/contended
 mechanisms.
 </p><!--l. 161--><p class="noindent" >Contended locks, or ”fat locks”, consist of three mechanisms:
-                                                                  
-
-                                                                  
      </p><ol  class="enumerate1" >
      <li 
   class="enumerate" id="x17-189002x1">A spin lock to protect the data structures.
+                                                                  
+
+                                                                  
      </li>
      <li 
   class="enumerate" id="x17-189004x2">A queue of threads blocked on the lock.
@@ -1532,11 +1531,11 @@ Jikes RVM.
 native code by either mechanism will never be preempted by Jikes RVM, but in the
 case of JNI, all of the VM&#x2019;s services will know that the thread is ”eﬀectively safe”
 and thus may be ignored for most purposes. Additionally, threads executing JNI code
+may have handshake actions performed by other threads on their behalf, for example
+in the case of GC stack scanning. This is not the case with syscalls. As far as
                                                                   
 
                                                                   
-may have handshake actions performed by other threads on their behalf, for example
-in the case of GC stack scanning. This is not the case with syscalls. As far as
 Jikes RVM is concerned, a Java thread that enters syscall native code is
 still executing Java code, but will appear to not reach a safe point until
 after it emerges from the syscall. This issue may be side-stepped by using
@@ -1600,14 +1599,14 @@ class="cmtt-10">_GetCreatedJavaVMs</span>) is not implemented. This is
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.6   </span> <a 
  id="x17-19600014.4.6"></a>Things JNI Can&#x2019;t Handle</h4>
-                                                                  
-
-                                                                  
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmbx-10">atexit routines: </span>Calling JNI code via a routine run at exit time means
      calling back into a VM that has been shutdown. This will cause the Jikes
      RVM to freeze on Intel architectures.</li></ul>
+                                                                  
+
+                                                                  
 <!--l. 61--><p class="noindent" >Contributions of any of the missing functionality (and/or associated tests) would be
 greatly appreciated.
 </p><!--l. 2--><p class="noindent" >
@@ -1655,9 +1654,6 @@ with the next frame. When a handler is found the delivery code installs the save
 register state and returns into the handler frame at the start of the handler
 block.
 </p><!--l. 15--><p class="noindent" >The Jikes RVM employs some of the same code used by the hardware exception
-                                                                  
-
-                                                                  
 handler to implement the language primitive <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">throw()</span></span></span>. This primitive requires
 a handler to be located and the stack to be unwound so that the handler
@@ -1666,6 +1662,9 @@ class="cmtt-10">throw</span></span></span> operation is always translated into a
 <span 
 class="cmtt-10">RuntimeEntrypoints.athrow() </span>so the unwind can never happens in the
 handler frame. Hence the register state at the point of re-entry is always
+                                                                  
+
+                                                                  
 saved by the call mechanism and there is no need to generate a hardware
 exception.
 </p><!--l. 2--><p class="noindent" >
@@ -1705,9 +1704,6 @@ and runtime library classes which are already loaded and compiled into the image
 routines will not be valid in the JIkes RVM runtime. The data may be invalid as the
 host environment that generated the boot image may diﬀer from the current
 environment.
-                                                                  
-
-                                                                  
 </p><!--l. 21--><p class="noindent" >The boot process the enables the Java scheduler and locking system, setting up the
 data structures necessary to launch additional threads. The scheduler also starts the
 <span 
@@ -1718,6 +1714,9 @@ class="cmtt-10">CollectorThread</span>).
 code to be compiled and executed then re-initialises a few more classes whose init
 methods require a functional JNI (i.e. <span 
 class="cmtt-10">java.io.FileDescriptor</span>).
+                                                                  
+
+                                                                  
 </p><!--l. 25--><p class="noindent" >Finally, the boot routine loads the boot application class supplied on the rvm
 command line, creates and schedules a Java main thread to execute this class&#x2019;s main
 method, then exits, switching execution to the main thread. Execution continues
@@ -1989,14 +1988,14 @@ writer.
 correct address, will populate the runtime data area with a memory image
 containing:
 </p>
-                                                                  
-
-                                                                  
      <ul class="itemize1">
      <li class="itemize">a JTOC
      </li>
      <li class="itemize">all  the  TIBs,  static  method  code  arrays  and  static  ﬁeld  data  directly
      referenced from the JTOC
+                                                                  
+
+                                                                  
      </li>
      <li class="itemize">all the dynamic method code arrays indirectly referenced from the TIBS
      </li>
@@ -2031,12 +2030,12 @@ toolkit.
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.7.1   </span> <a 
  id="x17-20400014.7.1"></a>Architecture-independent concepts</h4>
-                                                                  
-
-                                                                  
 <!--l. 7--><p class="noindent" >Stackframe layout and calling conventions may evolve as our understanding of Jikes
 RVM&#x2019;s performance improves. Where possible, API&#x2019;s should be used to protect code
 against such changes.
+                                                                  
+
+                                                                  
 </p><!--l. 9--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
@@ -2081,9 +2080,6 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
 <h5 class="subsubsectionHead"><a 
  id="x17-20600014.7.1"></a>Stack conventions</h5>
 <!--l. 28--><p class="noindent" >Stacks grow from high memory to low memory.
-                                                                  
-
-                                                                  
 </p><!--l. 32--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
@@ -2092,6 +2088,9 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
      </p><ol  class="enumerate1" >
      <li 
   class="enumerate" id="x17-207002x1">Execute a stackoverﬂow check, and grow the thread stack if necessary.
+                                                                  
+
+                                                                  
      </li>
      <li 
   class="enumerate" id="x17-207004x2">Save the caller&#x2019;s next instruction pointer (callee&#x2019;s return address)
@@ -2135,9 +2134,6 @@ class="cmr-9">TM</span></sup> thread must yield the Processor (and yield if
  id="x17-20900014.7.2"></a>Architecture-speciﬁc calling conventions</h4>
 <!--l. 63--><p class="noindent" >The following architecture-speciﬁc classes are of interest for calling conventions:
 </p>
-                                                                  
-
-                                                                  
      <ul class="itemize1">
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StackframeLayoutConstants</span></span></span> for layout of the stack frame
@@ -2147,6 +2143,9 @@ class="cmtt-10">JNICompiler</span></span></span> for transition to native code
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RegisterConstants</span></span></span> for register deﬁnitions
+                                                                  
+
+                                                                  
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">BaselineConstants</span></span></span> for register usage by the baseline compiler
@@ -2197,9 +2196,6 @@ callbacks registered for both ClassLoaded and ClassInstantiated events, and the
 ClassInstantiated callback code causes dynamic class loading, the ClassLoaded
 callback will be invoked for the new class, but not the ClassInstantiated
 callback.
-                                                                  
-
-                                                                  
 </p><!--l. 13--><p class="noindent" >Examples of callback use can be seen in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Controller</span></span></span> class in the adaptive
 system.
@@ -2207,6 +2203,9 @@ system.
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.8.1   </span> <a 
  id="x17-21100014.8.1"></a>An Example: Modifying SPECjvm98 to Report the End of a Run</h4>
+                                                                  
+
+                                                                  
 <!--l. 17--><p class="noindent" >The SPECjvm®98 benchmark suite is conﬁgured to run one or more benchmarks a
 particular number of times. For example, the following runs the compress benchmark
 for 5 iterations: </p><!--l. 18-->
@@ -2258,9 +2257,6 @@ class="tcrm-1000">$</span>RVM_BUILD/RVM.classes/rvmrt.jar spec/harness/ProgramR
      structure with your modiﬁed ﬁle, i.e., <br 
 class="newline" /><span 
 class="cmtt-10">org/jikesrvm/Callbacks.java</span>
-                                                                  
-
-                                                                  
      </p></li>
      <li 
   class="enumerate" id="x17-211017x3">Run Jikes RVM as you normally would using the SPECjvm98 benchmarks.</li></ol>
@@ -2269,6 +2265,9 @@ class="cmtt-10">Controller</span></span></span> class will gain control when the
 made and print a message into the AOS log ﬁle (by default, placed in Jikes RVM&#x2019;s
 current working directory and called <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">AOSLog.txt</span></span></span>).
+                                                                  
+
+                                                                  
 </p><!--l. 51--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.8.2   </span> <a 
