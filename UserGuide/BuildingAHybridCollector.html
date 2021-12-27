@@ -9,8 +9,8 @@ layout: default
 > 
 <head><title>20 Building a Hybrid Collector</title> 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
-<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
-<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="generator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
@@ -43,14 +43,25 @@ class="cmtt-10">movesObjects()</span></span></span> method to return <span class
 class="cmtt-10">true</span></span></span>, reﬂecting that we
          are now building a copying collector: <!--l. 15-->
          <div class="lstlisting" id="listing-175"><span class="label"><a 
- id="x24-265005r1"></a></span>@Override <br /><span class="label"><a 
+ id="x24-265005r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-265006r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">boolean</span> movesObjects() <span 
-class="cmsy-10">{</span> <span 
-class="cmbx-10">return</span> <span 
-class="cmbx-10">true</span>; <span 
-class="cmsy-10">}</span>
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">movesObjects</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span>
          
          </div>
          </li>
@@ -64,13 +75,25 @@ class="cmtt-10">maxNonLOSDefaultAllocBytes()</span></span></span>.
   class="enumerate" id="x24-265010x3">Add a restriction on the maximum size that may be copied into the
          (default) non-LOS mature space: <!--l. 21-->
          <div class="lstlisting" id="listing-176"><span class="label"><a 
- id="x24-265011r1"></a></span>@Override <br /><span class="label"><a 
+ id="x24-265011r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-265012r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">int</span> maxNonLOSCopyBytes() <span 
-class="cmsy-10">{</span> <span 
-class="cmbx-10">return</span> SegregatedFreeListSpace.MAX_FREELIST_OBJECT_BYTES;<span 
-class="cmsy-10">}</span>
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">maxNonLOSCopyBytes</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">SegregatedFreeListSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">MAX_FREELIST_OBJECT_BYTES</span><span 
+class="cmtt-10">;}</span>
          
          </div>
          </li></ol>
@@ -95,16 +118,57 @@ class="cmtt-10">false</span></span></span> as the third argument.
                                                                   
          <div class="lstlisting" id="listing-177"><span class="label"><a 
  id="x24-265017r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> CopySpace nurserySpace = <span 
-class="cmbx-10">new</span> CopySpace(”nursery”, <span 
-class="cmbx-10">false</span>, VMRequest.highFraction(0.15f)); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">CopySpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nurserySpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">CopySpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">nursery</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">false</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VMRequest</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">highFraction</span><span 
+class="cmtt-10">(0.15</span><span 
+class="cmtt-10">f</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-265018r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">int</span> NURSERY = nurserySpace.getDescriptor();
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">NURSERY</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nurserySpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getDescriptor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
@@ -220,13 +284,46 @@ new hybrid collector will perform copying.
      <!--l. 70-->
      <div class="lstlisting" id="listing-178"><span class="label"><a 
  id="x24-267003r1"></a></span><span 
-class="cmbx-10">private</span> <span 
-class="cmbx-10">final</span> LargeObjectLocal los = <span 
-class="cmbx-10">new</span> LargeObjectLocal(Plan.loSpace); <br /><span class="label"><a 
+class="cmtt-10">private</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">LargeObjectLocal</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">los</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">LargeObjectLocal</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">loSpace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267004r2"></a></span><span 
-class="cmbx-10">private</span> <span 
-class="cmbx-10">final</span> MarkSweepLocal mature = <span 
-class="cmbx-10">new</span> MarkSweepLocal(Tutorial.msSpace);
+class="cmtt-10">private</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepLocal</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">mature</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepLocal</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
      
      </div>
      </li>
@@ -235,26 +332,137 @@ class="cmbx-10">new</span> MarkSweepLocal(Tutorial.msSpace);
 class="cmtt-10">allocCopy()</span></span></span> method that conditionally allocates to the LOS or mature
      space: <!--l. 75-->
      <div class="lstlisting" id="listing-179"><span class="label"><a 
- id="x24-267007r1"></a></span>@Override <br /><span class="label"><a 
+ id="x24-267007r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267008r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">final</span> Address allocCopy(ObjectReference original, <span 
-class="cmbx-10">int</span> bytes, <br /><span class="label"><a 
- id="x24-267009r3"></a></span>                               <span 
-class="cmbx-10">int</span> align, <span 
-class="cmbx-10">int</span> offset, <span 
-class="cmbx-10">int</span> allocator) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x24-267010r4"></a></span>  <span 
-class="cmbx-10">if</span> (allocator == Plan.ALLOC_LOS) <br /><span class="label"><a 
- id="x24-267011r5"></a></span>    <span 
-class="cmbx-10">return</span> los.alloc(bytes, align, offset); <br /><span class="label"><a 
- id="x24-267012r6"></a></span>  <span 
-class="cmbx-10">else</span> <br /><span class="label"><a 
- id="x24-267013r7"></a></span>    <span 
-class="cmbx-10">return</span> mature.alloc(bytes, align, offset); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocCopy</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">original</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267009r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267010r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">ALLOC_LOS</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267011r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">los</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267012r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267013r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">mature</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267014r8"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
      
      </div>
      </li>
@@ -263,25 +471,116 @@ class="cmsy-10">}</span>
 class="cmtt-10">postCopy()</span></span></span> method that conditionally calls LOS or mature space
      post-copy actions: <!--l. 86-->
      <div class="lstlisting" id="listing-180"><span class="label"><a 
- id="x24-267017r1"></a></span>@Override <br /><span class="label"><a 
+ id="x24-267017r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267018r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">void</span> postCopy(ObjectReference object, ObjectReference typeRef, <br /><span class="label"><a 
- id="x24-267019r3"></a></span>                           <span 
-class="cmbx-10">int</span> bytes, <span 
-class="cmbx-10">int</span> allocator) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">postCopy</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">typeRef</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267019r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267020r4"></a></span><span 
-class="cmbx-10">if</span> (allocator == Plan.ALLOC_LOS) <br /><span class="label"><a 
- id="x24-267021r5"></a></span>  Plan.loSpace.initializeHeader(object, <span 
-class="cmbx-10">false</span>); <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">ALLOC_LOS</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267021r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">loSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">initializeHeader</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">false</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267022r6"></a></span><span 
-class="cmbx-10">else</span> <br /><span class="label"><a 
- id="x24-267023r7"></a></span>  Tutorial.msSpace.postCopy(object, <span 
-class="cmbx-10">true</span>); <br /><span class="label"><a 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-267023r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">postCopy</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-267024r8"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
      
      </div>
      </li></ol>
@@ -304,9 +603,36 @@ class="cmtt-10">traceObject()</span></span></span>:
 class="cmtt-10">isLive()</span></span></span>: <!--l. 106-->
          <div class="lstlisting" id="listing-181"><span class="label"><a 
  id="x24-268005r1"></a></span><span 
-class="cmbx-10">if</span> (Space.isInSpace(Tutorial.NURSERY, object)) <br /><span class="label"><a 
- id="x24-268006r2"></a></span>  <span 
-class="cmbx-10">return</span> Tutorial.nurserySpace.isLive(object);
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Space</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isInSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">NURSERY</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-268006r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">nurserySpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isLive</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
@@ -314,10 +640,44 @@ class="cmbx-10">return</span> Tutorial.nurserySpace.isLive(object);
   class="enumerate" id="x24-268008x2">Add the following to traceObject(): <!--l. 111-->
          <div class="lstlisting" id="listing-182"><span class="label"><a 
  id="x24-268009r1"></a></span><span 
-class="cmbx-10">if</span> (Space.isInSpace(Tutorial.NURSERY, object)) <br /><span class="label"><a 
- id="x24-268010r2"></a></span>  <span 
-class="cmbx-10">return</span> Tutorial.nurserySpace.traceObject(<span 
-class="cmbx-10">this</span>, object, Tutorial.ALLOC_DEFAULT);
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Space</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isInSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">NURSERY</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-268010r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">nurserySpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">traceObject</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">this</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">ALLOC_DEFAULT</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li></ol>
@@ -328,15 +688,44 @@ class="cmtt-10">willNotMoveInCurrentCollection()</span></span></span> method, wh
      those objects which do not move (necessary for copying collectors):
      <!--l. 117-->
      <div class="lstlisting" id="listing-183"><span class="label"><a 
- id="x24-268013r1"></a></span>@Override <br /><span class="label"><a 
+ id="x24-268013r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-268014r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">boolean</span> willNotMoveInCurrentCollection(ObjectReference object) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x24-268015r3"></a></span>  <span 
-class="cmbx-10">return</span> !Space.isInSpace(Tutorial.NURSERY, object); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">willNotMoveInCurrentCollection</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x24-268015r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">!</span><span 
+class="cmtt-10">Space</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isInSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">NURSERY</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x24-268016r4"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
      
      </div>
      </li>
@@ -346,7 +735,41 @@ class="cmtt-10">PlanSpecificConfig</span></span></span> to add the new <span cla
 class="cmtt-10">nursery</span></span></span> space: <!--l. 124-->
      <div class="lstlisting" id="listing-184"><span class="label"><a 
  id="x24-268019r1"></a></span><span 
-class="cmbx-10">new</span> PlanSpecific(”org.mmtk.plan.tutorial.Tutorial”).addExpectedSpaces(”ms”, ”nursery”), ”Tutorial”);
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">PlanSpecific</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">org</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">mmtk</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">addExpectedSpaces</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">nursery</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
      
      </div>
      </li></ol>

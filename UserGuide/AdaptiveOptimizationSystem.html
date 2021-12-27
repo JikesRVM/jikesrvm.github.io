@@ -9,8 +9,8 @@ layout: default
 > 
 <head><title>12 Adaptive Optimization System</title> 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
-<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
-<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="generator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
@@ -53,10 +53,10 @@ optimized code in the virtual machine.
 optimization, ﬁrst the runtime measurements component must identify candidate
 methods (“hot methods”) for the controller to consider. To this end, it installs a
 listener that periodically samples the currently executing method at every taken
-yieldpoint. When it is time to take a sample, the listener inspects the thread&#x2019;s call
+yieldpoint. When it is time to take a sample, the listener inspects the thread’s call
 stack and records a single compiled method id into a buﬀer. If the yieldpoint occurs
 in the prologue of a method, then the listener additionally records the compiled
-method id of the current activation&#x2019;s caller. If the taken yieldpoint occurs on a loop
+method id of the current activation’s caller. If the taken yieldpoint occurs on a loop
 backedge or method epilogue, then the listener records the compiled method id of the
 current method.
 </p><!--l. 17--><p class="noindent" >When the buﬀer of samples is full, the sampling window ends. The listener then
@@ -70,7 +70,7 @@ overhead. In addition to supporting lookups and updates by compiled method id, i
 must also eﬃciently enumerate all methods that have been sampled more times
 than a (varying) threshold value. After updating the Method Sample Data,
 the Hot Method Organizer creates an event for each method that has been
-sampled in this window and adds it to the controller&#x2019;s priority queue, using the
+sampled in this window and adds it to the controller’s priority queue, using the
 sample value as its priority. The event contains the compiled method and the
 <span 
 class="cmti-10">total </span>number of times it has been sampled since the beginning of execution.
@@ -92,7 +92,7 @@ the optimizing compiler at the speciﬁed optimization level and installs the re
                                                                   
 compiled method into the VM.
 </p><!--l. 23--><p class="noindent" >Although the overall structure of selective optimization in Jikes RVM is similar to
-that originally described in Arnold et al&#x2019;s OOPSLA 2000 paper, we have made
+that originally described in Arnold et al’s OOPSLA 2000 paper, we have made
 several changes and improvements based on further experience with the system. The
 most signiﬁcant change is that in the previous system, the method sample organizer
 attempted to ﬁlter the set of methods it presented to the controller. The
@@ -130,13 +130,13 @@ the running application and maintains an approximation of the dynamic call graph
 based on this data. The system installs a listener that samples call edges whenever
 a yieldpoint is taken in the prologue or epilogue of a method. To sample
 the call edge, it records the compiled method id of the caller and callee
-methods and the oﬀset of the call instruction in the caller&#x2019;s machine code into
+methods and the oﬀset of the call instruction in the caller’s machine code into
 a buﬀer. When the buﬀer of samples is full, the sampling window ends.
 The listener then unregisters itself (stops taking samples) and wakes an
 organizer to update the dynamic call graph with the new proﬁle data. The
-optimizing compiler&#x2019;s Inline Oracle uses the dynamic call graph to guide it&#x2019;s inline
+optimizing compiler’s Inline Oracle uses the dynamic call graph to guide it’s inline
 decisions.
-</p><!--l. 40--><p class="noindent" >The system currently used is based on Arnold &#x0026; Grove&#x2019;s CGO 2005 paper. More
+</p><!--l. 40--><p class="noindent" >The system currently used is based on Arnold &#x0026; Grove’s CGO 2005 paper. More
 details of the sampling scheme and the inlining oracle can be found there, or in the
 source code.
                                                                   
@@ -159,8 +159,8 @@ interface with a single method: process. Thus, after successfully dequeuing an e
 the controller thread simply invokes its process method and then, the work for that
 event having been completed, returns to the top of the event loop and attempts to
 dequeue another event. This design makes it easy to add new kinds of events to the
-system (and thus, extend the controller&#x2019;s behavior), as all of the logic to process an
-event is deﬁned by the event&#x2019;s process method, not in the code of the controller
+system (and thus, extend the controller’s behavior), as all of the logic to process an
+event is deﬁned by the event’s process method, not in the code of the controller
 thread.
 </p><!--l. 9--><p class="noindent" >A further level of abstraction is accomplished by representing the recompilation
 strategy as an abstract class with several subclasses. The process method of a hot
@@ -408,7 +408,7 @@ future.
 </p><!--l. 33--><p class="noindent" >When driving recompilation based on sampling, the controller can limit its attention
 to the set of methods that were sampled in the previous sampling interval. This
 optimization does not lose precision; if the number of samples associated with a
-method has not changed, then the controller&#x2019;s estimate of the method&#x2019;s future
+method has not changed, then the controller’s estimate of the method’s future
 execution time will not change. This implies that if the controller were to consider a
 method that does not appear in the previous sampling interval, the controller would
 make exactly the same decision it did the last time it considered the method. This
@@ -449,7 +449,7 @@ class="cmmi-10">m</span>, we need know only one number, the ”eﬀective” num
 </p><!--l. 2--><p class="noindent" >
 </p>
 <h3 class="sectionHead"><span class="titlemark">12.3   </span> <a 
- id="x15-15400012.3"></a>Jikes RVM&#x2019;s compilers</h3>
+ id="x15-15400012.3"></a>Jikes RVM’s compilers</h3>
 <!--l. 5--><p class="noindent" >Jikes RVM invokes a compiler for one of three reasons. First, when the executing
 code reaches an unresolved reference, causing a new class to be loaded, the
 class loader invokes a compiler to compile the class initializer (if one exists).
@@ -474,7 +474,7 @@ class="cmti-10">baseline  </span>compiler  is  to  generate  correct  code  quic
 
                                                                   
      For  example,  the  IA32  baseline  compiler  translates  bytecodes  directly
-     into native code by simulating Java&#x2019;s operand stack. It does not build
+     into native code by simulating Java’s operand stack. It does not build
      an intermediate representation and does not perform register allocation,
      resulting in native code that executes only somewhat faster than bytecode
      interpretation. However, it does achieve its goal of producing this code
@@ -485,7 +485,7 @@ class="cmti-10">baseline  </span>compiler  is  to  generate  correct  code  quic
 class="cmti-10">optimizing </span>compiler translates bytecodes into an intermediate
      representation, upon which it performs a variety of optimizations. All
      optimization levels include linear scan register allocation and BURS-based
-     instruction selection. The compiler&#x2019;s optimizations are grouped into several
+     instruction selection. The compiler’s optimizations are grouped into several
      levels:
          <ul class="itemize2">
          <li class="itemize"><span 
@@ -558,7 +558,7 @@ model.
 </p>
 <h3 class="sectionHead"><span class="titlemark">12.4   </span> <a 
  id="x15-15500012.4"></a>Life Cycle of a Compiled Method</h3>
-<!--l. 4--><p class="noindent" >In early implementations of Jikes RVM&#x2019;s adaptive system, compilation required
+<!--l. 4--><p class="noindent" >In early implementations of Jikes RVM’s adaptive system, compilation required
 holding a global lock that serialized compilation and also prevented classloading from
 occurring concurrently with compilation. This bottleneck was removed in version
 2.1.0 by switching to a ﬁner-grained locking discipline to coordinate compilation,
@@ -600,9 +600,8 @@ it.
 
                                                                   
 <!--l. 13--><p class="noindent" ><img 
-src="/UserGuide/index0x.png" alt="PIC" class="graphics" width="345.0pt" height="240.52472pt"  /><!--tex4ht:graphics  
-name="index0x.png" src="images/93224965.eps"  
--->
+src="/UserGuide/images/93224965.png" alt="PIC"  
+width="345" height="240"  />
 <br /> </p><div class="caption" 
 ><span class="id">Figure 12.1: </span><span  
 class="content">life cycle of a compiled method</span></div><!--tex4ht:label?: x15-155001r1 -->
@@ -661,39 +660,561 @@ sample is shown below:
 
                                                                   
 <div class="lstlisting" id="listing-100"><span class="label"><a 
- id="x15-156001r1"></a></span>30:..7047728888 Compiled read with baseline compiler in 0.20 ms <br /><span class="label"><a 
- id="x15-156002r2"></a></span>90:..7136817287 Controller notified that read(14402) has 4.0 samples <br /><span class="label"><a 
- id="x15-156003r3"></a></span>92:..7139813016  Doing nothing cost (leaving at baseline) to read is 40.0 <br /><span class="label"><a 
- id="x15-156004r4"></a></span>92:..7139830219  Compiling read cost at O0=40.42, future time=49.81 <br /><span class="label"><a 
- id="x15-156005r5"></a></span>92:..7139842466  Compiling read cost at O1=65.99, future time=72.58 <br /><span class="label"><a 
- id="x15-156006r6"></a></span>92:..7139854029  Compiling read cost at O2=207.44, future time=213.49 <br /><span class="label"><a 
- id="x15-156007r7"></a></span>110:..7166901172 Controller notified that read(14402) has 9.0 samples <br /><span class="label"><a 
- id="x15-156008r8"></a></span>111:..7168378722  Doing nothing cost (leaving at baseline) to read=90.0 <br /><span class="label"><a 
- id="x15-156009r9"></a></span>111:..7168396493  Compiling read cost at O0=40.42, future time=61.54 <br /><span class="label"><a 
- id="x15-156010r10"></a></span>111:..7168409562  Compiling read cost at O1=65.99, future time=80.81 <br /><span class="label"><a 
- id="x15-156011r11"></a></span>111:..7168421097  Compiling read cost at O2=207.44, future time=221.06 <br /><span class="label"><a 
- id="x15-156012r12"></a></span>111:..7168435937 Scheduling level 0 recompilation of read (priority=28.46) <br /><span class="label"><a 
- id="x15-156013r13"></a></span>112:..7169879779 Recompiling (at level 0) read <br /><span class="label"><a 
- id="x15-156014r14"></a></span>114:..7173293360  Recompiled (at level 0) read <br /><span class="label"><a 
- id="x15-156015r15"></a></span>150:..7227058078 Controller notified that read(14612) has 5.11 samples <br /><span class="label"><a 
- id="x15-156016r16"></a></span>151:..7228691160  Doing nothing cost (leaving at O0) to read=51.12 <br /><span class="label"><a 
- id="x15-156017r17"></a></span>151:..7228705466  Compiling read cost at O1=66.26, future time=102.14 <br /><span class="label"><a 
- id="x15-156018r18"></a></span>151:..7228717124  Compiling read cost at O2=208.29, future time=241.24 <br /><span class="label"><a 
- id="x15-156019r19"></a></span> <br /><span class="label"><a 
+ id="x15-156001r1"></a></span><span 
+class="cmtt-10">30:..7047728888</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiled</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">with</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">baseline</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">compiler</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">in</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">0.20</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156002r2"></a></span><span 
+class="cmtt-10">90:..7136817287</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Controller</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">notified</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">that</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">(14402)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">has</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">4.0</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">samples</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156003r3"></a></span><span 
+class="cmtt-10">92:..7139813016</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Doing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nothing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">leaving</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">baseline</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">to</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">is</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">40.0</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156004r4"></a></span><span 
+class="cmtt-10">92:..7139830219</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O0</span><span 
+class="cmtt-10">=40.42,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=49.81</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156005r5"></a></span><span 
+class="cmtt-10">92:..7139842466</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O1</span><span 
+class="cmtt-10">=65.99,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=72.58</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156006r6"></a></span><span 
+class="cmtt-10">92:..7139854029</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O2</span><span 
+class="cmtt-10">=207.44,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=213.49</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156007r7"></a></span><span 
+class="cmtt-10">110:..7166901172</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Controller</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">notified</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">that</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">(14402)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">has</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">9.0</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">samples</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156008r8"></a></span><span 
+class="cmtt-10">111:..7168378722</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Doing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nothing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">leaving</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">baseline</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">to</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">=90.0</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156009r9"></a></span><span 
+class="cmtt-10">111:..7168396493</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O0</span><span 
+class="cmtt-10">=40.42,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=61.54</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156010r10"></a></span><span 
+class="cmtt-10">111:..7168409562</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O1</span><span 
+class="cmtt-10">=65.99,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=80.81</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156011r11"></a></span><span 
+class="cmtt-10">111:..7168421097</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O2</span><span 
+class="cmtt-10">=207.44,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=221.06</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156012r12"></a></span><span 
+class="cmtt-10">111:..7168435937</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Scheduling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">0</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">recompilation</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">of</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">priority</span><span 
+class="cmtt-10">=28.46)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156013r13"></a></span><span 
+class="cmtt-10">112:..7169879779</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Recompiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">0)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156014r14"></a></span><span 
+class="cmtt-10">114:..7173293360</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Recompiled</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">0)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156015r15"></a></span><span 
+class="cmtt-10">150:..7227058078</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Controller</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">notified</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">that</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">(14612)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">has</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">5.11</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">samples</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156016r16"></a></span><span 
+class="cmtt-10">151:..7228691160</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Doing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nothing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">leaving</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O0</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">to</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">=51.12</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156017r17"></a></span><span 
+class="cmtt-10">151:..7228705466</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O1</span><span 
+class="cmtt-10">=66.26,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=102.14</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156018r18"></a></span><span 
+class="cmtt-10">151:..7228717124</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O2</span><span 
+class="cmtt-10">=208.29,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=241.24</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156019r19"></a></span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x15-156020r20"></a></span><span 
-class="cmmi-10">&#x003C;</span>....many similar entries....<span 
-class="cmmi-10">&#x003E;</span> <br /><span class="label"><a 
- id="x15-156021r21"></a></span> <br /><span class="label"><a 
- id="x15-156022r22"></a></span>998:..8599006259 Controller notified that read(14612) has 19.11 samples <br /><span class="label"><a 
- id="x15-156023r23"></a></span>999:..8599561634  Doing nothing cost (leaving at O0) to read=191.13 <br /><span class="label"><a 
- id="x15-156024r24"></a></span>999:..8599576368  Compiling read cost at O1=54.38, future time=188.52 <br /><span class="label"><a 
- id="x15-156025r25"></a></span>999:..8599587767  Compiling read cost at O2=170.97, future time=294.14 <br /><span class="label"><a 
- id="x15-156026r26"></a></span>999:..8599603986 Scheduling level 1 recompilation of read (priority=2.61) <br /><span class="label"><a 
- id="x15-156027r27"></a></span>1000:..8601308856 Recompiling (at level 1) read <br /><span class="label"><a 
- id="x15-156028r28"></a></span>1002:..8604580406  Recompiled (at level 1) read <br /><span class="label"><a 
- id="x15-156029r29"></a></span>1018:..8628022176 Controller notified that read(15312) has 18.41 samples <br /><span class="label"><a 
- id="x15-156030r30"></a></span>1019:..8629548221  Doing nothing cost (leaving at O1) to read=184.14 <br /><span class="label"><a 
- id="x15-156031r31"></a></span>1019:..8629563130  Compiling read cost at O2=170.97, future time=340.06
+class="cmtt-10">&#x003C;....</span><span 
+class="cmtt-10">many</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">similar</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">entries</span><span 
+class="cmtt-10">....&#x003E;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156021r21"></a></span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156022r22"></a></span><span 
+class="cmtt-10">998:..8599006259</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Controller</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">notified</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">that</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">(14612)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">has</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">19.11</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">samples</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156023r23"></a></span><span 
+class="cmtt-10">999:..8599561634</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Doing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nothing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">leaving</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O0</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">to</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">=191.13</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156024r24"></a></span><span 
+class="cmtt-10">999:..8599576368</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O1</span><span 
+class="cmtt-10">=54.38,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=188.52</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156025r25"></a></span><span 
+class="cmtt-10">999:..8599587767</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O2</span><span 
+class="cmtt-10">=170.97,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=294.14</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156026r26"></a></span><span 
+class="cmtt-10">999:..8599603986</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Scheduling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">1</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">recompilation</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">of</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">priority</span><span 
+class="cmtt-10">=2.61)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156027r27"></a></span><span 
+class="cmtt-10">1000:..8601308856</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Recompiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">1)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156028r28"></a></span><span 
+class="cmtt-10">1002:..8604580406</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Recompiled</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">level</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">1)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156029r29"></a></span><span 
+class="cmtt-10">1018:..8628022176</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Controller</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">notified</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">that</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">(15312)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">has</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">18.41</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">samples</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156030r30"></a></span><span 
+class="cmtt-10">1019:..8629548221</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Doing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">nothing</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">leaving</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O1</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">to</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10">=184.14</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x15-156031r31"></a></span><span 
+class="cmtt-10">1019:..8629563130</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Compiling</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">read</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cost</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">at</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">O2</span><span 
+class="cmtt-10">=170.97,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">future</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">time</span><span 
+class="cmtt-10">=340.06</span>
 </div>
 <!--l. 45--><p class="noindent" >This sample shows an abbreviated subset of the log entries associated with the
 method read of the class <span 

@@ -9,8 +9,8 @@ layout: default
 > 
 <head><title>14 Core Runtime Services</title> 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
-<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
-<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="generator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
@@ -75,7 +75,7 @@ href="#x17-21000014.8">VM Callbacks</a>: Notﬁcations about potentially interes
  id="x17-17200014.1"></a>Object Model</h3>
 <!--l. 5--><p class="noindent" >An object model dictates how to represent objects in storage; the best object model
 will maximize eﬃciency of frequent language operations while minimizing storage
-overhead. Jikes RVM&#x2019;s object model is deﬁned by ObjectModel.
+overhead. Jikes RVM’s object model is deﬁned by ObjectModel.
                                                                   
 
                                                                   
@@ -93,7 +93,7 @@ class="cmti-10">references </span>(that is, pointers) to objects. Objects are ei
 class="cmti-10">arrays</span>
 having elements or <span 
 class="cmti-10">scalar </span>objects having ﬁelds. Objects are logically composed of two
-primary sections: an object header (described in more detail below) and the object&#x2019;s
+primary sections: an object header (described in more detail below) and the object’s
 instance ﬁelds (or array elements).
 </p><!--l. 11--><p class="noindent" >The following non-functional requirements govern the Jikes RVM object model:
 </p>
@@ -109,7 +109,7 @@ instance ﬁelds (or array elements).
      <li class="itemize">per-object storage overhead (ie object header size) should be as small as
      possible.</li></ul>
 <!--l. 20--><p class="noindent" >Assuming the reference to an object resides in a register, compiled code can access
-the object&#x2019;s ﬁelds at a ﬁxed displacement in a single instruction. To facilitate
+the object’s ﬁelds at a ﬁxed displacement in a single instruction. To facilitate
 array access, the reference to an array points to the ﬁrst (zeroth) element
 of an array and the remaining elements are laid out in ascending order.
 The number of elements in an array, its <span 
@@ -202,13 +202,13 @@ class="cmtt-10">RVMClass</span></span></span> records the preferred alignment of
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">double</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">long</span></span></span> ﬁelds ﬁrst (and object references if these are 8 bytes long) so
-that we can avoid making holes in the ﬁeld layout for alignment. We don&#x2019;t
+that we can avoid making holes in the ﬁeld layout for alignment. We don’t
 do this for smaller ﬁelds as all objects need to be a multiple of 4 bytes in
 size.
 </p><!--l. 59--><p class="noindent" >When we lay out ﬁelds we may create holes to improve alignment. For example, an
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">int</span></span></span> following a <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">byte</span></span></span>, we&#x2019;ll create a 3 byte hole following the <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">byte</span></span></span>, we’ll create a 3 byte hole following the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">byte</span></span></span> to keep the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">int</span></span></span> 4
 byte aligned. Holes in the ﬁeld layout can be 1, 2 or 4 bytes in size. As ﬁelds are laid
@@ -229,15 +229,15 @@ have their methods compiled lazily. The runtime can also identify the latest com
 code array (and, on occasions, previously generated versions of compiled code) of any
 given method via this classbase and recompile it dynamically should it wish to do
 so.
-</p><!--l. 7--><p class="noindent" >Lazy method compilation postpones compilation of a dynamically loaded class&#x2019;
+</p><!--l. 7--><p class="noindent" >Lazy method compilation postpones compilation of a dynamically loaded class’
 methods at load-time, enabling partial loading of the class base to occur. Immediate
 compilation of all methods would require loading of all classes mentioned in the
 bytecode in order to verify that they were being used correctly. Immediate
-compilation of these class&#x2019; methods would require yet more loading and so on until
+compilation of these class’ methods would require yet more loading and so on until
 the whole classbase was installed. Lazy compilation delays this recursive
 class loading process by postponing compilation of a method until it is ﬁrst
 called.
-</p><!--l. 9--><p class="noindent" >Lazy compilation works by generating a stub for each of a class&#x2019; methods when the
+</p><!--l. 9--><p class="noindent" >Lazy compilation works by generating a stub for each of a class’ methods when the
 class is loaded. If the method is an instance method this stub is installed in the
 appropriate TIB slot. If the method is static it is placed in a linker table located in
 the JTOC (linker table slots are allocated for each static method when a class is
@@ -257,7 +257,7 @@ code.
  id="x17-17700014.2.1"></a>Class Loading</h4>
 <!--l. 13--><p class="noindent" >Jikes<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> RVM implements the Java<sup class="textsuperscript"><span 
-class="cmr-9">TM</span></sup> programming language&#x2019;s dynamic class
+class="cmr-9">TM</span></sup> programming language’s dynamic class
 loading. While a class is being loaded it can be in one of seven states. These are:
 </p>
      <ul class="itemize1">
@@ -267,14 +267,14 @@ class="cmtt-10">RVMClass</span></span></span> object for this class has been cre
      and is in the process of being loaded.
      </li>
      <li class="itemize"><span 
-class="cmbx-10">loaded</span>: The class&#x2019;s bytecode ﬁle has been read and parsed successfully.
+class="cmbx-10">loaded</span>: The class’s bytecode ﬁle has been read and parsed successfully.
      The  modiﬁers  and  attributes  for  the  ﬁelds  have  been  loaded  and  the
-     constant pool has been constructed. The class&#x2019;s superclass (if any) and
+     constant pool has been constructed. The class’s superclass (if any) and
      superinterfaces have been loaded as well.
      </li>
      <li class="itemize"><span 
 class="cmbx-10">resolved</span>:  The  superclass  and  superinterfaces  of  this  class  has  been
-     resolved. The oﬀsets (whether in the object itself, the JTOC, or the class&#x2019;s
+     resolved. The oﬀsets (whether in the object itself, the JTOC, or the class’s
      TIB) of its ﬁelds and methods have been calculated.
      </li>
      <li class="itemize"><span 
@@ -305,7 +305,7 @@ pointers to static ﬁelds and methods. However, pointers for instance ﬁelds a
                                                                   
 
                                                                   
-instance methods are stored in the receiver class&#x2019;s <a 
+instance methods are stored in the receiver class’s <a 
 href="#x17-17200014.1">TIB</a>. Consequently, the dispatch
 mechanism diﬀers between static methods and instance methods.
 </p><!--l. 30--><p class="noindent" >
@@ -313,7 +313,7 @@ mechanism diﬀers between static methods and instance methods.
 <h5 class="subsubsectionHead"><a 
  id="x17-17900014.2.2"></a>The JTOC</h5>
 <!--l. 32--><p class="noindent" >The JTOC holds pointers to each of Jikes<sup class="textsuperscript"><span 
-class="cmr-9">TM</span></sup> RVM&#x2019;s global data structures, as well
+class="cmr-9">TM</span></sup> RVM’s global data structures, as well
 as literals, numeric constants and references to String constants. The JTOC
 also contains references to the TIB for each class in the system. Since these
 structures can have many types and the JTOC is declared to be an array
@@ -329,10 +329,9 @@ below.
                                                                   
 
                                                                   
-
 <!--l. 36--><p class="noindent" ><img 
 src="/UserGuide/images/ClassAndCodeManagement-JTOC.png" alt="PIC"  
- />
+width="345" height="345"  />
                                                                   
 
                                                                   
@@ -342,7 +341,7 @@ src="/UserGuide/images/ClassAndCodeManagement-JTOC.png" alt="PIC"
  id="x17-18000014.2.2"></a>Virtual Methods</h5>
 <!--l. 43--><p class="noindent" >A TIB contains pointers to the compiled method bodies (executable code)
 for the virtual methods and other instance methods of its class. Thus, the
-TIB serves as Jikes RVM&#x2019;s virtual method table. A virtual method dispatch
+TIB serves as Jikes RVM’s virtual method table. A virtual method dispatch
 entails loading the TIB pointer from the object reference, loading the address
 of the method body at a given oﬀset oﬀ the TIB pointer, and making an
 indirect branch and link to it. A virtual method is dispatched to with the
@@ -426,7 +425,7 @@ thread-processor mapping at all.
 class="cmr-9">TM</span></sup> RVM better compatibility for existing JNI
 code, as well as improved performance, and greater infrastructure simplicity.
 Scheduling is oﬄoaded entirely to the operating system; this is both what
-native code would expect and what maximizes the OS scheduler&#x2019;s ability to
+native code would expect and what maximizes the OS scheduler’s ability to
 optimally schedule Java<sup class="textsuperscript"><span 
 class="cmr-9">TM</span></sup> threads. As well, the resulting VM infrastructure
 is both simpler and more robust, since instead of focusing on scheduling
@@ -438,9 +437,9 @@ class="cmtt-10">RVMThread</span></span></span> and other code in
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">org.jikesrvm.scheduler</span></span></span> is thus to override OS scheduling decisions when the VM
 demands it.
-</p><!--l. 11--><p class="noindent" >The remainder of this section is organized as follows. The management of a thread&#x2019;s
+</p><!--l. 11--><p class="noindent" >The remainder of this section is organized as follows. The management of a thread’s
 state is discussed in detail. Mechanisms for blocking and handshaking threads are
-described. The VM&#x2019;s internal locking mechanism, the Monitor, is described. Finally,
+described. The VM’s internal locking mechanism, the Monitor, is described. Finally,
 the locking implementation is discussed.
 </p><!--l. 13--><p class="noindent" >
 </p>
@@ -467,7 +466,7 @@ collector is starting; a starting-but-not-yet-started thread may not reach a saf
 point if the thread that was starting it is already blocked. Java threads may
 terminate at any time; terminated threads will never again reach a safe point.
 Any Java thread may call into arbitrary JNI code, which is outside of the
-VM&#x2019;s control, and may run for an arbitrary amount of time without reaching
+VM’s control, and may run for an arbitrary amount of time without reaching
 a Java safe point. As well, other mechanisms of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RVMThread</span></span></span> may cause a
 thread to block, thereby making it incapable of reaching a safe point in a
@@ -522,7 +521,7 @@ class="cmtt-10">takeYieldpoint</span></span></span> ﬁeld will be tested. Hence
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_NATIVE</span></span></span>. The thread is running either native C code, or internal VM
      code (which, by virtue of Jikes<sup class="textsuperscript"><span 
-class="cmr-9">TM</span></sup> RVM&#x2019;s metacircularity, may be written
+class="cmr-9">TM</span></sup> RVM’s metacircularity, may be written
      in Java). <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_NATIVE</span></span></span> threads are ”eﬀectively safe” in that they will not do
      anything that interferes with runtime services, at least until they transition
@@ -535,7 +534,7 @@ class="cmtt-10">IN_JNI</span></span></span>.  The  thread  has  called  into  JN
      the  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_NATIVE</span></span></span> state  in  all  ways  except  one:  <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_JNI</span></span></span> threads  have
-     a  JNIEnvironment  that  stores  more  information  about  the  thread&#x2019;s
+     a  JNIEnvironment  that  stores  more  information  about  the  thread’s
      execution state (stack information, etc), while <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_NATIVE</span></span></span> threads save
      only the minimum set of information required for the GC to perform stack
@@ -549,8 +548,8 @@ class="cmtt-10">IN_JAVA</span></span></span>,  but  has  been  requested  to  yi
 class="cmtt-10">takeYieldpoint</span></span></span> to non-zero, you will also change the state of
      the thread from <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_JAVA</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">IN_JAVA_TO_BLOCK</span></span></span>. If you don&#x2019;t intend on
-     waiting for the thread (for example, in the case of sampling, where you&#x2019;re
+class="cmtt-10">IN_JAVA_TO_BLOCK</span></span></span>. If you don’t intend on
+     waiting for the thread (for example, in the case of sampling, where you’re
      opportunistically requesting a yield), then this step may be omitted; but
      in the cases of locking and garbage collection, when a thread is requested
      to yield using <span class="obeylines-h"><span class="verb"><span 
@@ -563,7 +562,7 @@ class="cmtt-10">IN_NATIVE</span></span></span> as <br
 class="newline" /><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_JAVA_TO_BLOCK</span></span></span> is to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_JAVA</span></span></span>. When requesting a thread to yield, we
-     check its state; if it&#x2019;s <span class="obeylines-h"><span class="verb"><span 
+     check its state; if it’s <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">IN_NATIVE</span></span></span>, we set it to be <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">BLOCKED_IN_NATIVE</span></span></span>.
      </li>
@@ -579,7 +578,7 @@ class="cmtt-10">TERMINATED</span></span></span>. The thread has died. It is ”e
 class="cmtt-10">RVMThread.execStatus</span></span></span>, an integer ﬁeld that may be rapidly
 manipulated using compare-and-swap. This ﬁeld uses a hybrid synchronization
 protocol, which includes both compare-and-swap and conventional locking (using the
-thread&#x2019;s Monitor, accessible via the <span class="obeylines-h"><span class="verb"><span 
+thread’s Monitor, accessible via the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RVMThread.monitor()</span></span></span> method). The rules are as
 follows:
                                                                   
@@ -612,339 +611,400 @@ class="cmtt-10">BLOCKED_IN_JNI</span></span></span>.</li></ul>
 </p>
 <!--l. 55-->
 <div class="lstlisting" id="listing-114"><span class="label"><a 
- id="x17-186001r1"></a></span>thread.monitor().lockNoHandshake(); <br /><span class="label"><a 
+ id="x17-186001r1"></a></span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">monitor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lockNoHandshake</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186002r2"></a></span><span 
-class="cmbx-10">if</span> (thread is running) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-186003r3"></a></span>   thread.takeYieldpoint=1; <br /><span class="label"><a 
- id="x17-186004r4"></a></span> <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">is</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">running</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186003r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">takeYieldpoint</span><span 
+class="cmtt-10">=1;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186004r4"></a></span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186005r5"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">transitions</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">IN</span><span 
-class="cmti-10">_JAVA</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">-</span><span 
-class="cmmi-10">&#x003E;</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">IN</span><span 
-class="cmti-10">_JAVA</span><span 
-class="cmti-10">_TO</span><span 
-class="cmti-10">_BLOCK</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">IN</span><span 
-class="cmti-10">_NATIVE</span><span 
-class="cmti-10">-</span><span 
-class="cmmi-10">&#x003E;</span><span 
-class="cmti-10">BLOCKED</span><span 
-class="cmti-10">_IN</span><span 
-class="cmti-10">_NATIVE</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">etc</span><span 
-class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-186006r6"></a></span>   thread.setBlockedExecStatus(); <br /><span class="label"><a 
- id="x17-186007r7"></a></span> <br /><span class="label"><a 
- id="x17-186008r8"></a></span>   <span 
-class="cmbx-10">if</span> (thread.isInJava()) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">transitions</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">IN_JAVA</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">-&#x003E;</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">IN_JAVA_TO_BLOCK</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">IN_NATIVE</span><span 
+class="cmitt-10">-&#x003E;</span><span 
+class="cmitt-10">BLOCKED_IN_NATIVE</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">etc</span><span 
+class="cmitt-10">.</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186006r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">setBlockedExecStatus</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186007r7"></a></span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186008r8"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isInJava</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186009r9"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Thread</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">will</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">reach</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">safe</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">point</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">soon</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">or</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">else</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">notify</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Thread</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">will</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">reach</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">safe</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">point</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">soon</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">or</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">else</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">notify</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186010r10"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">us</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">that</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">it</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">left</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">native</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">code</span><span 
-class="cmti-10">.</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">us</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">that</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">it</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">left</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">native</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">code</span><span 
+class="cmitt-10">.</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186011r11"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">In</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">either</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">case</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">since</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">we</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">are</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">holding</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">lock</span><span 
-class="cmti-10">,</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">In</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">either</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">case</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">since</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">we</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">are</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">holding</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">lock</span><span 
+class="cmitt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186012r12"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">thread</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">will</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">effectively</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">block</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">on</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">either</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">safe</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">point</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">thread</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">will</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">effectively</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">block</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">on</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">either</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">safe</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">point</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186013r13"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">or</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">on</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">attempt</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">go</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">native</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">code</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">since</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">performing</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">or</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">on</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">attempt</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">go</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">native</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">code</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">since</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">performing</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186014r14"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">either</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">state</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">transition</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">requires</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">acquiring</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">lock</span><span 
-class="cmti-10">,</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">either</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">state</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">transition</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">requires</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">acquiring</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">lock</span><span 
+class="cmitt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186015r15"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">which</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">we</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">are</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">now</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">holding</span><span 
-class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-186016r16"></a></span>   <span 
-class="cmsy-10">}</span> <span 
-class="cmbx-10">else</span> <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">which</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">we</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">are</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">now</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">holding</span><span 
+class="cmitt-10">.</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186016r16"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186017r17"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Thread</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">is</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">in</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">native</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">code</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">and</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">thus</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">is</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">”</span><span 
-class="cmti-10">effectively</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">safe</span><span 
-class="cmti-10">”,</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Thread</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">is</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">in</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">native</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">code</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">and</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">thus</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">is</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">&#x0022;</span><span 
+class="cmitt-10">effectively</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">safe</span><span 
+class="cmitt-10">&#x0022;,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186018r18"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">and</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">cannot</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">go</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">back</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">running</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Java</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">code</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">so</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">long</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">as</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">we</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">hold</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">and</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">cannot</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">go</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">back</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">running</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Java</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">code</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">so</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">long</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">as</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">we</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">hold</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186019r19"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">lock</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">since</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">that</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">state</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">transition</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">requires</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">lock</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">since</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">that</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">state</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">transition</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">requires</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186020r20"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">acquiring</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">lock</span><span 
-class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-186021r21"></a></span>   <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">acquiring</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">lock</span><span 
+class="cmitt-10">.</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186021r21"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-186022r22"></a></span><span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-186023r23"></a></span>thread.monitor().unlock();
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-186023r23"></a></span><span 
+class="cmtt-10">thread</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">monitor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 81--><p class="noindent" >Most of the time, you do not have to write such code, as the cases of blocking threads
 are already implemented. For examples of how to utilize these mechanisms,
@@ -1080,7 +1140,7 @@ class="cmtt-10">RVMThread.beginPairHandshake()</span></span></span>.
      requests until <span 
 class="cmtt-10">RVMThread.endPairHandshake() </span>is called. This is useful
      for implementing biased locking, but it has general utility anytime one
-     thread needs to manipulate something another thread&#x2019;s execution state.
+     thread needs to manipulate something another thread’s execution state.
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RVMThread.softHandshake()</span></span></span>.  This  implements  soft  handshakes.  In
@@ -1146,28 +1206,41 @@ code:
 </p>
 <!--l. 126-->
 <div class="lstlisting" id="listing-115"><span class="label"><a 
- id="x17-188001r1"></a></span>someMonitor.lockNoHandshake(); <br /><span class="label"><a 
+ id="x17-188001r1"></a></span><span 
+class="cmtt-10">someMonitor</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lockNoHandshake</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-188002r2"></a></span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">perform</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">fast</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">bounded</span><span 
-class="cmti-10">-</span><span 
-class="cmti-10">time</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">critical</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">section</span> <br /><span class="label"><a 
- id="x17-188003r3"></a></span>someMonitor.unlock(); <span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">non</span><span 
-class="cmti-10">-</span><span 
-class="cmti-10">blocking</span>
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">perform</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">fast</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">bounded</span><span 
+class="cmitt-10">-</span><span 
+class="cmitt-10">time</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">critical</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">section</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-188003r3"></a></span><span 
+class="cmtt-10">someMonitor</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">non</span><span 
+class="cmitt-10">-</span><span 
+class="cmitt-10">blocking</span>
 </div>
 <!--l. 132--><p class="noindent" >In this code, lock acquisition is done without notifying handshakes. This makes the
 acquisition faster. In this case, it is safe because the critical section is bounded-time.
@@ -1178,20 +1251,32 @@ not bounded-time, we would do:
 </p>
 <!--l. 134-->
 <div class="lstlisting" id="listing-116"><span class="label"><a 
- id="x17-188004r1"></a></span>someMonitor.lockWithHandshake(); <br /><span class="label"><a 
+ id="x17-188004r1"></a></span><span 
+class="cmtt-10">someMonitor</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lockWithHandshake</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-188005r2"></a></span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">perform</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">potentially</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">long</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">critical</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">section</span> <br /><span class="label"><a 
- id="x17-188006r3"></a></span>someMonitor.unlock();
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">perform</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">potentially</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">long</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">critical</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">section</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-188006r3"></a></span><span 
+class="cmtt-10">someMonitor</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 140--><p class="noindent" >In this case, the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">lockWithHandshake()</span></span></span> operation will transition the calling thread to
@@ -1286,153 +1371,312 @@ is attached to each thread, accessible via <span
 class="cmtt-10">RVMThread.monitor()</span>. The basic algorithm
 for lock acquisition is: </p><!--l. 169-->
 <div class="lstlisting" id="listing-117"><span class="label"><a 
- id="x17-189007r1"></a></span>spinLock.lock(); <br /><span class="label"><a 
+ id="x17-189007r1"></a></span><span 
+class="cmtt-10">spinLock</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189008r2"></a></span><span 
-class="cmbx-10">while</span> (<span 
-class="cmbx-10">true</span>) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-189009r3"></a></span>   <span 
-class="cmbx-10">if</span> (lock available) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-189010r4"></a></span>      acquire the lock; <br /><span class="label"><a 
- id="x17-189011r5"></a></span>      <span 
-class="cmbx-10">break</span>; <br /><span class="label"><a 
- id="x17-189012r6"></a></span>   <span 
-class="cmsy-10">}</span> <span 
-class="cmbx-10">else</span> <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x17-189013r7"></a></span>      queue.enqueue(me); <br /><span class="label"><a 
- id="x17-189014r8"></a></span>      spinLock.unlock(); <br /><span class="label"><a 
- id="x17-189015r9"></a></span> <br /><span class="label"><a 
- id="x17-189016r10"></a></span>      me.monitor().lockNoHandshake(); <br /><span class="label"><a 
- id="x17-189017r11"></a></span>      <span 
-class="cmbx-10">while</span> (queue.isQueued(me)) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
+class="cmtt-10">while</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189009r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">lock</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">available</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189010r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">acquire</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">the</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">lock</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189011r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">break</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189012r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189013r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">queue</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">enqueue</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">me</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189014r8"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">spinLock</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189015r9"></a></span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189016r10"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">me</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">monitor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lockNoHandshake</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189017r11"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">while</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">queue</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isQueued</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">me</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189018r12"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">put</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">this</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">thread</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">sleep</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">waiting</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">be</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">dequeued</span><span 
-class="cmti-10">,</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">put</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">this</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">thread</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">sleep</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">waiting</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">be</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">dequeued</span><span 
+class="cmitt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189019r13"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">and</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">do</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">so</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">while</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">thread</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">is</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">IN</span><span 
-class="cmti-10">_NATIVE</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">ensure</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">and</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">do</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">so</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">while</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">thread</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">is</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">IN_NATIVE</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">ensure</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189020r14"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">that</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">other</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">threads</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">don</span><span 
-class="cmti-10">&#x2019;</span><span 
-class="cmti-10">t</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">wait</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">on</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">this</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">one</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">for</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">that</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">other</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">threads</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">don</span><span 
+class="cmitt-10">’</span><span 
+class="cmitt-10">t</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">wait</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">on</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">this</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">one</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">for</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189021r15"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">handshakes</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">while</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">we</span><span 
-class="cmti-10">&#x2019;</span><span 
-class="cmti-10">re</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">blocked</span><span 
-class="cmti-10">.</span> <br /><span class="label"><a 
- id="x17-189022r16"></a></span>         me.monitor().waitWithHandshake(); <br /><span class="label"><a 
- id="x17-189023r17"></a></span>      <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-189024r18"></a></span>      me.monitor().unlock(); <br /><span class="label"><a 
- id="x17-189025r19"></a></span>      spinLock.lock(); <br /><span class="label"><a 
- id="x17-189026r20"></a></span>   <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">handshakes</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">while</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">we</span><span 
+class="cmitt-10">’</span><span 
+class="cmitt-10">re</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">blocked</span><span 
+class="cmitt-10">.</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189022r16"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">me</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">monitor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">waitWithHandshake</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189023r17"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189024r18"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">me</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">monitor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189025r19"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">spinLock</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">lock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189026r20"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x17-189027r21"></a></span><span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x17-189028r22"></a></span>spinLock.unlock();
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x17-189028r22"></a></span><span 
+class="cmtt-10">spinLock</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">unlock</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 194--><p class="noindent" >The algorithm for unlocking dequeues the thread at the head of the queue (if there is
 one) and notiﬁes its <span class="obeylines-h"><span class="verb"><span 
@@ -1506,7 +1750,7 @@ class="cmtt-10">SysCall</span>. The native
 methods thus invoked are deﬁned in one of the C and C++ ﬁles of the JikesRVM
 executable. These native methods are non-blocking system calls or C library
 services. To implement a syscall, Jikes RVM compilers generate a call sequence
-consistent with the platform&#x2019;s underlying calling convention. A syscall is not a
+consistent with the platform’s underlying calling convention. A syscall is not a
 GC-safe point, so syscalls may modify the Java heap (eg. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">memcpy()</span></span></span>). For more
 details on the mechanics of adding a new syscall to the system, see the header
@@ -1529,7 +1773,7 @@ href="#x17-18500014.3">Thread Management</a> subsection for more details on the 
 Jikes RVM.
 </p><!--l. 40--><p class="noindent" >There are two ways to execute native code: syscalls and JNI. A Java thread that calls
 native code by either mechanism will never be preempted by Jikes RVM, but in the
-case of JNI, all of the VM&#x2019;s services will know that the thread is ”eﬀectively safe”
+case of JNI, all of the VM’s services will know that the thread is ”eﬀectively safe”
 and thus may be ignored for most purposes. Additionally, threads executing JNI code
 may have handshake actions performed by other threads on their behalf, for example
 in the case of GC stack scanning. This is not the case with syscalls. As far as
@@ -1578,7 +1822,7 @@ class="cmtt-10">DetachCurrentThread</span>,  and  <span
 class="cmtt-10">AttachCurrentThreadAsDaemon </span>are  just
      stubbed  out  and  return  error  codes.  There  is  no  good  reason  why
      <span 
-class="cmtt-10">AttachCurrentThread </span>and friends cannot be implemented; it just hasn&#x2019;t
+class="cmtt-10">AttachCurrentThread </span>and friends cannot be implemented; it just hasn’t
      been done yet, mostly because there was no easy way to support them
      prior to the introduction of native threads.
      </li>
@@ -1598,7 +1842,7 @@ class="cmtt-10">_GetCreatedJavaVMs</span>) is not implemented. This is
 <!--l. 55--><p class="noindent" >
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.4.6   </span> <a 
- id="x17-19600014.4.6"></a>Things JNI Can&#x2019;t Handle</h4>
+ id="x17-19600014.4.6"></a>Things JNI Can’t Handle</h4>
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmbx-10">atexit routines: </span>Calling JNI code via a routine run at exit time means
@@ -1718,7 +1962,7 @@ class="cmtt-10">java.io.FileDescriptor</span>).
 
                                                                   
 </p><!--l. 25--><p class="noindent" >Finally, the boot routine loads the boot application class supplied on the rvm
-command line, creates and schedules a Java main thread to execute this class&#x2019;s main
+command line, creates and schedules a Java main thread to execute this class’s main
 method, then exits, switching execution to the main thread. Execution continues
 until the application thread and all non-daemon threads have exited. Once there are
 no runnable threads (other than system threads such as the idle threads, collector
@@ -1999,7 +2243,7 @@ containing:
      </li>
      <li class="itemize">all the dynamic method code arrays indirectly referenced from the TIBS
      </li>
-     <li class="itemize">all  the  classloader&#x2019;s  internal  class  and  method  instances  indirectly
+     <li class="itemize">all  the  classloader’s  internal  class  and  method  instances  indirectly
      referenced via the TIBS
      </li>
      <li class="itemize">ancillary structures attached to these class and method instances such as
@@ -2031,7 +2275,7 @@ toolkit.
 <h4 class="subsectionHead"><span class="titlemark">14.7.1   </span> <a 
  id="x17-20400014.7.1"></a>Architecture-independent concepts</h4>
 <!--l. 7--><p class="noindent" >Stackframe layout and calling conventions may evolve as our understanding of Jikes
-RVM&#x2019;s performance improves. Where possible, API&#x2019;s should be used to protect code
+RVM’s performance improves. Where possible, API’s should be used to protect code
 against such changes.
                                                                   
 
@@ -2093,7 +2337,7 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
                                                                   
      </li>
      <li 
-  class="enumerate" id="x17-207004x2">Save the caller&#x2019;s next instruction pointer (callee&#x2019;s return address)
+  class="enumerate" id="x17-207004x2">Save the caller’s next instruction pointer (callee’s return address)
      </li>
      <li 
   class="enumerate" id="x17-207006x3">Save any nonvolatile ﬂoating-point registers used by callee.
@@ -2105,7 +2349,7 @@ class="cmbx-10">Nonvolatile (”callee save”, or ”preserved”): </span>Thes
   class="enumerate" id="x17-207010x5">Store and update the frame pointer FP.
      </li>
      <li 
-  class="enumerate" id="x17-207012x6">Store callee&#x2019;s compiled method ID
+  class="enumerate" id="x17-207012x6">Store callee’s compiled method ID
      </li>
      <li 
   class="enumerate" id="x17-207014x7">Check to see if the Java<sup class="textsuperscript"><span 
@@ -2118,7 +2362,7 @@ class="cmr-9">TM</span></sup> thread must yield the Processor (and yield if
 <!--l. 49--><p class="noindent" >(some of these can be ommitted for leaf methods):
      </p><ol  class="enumerate1" >
      <li 
-  class="enumerate" id="x17-208002x1">Restore FP to point to caller&#x2019;s stack frame.
+  class="enumerate" id="x17-208002x1">Restore FP to point to caller’s stack frame.
      </li>
      <li 
   class="enumerate" id="x17-208004x2">Restore any nonvolatile general-purpose registers used by callee.
@@ -2210,7 +2454,24 @@ system.
 particular number of times. For example, the following runs the compress benchmark
 for 5 iterations: </p><!--l. 18-->
 <div class="lstlisting" id="listing-119"><span class="label"><a 
- id="x17-211001r1"></a></span>rvm SpecApplication -m5 -M5 -s100 -a _201_compress
+ id="x17-211001r1"></a></span><span 
+class="cmtt-10">rvm</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">SpecApplication</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">m5</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">M5</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">s100</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">a</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">_201_compress</span>
 </div>
 <!--l. 22--><p class="noindent" >It is sometimes useful to have the VM notiﬁed when the application has completed
 an iteration of the benchmark. This can be performed by using the Callbacks
@@ -2225,7 +2486,14 @@ class="cmtt-10">spec/harness/ProgramRunner.java</span></span></span>:
 class="cmtt-10">Callbacks</span></span></span> class: <!--l. 27-->
          <div class="lstlisting" id="listing-120"><span class="label"><a 
  id="x17-211006r1"></a></span><span 
-class="cmbx-10">import</span> org.jikesrvm.Callbacks;
+class="cmtt-10">import</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">org</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">jikesrvm</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">Callbacks</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
@@ -2233,14 +2501,34 @@ class="cmbx-10">import</span> org.jikesrvm.Callbacks;
   class="enumerate" id="x17-211008x2">before the call to <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">runOnce</span></span></span> add the following: <!--l. 31-->
          <div class="lstlisting" id="listing-121"><span class="label"><a 
- id="x17-211009r1"></a></span>Callbacks.notifyAppRunStart(className, run);
+ id="x17-211009r1"></a></span><span 
+class="cmtt-10">Callbacks</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">notifyAppRunStart</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">className</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">run</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
          <li 
   class="enumerate" id="x17-211011x3">after the call to runOnce add the following: <!--l. 35-->
          <div class="lstlisting" id="listing-122"><span class="label"><a 
- id="x17-211012r1"></a></span>Callbacks.notifyAppRunComplete(className, run);
+ id="x17-211012r1"></a></span><span 
+class="cmtt-10">Callbacks</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">notifyAppRunComplete</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">className</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">run</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li></ol>
@@ -2248,9 +2536,38 @@ class="cmtt-10">runOnce</span></span></span> add the following: <!--l. 31-->
      <li 
   class="enumerate" id="x17-211014x2">Recompile the modiﬁed ﬁle: <!--l. 40-->
      <div class="lstlisting" id="listing-123"><span class="label"><a 
- id="x17-211015r1"></a></span>javac -classpath .:<span 
-class="tcrm-1000">$</span>RVM_BUILD/RVM.classes:<span 
-class="tcrm-1000">$</span>RVM_BUILD/RVM.classes/rvmrt.jar spec/harness/ProgramRunner.java
+ id="x17-211015r1"></a></span><span 
+class="cmtt-10">javac</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">classpath</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">.:</span><span 
+class="tctt-1000">$</span><span 
+class="cmtt-10">RVM_BUILD</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">RVM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">classes</span><span 
+class="cmtt-10">:</span><span 
+class="tctt-1000">$</span><span 
+class="cmtt-10">RVM_BUILD</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">RVM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">classes</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">rvmrt</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">jar</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">spec</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">harness</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">ProgramRunner</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">java</span>
      
      </div>
      <!--l. 43--><p class="noindent" >or create a stub version of Callbacks.java and place it the appropriate directory
@@ -2262,7 +2579,7 @@ class="cmtt-10">org/jikesrvm/Callbacks.java</span>
   class="enumerate" id="x17-211017x3">Run Jikes RVM as you normally would using the SPECjvm98 benchmarks.</li></ol>
 <!--l. 47--><p class="noindent" >In the current system the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Controller</span></span></span> class will gain control when these callbacks are
-made and print a message into the AOS log ﬁle (by default, placed in Jikes RVM&#x2019;s
+made and print a message into the AOS log ﬁle (by default, placed in Jikes RVM’s
 current working directory and called <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">AOSLog.txt</span></span></span>).
                                                                   
@@ -2272,9 +2589,9 @@ class="cmtt-10">AOSLog.txt</span></span></span>).
 </p>
 <h4 class="subsectionHead"><span class="titlemark">14.8.2   </span> <a 
  id="x17-21200014.8.2"></a>Another Example: Directing a Recompilation of All Methods During the
-Application&#x2019;s Execution</h4>
+Application’s Execution</h4>
 <!--l. 53--><p class="noindent" >Another callback of interest allows an application to direct the VM to recompile all
-executed methods at a certain point of the application&#x2019;s execution by calling
+executed methods at a certain point of the application’s execution by calling
 the <span 
 class="cmtt-10">recompileAllDynamicallyLoadedMethods </span>method in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Callbacks</span></span></span>

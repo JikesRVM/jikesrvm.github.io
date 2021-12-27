@@ -9,8 +9,8 @@ layout: default
 > 
 <head><title>16 MMTk</title> 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
-<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
-<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="generator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
@@ -27,10 +27,10 @@ available in this <a
 href="/UserGuide/indexpa3/index.html#x21-256000III">guide</a>. A detailed description of the call chain from the compilers
 through to MMTk <a 
 href="#x19-23000016.2">here</a> is another good place to start understanding how MMTk
-integrates with Jikes RVM. <a 
+integrates with Jikes RVM.  <a 
 href="#x19-22100016.1">Anatomy of a Garbage Collector</a> describes the major
 building blocks of an MMTk collector and <a 
-href="#x19-23500016.3">Scanning Objects in Jikes RV</a>M describes
+href="#x19-23500016.3">Scanning Objects in Jikes RVM</a> describes
 how objects are scanned for their pointer ﬁelds during GC. MMTk also has a pure
 Java <a 
 href="/UserGuide/TheMMTkTestHarness/index.html#x13-13800011">test harness</a> that allows development of garbage collectors in an IDE like
@@ -62,13 +62,13 @@ provide: </p>
      mixed. See <a 
 href="http://dl.acm.org/citation.cfm?doid=1133956.1133980" >this paper</a> for the original motivation and experiments for a
      separate code space.</li></ul>
-<!--l. 16--><p class="noindent" >Virtual memory pages are lazily mapped into Jikes RVM&#x2019;s memory image as they are
+<!--l. 16--><p class="noindent" >Virtual memory pages are lazily mapped into Jikes RVM’s memory image as they are
 needed.
 </p><!--l. 18--><p class="noindent" >The main class which is used to interface to the memory manager is called <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Plan</span></span></span>.
 Each ﬂavor of the manager is implemented by substituting a diﬀerent implementation
 of this class. Most plans inherit from class <span 
-class="cmtt-10">StopTheWorldGC </span>which ensures that all
+class="cmtt-10">StopTheWorld </span>which ensures that all
 active mutator threads (i.e. ones which do not perform the job of reclaiming storage)
 are suspended before reclamation is commenced. The argument passed to
                                                                   
@@ -94,7 +94,7 @@ class="newline" />
 garbage collector in MMTk. For simplicity, we focus on the MarkSweep collector,
 although much of the discussion will be relevant to other collectors.
 </p><!--l. 10--><p class="noindent" >This page assumes you have a basic knowledge of garbage collection. For those that
-don&#x2019;t, please see one of the standard texts such as <a 
+don’t, please see one of the standard texts such as <a 
 href="http://gchandbook.org/" >The Garbage Collection
 Handbook</a>.
 </p><!--l. 12--><p class="noindent" >
@@ -178,15 +178,52 @@ spaces that make up an MMTk plan.
     </span><span  
 class="content">MS.java</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-124"><span class="label"><a 
  id="x19-223001r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> MarkSweepSpace msSpace = <span 
-class="cmbx-10">new</span> MarkSweepSpace(”ms”, VMRequest.discontiguous()); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepSpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VMRequest</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">discontiguous</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-223002r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">int</span> MARK_SWEEP = msSpace.getDescriptor();
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MARK_SWEEP</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getDescriptor</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 36--><p class="noindent" >In this code fragment, we see the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">MS</span></span></span> plan deﬁned. Note that we generally also deﬁne
@@ -213,8 +250,23 @@ created as part of a mutator context, like this
     </span><span  
 class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22300016.1 --><div class="lstlisting" id="listing-125"><span class="label"><a 
  id="x19-223003r1"></a></span><span 
-class="cmbx-10">protected</span> MarkSweepLocal ms = <span 
-class="cmbx-10">new</span> MarkSweepLocal(MS.msSpace);
+class="cmtt-10">protected</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepLocal</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepLocal</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">MS</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 44--><p class="noindent" >The design pattern is that the local Allocator will allocate space from a
 thread-local buﬀer, and when that is exhausted it will allocate a new buﬀer from
@@ -240,25 +292,108 @@ thread-local allocation before falling back to a slower synchronized slow-path.
     </span><span  
 class="content">MSMutator.java</span></div><!--tex4ht:label?: x19-22400016.1 --><div class="lstlisting" id="listing-126"><span class="label"><a 
  id="x19-224001r1"></a></span><span 
-class="cmbx-10">public</span> Address alloc(<span 
-class="cmbx-10">int</span> bytes, <span 
-class="cmbx-10">int</span> align, <span 
-class="cmbx-10">int</span> offset, <span 
-class="cmbx-10">int</span> allocator, <span 
-class="cmbx-10">int</span> site) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224002r2"></a></span>  <span 
-class="cmbx-10">if</span> (allocator == MS.ALLOC_DEFAULT) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224003r3"></a></span>    <span 
-class="cmbx-10">return</span> ms.alloc(bytes, align, offset); <br /><span class="label"><a 
- id="x19-224004r4"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-224005r5"></a></span>  <span 
-class="cmbx-10">return</span> <span 
-class="cmbx-10">super</span>.alloc(bytes, align, offset, allocator, site); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">site</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224002r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MS</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">ALLOC_DEFAULT</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224003r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224004r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224005r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">site</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224006r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 63--><p class="noindent" >The basic structure of this method is common to all MMTk plans. First
 they decide whether the operation applies to this level of abstraction (<span class="obeylines-h"><span class="verb"><span 
@@ -284,48 +419,161 @@ this
 class="content">SegregatedFreeListLocal.java
     (simpliﬁed)</span></div><!--tex4ht:label?: x19-22400016.1 --><div class="lstlisting" id="listing-127"><span class="label"><a 
  id="x19-224007r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">final</span> Address alloc(<span 
-class="cmbx-10">int</span> bytes, <span 
-class="cmbx-10">int</span> align, <span 
-class="cmbx-10">int</span> offset) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224008r2"></a></span>  <span 
-class="cmbx-10">int</span> sizeClass = getSizeClass(bytes); <br /><span class="label"><a 
- id="x19-224009r3"></a></span>  Address cell = freeList.get(sizeClass); <br /><span class="label"><a 
- id="x19-224010r4"></a></span>  <span 
-class="cmbx-10">if</span> (!cell.isZero()) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224011r5"></a></span>    freeList.set(sizeClass, cell.loadAddress()); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224008r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">sizeClass</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">getSizeClass</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224009r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cell</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">freeList</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">get</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">sizeClass</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224010r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(!</span><span 
+class="cmtt-10">cell</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isZero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224011r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">freeList</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">set</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">sizeClass</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cell</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">loadAddress</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224012r6"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">/</span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Clear</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">the</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">free</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">list</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">link</span><span 
-class="cmti-10"> </span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10">/</span> <br /><span class="label"><a 
- id="x19-224013r7"></a></span>    cell.store(Address.zero()); <br /><span class="label"><a 
- id="x19-224014r8"></a></span>    <span 
-class="cmbx-10">return</span> cell; <br /><span class="label"><a 
- id="x19-224015r9"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-224016r10"></a></span>  <span 
-class="cmbx-10">return</span> allocSlow(bytes, align, offset); <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">/*</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Clear</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">the</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">free</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">list</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">link</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">*/</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224013r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cell</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">store</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">zero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224014r8"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cell</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224015r9"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224016r10"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocSlow</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224017r11"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 81--><p class="noindent" >This is a standard pattern for thread-local allocation: ﬁrst we look in the thread-local
 space (line 3), and if successful return the result (lines 4-8). If unsuccessful, we
@@ -354,103 +602,256 @@ for its own use.
 class="content">Space.java
     (simpliﬁed)</span></div><!--tex4ht:label?: x19-22400016.1 --><div class="lstlisting" id="listing-128"><span class="label"><a 
  id="x19-224018r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">final</span> Address acquire(<span 
-class="cmbx-10">int</span> pages) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224019r2"></a></span>  pr.reservePages(pages); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">acquire</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">pages</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224019r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">pr</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">reservePages</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">pages</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224020r3"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Poll</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">either</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">fixing</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">budget</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">or</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">requiring</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">GC</span> <br /><span class="label"><a 
- id="x19-224021r4"></a></span>  <span 
-class="cmbx-10">if</span> (VM.activePlan.global().poll(<span 
-class="cmbx-10">false</span>, <span 
-class="cmbx-10">this</span>)) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224022r5"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
- id="x19-224023r6"></a></span>    <span 
-class="cmbx-10">return</span> Address.zero(); <span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">GC</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">required</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">return</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">failure</span> <br /><span class="label"><a 
- id="x19-224024r7"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Poll</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">either</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">fixing</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">budget</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">or</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">requiring</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">GC</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224021r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">VM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">activePlan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">global</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">poll</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">false</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">this</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224022r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collection</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">blockForGC</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224023r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">zero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">GC</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">required</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">return</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">failure</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224024r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224025r8"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Page</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">budget</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">is</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">ok</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">try</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">acquire</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">virtual</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">memory</span> <br /><span class="label"><a 
- id="x19-224026r9"></a></span>  Address rtn = pr.getNewPages(pagesReserved, pages, zeroed); <br /><span class="label"><a 
- id="x19-224027r10"></a></span>  <span 
-class="cmbx-10">if</span> (rtn.isZero()) <span 
-class="cmsy-10">{</span> <span 
-class="cmti-10"> </span><span 
-class="cmti-10">//</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Failed</span><span 
-class="cmti-10">,</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">so</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">force</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">a</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">GC</span> <br /><span class="label"><a 
- id="x19-224028r11"></a></span>    <span 
-class="cmbx-10">boolean</span> gcPerformed = VM.activePlan.global().poll(<span 
-class="cmbx-10">true</span>, <span 
-class="cmbx-10">this</span>); <br /><span class="label"><a 
- id="x19-224029r12"></a></span>    VM.collection.blockForGC(); <br /><span class="label"><a 
- id="x19-224030r13"></a></span>    <span 
-class="cmbx-10">return</span> Address.zero(); <br /><span class="label"><a 
- id="x19-224031r14"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-224032r15"></a></span>  <span 
-class="cmbx-10">return</span> rtn; <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Page</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">budget</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">is</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">ok</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">try</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">acquire</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">virtual</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">memory</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224026r9"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">rtn</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">pr</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getNewPages</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">pagesReserved</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">pages</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">zeroed</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224027r10"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">rtn</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isZero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">//</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Failed</span><span 
+class="cmitt-10">,</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">so</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">force</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">a</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">GC</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224028r11"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">gcPerformed</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">activePlan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">global</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">poll</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">this</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224029r12"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collection</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">blockForGC</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224030r13"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">zero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224031r14"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224032r15"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">rtn</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224033r16"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 105--><p class="noindent" >The logic of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">space.acquire</span></span></span> is: </p>
@@ -464,8 +865,8 @@ class="cmtt-10">true</span></span></span> if it has
      done so.
      </li>
      <li class="itemize">Then we wait for GC if required. <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">poll</span></span></span> can&#x2019;t wait, because it is called in
-     circumstances that aren&#x2019;t GC safe.
+class="cmtt-10">poll</span></span></span> can’t wait, because it is called in
+     circumstances that aren’t GC safe.
      </li>
      <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Plan.poll(...)</span></span></span> returns <span class="obeylines-h"><span class="verb"><span 
@@ -489,38 +890,161 @@ class="cmtt-10">Allocator.allocSlowInline</span></span></span>.</li></ul>
 class="content">Allocator.java
     (simpliﬁed)</span></div><!--tex4ht:label?: x19-22400016.1 --><div class="lstlisting" id="listing-129"><span class="label"><a 
  id="x19-224034r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">final</span> Address allocSlowInline(<span 
-class="cmbx-10">int</span> bytes, <span 
-class="cmbx-10">int</span> alignment, <span 
-class="cmbx-10">int</span> offset) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224035r2"></a></span>  <span 
-class="cmbx-10">boolean</span> emergencyCollection = <span 
-class="cmbx-10">false</span>; <br /><span class="label"><a 
- id="x19-224036r3"></a></span>  <span 
-class="cmbx-10">while</span> (<span 
-class="cmbx-10">true</span>) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224037r4"></a></span>    Address result = allocSlowOnce(bytes, alignment, offset); <br /><span class="label"><a 
- id="x19-224038r5"></a></span>    <span 
-class="cmbx-10">if</span> (!result.isZero()) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224039r6"></a></span>      <span 
-class="cmbx-10">return</span> result; <br /><span class="label"><a 
- id="x19-224040r7"></a></span>    <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-224041r8"></a></span>    <span 
-class="cmbx-10">if</span> (emergencyCollection) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-224042r9"></a></span>      VM.collection.outOfMemory(); <br /><span class="label"><a 
- id="x19-224043r10"></a></span>    <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-224044r11"></a></span>    emergencyCollection = Plan.isEmergencyCollection(); <br /><span class="label"><a 
- id="x19-224045r12"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocSlowInline</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">alignment</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224035r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">emergencyCollection</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">false</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224036r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">while</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224037r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">result</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocSlowOnce</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">alignment</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224038r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(!</span><span 
+class="cmtt-10">result</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isZero</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224039r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">result</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224040r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224041r8"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">emergencyCollection</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224042r9"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VM</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collection</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">outOfMemory</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224043r10"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224044r11"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">emergencyCollection</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Plan</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isEmergencyCollection</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-224045r12"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-224046r13"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 130--><p class="noindent" >This code fragment shows the retry logic in the allocator. We try allocating using
 <span class="obeylines-h"><span class="verb"><span 
@@ -560,7 +1084,7 @@ by calling methods on this object.
 <h5 class="subsubsectionHead"><a 
  id="x19-22700016.1.4"></a>Initiating</h5>
 <!--l. 146--><p class="noindent" >As mentioned above, every attempt to allocate fresh virtual memory calls
-the current plan&#x2019;s <span class="obeylines-h"><span class="verb"><span 
+the current plan’s <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">poll(...)</span></span></span> method. This initiates a GC by calling
 <span 
 class="cmtt-10">controlCollectorContext.request()</span>, which in a stop-the-world collector
@@ -577,19 +1101,48 @@ class="cmtt-10">ParallelCollector</span>, shown below.
     </span><span  
 class="content">ParallelCollector</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-130"><span class="label"><a 
  id="x19-227001r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">void</span> run() <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-227002r2"></a></span>  <span 
-class="cmbx-10">while</span>(<span 
-class="cmbx-10">true</span>) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-227003r3"></a></span>    park(); <br /><span class="label"><a 
- id="x19-227004r4"></a></span>    collect(); <br /><span class="label"><a 
- id="x19-227005r5"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">run</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-227002r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">while</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-227003r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">park</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-227004r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">collect</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-227005r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-227006r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 157--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collect()</span></span></span> method is speciﬁc to the type of collector, and in <span 
@@ -601,12 +1154,36 @@ it looks like this </p><!--l. 158-->
     </span><span  
 class="content">StopTheWorldCollector</span></div><!--tex4ht:label?: x19-22700016.1 --><div class="lstlisting" id="listing-131"><span class="label"><a 
  id="x19-227007r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">void</span> collect() <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-227008r2"></a></span>  Phase.beginNewPhaseStack(Phase.scheduleComplex(global().collection)); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">collect</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-227008r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">beginNewPhaseStack</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">scheduleComplex</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">global</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collection</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-227009r3"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
                                                                   
 
@@ -625,7 +1202,7 @@ plan.
 calling individual methods for each phase of the collection. As the number of
 collectors in MMTk grew, this became unwieldy and has been replaced with a
 conﬁgurable mechanism of phases.
-</p><!--l. 172--><p class="noindent" >The class org.mmtk.plan.Simple deﬁnes the basic structure of most of MMTk&#x2019;s
+</p><!--l. 172--><p class="noindent" >The class org.mmtk.plan.Simple deﬁnes the basic structure of most of MMTk’s
 garbage collectors. First it deﬁnes the phases themselves,
 </p>
 <!--l. 174-->
@@ -635,23 +1212,107 @@ garbage collectors. First it deﬁnes the phases themselves,
     </span><span  
 class="content">Simple.java</span></div><!--tex4ht:label?: x19-22800016.1 --><div class="lstlisting" id="listing-132"><span class="label"><a 
  id="x19-228001r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">short</span> SET_COLLECTION_KIND = Phase.createSimple(”set-collection-kind”, <span 
-class="cmbx-10">null</span>); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">SET_COLLECTION_KIND</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">createSimple</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">set</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">collection</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">kind</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">null</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-228002r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">short</span> INITIATE            = Phase.createSimple(”initiate”, <span 
-class="cmbx-10">null</span>); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">INITIATE</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">createSimple</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">initiate</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">null</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-228003r3"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">short</span> PREPARE             = Phase.createSimple(”prepare”); <br /><span class="label"><a 
- id="x19-228004r4"></a></span>...
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">PREPARE</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">createSimple</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228004r4"></a></span><span 
+class="cmtt-10">...</span>
 </div>
 <!--l. 181--><p class="noindent" >Each phase of the collection is represented by a 16-bit integer, an index into a table
 of <span class="obeylines-h"><span class="verb"><span 
@@ -665,34 +1326,84 @@ complex phases.
         </span><span  
 class="content">Simple.java</span></div><!--tex4ht:label?: x19-22800016.1 --><div class="lstlisting" id="listing-133"><span class="label"><a 
  id="x19-228005r1"></a></span><span 
-class="cmti-10">/</span><span 
-class="tcti-1000">∗</span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">Ensure</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">stacks</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">are</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">ready</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">to</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">be</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">scanned</span><span 
-class="cmti-10"> </span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10">/</span> <br /><span class="label"><a 
+class="cmitt-10">/*</span><span 
+class="cmitt-10">*</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">Ensure</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">stacks</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">are</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">ready</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">to</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">be</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">scanned</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">*/</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-228006r2"></a></span><span 
-class="cmbx-10">protected</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">short</span> prepareStacks = Phase.createComplex(”prepare-stacks”, <span 
-class="cmbx-10">null</span>, <br /><span class="label"><a 
- id="x19-228007r3"></a></span>    Phase.scheduleMutator    (PREPARE_STACKS), <br /><span class="label"><a 
- id="x19-228008r4"></a></span>    Phase.scheduleGlobal     (PREPARE_STACKS));
+class="cmtt-10">protected</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">prepareStacks</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">createComplex</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">stacks</span><span 
+class="cmtt-10">&#x0022;</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">null</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228007r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">scheduleMutator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">PREPARE_STACKS</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228008r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Phase</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">scheduleGlobal</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">PREPARE_STACKS</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 190--><p class="noindent" >A simple phase can be scheduled in one of 4 ways: </p>
      <ul class="itemize1">
@@ -702,13 +1413,13 @@ class="cmtt-10">collectionPhase</span>
 class="cmtt-10">Plan</span></span></span> object.
      </li>
      <li class="itemize">Collector.  All  collector  threads  run  <span 
-class="cmtt-10">collectionPhase </span>of  the  plan&#x2019;s
+class="cmtt-10">collectionPhase </span>of  the  plan’s
      <span 
 class="cmtt-10">CollectorContext </span>object(s).
      </li>
      <li class="itemize">Mutator. The collector threads run in parallel and iterate over the available
      <span 
-class="cmtt-10">MutatorContext </span>objects (ie the mutator threads), and run the mutator&#x2019;s
+class="cmtt-10">MutatorContext </span>objects (ie the mutator threads), and run the mutator’s
      <span 
 class="cmtt-10">collectionPhase </span>method. Note that the collector threads are performing
      work on a per-mutator basis, because in general the mutator threads are
@@ -720,7 +1431,7 @@ class="cmtt-10">collectionPhase </span>method. Note that the collector threads a
      <li class="itemize">Concurrent. The controller is requested to start a concurrent collectcor
      thread.</li></ul>
 <!--l. 198--><p class="noindent" >Between every phase of a collection, the collector threads rendezvous at a
-synchronization barrier. The actual execution of a collector&#x2019;s phases is done in the
+synchronization barrier. The actual execution of a collector’s phases is done in the
 method <span 
 class="cmtt-10">Phase.processPhaseStack</span>. This method handles resuming a concurrent
 collection as well as running a full stop-the-world collection.
@@ -735,48 +1446,196 @@ class="cmtt-10">Plan </span>classes.
 ><span class="id">23cAp10x19-22800016.1.4:
     </span><span  
 class="content">MS.java</span></div><!--tex4ht:label?: x19-22800016.1 --><div class="lstlisting" id="listing-134"><span class="label"><a 
- id="x19-228009r1"></a></span>@Inline <br /><span class="label"><a 
- id="x19-228010r2"></a></span>@Override <br /><span class="label"><a 
+ id="x19-228009r1"></a></span><span 
+class="cmtt-10">@Inline</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228010r2"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-228011r3"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">void</span> collectionPhase(<span 
-class="cmbx-10">short</span> phaseId) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-228012r4"></a></span>  <span 
-class="cmbx-10">if</span> (phaseId == PREPARE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-228013r5"></a></span>    <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x19-228014r6"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
- id="x19-228015r7"></a></span>    msSpace.prepare(<span 
-class="cmbx-10">true</span>); <br /><span class="label"><a 
- id="x19-228016r8"></a></span>    <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-228017r9"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-228018r10"></a></span>  <span 
-class="cmbx-10">if</span> (phaseId == CLOSURE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-228019r11"></a></span>    msTrace.prepare(); <br /><span class="label"><a 
- id="x19-228020r12"></a></span>    <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-228021r13"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-228022r14"></a></span>  <span 
-class="cmbx-10">if</span> (phaseId == RELEASE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-228023r15"></a></span>    msTrace.release(); <br /><span class="label"><a 
- id="x19-228024r16"></a></span>    msSpace.release(); <br /><span class="label"><a 
- id="x19-228025r17"></a></span>    <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x19-228026r18"></a></span>    <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-228027r19"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-228028r20"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228012r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">PREPARE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228013r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228014r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228015r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228016r8"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228017r9"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228018r10"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">CLOSURE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228019r11"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228020r12"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228021r13"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228022r14"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">RELEASE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228023r15"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228024r16"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228025r17"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228026r18"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228027r19"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-228028r20"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-228029r21"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 226--><p class="noindent" >This excerpt shows how the global MS plan implements <span 
 class="cmtt-10">collectionPhase</span>,
@@ -802,9 +1661,9 @@ collectors perform these operations in more than one way, e.g. a nursery collect
 a generational collector does not trace through pointers into the mature space, while
 a full-heap collection does. All MMTk collectors are designed to run using several
 parallel threads, using data structures that have unsynchronized thread-local
-and synchronized global components in the same way as MMTk&#x2019;s policy
+and synchronized global components in the same way as MMTk’s policy
 classes.
-</p><!--l. 234--><p class="noindent" >MMTk&#x2019;s trace operation uses the following terminology: </p>
+</p><!--l. 234--><p class="noindent" >MMTk’s trace operation uses the following terminology: </p>
      <ul class="itemize1">
      <li class="itemize">An <span 
 class="cmti-10">edge </span>is a reference in the heap from one reference ﬁeld to the object
@@ -836,23 +1695,75 @@ class="cmti-10">CollectorContext </span>class
     </span><span  
 class="content">MSCollector.java</span></div><!--tex4ht:label?: x19-22900016.1 --><div class="lstlisting" id="listing-135"><span class="label"><a 
  id="x19-229001r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">void</span> collectionPhase(<span 
-class="cmbx-10">short</span> phaseId, <span 
-class="cmbx-10">boolean</span> primary) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-229002r2"></a></span>  ... <br /><span class="label"><a 
- id="x19-229003r3"></a></span>  <span 
-class="cmbx-10">if</span> (phaseId == MS.CLOSURE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-229004r4"></a></span>    fullTrace.completeTrace(); <br /><span class="label"><a 
- id="x19-229005r5"></a></span>    <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
- id="x19-229006r6"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
- id="x19-229007r7"></a></span>  ... <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">short</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229002r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">...</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229003r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MS</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">CLOSURE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229004r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">fullTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">completeTrace</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229005r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229006r6"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-229007r7"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">...</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-229008r8"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 254--><p class="noindent" >The initial starting point for the closure is computed by the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">STACK_ROOTS</span></span></span>
@@ -903,11 +1814,26 @@ of the method,
 </p>
 <!--l. 13-->
 <div class="lstlisting" id="listing-136"><span class="label"><a 
- id="x19-231001r1"></a></span>Selected.Mutator mutator = Selected.Mutator.get();
+ id="x19-231001r1"></a></span><span 
+class="cmtt-10">Selected</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">Mutator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">mutator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Selected</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">Mutator</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">get</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 17--><p class="noindent" >As mentioned above, MMTk provides many diﬀerent memory management
 plans, one of which is selected at build time. This call acquires a pointer
-to the thread-local per-mutator component of MMTk. Much of MMTk&#x2019;s
+to the thread-local per-mutator component of MMTk. Much of MMTk’s
 performance comes from providing unsynchronized thread-local data structures for
 the frequently used operations, so rather than provide a single interface
 object, it provides a per-thread interface object for both mutator and collector
@@ -915,14 +1841,45 @@ threads.
 </p>
 <!--l. 19-->
 <div class="lstlisting" id="listing-137"><span class="label"><a 
- id="x19-231002r1"></a></span>allocator = mutator.checkAllocator(org.jikesrvm.runtime.Memory.alignUp(size, MIN_ALIGNMENT), align, allocator);
+ id="x19-231002r1"></a></span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">mutator</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">checkAllocator</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">org</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">jikesrvm</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">runtime</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">Memory</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alignUp</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">size</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MIN_ALIGNMENT</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 23--><p class="noindent" >An MMTk plan in general provides several spaces where objects can be allocated,
 each with their own characteristics. Jikes RVM is free to request allocation in any of
 these spaces, but sometimes there are constraints only available on a per-allocation
-basis that might force MMTk to override Jikes RVM&#x2019;s request. For example, Jikes
+basis that might force MMTk to override Jikes RVM’s request. For example, Jikes
 RVM may specify that objects allocated by a particular class are allocated in
-MMTk&#x2019;s non-moving space. At execution time, one such object may turn
+MMTk’s non-moving space. At execution time, one such object may turn
 out to be too large for allocation in the general non-moving space provided
 by that particular plan, and so MMTk needs to promote the object to the
 Large Object Space (LOS), which is also non-moving, but has high space
@@ -931,7 +1888,33 @@ instructions.
 </p>
 <!--l. 25-->
 <div class="lstlisting" id="listing-138"><span class="label"><a 
- id="x19-231003r1"></a></span>Address region = allocateSpace(mutator, size, align, offset, allocator, site);
+ id="x19-231003r1"></a></span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">region</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocateSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">mutator</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">size</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">site</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 29--><p class="noindent" >This calls a method of <span 
 class="cmtt-10">MemoryManager</span>, common to all allocation methods (for
@@ -939,13 +1922,57 @@ Arrays and other special objects), that calls
 </p>
 <!--l. 31-->
 <div class="lstlisting" id="listing-139"><span class="label"><a 
- id="x19-231004r1"></a></span>Address region = mutator.alloc(bytes, align, offset, allocator, site);
+ id="x19-231004r1"></a></span><span 
+class="cmtt-10">Address</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">region</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">mutator</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">alloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">align</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offset</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">site</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 35--><p class="noindent" >to actually allocate memory from the current MMTk plan.
 </p>
 <!--l. 37-->
 <div class="lstlisting" id="listing-140"><span class="label"><a 
- id="x19-231005r1"></a></span>Object result = ObjectModel.initializeScalar(region, tib, size);
+ id="x19-231005r1"></a></span><span 
+class="cmtt-10">Object</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">result</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ObjectModel</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">initializeScalar</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">region</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">tib</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">size</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
                                                                   
 
                                                                   
@@ -955,9 +1982,35 @@ object, and then
 </p>
 <!--l. 43-->
 <div class="lstlisting" id="listing-141"><span class="label"><a 
- id="x19-231006r1"></a></span>mutator.postAlloc(ObjectReference.fromObject(result), ObjectReference.fromObject(tib), size, allocator);
+ id="x19-231006r1"></a></span><span 
+class="cmtt-10">mutator</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">postAlloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">fromObject</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">result</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">fromObject</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">tib</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">size</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
 </div>
-<!--l. 47--><p class="noindent" >we call MMTk&#x2019;s <span 
+<!--l. 47--><p class="noindent" >we call MMTk’s <span 
 class="cmtt-10">postAlloc </span>method to perform initialization that can only be
 performed after an object has been initialized by the virtual machine.
 </p><!--l. 51--><p class="noindent" >
@@ -972,15 +2025,15 @@ class="cmtt-10">resolvedNewScalar(int ...) </span>in the class
 class="cmtt-10">org.jikesrvm.runtime.RuntimeEntrypoints</span>. This class provides methods that are
 accessed directly by the compilers, via ﬁelds in the <span 
 class="cmtt-10">org.jikesrvm.runtime.Entrypoints</span>
-class. The &#x2019;resolved&#x2019; part of the method name indicates that the class of object being
+class. The ’resolved’ part of the method name indicates that the class of object being
 allocated is resolved at compile time (recall that the Java Language Spec requires
-that classes are only loaded, resolved etc when they are needed - sometimes it&#x2019;s
+that classes are only loaded, resolved etc when they are needed - sometimes it’s
 necessary to compile code that performs classloading and then allocate the
 object).
 </p><!--l. 55--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">RuntimeEntrypoints</span></span></span> also contains an overload, <span 
 class="cmtt-10">resolvedNewScalar(RVMClass)</span>,
-that is used by the reﬂection API to allocate objects. It&#x2019;s instructive to look at this
+that is used by the reﬂection API to allocate objects. It’s instructive to look at this
 method, as it performs essentially the same operations as the compiler when
 compiling the call to <span 
 class="cmtt-10">resolvedNewScalar(int...)</span>.
@@ -1022,17 +2075,17 @@ can be found in the paper <a
 href="http://suif.stanford.edu/~jwhaley/papers/javagrande99.pdf" >The Jalapeño Dynamic Optimizing Compiler for
 Java</a>).
 </p><!--l. 71--><p class="noindent" >In HIR (the high-level Intermediate Representation), allocation is expressed
-as a &#x2019;new&#x2019; opcode. During the translation from HIR to LIR (Low-level
+as a ’new’ opcode. During the translation from HIR to LIR (Low-level
 IR), this and other opcodes are translated into instructions by the class
 <span 
 class="cmtt-10">org.jikesrvm.compilers.opt.hir2lir.ExpandRuntimeServices</span>. The method
 <span 
 class="cmtt-10">perform(IR) </span>performs this translation, selecting particular operations via
 a large switch statement. The <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">NEW_opcode</span></span></span> case performs the task we&#x2019;re
+class="cmtt-10">NEW_opcode</span></span></span> case performs the task we’re
 interested in, doing essentially the same job as the baseline compiler, but
-generating IR rather than machine instructions. The compiler generates a &#x2019;call&#x2019;
-operation, and then (if the compilation policy decides it&#x2019;s required) inlines
+generating IR rather than machine instructions. The compiler generates a ’call’
+operation, and then (if the compilation policy decides it’s required) inlines
 it.
 </p><!--l. 73--><p class="noindent" >At this point in code generation, all the methods called by
 <span 
@@ -1054,7 +2107,7 @@ the scanning of objects, i.e. identifying and processing the pointer ﬁelds of 
 objects it encounters during collection. In principle the implementation of this
 interface is simple, but there are two moderately complex optimizations layered on
 top of this.
-</p><!--l. 7--><p class="noindent" >From MMTk&#x2019;s point of view, each time an object requires scanning it passes it to the
+</p><!--l. 7--><p class="noindent" >From MMTk’s point of view, each time an object requires scanning it passes it to the
 VM, along with a <span 
 class="cmtt-10">TransitiveClosure </span>object. The VM is expected to identify the
 pointers and invoke the <span 
@@ -1072,7 +2125,7 @@ class="cmtt-10">org.mmtk.vm.Scanning </span>as its interface to scanning objects
                                                                   
 
                                                                   
-Jikes RVM&#x2019;s implementation of this class is found under the source tree
+Jikes RVM’s implementation of this class is found under the source tree
 <span 
 class="cmtt-10">MMTk/ext/vm/jikesrvm</span>, in the class <span 
 class="cmtt-10">org.jikesrvm.mm.mmtk.Scanning</span>.
@@ -1101,9 +2154,40 @@ understanding in detail.
 </p>
 <!--l. 17-->
 <div class="lstlisting" id="listing-142"><span class="label"><a 
- id="x19-236001r1"></a></span>RVMType type = ObjectModel.getObjectType(objectRef.toObject()); <br /><span class="label"><a 
- id="x19-236002r2"></a></span>    <span 
-class="cmbx-10">int</span>[] offsets = type.getReferenceOffsets();
+ id="x19-236001r1"></a></span><span 
+class="cmtt-10">RVMType</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">type</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ObjectModel</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getObjectType</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">toObject</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236002r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10">[]</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offsets</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">type</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getReferenceOffsets</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span>
 </div>
 <!--l. 22--><p class="noindent" >This code fetches the array of oﬀsets that Jikes RVM uses to identify the pointer
 ﬁelds in the object. This array is constructed by the classloader when a class is
@@ -1112,16 +2196,71 @@ resolved.
 <!--l. 24-->
 <div class="lstlisting" id="listing-143"><span class="label"><a 
  id="x19-236003r1"></a></span><span 
-class="cmbx-10">if</span> (offsets != REFARRAY_OFFSET_ARRAY) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-236004r2"></a></span>  <span 
-class="cmbx-10">for</span>(<span 
-class="cmbx-10">int</span> i=0; i <span 
-class="cmmi-10">&#x003C;</span> offsets.length; i++) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-236005r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(offsets[i])); <br /><span class="label"><a 
- id="x19-236006r4"></a></span>  <span 
-class="cmsy-10">}</span>
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">offsets</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">!=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">REFARRAY_OFFSET_ARRAY</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236004r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">for</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10">=0;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x003C;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">offsets</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">length</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10">++)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236005r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">processEdge</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">toAddress</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">plus</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">offsets</span><span 
+class="cmtt-10">[</span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10">])</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236006r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span>
 </div>
 <!--l. 31--><p class="noindent" >One distinguished value (actually <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">null</span></span></span>) is used to identify arrays of reference objects,
@@ -1129,20 +2268,77 @@ and this block of code scans scalar objects by tracing each of the ﬁelds at th
 given by the oﬀset array. </p><!--l. 32-->
 <div class="lstlisting" id="listing-144"><span class="label"><a 
  id="x19-236007r1"></a></span><span 
-class="cmsy-10">}</span> <span 
-class="cmbx-10">else</span> <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-236008r2"></a></span>   <span 
-class="cmbx-10">for</span>(<span 
-class="cmbx-10">int</span> i=0; i <span 
-class="cmmi-10">&#x003C;</span> ObjectModel.getArrayLength(objectRef.toObject()); i++) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x19-236009r3"></a></span>    trace.processEdge(objectRef, objectRef.toAddress().plus(i <span 
-class="cmmi-10">&#x003C;&#x003C;</span> LOG_BYTES_IN_ADDRESS)); <br /><span class="label"><a 
- id="x19-236010r4"></a></span>  <span 
-class="cmsy-10">}</span> <br /><span class="label"><a 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236008r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">for</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10">=0;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x003C;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ObjectModel</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getArrayLength</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">toObject</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10">++)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236009r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">processEdge</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">objectRef</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">toAddress</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">plus</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">i</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x003C;&#x003C;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">LOG_BYTES_IN_ADDRESS</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-236010r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-236011r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 40--><p class="noindent" >The other case is reference arrays, for which we fetch the array length and scan each
 of the elements.
@@ -1155,7 +2351,7 @@ here.
 <h4 class="subsectionHead"><span class="titlemark">16.3.2   </span> <a 
  id="x19-23700016.3.2"></a>Hand Inlining</h4>
 <!--l. 48--><p class="noindent" >Hand inlining was introduced in February 2011, and uses a cute technique to encode
-3 bits of metadata into the TIB pointer in an object&#x2019;s header. The 7 most frequent
+3 bits of metadata into the TIB pointer in an object’s header. The 7 most frequent
                                                                   
 
                                                                   
@@ -1177,41 +2373,75 @@ method is <span
 class="cmtt-10">SpecializedScanMethod.invoke(...)</span>, which looks like this
 </p><!--l. 59-->
 <div class="lstlisting" id="listing-145"><span class="label"><a 
- id="x19-238001r1"></a></span>@SpecializedMethodInvoke <br /><span class="label"><a 
- id="x19-238002r2"></a></span>@NoInline <br /><span class="label"><a 
+ id="x19-238001r1"></a></span><span 
+class="cmtt-10">@SpecializedMethodInvoke</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-238002r2"></a></span><span 
+class="cmtt-10">@NoInline</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-238003r3"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">void</span> invoke(<span 
-class="cmbx-10">int</span> id, Object object, TransitiveClosure trace) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">void</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">invoke</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">id</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Object</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">TransitiveClosure</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-238004r4"></a></span><span 
-class="cmti-10"> </span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">/</span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">By</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">default</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">we</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">call</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">a</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">non</span><span 
-class="cmti-10">-</span><span 
-class="cmti-10">specialized</span><span 
-class="cmti-10"> </span><span 
-class="cmti-10">fallback</span><span 
-class="cmti-10"> </span><span 
-class="tcti-1000">∗</span><span 
-class="cmti-10">/</span> <br /><span class="label"><a 
- id="x19-238005r5"></a></span>  fallback(object, trace); <br /><span class="label"><a 
+class="cmitt-10"> </span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">/*</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">By</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">default</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">we</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">call</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">a</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">non</span><span 
+class="cmitt-10">-</span><span 
+class="cmitt-10">specialized</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">fallback</span><span 
+class="cmitt-10"> </span><span 
+class="cmitt-10">*/</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-238005r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">fallback</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-238006r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
 </div>
 <!--l. 68--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">@SpecializedMethodInvoke</span></span></span> annotation signals to the compiler that it should
@@ -1231,7 +2461,7 @@ class="cmtt-10">org.jikesrvm.classloader.SpecializedMethodManager</span>.
 of the heap and related data structures. For details of the GCspy model, see <a 
 href="http://www.cs.kent.ac.uk/pubs/2002/1426/" >GCspy:
 An adaptable heap visualisation frameworkby Tony Printezis and Richard Jones,
-OOPSLA&#x2019;02</a>. The framework comprises two components that communicate across a
+OOPSLA’02</a>. The framework comprises two components that communicate across a
 socket: a <span 
 class="cmti-10">client </span>and a <span 
 class="cmti-10">server </span>incorporated into the virtual machine of the system
@@ -1263,7 +2493,7 @@ on.
      </p><ol  class="enumerate1" >
      <li 
   class="enumerate" id="x19-240002x1">Provide  a  <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">startGCspyServer</span></span></span> method  in  that  collector&#x2019;s  plan.  That
+class="cmtt-10">startGCspyServer</span></span></span> method  in  that  collector’s  plan.  That
      method  initialises  the  GCspy  server  with  the  port  on  which  to
      communicate and a list of event names, instantiates drivers for each space,
      and then starts the server.
@@ -1276,7 +2506,7 @@ class="cmtt-10">startGCspyServer</span></span></span> method  in  that  collecto
   class="enumerate" id="x19-240006x3">Provide a driver for each space.</li></ol>
 <!--l. 20--><p class="noindent" ><span 
 class="cmti-10">Space drivers </span>handle communication between collectors and the GCspy infrastructure
-by mapping information collected by the memory manager to the space&#x2019;s streams. A
+by mapping information collected by the memory manager to the space’s streams. A
 typical space driver will:
      </p><ol  class="enumerate1" >
      <li 
@@ -1331,10 +2561,43 @@ class="cmtt-10">true</span></span></span>.
 platform. </p><!--l. 45-->
 <div class="lstlisting" id="listing-146"><span class="label"><a 
  id="x19-243001r1"></a></span><span 
-class="tcrm-1000">$</span> cd <span 
-class="tcrm-1000">$</span>RVM_ROOT <br /><span class="label"><a 
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cd</span><span 
+class="cmtt-10"> </span><span 
+class="tctt-1000">$</span><span 
+class="cmtt-10">RVM_ROOT</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-243002r2"></a></span><span 
-class="tcrm-1000">$</span> ant -Dhost.name=ia32-linux -Dconfig.name=BaseBaseSemiSpaceGCspy -Dconfig.include.gcspy-client=1
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ant</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">Dhost</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">name</span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10">ia32</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">linux</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">Dconfig</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">name</span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10">BaseBaseSemiSpaceGCspy</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">Dconfig</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">include</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">gcspy</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">client</span><span 
+class="cmtt-10">=1</span>
 </div>
 <!--l. 50--><p class="noindent" >It is also possible to build the Jikes RVM with GCSpy support but link it against a
 fake stub implementation rather than the real GCSpy implementation. This is
@@ -1350,18 +2613,72 @@ class="cmtt-10">true</span></span></span>. This is used in the nightly testing p
 server will listen on. </p><!--l. 57-->
 <div class="lstlisting" id="listing-147"><span class="label"><a 
  id="x19-244001r1"></a></span><span 
-class="tcrm-1000">$</span> cd <span 
-class="tcrm-1000">$</span>RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux <br /><span class="label"><a 
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cd</span><span 
+class="cmtt-10"> </span><span 
+class="tctt-1000">$</span><span 
+class="cmtt-10">RVM_ROOT</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">dist</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">BaseBaseSemiSpaceGCspy_ia32</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">linux</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-244002r2"></a></span><span 
-class="tcrm-1000">$</span> ./rvm -Xms20m -X:gc:gcspyPort=3000 -X:gc:gcspyWait=true &#x0026;
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">./</span><span 
+class="cmtt-10">rvm</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">Xms20m</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">X</span><span 
+class="cmtt-10">:</span><span 
+class="cmtt-10">gc</span><span 
+class="cmtt-10">:</span><span 
+class="cmtt-10">gcspyPort</span><span 
+class="cmtt-10">=3000</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">X</span><span 
+class="cmtt-10">:</span><span 
+class="cmtt-10">gc</span><span 
+class="cmtt-10">:</span><span 
+class="cmtt-10">gcspyWait</span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">&#x0026;</span>
 </div>
 <!--l. 62--><p class="noindent" >Then you need to start the GCspy visualiser client. </p><!--l. 63-->
 <div class="lstlisting" id="listing-148"><span class="label"><a 
  id="x19-244003r1"></a></span><span 
-class="tcrm-1000">$</span> cd <span 
-class="tcrm-1000">$</span>RVM_ROOT/dist/BaseBaseSemiSpaceGCspy_ia32-linux <br /><span class="label"><a 
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">cd</span><span 
+class="cmtt-10"> </span><span 
+class="tctt-1000">$</span><span 
+class="cmtt-10">RVM_ROOT</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">dist</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">BaseBaseSemiSpaceGCspy_ia32</span><span 
+class="cmtt-10">-</span><span 
+class="cmtt-10">linux</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x19-244004r2"></a></span><span 
-class="tcrm-1000">$</span> ./tools/gcspy/gcspy
+class="tctt-1000">$</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">./</span><span 
+class="cmtt-10">tools</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">gcspy</span><span 
+class="cmtt-10">/</span><span 
+class="cmtt-10">gcspy</span>
 </div>
 <!--l. 68--><p class="noindent" >After this you can specify the port and host to connect to (i.e. localhost:3000) and
 click the ”Connect” button in the bottom right-hand corner of the visualiser.
@@ -1445,12 +2762,12 @@ override <span class="obeylines-h"><span class="verb"><span
 class="cmtt-10">collectionPhase</span></span></span>.
 </p><!--l. 109--><p class="noindent" >Similarly, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">SSGCspyMutator</span></span></span> extends <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">SSMutator</span></span></span> and must also override its parent&#x2019;s
+class="cmtt-10">SSMutator</span></span></span> and must also override its parent’s
 methods <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">collectionPhase</span></span></span>, to allow the allocators to collect data; and its
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">alloc</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">postAlloc</span></span></span> methods to allocate GCspy objects in GCspy&#x2019;s heap
+class="cmtt-10">postAlloc</span></span></span> methods to allocate GCspy objects in GCspy’s heap
 space.
 </p><!--l. 111--><p class="noindent" >
 </p>
@@ -1468,7 +2785,7 @@ class="cmtt-10">server.init(name, portNumber,</span>
      <span 
 class="cmtt-10">verbose);</span></span></span>
      </li>
-     <li class="itemize">Add   each   event   to   the   ServerInterpreter   (‘server&#x2019;   for   short)
+     <li class="itemize">Add   each   event   to   the   ServerInterpreter   (‘server’   for   short)
      <span 
 class="cmtt-10">server.addEvent(eventID, eventName);</span>
      </li>
@@ -1498,7 +2815,7 @@ class="cmtt-10">SSGCspyCollector</span></span></span> and
 class="cmtt-10">SSGCspyMutator</span></span></span>.
 </p><!--l. 129--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">SSGCspyCollector</span></span></span> deals with the data in the semi-spaces that has been allocated
-there (copied) by the collector. It only does any real work at the end of the collector&#x2019;s
+there (copied) by the collector. It only does any real work at the end of the collector’s
 last tracing phase, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">FORWARD_FINALIZABLE</span></span></span>.
 </p><!--l. 131--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
@@ -1524,7 +2841,7 @@ the immortal and large object spaces.
      </li>
      <li 
   class="enumerate" id="x19-248008x4"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">SSGCspyCollector</span></span></span> does not call the GCspy server&#x2019;s <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">SSGCspyCollector</span></span></span> does not call the GCspy server’s <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">serverSafepoint</span></span></span>
      method, as the collector phase is usually followed by a mutator phase.
      Instead, <span class="obeylines-h"><span class="verb"><span 
@@ -1534,14 +2851,14 @@ class="cmtt-10">SSGCspyMutator</span></span></span> to indicate
 <!--l. 141--><p class="noindent" >Gathering data will vary from MMTk space to space. It will typically be necessary to
 resize a space before gathering data. For a space, </p>
      <ul class="itemize1">
-     <li class="itemize">We may need to reset the GCspy driver&#x2019;s data depending on the collection
+     <li class="itemize">We may need to reset the GCspy driver’s data depending on the collection
      phase.
      </li>
      <li class="itemize">We will pass the driver as a call-back to the allocator. The allocator will
      typically ask the driver to set the range of addresses from which we want
-     to gather data, using the driver&#x2019;s setRange method. The driver should
+     to gather data, using the driver’s setRange method. The driver should
      then iterate through its MMTk space, passing a reference to each object
-     found to the driver&#x2019;s scan method.</li></ul>
+     found to the driver’s scan method.</li></ul>
 <!--l. 149--><p class="noindent" >
 </p>
 <h5 class="subsubsectionHead"><a 
@@ -1582,7 +2899,7 @@ class="cmtt-10">int</span></span></span>, implemented through classes
 <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ByteStream</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ShortStream</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">IntStream</span></span></span>. A driver&#x2019;s transmit method will
+class="cmtt-10">IntStream</span></span></span>. A driver’s transmit method will
 typically:
      </p><ol  class="enumerate1" >
      <li 
@@ -1598,8 +2915,31 @@ class="cmtt-10">stream.setSummary(values...);</span>
      <li 
   class="enumerate" id="x19-249010x3">Setup the control information for each tile. e.g. <!--l. 166-->
      <div class="lstlisting" id="listing-149"><span class="label"><a 
- id="x19-249011r1"></a></span>controlValues(CONTROL_USED, start, numBlocks); <br /><span class="label"><a 
- id="x19-249012r2"></a></span>controlValues(CONTROL_UNUSED, end, remainingBlocks);
+ id="x19-249011r1"></a></span><span 
+class="cmtt-10">controlValues</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">CONTROL_USED</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">start</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">numBlocks</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x19-249012r2"></a></span><span 
+class="cmtt-10">controlValues</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">CONTROL_UNUSED</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">end</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">remainingBlocks</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
      
      </div>
      </li>

@@ -9,8 +9,8 @@ layout: default
 > 
 <head><title>19 Building a Mark-sweep Collector</title> 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" /> 
-<meta name="generator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
-<meta name="originator" content="TeX4ht (http://www.tug.org/tex4ht/)" /> 
+<meta name="generator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
+<meta name="originator" content="TeX4ht (https://tug.org/tex4ht/)" /> 
 <!-- xhtml,charset=utf8,2,html --> 
 <meta name="src" content="index.tex" /> 
 <link rel="stylesheet" type="text/css" href="index.css" /> 
@@ -88,7 +88,32 @@ class="tcrm-1000">→</span> Rename...)
   class="enumerate" id="x23-261010x3">change the type and static initialization of <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">msSpace</span></span></span> to <!--l. 23-->
          <div class="lstlisting" id="listing-154"><span class="label"><a 
- id="x23-261011r1"></a></span>public static final MarkSweepSpace msSpace = new MarkSweepSpace(”ms”, VMRequest.discontiguous());
+ id="x23-261011r1"></a></span><span 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepSpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">new</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">MarkSweepSpace</span><span 
+class="cmtt-10">(&#x0022;</span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">&#x0022;,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">VMRequest</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">discontiguous</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
@@ -130,17 +155,62 @@ class="cmtt-10">postAlloc()</span></span></span> to initialize the mark-sweep he
      <!--l. 35-->
      <div class="lstlisting" id="listing-155"><span class="label"><a 
  id="x23-261024r1"></a></span><span 
-class="cmbx-10">if</span> (allocator == Tutorial.ALLOC_DEFAULT) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261025r2"></a></span>  Tutorial.msSpace.postAlloc(ref); <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">ALLOC_DEFAULT</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-261025r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">postAlloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ref</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-261026r3"></a></span><span 
-class="cmsy-10">}</span> <span 
-class="cmbx-10">else</span> <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-261027r4"></a></span>  <span 
-class="cmbx-10">super</span>.postAlloc(ref, typeRef, bytes, allocator); <br /><span class="label"><a 
+class="cmtt-10">}</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">else</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-261027r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">postAlloc</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ref</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">typeRef</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">bytes</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">allocator</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-261028r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
      
      </div>
      </li>
@@ -175,9 +245,15 @@ class="cmtt-10">TutorialConstraints</span></span></span> so that it inherits con
      plan: <!--l. 54-->
      <div class="lstlisting" id="listing-156"><span class="label"><a 
  id="x23-262003r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">class</span> TutorialConstraints <span 
-class="cmbx-10">extends</span> StopTheWorldConstraints
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">class</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">TutorialConstraints</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">extends</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">StopTheWorldConstraints</span>
      
      </div>
                                                                   
@@ -204,9 +280,15 @@ class="cmtt-10">StopTheWorld</span></span></span>):
          <!--l. 60-->
          <div class="lstlisting" id="listing-157"><span class="label"><a 
  id="x23-262008r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">class</span> Tutorial <span 
-class="cmbx-10">extends</span> StopTheWorld
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">class</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">extends</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">StopTheWorld</span>
          
          </div>
          </li>
@@ -241,17 +323,57 @@ class="cmtt-10">Tutorial.collectionPhase()</span>, set the following within the 
 class="cmtt-10">phaseId == PREPARE</span></span></span>: <!--l. 68-->
              <div class="lstlisting" id="listing-158"><span class="label"><a 
  id="x23-262017r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == PREPARE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262018r2"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x23-262019r3"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
- id="x23-262020r4"></a></span>  msSpace.prepare(<span 
-class="cmbx-10">true</span>); <br /><span class="label"><a 
- id="x23-262021r5"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">PREPARE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262018r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262019r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262020r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262021r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262022r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -261,13 +383,35 @@ class="cmtt-10">msTrace</span></span></span>):
              <!--l. 77-->
              <div class="lstlisting" id="listing-159"><span class="label"><a 
  id="x23-262025r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == CLOSURE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262026r2"></a></span>  msTrace.prepare(); <br /><span class="label"><a 
- id="x23-262027r3"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">CLOSURE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262026r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262027r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262028r4"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -279,16 +423,55 @@ class="cmtt-10">msSpace</span></span></span>) before performing the release phas
              the superclass: <!--l. 84-->
              <div class="lstlisting" id="listing-160"><span class="label"><a 
  id="x23-262031r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == RELEASE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262032r2"></a></span>  msTrace.release(); <br /><span class="label"><a 
- id="x23-262033r3"></a></span>  msSpace.release(); <br /><span class="label"><a 
- id="x23-262034r4"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId); <br /><span class="label"><a 
- id="x23-262035r5"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">RELEASE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262032r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msTrace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262033r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262034r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262035r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262036r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
                                                                   
@@ -301,7 +484,13 @@ class="cmsy-10">}</span>
              conditionals: <!--l. 93-->
              <div class="lstlisting" id="listing-161"><span class="label"><a 
  id="x23-262039r1"></a></span><span 
-class="cmbx-10">super</span>.collectionPhase(phaseId);
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
              
              </div>
              </li></ol>
@@ -313,16 +502,39 @@ class="cmtt-10">getPagesUsed</span></span></span>,
          overrides the one provided in the <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">StopTheWorld</span></span></span> superclass: <!--l. 98-->
          <div class="lstlisting" id="listing-162"><span class="label"><a 
- id="x23-262042r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-262042r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262043r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">int</span> getPagesUsed() <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262044r3"></a></span>  <span 
-class="cmbx-10">return</span> <span 
-class="cmbx-10">super</span>.getPagesUsed() + msSpace.reservedPages(); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">getPagesUsed</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262044r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">getPagesUsed</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">+</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">msSpace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">reservedPages</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262045r4"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
          
          </div>
          </li>
@@ -330,21 +542,64 @@ class="cmsy-10">}</span>
   class="enumerate" id="x23-262047x5">Add a new method that determines whether an object will move during
          collection: <!--l. 105-->
          <div class="lstlisting" id="listing-163"><span class="label"><a 
- id="x23-262048r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-262048r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262049r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">boolean</span> willNeverMove(ObjectReference object) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262050r3"></a></span>  <span 
-class="cmbx-10">if</span> (Space.isInSpace(MARK_SWEEP, object)) <br /><span class="label"><a 
- id="x23-262051r4"></a></span>    <span 
-class="cmbx-10">return</span> <span 
-class="cmbx-10">true</span>; <br /><span class="label"><a 
- id="x23-262052r5"></a></span>  <span 
-class="cmbx-10">return</span> <span 
-class="cmbx-10">super</span>.willNeverMove(object); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">boolean</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">willNeverMove</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">ObjectReference</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262050r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Space</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">isInSpace</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">MARK_SWEEP</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262051r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">true</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262052r5"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">willNeverMove</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">object</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262053r6"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
          
          </div>
          </li></ol>
@@ -408,15 +663,51 @@ class="cmtt-10">TutorialCollector.collectionPhase()</span>, set the following wi
 class="cmtt-10">phaseId == PREPARE</span></span></span>: <!--l. 126-->
              <div class="lstlisting" id="listing-164"><span class="label"><a 
  id="x23-262070r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == Tutorial.PREPARE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262071r2"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-262072r3"></a></span>  trace.prepare(); <br /><span class="label"><a 
- id="x23-262073r4"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">PREPARE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262071r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262072r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262073r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262074r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -426,13 +717,37 @@ class="cmtt-10">trace</span></span></span>):
              <!--l. 134-->
              <div class="lstlisting" id="listing-165"><span class="label"><a 
  id="x23-262077r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == Tutorial.CLOSURE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262078r2"></a></span>  trace.completeTrace(); <br /><span class="label"><a 
- id="x23-262079r3"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">CLOSURE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262078r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">completeTrace</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262079r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262080r4"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -443,15 +758,51 @@ class="cmtt-10">trace</span></span></span>) before
              <!--l. 141-->
              <div class="lstlisting" id="listing-166"><span class="label"><a 
  id="x23-262083r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == Tutorial.RELEASE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262084r2"></a></span>  trace.release(); <br /><span class="label"><a 
- id="x23-262085r3"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-262086r4"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">RELEASE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262084r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262085r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262086r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262087r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -461,7 +812,16 @@ class="cmsy-10">}</span>
              conditionals: <!--l. 149-->
              <div class="lstlisting" id="listing-167"><span class="label"><a 
  id="x23-262090r1"></a></span><span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary);
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
              
              </div>
              </li></ol>
@@ -508,15 +868,51 @@ class="cmtt-10">collectionPhase()</span></span></span> which prepares
              startof a collection: <!--l. 165-->
              <div class="lstlisting" id="listing-168"><span class="label"><a 
  id="x23-262105r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == Tutorial.PREPARE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262106r2"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-262107r3"></a></span>  ms.prepare(); <br /><span class="label"><a 
- id="x23-262108r4"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">PREPARE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262106r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262107r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">prepare</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262108r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262109r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -527,15 +923,51 @@ class="cmtt-10">collectionPhase()</span></span></span> which re-initializes
              the end of a collection: <!--l. 173-->
              <div class="lstlisting" id="listing-169"><span class="label"><a 
  id="x23-262112r1"></a></span><span 
-class="cmbx-10">if</span> (phaseId == Tutorial.RELEASE) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-262113r2"></a></span>  ms.release(); <br /><span class="label"><a 
- id="x23-262114r3"></a></span>  <span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary); <br /><span class="label"><a 
- id="x23-262115r4"></a></span>  <span 
-class="cmbx-10">return</span>; <br /><span class="label"><a 
+class="cmtt-10">if</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">==</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">RELEASE</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262113r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">ms</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">release</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262114r3"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-262115r4"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-262116r5"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
              
              </div>
              </li>
@@ -543,7 +975,16 @@ class="cmsy-10">}</span>
   class="enumerate" id="x23-262118x4">Finally, delegate all other phases to the superclass: <!--l. 181-->
              <div class="lstlisting" id="listing-170"><span class="label"><a 
  id="x23-262119r1"></a></span><span 
-class="cmbx-10">super</span>.collectionPhase(phaseId, primary);
+class="cmtt-10">super</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">collectionPhase</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">phaseId</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">primary</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
              
              </div>
              </li></ol>
@@ -598,13 +1039,24 @@ class="cmtt-10">numSpecializedScans()</span></span></span> getter method in
          <span 
 class="cmtt-10">TutorialConstraints</span>: <!--l. 199-->
          <div class="lstlisting" id="listing-171"><span class="label"><a 
- id="x23-263005r1"></a></span>@Override <br /><span class="label"><a 
+ id="x23-263005r1"></a></span><span 
+class="cmtt-10">@Override</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-263006r2"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">int</span> numSpecializedScans() <span 
-class="cmsy-10">{</span> <span 
-class="cmbx-10">return</span> 1; <span 
-class="cmsy-10">}</span>
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">numSpecializedScans</span><span 
+class="cmtt-10">()</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">return</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">1;</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">}</span>
          
          </div>
          </li>
@@ -614,10 +1066,19 @@ class="cmtt-10">Tutorial</span></span></span> (we
          will call this scan ”mark”): <!--l. 204-->
          <div class="lstlisting" id="listing-172"><span class="label"><a 
  id="x23-263009r1"></a></span><span 
-class="cmbx-10">public</span> <span 
-class="cmbx-10">static</span> <span 
-class="cmbx-10">final</span> <span 
-class="cmbx-10">int</span> SCAN_MARK = 0;
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">static</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">final</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">int</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">SCAN_MARK</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">=</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">0;</span>
          
          </div>
          </li></ol>
@@ -631,8 +1092,19 @@ class="cmtt-10">registerSpecializedMethods()</span></span></span> method in
          <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">Tutorial</span></span></span>: <!--l. 211-->
          <div class="lstlisting" id="listing-173"><span class="label"><a 
- id="x23-263014r1"></a></span>TransitiveClosure.registerSpecializedScan(SCAN_MARK, TutorialTraceLocal.<span 
-class="cmbx-10">class</span>);
+ id="x23-263014r1"></a></span><span 
+class="cmtt-10">TransitiveClosure</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">registerSpecializedScan</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">SCAN_MARK</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">TutorialTraceLocal</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">class</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span>
          
          </div>
          </li>
@@ -643,12 +1115,33 @@ class="cmtt-10">Tutorial.SCAN_MARK</span></span></span> as the ﬁrst argument t
 class="cmtt-10">TutorialTraceLocal</span></span></span>: <!--l. 215-->
          <div class="lstlisting" id="listing-174"><span class="label"><a 
  id="x23-263017r1"></a></span><span 
-class="cmbx-10">public</span> TutorialTraceLocal(Trace trace) <span 
-class="cmsy-10">{</span> <br /><span class="label"><a 
- id="x23-263018r2"></a></span>  <span 
-class="cmbx-10">super</span>(Tutorial.SCAN_MARK, trace); <br /><span class="label"><a 
+class="cmtt-10">public</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">TutorialTraceLocal</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Trace</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">{</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
+ id="x23-263018r2"></a></span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">super</span><span 
+class="cmtt-10">(</span><span 
+class="cmtt-10">Tutorial</span><span 
+class="cmtt-10">.</span><span 
+class="cmtt-10">SCAN_MARK</span><span 
+class="cmtt-10">,</span><span 
+class="cmtt-10"> </span><span 
+class="cmtt-10">trace</span><span 
+class="cmtt-10">)</span><span 
+class="cmtt-10">;</span><span 
+class="cmtt-10"> </span><br /><span class="label"><a 
  id="x23-263019r3"></a></span><span 
-class="cmsy-10">}</span>
+class="cmtt-10">}</span>
          
          </div>
          </li></ol>
